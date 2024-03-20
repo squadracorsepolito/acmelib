@@ -51,7 +51,7 @@ func Test_Message_AppendSignal(t *testing.T) {
 	t.Log(msg.String())
 	assert.Error(msg.AppendSignal(exidingSig))
 
-	results := msg.ListSignals(SignalsByPosition)
+	results := msg.SignalsByPosition()
 	assert.Equal(len(results), 5)
 	for idx, sig := range results {
 		assert.Equal(sig.Name, sigNames[idx])
@@ -98,7 +98,7 @@ func Test_Message_InsertSignalAtPosition(t *testing.T) {
 
 	correctOrder := []string{"sig_0", "sig_3", "sig_2", "sig_1", "sig_4"}
 
-	results := msg.ListSignals(SignalsByPosition)
+	results := msg.SignalsByPosition()
 	assert.Equal(len(results), 5)
 	for idx, sig := range results {
 		assert.Equal(sig.Name, correctOrder[idx])
@@ -149,16 +149,15 @@ func Test_Message_InsertSignalAtStartBit(t *testing.T) {
 	assert.Error(msg.InsertSignalAtStartBit(exidingSig, 64))
 
 	correctOrder := []string{"sig_0", "sig_3", "sig_2", "sig_1", "sig_4"}
-	//	t.Log(msg.String())
 
-	results := msg.ListSignals(SignalsByPosition)
+	results := msg.SignalsByPosition()
 	assert.Equal(len(results), 5)
 	for idx, sig := range results {
 		assert.Equal(sig.Name, correctOrder[idx])
 		assert.Equal(sig.Position, idx)
 	}
 
-	//t.Log(msg.String())
+	t.Log(msg.String())
 }
 
 func Test_Message_RemoveSignal(t *testing.T) {
@@ -183,12 +182,12 @@ func Test_Message_RemoveSignal(t *testing.T) {
 	assert.NoError(msg.AppendSignal(sig3))
 	assert.NoError(msg.AppendSignal(sig4))
 
-	assert.NoError(msg.RemoveSignal(sig2.ID))
+	assert.NoError(msg.RemoveSignal(sig2.EntityID))
 	assert.Error(msg.RemoveSignal(EntityID("invalid_entity_id")))
 
 	correctOrder := []string{"sig_0", "sig_1", "sig_3", "sig_4"}
 
-	results := msg.ListSignals(SignalsByPosition)
+	results := msg.SignalsByPosition()
 	assert.Equal(len(results), 4)
 	for idx, sig := range results {
 		assert.Equal(sig.Name, correctOrder[idx])
@@ -217,7 +216,7 @@ func Test_Message_CompactSignals(t *testing.T) {
 
 	correctStartBits := []int{0, 8, 16}
 
-	for idx, sig := range msg.ListSignals(SignalsByPosition) {
+	for idx, sig := range msg.SignalsByPosition() {
 		assert.Equal(sig.StartBit, correctStartBits[idx])
 	}
 
@@ -241,7 +240,7 @@ func Test_Message_GetAvailableSignalPositions(t *testing.T) {
 
 	positions := msg.GetAvailableSignalPositions()
 
-	correctPositions := []*SignalPosition{{0, 1}, {10, 17}, {34, 63}}
+	correctPositions := []*SignalPosition{NewSignalPosition(0, 1), NewSignalPosition(10, 17), NewSignalPosition(34, 63)}
 
 	assert.Equal(len(positions), 3)
 	for idx, pos := range positions {

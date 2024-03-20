@@ -2,43 +2,31 @@ package acmelib
 
 import "fmt"
 
-type BusSortingMethod string
-
-const (
-	BusesByName       BusSortingMethod = "buses_by_name"
-	BusesByCreatedAt  BusSortingMethod = "buses_by_created_at"
-	BusesByModifiedAt BusSortingMethod = "buses_by_modified_at"
-)
-
-func newBusSorter() *entitySorter[BusSortingMethod, *Bus] {
-	return newEntitySorter(
-		newEntitySorterMethod(BusesByName, func(buses []*Bus) []*Bus { return sortByName(buses) }),
-		newEntitySorterMethod(BusesByCreatedAt, func(buses []*Bus) []*Bus { return sortByCreateTime(buses) }),
-		newEntitySorterMethod(BusesByModifiedAt, func(buses []*Bus) []*Bus { return sortByUpdateTime(buses) }),
-	)
-}
-
 type Bus struct {
 	*entity
 	ParentProject *Project
 
-	nodes *entityCollection[*Node, NodeSortingMethod]
+	nodes *entityCollection[*Node]
 }
 
 func NewBus(name, desc string) *Bus {
 	return &Bus{
 		entity: newEntity(name, desc),
 
-		nodes: newEntityCollection(newNodeSorter()),
+		nodes: newEntityCollection[*Node](),
 	}
 }
 
 func (b *Bus) errorf(err error) error {
-	return b.ParentProject.errorf(fmt.Errorf("bus %s: %v", b.Name, err))
+	busErr := fmt.Errorf(`bus "%s": %v`, b.Name, err)
+	if b.ParentProject != nil {
+		return b.ParentProject.errorf(busErr)
+	}
+	return busErr
 }
 
 func (b *Bus) UpdateName(name string) error {
-	if err := b.ParentProject.buses.updateName(b.ID, b.Name, name); err != nil {
+	if err := b.ParentProject.buses.updateEntityName(b.EntityID, b.Name, name); err != nil {
 		return b.errorf(err)
 	}
 
@@ -50,14 +38,14 @@ func (b *Bus) AddNode(node *Node) error {
 		return b.errorf(err)
 	}
 
-	node.ParentNode = b
+	node.ParentBus = b
 	b.setUpdateTimeNow()
 
 	return nil
 }
 
-func (b *Bus) ListNodes(sortingMethod NodeSortingMethod) []*Node {
-	return b.nodes.listEntities(sortingMethod)
+func (b *Bus) ListNodes() []*Node {
+	return b.nodes.listEntities()
 }
 
 func (b *Bus) RemoveNode(nodeID EntityID) error {

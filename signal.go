@@ -2,33 +2,7 @@ package acmelib
 
 import (
 	"fmt"
-	"log"
-	"slices"
 )
-
-type SignalSortingMethod string
-
-const (
-	SignalsByName       SignalSortingMethod = "signals_by_name"
-	SignalsByCreateTime SignalSortingMethod = "signals_by_create_time"
-	SignalsByUpdateTime SignalSortingMethod = "signals_by_update_time"
-	SignalsByPosition   SignalSortingMethod = "signals_by_position"
-)
-
-func sortSignalsByPosition(signals []*Signal) []*Signal {
-	log.Print("POSITION SORT")
-	slices.SortFunc(signals, func(a, b *Signal) int { return a.StartBit - b.StartBit })
-	return signals
-}
-
-func newSignalSorter() *entitySorter[SignalSortingMethod, *Signal] {
-	return newEntitySorter(
-		newEntitySorterMethod(SignalsByName, func(signals []*Signal) []*Signal { return sortByName(signals) }),
-		newEntitySorterMethod(SignalsByCreateTime, func(signals []*Signal) []*Signal { return sortByCreateTime(signals) }),
-		newEntitySorterMethod(SignalsByUpdateTime, func(signals []*Signal) []*Signal { return sortByUpdateTime(signals) }),
-		newEntitySorterMethod(SignalsByPosition, func(signals []*Signal) []*Signal { return sortSignalsByPosition(signals) }),
-	)
-}
 
 type SignalKind string
 
@@ -37,6 +11,22 @@ const (
 	SignalKindEnum        SignalKind = "signal_enum"
 	SignalKindMultiplexed SignalKind = "signal_multiplexed"
 )
+
+type SignalPosition struct {
+	From int
+	To   int
+
+	size int
+}
+
+func NewSignalPosition(from, to int) *SignalPosition {
+	return &SignalPosition{
+		From: from,
+		To:   to,
+
+		size: to - from,
+	}
+}
 
 type Signal struct {
 	*entity
@@ -68,11 +58,15 @@ func NewStandardSignal(name, desc string, typ *SignalType, min, max, offset, sca
 }
 
 func (s *Signal) errorf(err error) error {
-	return s.ParentMessage.errorf(fmt.Errorf("signal %s: %v", s.Name, err))
+	sigErr := fmt.Errorf(`signal "%s": %v`, s.Name, err)
+	if s.ParentMessage != nil {
+		return s.ParentMessage.errorf(sigErr)
+	}
+	return sigErr
 }
 
 func (s *Signal) UpdateName(name string) error {
-	if err := s.ParentMessage.signals.updateName(s.ID, s.Name, name); err != nil {
+	if err := s.ParentMessage.signals.updateEntityName(s.EntityID, s.Name, name); err != nil {
 		return s.errorf(err)
 	}
 
@@ -84,7 +78,7 @@ func (s *Signal) UpdatePosition(pos int) error {
 		return nil
 	}
 
-	signals := s.ParentMessage.ListSignals(SignalsByPosition)
+	signals := s.ParentMessage.SignalsByPosition()
 	sigCount := len(signals)
 
 	if pos >= sigCount {
@@ -92,7 +86,7 @@ func (s *Signal) UpdatePosition(pos int) error {
 	}
 
 	for idx, sig := range signals {
-		if sig.ID == s.ID {
+		if sig.EntityID == s.EntityID {
 			for i := idx + 1; i < sigCount; i++ {
 				tmpSig := signals[i]
 				if tmpSig.Position <= pos {

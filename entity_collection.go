@@ -2,123 +2,99 @@ package acmelib
 
 import (
 	"fmt"
-	"sync"
 
 	"golang.org/x/exp/maps"
 )
 
 type collectableEntity interface {
-	getID() EntityID
+	getEntityID() EntityID
 	getName() string
 }
 
-type entityCollection[E collectableEntity, SM ~string] struct {
-	entityMap map[EntityID]E
-	nameSet   map[string]EntityID
-
-	sorter                  *entitySorter[SM, E]
-	availableSortingMethods []SM
-	sortedMux               sync.RWMutex
-	sortedEntities          map[SM][]E
+type entityCollection[E collectableEntity] struct {
+	entities    map[EntityID]E
+	entityNames map[string]EntityID
 }
 
-func newEntityCollection[E collectableEntity, SM ~string](sorter *entitySorter[SM, E]) *entityCollection[E, SM] {
-	return &entityCollection[E, SM]{
-		entityMap: make(map[EntityID]E),
-		nameSet:   make(map[string]EntityID),
-
-		sorter:                  sorter,
-		availableSortingMethods: sorter.listSortingMethodNames(),
-		sortedEntities:          make(map[SM][]E),
+func newEntityCollection[E collectableEntity]() *entityCollection[E] {
+	return &entityCollection[E]{
+		entities:    make(map[EntityID]E),
+		entityNames: make(map[string]EntityID),
 	}
 }
 
-func (ec *entityCollection[E, SM]) size() int {
-	return len(ec.entityMap)
+func (ec *entityCollection[E]) size() int {
+	return len(ec.entities)
 }
 
-func (ec *entityCollection[E, SM]) updateSortedEntities() {
-	ec.sortedMux.Lock()
-	defer ec.sortedMux.Unlock()
-
-	entities := maps.Values(ec.entityMap)
-	for _, sm := range ec.availableSortingMethods {
-		ec.sortedEntities[sm] = ec.sorter.sortEntities(sm, entities)
-	}
+func (ec *entityCollection[E]) listEntities() []E {
+	return maps.Values(ec.entities)
 }
 
-func (ec *entityCollection[E, SM]) listEntities(sortingMethod SM) []E {
-	ec.sortedMux.RLock()
-	defer ec.sortedMux.RUnlock()
-
-	if sorted, ok := ec.sortedEntities[sortingMethod]; ok {
-		return sorted
-	}
-
-	return maps.Values(ec.entityMap)
-}
-
-func (ec *entityCollection[E, SM]) verifyName(name string) error {
-	if _, ok := ec.nameSet[name]; ok {
+func (ec *entityCollection[E]) verifyEntityName(name string) error {
+	if _, ok := ec.entityNames[name]; ok {
 		return fmt.Errorf(`duplicated name "%s"`, name)
 	}
 	return nil
 }
 
-func (ec *entityCollection[E, SM]) addEntity(entity E) error {
+func (ec *entityCollection[E]) addEntity(entity E) error {
 	name := entity.getName()
-	if err := ec.verifyName(name); err != nil {
+	if err := ec.verifyEntityName(name); err != nil {
 		return err
 	}
 
-	id := entity.getID()
-	if _, ok := ec.entityMap[id]; ok {
+	id := entity.getEntityID()
+	if _, ok := ec.entities[id]; ok {
 		return fmt.Errorf(`duplicated id "%s"`, id)
 	}
 
-	ec.entityMap[id] = entity
-	ec.nameSet[name] = id
-
-	ec.updateSortedEntities()
+	ec.entities[id] = entity
+	ec.entityNames[name] = id
 
 	return nil
 }
 
-func (ec *entityCollection[E, SM]) removeEntity(id EntityID) error {
+func (ec *entityCollection[E]) removeEntity(id EntityID) error {
 	e, err := ec.getEntityByID(id)
 	if err != nil {
 		return err
 	}
 
-	delete(ec.nameSet, e.getName())
-	delete(ec.entityMap, id)
-
-	ec.updateSortedEntities()
+	delete(ec.entityNames, e.getName())
+	delete(ec.entities, id)
 
 	return nil
 }
 
-func (ec *entityCollection[E, SM]) updateName(id EntityID, oldName, newName string) error {
+func (ec *entityCollection[E]) updateEntityName(id EntityID, oldName, newName string) error {
 	if oldName == newName {
 		return fmt.Errorf(`"%s" is not a new name`, newName)
 	}
 
-	if err := ec.verifyName(newName); err != nil {
+	if err := ec.verifyEntityName(newName); err != nil {
 		return err
 	}
 
-	ec.nameSet[newName] = id
-	delete(ec.nameSet, oldName)
-
-	ec.updateSortedEntities()
+	ec.entityNames[newName] = id
+	delete(ec.entityNames, oldName)
 
 	return nil
 }
 
-func (ec *entityCollection[E, SM]) getEntityByID(id EntityID) (E, error) {
-	e, ok := ec.entityMap[id]
+func (ec *entityCollection[E]) getEntityByID(id EntityID) (e E, err error) {
+	e, ok := ec.entities[id]
 	if ok {
 		return e, nil
 	}
 	return e, fmt.Errorf(`id "%s" not found`, id)
+}
+
+func (ec *entityCollection[E]) getEntityByName(name string) (e E, err error) {
+	id, ok := ec.entityNames[name]
+	if !ok {
+		return e, fmt.Errorf(`name "%s" not found`, name)
+	}
+
+	return ec.getEntityByID(id)
 }

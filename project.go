@@ -5,19 +5,19 @@ import "fmt"
 type Project struct {
 	*entity
 
-	buses *entityCollection[*Bus, BusSortingMethod]
+	buses *entityCollection[*Bus]
 }
 
 func NewProject(name, desc string) *Project {
 	return &Project{
 		entity: newEntity(name, desc),
 
-		buses: newEntityCollection(newBusSorter()),
+		buses: newEntityCollection[*Bus](),
 	}
 }
 
 func (p *Project) errorf(err error) error {
-	return fmt.Errorf("project %s: %v", p.Name, err)
+	return fmt.Errorf(`project "%s": %v`, p.Name, err)
 }
 
 func (p *Project) AddBus(bus *Bus) error {
@@ -31,8 +31,8 @@ func (p *Project) AddBus(bus *Bus) error {
 	return nil
 }
 
-func (p *Project) ListBuses(sortingMethod BusSortingMethod) []*Bus {
-	return p.buses.listEntities(sortingMethod)
+func (p *Project) ListBuses() []*Bus {
+	return p.buses.listEntities()
 }
 
 func (p *Project) RemoveBus(busID EntityID) error {

@@ -2,30 +2,15 @@ package acmelib
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
-
-type MessageSortingMethod string
-
-const (
-	MessagesByName       MessageSortingMethod = "messages_by_name"
-	MessagesByCreateTime MessageSortingMethod = "messages_by_create_time"
-	MessagesByUpdateTime MessageSortingMethod = "messages_by_update_time"
-)
-
-func newMessageSorter() *entitySorter[MessageSortingMethod, *Message] {
-	return newEntitySorter(
-		newEntitySorterMethod(MessagesByName, func(messages []*Message) []*Message { return sortByName(messages) }),
-		newEntitySorterMethod(MessagesByCreateTime, func(messages []*Message) []*Message { return sortByCreateTime(messages) }),
-		newEntitySorterMethod(MessagesByUpdateTime, func(messages []*Message) []*Message { return sortByUpdateTime(messages) }),
-	)
-}
 
 type Message struct {
 	*entity
 	ParentMessage *Node
 
-	signals *entityCollection[*Signal, SignalSortingMethod]
+	signals *entityCollection[*Signal]
 
 	Size int
 
@@ -36,7 +21,7 @@ func NewMessage(name, desc string, size int) *Message {
 	return &Message{
 		entity: newEntity(name, desc),
 
-		signals: newEntityCollection(newSignalSorter()),
+		signals: newEntityCollection[*Signal](),
 
 		Size: size,
 
@@ -45,7 +30,7 @@ func NewMessage(name, desc string, size int) *Message {
 }
 
 func (m *Message) errorf(err error) error {
-	msgErr := fmt.Errorf("message %s: %v", m.Name, err)
+	msgErr := fmt.Errorf(`message "%s": %v`, m.Name, err)
 	if m.ParentMessage != nil {
 		return m.ParentMessage.errorf(msgErr)
 	}
@@ -59,7 +44,7 @@ func (m *Message) String() string {
 	builder.WriteString(m.toString())
 	builder.WriteString(fmt.Sprintf("size: %d\n", m.Size))
 
-	signalsByPos := m.ListSignals(SignalsByPosition)
+	signalsByPos := m.SignalsByPosition()
 	if len(signalsByPos) == 0 {
 		return builder.String()
 	}
@@ -73,7 +58,7 @@ func (m *Message) String() string {
 }
 
 func (m *Message) UpdateName(name string) error {
-	if err := m.ParentMessage.messages.updateName(m.ID, m.Name, name); err != nil {
+	if err := m.ParentMessage.messages.updateEntityName(m.EntityID, m.Name, name); err != nil {
 		return m.errorf(err)
 	}
 
@@ -112,7 +97,7 @@ func (m *Message) AppendSignal(signal *Signal) error {
 		return m.addSignal(signal)
 	}
 
-	signalsByPos := m.ListSignalsByPosition()
+	signalsByPos := m.SignalsByPosition()
 
 	lastSig := signalsByPos[len(signalsByPos)-1]
 	startBit := (lastSig.StartBit + lastSig.Type.Size)
@@ -138,7 +123,7 @@ func (m *Message) InsertSignalAtPosition(signal *Signal, pos int) error {
 		return err
 	}
 
-	signalsByPos := m.ListSignalsByPosition()
+	signalsByPos := m.SignalsByPosition()
 
 	sigCount := len(signalsByPos)
 	if pos > sigCount {
@@ -203,7 +188,7 @@ func (m *Message) InsertSignalAtStartBit(signal *Signal, startBit int) error {
 		return m.errorf(fmt.Errorf(`signal "%s" starting at bit "%d" of size "%d" bits cannot fit in "%d" bytes`, signal.Name, startBit, sigSize, m.Size))
 	}
 
-	signalsByPos := m.ListSignalsByPosition()
+	signalsByPos := m.SignalsByPosition()
 	sigCount := len(signalsByPos)
 
 	if sigCount == 0 {
@@ -267,13 +252,13 @@ func (m *Message) InsertSignalAtStartBit(signal *Signal, startBit int) error {
 
 func (m *Message) RemoveSignal(signalID EntityID) error {
 	removed := false
-	for _, sig := range m.ListSignalsByPosition() {
+	for _, sig := range m.SignalsByPosition() {
 		if removed {
 			sig.Position--
 			continue
 		}
 
-		if sig.ID == signalID {
+		if sig.EntityID == signalID {
 			removed = true
 		}
 	}
@@ -289,7 +274,7 @@ func (m *Message) RemoveSignal(signalID EntityID) error {
 
 func (m *Message) CompactSignals() {
 	lastStartBit := 0
-	for _, sig := range m.ListSignalsByPosition() {
+	for _, sig := range m.SignalsByPosition() {
 		if lastStartBit < sig.StartBit {
 			sig.StartBit = lastStartBit
 			lastStartBit += sig.Type.Size
@@ -301,7 +286,7 @@ func (m *Message) GetAvailableSignalPositions() []*SignalPosition {
 	positions := []*SignalPosition{}
 
 	from := 0
-	for _, sig := range m.ListSignalsByPosition() {
+	for _, sig := range m.SignalsByPosition() {
 		sigStartBit := sig.StartBit
 
 		if from > sigStartBit {
@@ -322,10 +307,28 @@ func (m *Message) GetAvailableSignalPositions() []*SignalPosition {
 	return positions
 }
 
-func (m *Message) ListSignals(sortingMethod SignalSortingMethod) []*Signal {
-	return m.signals.listEntities(sortingMethod)
+func (m *Message) SignalsByName() []*Signal {
+	return sortByName(m.signals.listEntities())
 }
 
-func (m *Message) ListSignalsByPosition() []*Signal {
-	return sortSignalsByPosition(m.signals.listEntities(SignalsByPosition))
+func (m *Message) SignalsByCreateTime() []*Signal {
+	return sortByCreateTime(m.signals.listEntities())
+}
+
+func (m *Message) SignalsByUpdateTime() []*Signal {
+	return sortByUpdateTime(m.signals.listEntities())
+}
+
+func (m *Message) SignalsByPosition() []*Signal {
+	signals := m.signals.listEntities()
+	slices.SortFunc(signals, func(a, b *Signal) int { return a.StartBit - b.StartBit })
+	return signals
+}
+
+func (m *Message) GetSignalByEntityID(id EntityID) (*Signal, error) {
+	return m.signals.getEntityByID(id)
+}
+
+func (m *Message) GetSignalByName(name string) (*Signal, error) {
+	return m.signals.getEntityByName(name)
 }

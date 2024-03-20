@@ -22,7 +22,7 @@ func (id EntityID) String() string {
 }
 
 type entity struct {
-	ID         EntityID
+	EntityID   EntityID
 	Name       string
 	Desc       string
 	CreateTime time.Time
@@ -34,7 +34,7 @@ func newEntity(name, desc string) *entity {
 	createTime := time.Now()
 
 	return &entity{
-		ID:         id,
+		EntityID:   id,
 		Name:       name,
 		Desc:       desc,
 		CreateTime: createTime,
@@ -42,8 +42,8 @@ func newEntity(name, desc string) *entity {
 	}
 }
 
-func (e *entity) getID() EntityID {
-	return e.ID
+func (e *entity) getEntityID() EntityID {
+	return e.EntityID
 }
 
 func (e *entity) getName() string {
@@ -83,7 +83,7 @@ func (e *entity) UpdateName(name string) error {
 func (e *entity) toString() string {
 	var builder strings.Builder
 
-	builder.WriteString("entity_id: " + e.ID.String() + "\n")
+	builder.WriteString("entity_id: " + e.EntityID.String() + "\n")
 	builder.WriteString("name: " + e.Name + "\n")
 	builder.WriteString("description: " + e.Desc + "\n")
 	builder.WriteString("create_time: " + e.CreateTime.String() + "\n")
