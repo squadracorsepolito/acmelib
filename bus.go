@@ -10,28 +10,26 @@ const (
 	BusesByModifiedAt BusSortingMethod = "buses_by_modified_at"
 )
 
-var busesSorter = newEntitySorter(
-	newEntitySorterMethod(BusesByName, func(buses []*Bus) []*Bus { return sortByName(buses) }),
-	newEntitySorterMethod(BusesByCreatedAt, func(buses []*Bus) []*Bus { return sortByCreateTime(buses) }),
-	newEntitySorterMethod(BusesByModifiedAt, func(buses []*Bus) []*Bus { return sortByUpdateTime(buses) }),
-)
-
-func SelectBusesSortingMethod(method BusSortingMethod) {
-	busesSorter.selectSortingMethod(method)
+func newBusSorter() *entitySorter[BusSortingMethod, *Bus] {
+	return newEntitySorter(
+		newEntitySorterMethod(BusesByName, func(buses []*Bus) []*Bus { return sortByName(buses) }),
+		newEntitySorterMethod(BusesByCreatedAt, func(buses []*Bus) []*Bus { return sortByCreateTime(buses) }),
+		newEntitySorterMethod(BusesByModifiedAt, func(buses []*Bus) []*Bus { return sortByUpdateTime(buses) }),
+	)
 }
 
 type Bus struct {
 	*entity
 	ParentProject *Project
 
-	nodes *entityCollection[*Node]
+	nodes *entityCollection[*Node, NodeSortingMethod]
 }
 
 func NewBus(name, desc string) *Bus {
 	return &Bus{
 		entity: newEntity(name, desc),
 
-		nodes: newEntityCollection[*Node](),
+		nodes: newEntityCollection(newNodeSorter()),
 	}
 }
 
@@ -58,8 +56,8 @@ func (b *Bus) AddNode(node *Node) error {
 	return nil
 }
 
-func (b *Bus) ListNodes() []*Node {
-	return nodesSorter.sortEntities(b.nodes.listEntities())
+func (b *Bus) ListNodes(sortingMethod NodeSortingMethod) []*Node {
+	return b.nodes.listEntities(sortingMethod)
 }
 
 func (b *Bus) RemoveNode(nodeID EntityID) error {

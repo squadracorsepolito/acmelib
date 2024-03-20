@@ -3,32 +3,25 @@ package acmelib
 import (
 	"slices"
 	"strings"
-	"sync"
 	"time"
+
+	"golang.org/x/exp/maps"
 )
 
-type sortableEntity interface {
-	getName() string
-	getCreateTime() time.Time
-	getUpdateTime() time.Time
-}
-
-type entitySorterMethod[N ~string, E sortableEntity] struct {
+type entitySorterMethod[N ~string, E any] struct {
 	name N
 	fn   func([]E) []E
 }
 
-func newEntitySorterMethod[N ~string, E sortableEntity](name N, fn func([]E) []E) *entitySorterMethod[N, E] {
+func newEntitySorterMethod[N ~string, E any](name N, fn func([]E) []E) *entitySorterMethod[N, E] {
 	return &entitySorterMethod[N, E]{name, fn}
 }
 
-type entitySorter[N ~string, E sortableEntity] struct {
-	selectedMethod *entitySorterMethod[N, E]
-	mux            sync.RWMutex
-	methods        map[N]*entitySorterMethod[N, E]
+type entitySorter[N ~string, E any] struct {
+	methods map[N]*entitySorterMethod[N, E]
 }
 
-func newEntitySorter[N ~string, E sortableEntity](sortingMethods ...*entitySorterMethod[N, E]) *entitySorter[N, E] {
+func newEntitySorter[N ~string, E any](sortingMethods ...*entitySorterMethod[N, E]) *entitySorter[N, E] {
 	sorter := &entitySorter[N, E]{
 		methods: make(map[N]*entitySorterMethod[N, E]),
 	}
@@ -37,45 +30,44 @@ func newEntitySorter[N ~string, E sortableEntity](sortingMethods ...*entitySorte
 		sorter.methods[method.name] = method
 	}
 
-	if len(sortingMethods) > 0 {
-		sorter.selectedMethod = sortingMethods[0]
-	}
-
 	return sorter
 }
 
-func (es *entitySorter[N, E]) selectSortingMethod(methodName N) {
-	es.mux.Lock()
-	defer es.mux.Unlock()
-
-	method, ok := es.methods[methodName]
-	if ok {
-		es.selectedMethod = method
-	}
-}
-
-func (es *entitySorter[N, E]) sortEntities(entities []E) []E {
-	es.mux.RLock()
-	defer es.mux.RUnlock()
-
-	if es.selectedMethod == nil {
-		return entities
+func (es *entitySorter[N, E]) sortEntities(methodName N, entities []E) []E {
+	if method, ok := es.methods[methodName]; ok {
+		return method.fn(entities)
 	}
 
-	return es.selectedMethod.fn(entities)
+	return entities
 }
 
-func sortByName[E sortableEntity](entities []E) []E {
+func (es *entitySorter[N, E]) listSortingMethodNames() []N {
+	return maps.Keys(es.methods)
+}
+
+type sortableByName interface {
+	getName() string
+}
+
+func sortByName[E sortableByName](entities []E) []E {
 	slices.SortFunc(entities, func(a, b E) int { return strings.Compare(a.getName(), b.getName()) })
 	return entities
 }
 
-func sortByCreateTime[E sortableEntity](entities []E) []E {
+type sortableByCreateTime interface {
+	getCreateTime() time.Time
+}
+
+func sortByCreateTime[E sortableByCreateTime](entities []E) []E {
 	slices.SortFunc(entities, func(a, b E) int { return b.getCreateTime().Compare(a.getCreateTime()) })
 	return entities
 }
 
-func sortByUpdateTime[E sortableEntity](entities []E) []E {
+type sortableByUpdateTime interface {
+	getUpdateTime() time.Time
+}
+
+func sortByUpdateTime[E sortableByUpdateTime](entities []E) []E {
 	slices.SortFunc(entities, func(a, b E) int { return b.getUpdateTime().Compare(a.getUpdateTime()) })
 	return entities
 }

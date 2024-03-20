@@ -13,21 +13,19 @@ const (
 	MessagesByUpdateTime MessageSortingMethod = "messages_by_update_time"
 )
 
-var messagesSorter = newEntitySorter(
-	newEntitySorterMethod(MessagesByName, func(messages []*Message) []*Message { return sortByName(messages) }),
-	newEntitySorterMethod(MessagesByCreateTime, func(messages []*Message) []*Message { return sortByCreateTime(messages) }),
-	newEntitySorterMethod(MessagesByUpdateTime, func(messages []*Message) []*Message { return sortByUpdateTime(messages) }),
-)
-
-func SelectMessagesSortingMethod(methos MessageSortingMethod) {
-	messagesSorter.selectSortingMethod(methos)
+func newMessageSorter() *entitySorter[MessageSortingMethod, *Message] {
+	return newEntitySorter(
+		newEntitySorterMethod(MessagesByName, func(messages []*Message) []*Message { return sortByName(messages) }),
+		newEntitySorterMethod(MessagesByCreateTime, func(messages []*Message) []*Message { return sortByCreateTime(messages) }),
+		newEntitySorterMethod(MessagesByUpdateTime, func(messages []*Message) []*Message { return sortByUpdateTime(messages) }),
+	)
 }
 
 type Message struct {
 	*entity
 	ParentMessage *Node
 
-	signals *entityCollection[*Signal]
+	signals *entityCollection[*Signal, SignalSortingMethod]
 
 	Size int
 
@@ -38,7 +36,7 @@ func NewMessage(name, desc string, size int) *Message {
 	return &Message{
 		entity: newEntity(name, desc),
 
-		signals: newEntityCollection[*Signal](),
+		signals: newEntityCollection(newSignalSorter()),
 
 		Size: size,
 
@@ -61,7 +59,7 @@ func (m *Message) String() string {
 	builder.WriteString(m.toString())
 	builder.WriteString(fmt.Sprintf("size: %d\n", m.Size))
 
-	signalsByPos := sortSignalsByPosition(m.signals.listEntities())
+	signalsByPos := m.ListSignals(SignalsByPosition)
 	if len(signalsByPos) == 0 {
 		return builder.String()
 	}
@@ -114,7 +112,7 @@ func (m *Message) AppendSignal(signal *Signal) error {
 		return m.addSignal(signal)
 	}
 
-	signalsByPos := sortSignalsByPosition(m.signals.listEntities())
+	signalsByPos := m.ListSignalsByPosition()
 
 	lastSig := signalsByPos[len(signalsByPos)-1]
 	startBit := (lastSig.StartBit + lastSig.Type.Size)
@@ -140,7 +138,8 @@ func (m *Message) InsertSignalAtPosition(signal *Signal, pos int) error {
 		return err
 	}
 
-	signalsByPos := sortSignalsByPosition(m.signals.listEntities())
+	signalsByPos := m.ListSignalsByPosition()
+
 	sigCount := len(signalsByPos)
 	if pos > sigCount {
 		return m.errorf(fmt.Errorf(`signal "%s" position "%d" is out of bound, valid values are from "0" to "%d"`, signal.Name, pos, sigCount))
@@ -204,7 +203,7 @@ func (m *Message) InsertSignalAtStartBit(signal *Signal, startBit int) error {
 		return m.errorf(fmt.Errorf(`signal "%s" starting at bit "%d" of size "%d" bits cannot fit in "%d" bytes`, signal.Name, startBit, sigSize, m.Size))
 	}
 
-	signalsByPos := sortSignalsByPosition(m.signals.listEntities())
+	signalsByPos := m.ListSignalsByPosition()
 	sigCount := len(signalsByPos)
 
 	if sigCount == 0 {
@@ -266,13 +265,9 @@ func (m *Message) InsertSignalAtStartBit(signal *Signal, startBit int) error {
 	return nil
 }
 
-func (m *Message) ListSignals() []*Signal {
-	return sortSignalsByPosition(m.signals.listEntities())
-}
-
 func (m *Message) RemoveSignal(signalID EntityID) error {
 	removed := false
-	for _, sig := range sortSignalsByPosition(m.signals.listEntities()) {
+	for _, sig := range m.ListSignalsByPosition() {
 		if removed {
 			sig.Position--
 			continue
@@ -294,7 +289,7 @@ func (m *Message) RemoveSignal(signalID EntityID) error {
 
 func (m *Message) CompactSignals() {
 	lastStartBit := 0
-	for _, sig := range m.ListSignals() {
+	for _, sig := range m.ListSignalsByPosition() {
 		if lastStartBit < sig.StartBit {
 			sig.StartBit = lastStartBit
 			lastStartBit += sig.Type.Size
@@ -306,7 +301,7 @@ func (m *Message) GetAvailableSignalPositions() []*SignalPosition {
 	positions := []*SignalPosition{}
 
 	from := 0
-	for _, sig := range m.ListSignals() {
+	for _, sig := range m.ListSignalsByPosition() {
 		sigStartBit := sig.StartBit
 
 		if from > sigStartBit {
@@ -325,4 +320,12 @@ func (m *Message) GetAvailableSignalPositions() []*SignalPosition {
 	}
 
 	return positions
+}
+
+func (m *Message) ListSignals(sortingMethod SignalSortingMethod) []*Signal {
+	return m.signals.listEntities(sortingMethod)
+}
+
+func (m *Message) ListSignalsByPosition() []*Signal {
+	return sortSignalsByPosition(m.signals.listEntities(SignalsByPosition))
 }

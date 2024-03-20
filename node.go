@@ -10,28 +10,26 @@ const (
 	NodesByUpdateTime NodeSortingMethod = "nodes_by_update_time"
 )
 
-var nodesSorter = newEntitySorter(
-	newEntitySorterMethod(NodesByName, func(nodes []*Node) []*Node { return sortByName(nodes) }),
-	newEntitySorterMethod(NodesByCreateTime, func(nodes []*Node) []*Node { return sortByCreateTime(nodes) }),
-	newEntitySorterMethod(NodesByUpdateTime, func(nodes []*Node) []*Node { return sortByUpdateTime(nodes) }),
-)
-
-func SelectNodesSortingMethod(method NodeSortingMethod) {
-	nodesSorter.selectSortingMethod(method)
+func newNodeSorter() *entitySorter[NodeSortingMethod, *Node] {
+	return newEntitySorter(
+		newEntitySorterMethod(NodesByName, func(nodes []*Node) []*Node { return sortByName(nodes) }),
+		newEntitySorterMethod(NodesByCreateTime, func(nodes []*Node) []*Node { return sortByCreateTime(nodes) }),
+		newEntitySorterMethod(NodesByUpdateTime, func(nodes []*Node) []*Node { return sortByUpdateTime(nodes) }),
+	)
 }
 
 type Node struct {
 	*entity
 	ParentNode *Bus
 
-	messages *entityCollection[*Message]
+	messages *entityCollection[*Message, MessageSortingMethod]
 }
 
 func NewNode(name, desc string) *Node {
 	return &Node{
 		entity: newEntity(name, desc),
 
-		messages: newEntityCollection[*Message](),
+		messages: newEntityCollection(newMessageSorter()),
 	}
 }
 
@@ -58,8 +56,8 @@ func (n *Node) AddMessage(message *Message) error {
 	return nil
 }
 
-func (n *Node) ListMessages() []*Message {
-	return messagesSorter.sortEntities(n.messages.listEntities())
+func (n *Node) ListMessages(sortingMathod MessageSortingMethod) []*Message {
+	return n.messages.listEntities(sortingMathod)
 }
 
 func (n *Node) RemoveMessage(messageID EntityID) error {

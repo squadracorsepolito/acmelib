@@ -2,6 +2,7 @@ package acmelib
 
 import (
 	"fmt"
+	"sync"
 
 	"golang.org/x/exp/maps"
 )
@@ -11,34 +12,60 @@ type collectableEntity interface {
 	getName() string
 }
 
-type entityCollection[E collectableEntity] struct {
+type entityCollection[E collectableEntity, SM ~string] struct {
 	entityMap map[EntityID]E
 	nameSet   map[string]EntityID
+
+	sorter                  *entitySorter[SM, E]
+	availableSortingMethods []SM
+	sortedMux               sync.RWMutex
+	sortedEntities          map[SM][]E
 }
 
-func newEntityCollection[E collectableEntity]() *entityCollection[E] {
-	return &entityCollection[E]{
+func newEntityCollection[E collectableEntity, SM ~string](sorter *entitySorter[SM, E]) *entityCollection[E, SM] {
+	return &entityCollection[E, SM]{
 		entityMap: make(map[EntityID]E),
 		nameSet:   make(map[string]EntityID),
+
+		sorter:                  sorter,
+		availableSortingMethods: sorter.listSortingMethodNames(),
+		sortedEntities:          make(map[SM][]E),
 	}
 }
 
-func (ec *entityCollection[E]) size() int {
+func (ec *entityCollection[E, SM]) size() int {
 	return len(ec.entityMap)
 }
 
-func (ec *entityCollection[E]) listEntities() []E {
+func (ec *entityCollection[E, SM]) updateSortedEntities() {
+	ec.sortedMux.Lock()
+	defer ec.sortedMux.Unlock()
+
+	entities := maps.Values(ec.entityMap)
+	for _, sm := range ec.availableSortingMethods {
+		ec.sortedEntities[sm] = ec.sorter.sortEntities(sm, entities)
+	}
+}
+
+func (ec *entityCollection[E, SM]) listEntities(sortingMethod SM) []E {
+	ec.sortedMux.RLock()
+	defer ec.sortedMux.RUnlock()
+
+	if sorted, ok := ec.sortedEntities[sortingMethod]; ok {
+		return sorted
+	}
+
 	return maps.Values(ec.entityMap)
 }
 
-func (ec *entityCollection[E]) verifyName(name string) error {
+func (ec *entityCollection[E, SM]) verifyName(name string) error {
 	if _, ok := ec.nameSet[name]; ok {
 		return fmt.Errorf(`duplicated name "%s"`, name)
 	}
 	return nil
 }
 
-func (ec *entityCollection[E]) addEntity(entity E) error {
+func (ec *entityCollection[E, SM]) addEntity(entity E) error {
 	name := entity.getName()
 	if err := ec.verifyName(name); err != nil {
 		return err
@@ -52,10 +79,26 @@ func (ec *entityCollection[E]) addEntity(entity E) error {
 	ec.entityMap[id] = entity
 	ec.nameSet[name] = id
 
+	ec.updateSortedEntities()
+
 	return nil
 }
 
-func (ec *entityCollection[E]) updateName(id EntityID, oldName, newName string) error {
+func (ec *entityCollection[E, SM]) removeEntity(id EntityID) error {
+	e, err := ec.getEntityByID(id)
+	if err != nil {
+		return err
+	}
+
+	delete(ec.nameSet, e.getName())
+	delete(ec.entityMap, id)
+
+	ec.updateSortedEntities()
+
+	return nil
+}
+
+func (ec *entityCollection[E, SM]) updateName(id EntityID, oldName, newName string) error {
 	if oldName == newName {
 		return fmt.Errorf(`"%s" is not a new name`, newName)
 	}
@@ -67,25 +110,15 @@ func (ec *entityCollection[E]) updateName(id EntityID, oldName, newName string) 
 	ec.nameSet[newName] = id
 	delete(ec.nameSet, oldName)
 
+	ec.updateSortedEntities()
+
 	return nil
 }
 
-func (ec *entityCollection[E]) getEntityByID(id EntityID) (E, error) {
+func (ec *entityCollection[E, SM]) getEntityByID(id EntityID) (E, error) {
 	e, ok := ec.entityMap[id]
 	if ok {
 		return e, nil
 	}
 	return e, fmt.Errorf(`id "%s" not found`, id)
-}
-
-func (ec *entityCollection[E]) removeEntity(id EntityID) error {
-	e, err := ec.getEntityByID(id)
-	if err != nil {
-		return err
-	}
-
-	delete(ec.nameSet, e.getName())
-	delete(ec.entityMap, id)
-
-	return nil
 }

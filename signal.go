@@ -2,6 +2,7 @@ package acmelib
 
 import (
 	"fmt"
+	"log"
 	"slices"
 )
 
@@ -15,19 +16,18 @@ const (
 )
 
 func sortSignalsByPosition(signals []*Signal) []*Signal {
-	slices.SortFunc(signals, func(a, b *Signal) int { return a.Position - b.Position })
+	log.Print("POSITION SORT")
+	slices.SortFunc(signals, func(a, b *Signal) int { return a.StartBit - b.StartBit })
 	return signals
 }
 
-var signalsSorter = newEntitySorter(
-	newEntitySorterMethod(SignalsByName, func(signals []*Signal) []*Signal { return sortByName(signals) }),
-	newEntitySorterMethod(SignalsByCreateTime, func(signals []*Signal) []*Signal { return sortByCreateTime(signals) }),
-	newEntitySorterMethod(SignalsByUpdateTime, func(signals []*Signal) []*Signal { return sortByUpdateTime(signals) }),
-	newEntitySorterMethod(SignalsByPosition, func(signals []*Signal) []*Signal { return sortSignalsByPosition(signals) }),
-)
-
-func SelectSignalsSortingMethod(method SignalSortingMethod) {
-	signalsSorter.selectSortingMethod(method)
+func newSignalSorter() *entitySorter[SignalSortingMethod, *Signal] {
+	return newEntitySorter(
+		newEntitySorterMethod(SignalsByName, func(signals []*Signal) []*Signal { return sortByName(signals) }),
+		newEntitySorterMethod(SignalsByCreateTime, func(signals []*Signal) []*Signal { return sortByCreateTime(signals) }),
+		newEntitySorterMethod(SignalsByUpdateTime, func(signals []*Signal) []*Signal { return sortByUpdateTime(signals) }),
+		newEntitySorterMethod(SignalsByPosition, func(signals []*Signal) []*Signal { return sortSignalsByPosition(signals) }),
+	)
 }
 
 type SignalKind string
@@ -84,7 +84,7 @@ func (s *Signal) UpdatePosition(pos int) error {
 		return nil
 	}
 
-	signals := sortSignalsByPosition(s.ParentMessage.signals.listEntities())
+	signals := s.ParentMessage.ListSignals(SignalsByPosition)
 	sigCount := len(signals)
 
 	if pos >= sigCount {

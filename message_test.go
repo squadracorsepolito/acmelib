@@ -48,10 +48,12 @@ func Test_Message_AppendSignal(t *testing.T) {
 	assert.Error(msg.AppendSignal(massiveSig))
 
 	exidingSig := NewStandardSignal("exiding_sig", "", sigTypInt8, 0, 100, 0, 1, nil)
+	t.Log(msg.String())
 	assert.Error(msg.AppendSignal(exidingSig))
 
-	assert.Equal(len(msg.ListSignals()), 5)
-	for idx, sig := range msg.ListSignals() {
+	results := msg.ListSignals(SignalsByPosition)
+	assert.Equal(len(results), 5)
+	for idx, sig := range results {
 		assert.Equal(sig.Name, sigNames[idx])
 		assert.Equal(sig.Position, idx)
 	}
@@ -96,8 +98,9 @@ func Test_Message_InsertSignalAtPosition(t *testing.T) {
 
 	correctOrder := []string{"sig_0", "sig_3", "sig_2", "sig_1", "sig_4"}
 
-	assert.Equal(len(msg.ListSignals()), 5)
-	for idx, sig := range msg.ListSignals() {
+	results := msg.ListSignals(SignalsByPosition)
+	assert.Equal(len(results), 5)
+	for idx, sig := range results {
 		assert.Equal(sig.Name, correctOrder[idx])
 		assert.Equal(sig.Position, idx)
 	}
@@ -146,14 +149,16 @@ func Test_Message_InsertSignalAtStartBit(t *testing.T) {
 	assert.Error(msg.InsertSignalAtStartBit(exidingSig, 64))
 
 	correctOrder := []string{"sig_0", "sig_3", "sig_2", "sig_1", "sig_4"}
+	//	t.Log(msg.String())
 
-	assert.Equal(len(msg.ListSignals()), 5)
-	for idx, sig := range msg.ListSignals() {
+	results := msg.ListSignals(SignalsByPosition)
+	assert.Equal(len(results), 5)
+	for idx, sig := range results {
 		assert.Equal(sig.Name, correctOrder[idx])
 		assert.Equal(sig.Position, idx)
 	}
 
-	t.Log(msg.String())
+	//t.Log(msg.String())
 }
 
 func Test_Message_RemoveSignal(t *testing.T) {
@@ -183,8 +188,9 @@ func Test_Message_RemoveSignal(t *testing.T) {
 
 	correctOrder := []string{"sig_0", "sig_1", "sig_3", "sig_4"}
 
-	assert.Equal(len(msg.ListSignals()), 4)
-	for idx, sig := range msg.ListSignals() {
+	results := msg.ListSignals(SignalsByPosition)
+	assert.Equal(len(results), 4)
+	for idx, sig := range results {
 		assert.Equal(sig.Name, correctOrder[idx])
 		assert.Equal(sig.Position, idx)
 	}
@@ -211,7 +217,7 @@ func Test_Message_CompactSignals(t *testing.T) {
 
 	correctStartBits := []int{0, 8, 16}
 
-	for idx, sig := range msg.ListSignals() {
+	for idx, sig := range msg.ListSignals(SignalsByPosition) {
 		assert.Equal(sig.StartBit, correctStartBits[idx])
 	}
 

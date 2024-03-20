@@ -12,6 +12,6 @@ func NewSignalPosition(from, to int) *SignalPosition {
 	}
 }
 
-func (sp *SignalPosition) GetSize() int {
+func (sp *SignalPosition) Size() int {
 	return sp.To - sp.From
 }
