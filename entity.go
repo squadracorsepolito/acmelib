@@ -1,6 +1,7 @@
 package acmelib
 
 import (
+	"strings"
 	"time"
 
 	"github.com/jaevor/go-nanoid"
@@ -14,6 +15,10 @@ func newEntityID() EntityID {
 		panic(err)
 	}
 	return EntityID(gen())
+}
+
+func (id EntityID) String() string {
+	return string(id)
 }
 
 type entity struct {
@@ -37,40 +42,52 @@ func newEntity(name, desc string) *entity {
 	}
 }
 
-func (be *entity) getID() EntityID {
-	return be.ID
+func (e *entity) getID() EntityID {
+	return e.ID
 }
 
-func (be *entity) getName() string {
-	return be.Name
+func (e *entity) getName() string {
+	return e.Name
 }
 
-func (be *entity) getCreateTime() time.Time {
-	return be.CreateTime
+func (e *entity) getCreateTime() time.Time {
+	return e.CreateTime
 }
 
-func (be *entity) getUpdateTime() time.Time {
-	return be.UpdateTime
+func (e *entity) getUpdateTime() time.Time {
+	return e.UpdateTime
 }
 
-func (be *entity) setUpdateTimeNow() {
-	be.UpdateTime = time.Now()
+func (e *entity) setUpdateTimeNow() {
+	e.UpdateTime = time.Now()
 }
 
-func (be *entity) UpdateDesc(desc string) error {
-	if be.Desc != desc {
-		be.Desc = desc
-		be.setUpdateTimeNow()
+func (e *entity) UpdateDesc(desc string) error {
+	if e.Desc != desc {
+		e.Desc = desc
+		e.setUpdateTimeNow()
 	}
 
 	return nil
 }
 
-func (be *entity) UpdateName(name string) error {
-	if be.Name != name {
-		be.Name = name
-		be.setUpdateTimeNow()
+func (e *entity) UpdateName(name string) error {
+	if e.Name != name {
+		e.Name = name
+		e.setUpdateTimeNow()
 	}
 
 	return nil
+}
+
+func (e *entity) toString() string {
+	var builder strings.Builder
+
+	builder.WriteString("entity_id: " + e.ID.String() + "\n")
+	builder.WriteString("name: " + e.Name + "\n")
+	builder.WriteString("description: " + e.Desc + "\n")
+	builder.WriteString("create_time: " + e.CreateTime.String() + "\n")
+	builder.WriteString("update_time: " + e.UpdateTime.String() + "\n")
+
+	return builder.String()
 }

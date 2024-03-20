@@ -53,19 +53,17 @@ type Signal struct {
 	Unit     *SIgnalUnit
 }
 
-func NewSignal(name, desc string, kind SignalKind, typ *SignalType, startBit, pos int, min, max, offset, scale float64, unit *SIgnalUnit) *Signal {
+func NewStandardSignal(name, desc string, typ *SignalType, min, max, offset, scale float64, unit *SIgnalUnit) *Signal {
 	return &Signal{
 		entity: newEntity(name, desc),
 
-		Kind:     kind,
-		Type:     typ,
-		StartBit: startBit,
-		Position: pos,
-		Min:      min,
-		Max:      max,
-		Offset:   offset,
-		Scale:    scale,
-		Unit:     unit,
+		Kind:   SignalKindStandard,
+		Type:   typ,
+		Min:    min,
+		Max:    max,
+		Offset: offset,
+		Scale:  scale,
+		Unit:   unit,
 	}
 }
 

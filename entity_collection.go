@@ -23,6 +23,10 @@ func newEntityCollection[E collectableEntity]() *entityCollection[E] {
 	}
 }
 
+func (ec *entityCollection[E]) size() int {
+	return len(ec.entityMap)
+}
+
 func (ec *entityCollection[E]) listEntities() []E {
 	return maps.Values(ec.entityMap)
 }
