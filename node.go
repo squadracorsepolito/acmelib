@@ -26,8 +26,10 @@ func (n *Node) errorf(err error) error {
 }
 
 func (n *Node) UpdateName(name string) error {
-	if err := n.ParentBus.nodes.updateEntityName(n.EntityID, n.Name, name); err != nil {
-		return n.errorf(err)
+	if n.ParentBus != nil {
+		if err := n.ParentBus.nodes.updateEntityName(n.EntityID, n.Name, name); err != nil {
+			return n.errorf(err)
+		}
 	}
 
 	return n.entity.UpdateName(name)
@@ -38,7 +40,7 @@ func (n *Node) AddMessage(message *Message) error {
 		return n.errorf(err)
 	}
 
-	message.ParentMessage = n
+	message.ParentNode = n
 	n.setUpdateTimeNow()
 
 	return nil

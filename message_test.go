@@ -48,20 +48,19 @@ func Test_Message_AppendSignal(t *testing.T) {
 	assert.Error(msg.AppendSignal(massiveSig))
 
 	exidingSig := NewStandardSignal("exiding_sig", "", sigTypInt8, 0, 100, 0, 1, nil)
-	t.Log(msg.String())
 	assert.Error(msg.AppendSignal(exidingSig))
 
-	results := msg.SignalsByPosition()
+	results := msg.SignalsByStartBit()
 	assert.Equal(len(results), 5)
 	for idx, sig := range results {
-		assert.Equal(sig.Name, sigNames[idx])
-		assert.Equal(sig.Position, idx)
+		assert.Equal(sigNames[idx], sig.Name)
+		assert.Equal(idx, sig.Index)
 	}
 
 	t.Log(msg.String())
 }
 
-func Test_Message_InsertSignalAtPosition(t *testing.T) {
+func Test_Message_InsertSignalAtIndex(t *testing.T) {
 	assert := assert.New(t)
 
 	msg := NewMessage("msg_0", "msg_0_desc", 8)
@@ -77,32 +76,32 @@ func Test_Message_InsertSignalAtPosition(t *testing.T) {
 	sig3 := NewStandardSignal(sigNames[3], "", sigTypInt8, 0, 100, 0, 1, nil)
 	sig4 := NewStandardSignal(sigNames[4], "", sigTypInt32, 0, 100, 0, 1, nil)
 
-	assert.Error(msg.InsertSignalAtPosition(sig0, 1))
+	assert.Error(msg.InsertSignalAtIndex(sig0, 1))
 
-	assert.NoError(msg.InsertSignalAtPosition(sig0, 0))
+	assert.NoError(msg.InsertSignalAtIndex(sig0, 0))
 
 	duplicatedSigName := NewStandardSignal(sigNames[0], "", sigTypInt8, 0, 100, 0, 1, nil)
-	assert.Error(msg.InsertSignalAtPosition(duplicatedSigName, 0))
+	assert.Error(msg.InsertSignalAtIndex(duplicatedSigName, 0))
 
-	assert.NoError(msg.InsertSignalAtPosition(sig1, 1))
-	assert.NoError(msg.InsertSignalAtPosition(sig2, 1))
-	assert.NoError(msg.InsertSignalAtPosition(sig3, 1))
-	assert.NoError(msg.InsertSignalAtPosition(sig4, 4))
+	assert.NoError(msg.InsertSignalAtIndex(sig1, 1))
+	assert.NoError(msg.InsertSignalAtIndex(sig2, 1))
+	assert.NoError(msg.InsertSignalAtIndex(sig3, 1))
+	assert.NoError(msg.InsertSignalAtIndex(sig4, 4))
 
 	sigTypMassive := NewSignalType("massive", "", SignalTypeKindInteger, 128, true, -128, 127)
 	massiveSig := NewStandardSignal("massive_sig", "", sigTypMassive, 0, 100, 0, 1, nil)
-	assert.Error(msg.InsertSignalAtPosition(massiveSig, 0))
+	assert.Error(msg.InsertSignalAtIndex(massiveSig, 0))
 
 	exidingSig := NewStandardSignal("exiding_sig", "", sigTypInt8, 0, 100, 0, 1, nil)
-	assert.Error(msg.InsertSignalAtPosition(exidingSig, 0))
+	assert.Error(msg.InsertSignalAtIndex(exidingSig, 0))
 
 	correctOrder := []string{"sig_0", "sig_3", "sig_2", "sig_1", "sig_4"}
 
-	results := msg.SignalsByPosition()
+	results := msg.SignalsByStartBit()
 	assert.Equal(len(results), 5)
 	for idx, sig := range results {
-		assert.Equal(sig.Name, correctOrder[idx])
-		assert.Equal(sig.Position, idx)
+		assert.Equal(correctOrder[idx], sig.Name)
+		assert.Equal(idx, sig.Index)
 	}
 
 	t.Log(msg.String())
@@ -150,11 +149,11 @@ func Test_Message_InsertSignalAtStartBit(t *testing.T) {
 
 	correctOrder := []string{"sig_0", "sig_3", "sig_2", "sig_1", "sig_4"}
 
-	results := msg.SignalsByPosition()
+	results := msg.SignalsByStartBit()
 	assert.Equal(len(results), 5)
 	for idx, sig := range results {
-		assert.Equal(sig.Name, correctOrder[idx])
-		assert.Equal(sig.Position, idx)
+		assert.Equal(correctOrder[idx], sig.Name)
+		assert.Equal(idx, sig.Index)
 	}
 
 	t.Log(msg.String())
@@ -187,11 +186,11 @@ func Test_Message_RemoveSignal(t *testing.T) {
 
 	correctOrder := []string{"sig_0", "sig_1", "sig_3", "sig_4"}
 
-	results := msg.SignalsByPosition()
+	results := msg.SignalsByStartBit()
 	assert.Equal(len(results), 4)
 	for idx, sig := range results {
-		assert.Equal(sig.Name, correctOrder[idx])
-		assert.Equal(sig.Position, idx)
+		assert.Equal(correctOrder[idx], sig.Name)
+		assert.Equal(idx, sig.Index)
 	}
 
 	t.Log(msg.String())
@@ -216,14 +215,14 @@ func Test_Message_CompactSignals(t *testing.T) {
 
 	correctStartBits := []int{0, 8, 16}
 
-	for idx, sig := range msg.SignalsByPosition() {
-		assert.Equal(sig.StartBit, correctStartBits[idx])
+	for idx, sig := range msg.SignalsByStartBit() {
+		assert.Equal(correctStartBits[idx], sig.StartBit)
 	}
 
 	t.Log(msg.String())
 }
 
-func Test_Message_GetAvailableSignalPositions(t *testing.T) {
+func Test_Message_GetAvailableSignalSpaces(t *testing.T) {
 	assert := assert.New(t)
 
 	msg := NewMessage("msg_0", "msg_0_desc", 8)
@@ -238,14 +237,29 @@ func Test_Message_GetAvailableSignalPositions(t *testing.T) {
 	assert.NoError(msg.InsertSignalAtStartBit(sig1, 18))
 	assert.NoError(msg.InsertSignalAtStartBit(sig2, 26))
 
-	positions := msg.GetAvailableSignalPositions()
+	positions := msg.GetAvailableSignalSpaces()
 
-	correctPositions := []*SignalPosition{NewSignalPosition(0, 1), NewSignalPosition(10, 17), NewSignalPosition(34, 63)}
+	correctPositions := [][]int{{0, 1}, {10, 17}, {34, 63}}
 
 	assert.Equal(len(positions), 3)
 	for idx, pos := range positions {
-		assert.Equal(pos.From, correctPositions[idx].From)
-		assert.Equal(pos.To, correctPositions[idx].To)
+		assert.Equal(correctPositions[idx][0], pos[0])
+		assert.Equal(correctPositions[idx][1], pos[1])
+	}
+
+	t.Log(msg.String())
+
+	sig4 := NewStandardSignal("sig_4", "", sigTypInt8, 0, 100, 0, 1, nil)
+	assert.NoError(msg.InsertSignalAtStartBit(sig4, 56))
+
+	positions = msg.GetAvailableSignalSpaces()
+
+	correctPositions = [][]int{{0, 1}, {10, 17}, {34, 55}}
+
+	assert.Equal(len(positions), 3)
+	for idx, pos := range positions {
+		assert.Equal(correctPositions[idx][0], pos[0])
+		assert.Equal(correctPositions[idx][1], pos[1])
 	}
 
 	t.Log(msg.String())

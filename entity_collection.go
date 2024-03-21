@@ -23,7 +23,7 @@ func newEntityCollection[E collectableEntity]() *entityCollection[E] {
 	}
 }
 
-func (ec *entityCollection[E]) size() int {
+func (ec *entityCollection[E]) getSize() int {
 	return len(ec.entities)
 }
 

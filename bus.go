@@ -26,8 +26,10 @@ func (b *Bus) errorf(err error) error {
 }
 
 func (b *Bus) UpdateName(name string) error {
-	if err := b.ParentProject.buses.updateEntityName(b.EntityID, b.Name, name); err != nil {
-		return b.errorf(err)
+	if b.ParentProject != nil {
+		if err := b.ParentProject.buses.updateEntityName(b.EntityID, b.Name, name); err != nil {
+			return b.errorf(err)
+		}
 	}
 
 	return b.entity.UpdateName(name)

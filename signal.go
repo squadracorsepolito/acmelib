@@ -4,29 +4,13 @@ import (
 	"fmt"
 )
 
-type SignalKind string
+type SignalKind int
 
 const (
-	SignalKindStandard    SignalKind = "signal_standard"
-	SignalKindEnum        SignalKind = "signal_enum"
-	SignalKindMultiplexed SignalKind = "signal_multiplexed"
+	SignalKindStandard SignalKind = iota
+	SignalKindEnum
+	SignalKindMultiplexed
 )
-
-type SignalPosition struct {
-	From int
-	To   int
-
-	size int
-}
-
-func NewSignalPosition(from, to int) *SignalPosition {
-	return &SignalPosition{
-		From: from,
-		To:   to,
-
-		size: to - from,
-	}
-}
 
 type Signal struct {
 	*entity
@@ -35,7 +19,7 @@ type Signal struct {
 	Kind     SignalKind
 	Type     *SignalType
 	StartBit int
-	Position int
+	Index    int
 	Min      float64
 	Max      float64
 	Offset   float64
@@ -65,20 +49,26 @@ func (s *Signal) errorf(err error) error {
 	return sigErr
 }
 
+func (s *Signal) BitSize() int {
+	return s.Type.Size
+}
+
 func (s *Signal) UpdateName(name string) error {
-	if err := s.ParentMessage.signals.updateEntityName(s.EntityID, s.Name, name); err != nil {
-		return s.errorf(err)
+	if s.ParentMessage != nil {
+		if err := s.ParentMessage.signals.updateEntityName(s.EntityID, s.Name, name); err != nil {
+			return s.errorf(err)
+		}
 	}
 
 	return s.entity.UpdateName(name)
 }
 
 func (s *Signal) UpdatePosition(pos int) error {
-	if s.Position == pos {
+	if s.Index == pos {
 		return nil
 	}
 
-	signals := s.ParentMessage.SignalsByPosition()
+	signals := s.ParentMessage.SignalsByStartBit()
 	sigCount := len(signals)
 
 	if pos >= sigCount {
@@ -89,12 +79,12 @@ func (s *Signal) UpdatePosition(pos int) error {
 		if sig.EntityID == s.EntityID {
 			for i := idx + 1; i < sigCount; i++ {
 				tmpSig := signals[i]
-				if tmpSig.Position <= pos {
-					tmpSig.Position--
+				if tmpSig.Index <= pos {
+					tmpSig.Index--
 				}
 			}
 
-			sig.Position = pos
+			sig.Index = pos
 			s.setUpdateTimeNow()
 
 			break
