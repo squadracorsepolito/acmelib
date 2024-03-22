@@ -10,7 +10,7 @@ type Message struct {
 	*entity
 	ParentNode *Node
 
-	signals *entityCollection[*Signal]
+	signals *entityCollection[*standardSignal]
 
 	Size int
 
@@ -21,7 +21,7 @@ func NewMessage(name, desc string, size int) *Message {
 	return &Message{
 		entity: newEntity(name, desc),
 
-		signals: newEntityCollection[*Signal](),
+		signals: newEntityCollection[*standardSignal](),
 
 		Size: size,
 
@@ -67,7 +67,7 @@ func (m *Message) UpdateName(name string) error {
 	return m.entity.UpdateName(name)
 }
 
-func (m *Message) addSignal(sig *Signal) error {
+func (m *Message) addSignal(sig *standardSignal) error {
 	if err := m.signals.addEntity(sig); err != nil {
 		return m.errorf(err)
 	}
@@ -78,7 +78,7 @@ func (m *Message) addSignal(sig *Signal) error {
 	return nil
 }
 
-func (m *Message) verifySignalSize(sig *Signal) error {
+func (m *Message) verifySignalSize(sig *standardSignal) error {
 	sigSize := sig.BitSize()
 	if sigSize > m.bitSize {
 		return m.errorf(fmt.Errorf(`signal "%s" of size "%d" bits cannot fit in "%d" bytes`, sig.Name, sigSize, m.Size))
@@ -86,7 +86,7 @@ func (m *Message) verifySignalSize(sig *Signal) error {
 	return nil
 }
 
-func (m *Message) AppendSignal(signal *Signal) error {
+func (m *Message) AppendSignal(signal *standardSignal) error {
 	if err := m.verifySignalSize(signal); err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ func (m *Message) AppendSignal(signal *Signal) error {
 	return nil
 }
 
-func (m *Message) InsertSignalAtIndex(signal *Signal, index int) error {
+func (m *Message) InsertSignalAtIndex(signal *standardSignal, index int) error {
 	if err := m.verifySignalSize(signal); err != nil {
 		return err
 	}
@@ -180,7 +180,7 @@ func (m *Message) InsertSignalAtIndex(signal *Signal, index int) error {
 	return nil
 }
 
-func (m *Message) InsertSignalAtStartBit(signal *Signal, startBit int) error {
+func (m *Message) InsertSignalAtStartBit(signal *standardSignal, startBit int) error {
 	if err := m.verifySignalSize(signal); err != nil {
 		return err
 	}
@@ -322,28 +322,58 @@ func (m *Message) GetAvailableSignalSpaces() [][]int {
 	return positions
 }
 
-func (m *Message) SignalsByName() []*Signal {
+func (m *Message) SignalsByName() []*standardSignal {
 	return sortByName(m.signals.listEntities())
 }
 
-func (m *Message) SignalsByCreateTime() []*Signal {
+func (m *Message) SignalsByCreateTime() []*standardSignal {
 	return sortByCreateTime(m.signals.listEntities())
 }
 
-func (m *Message) SignalsByUpdateTime() []*Signal {
+func (m *Message) SignalsByUpdateTime() []*standardSignal {
 	return sortByUpdateTime(m.signals.listEntities())
 }
 
-func (m *Message) SignalsByStartBit() []*Signal {
+func (m *Message) SignalsByStartBit() []*standardSignal {
 	signals := m.signals.listEntities()
-	slices.SortFunc(signals, func(a, b *Signal) int { return a.StartBit - b.StartBit })
+	slices.SortFunc(signals, func(a, b *standardSignal) int { return a.StartBit - b.StartBit })
 	return signals
 }
 
-func (m *Message) GetSignalByEntityID(id EntityID) (*Signal, error) {
+func (m *Message) GetSignalByEntityID(id EntityID) (*standardSignal, error) {
 	return m.signals.getEntityByID(id)
 }
 
-func (m *Message) GetSignalByName(name string) (*Signal, error) {
+func (m *Message) GetSignalByName(name string) (*standardSignal, error) {
 	return m.signals.getEntityByName(name)
+}
+
+func (m *Message) shiftSignalsLeft(index, offset int) error {
+	signals := m.SignalsByStartBit()
+	sigCount := len(signals)
+
+	newStartingBits := []int{}
+	lastSigBitSize := 0
+	i := index
+	for {
+		tmpSig := signals[i]
+		newStartingBits = append(newStartingBits, tmpSig.StartBit+offset)
+
+		i++
+		if i == sigCount {
+			lastSigBitSize = tmpSig.BitSize()
+			break
+		}
+	}
+
+	exceedingBits := newStartingBits[sigCount-1] + lastSigBitSize - m.bitSize
+	if exceedingBits > 0 {
+		return m.errorf(fmt.Errorf(`cannot shift signals left because it will exceed the message payload of "%d" bits`, exceedingBits))
+	}
+
+	for idx, startBit := range newStartingBits {
+		signals[idx+index].StartBit = startBit
+	}
+
+	return nil
 }

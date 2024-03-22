@@ -42,19 +42,19 @@ func newEntity(name, desc string) *entity {
 	}
 }
 
-func (e *entity) getEntityID() EntityID {
+func (e *entity) GetEntityID() EntityID {
 	return e.EntityID
 }
 
-func (e *entity) getName() string {
+func (e *entity) GetName() string {
 	return e.Name
 }
 
-func (e *entity) getCreateTime() time.Time {
+func (e *entity) GetCreateTime() time.Time {
 	return e.CreateTime
 }
 
-func (e *entity) getUpdateTime() time.Time {
+func (e *entity) GetUpdateTime() time.Time {
 	return e.UpdateTime
 }
 

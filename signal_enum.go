@@ -1,6 +1,7 @@
 package acmelib
 
 import (
+	"errors"
 	"fmt"
 	"slices"
 )
@@ -123,4 +124,43 @@ func (es *enumSignal) GetBitSize() int {
 	}
 
 	return maxBitSize
+}
+
+type EnumSignal struct {
+	*signal
+
+	enum *SignalEnum
+}
+
+func NewEnumSignal(name, desc string, enum *SignalEnum) *EnumSignal {
+	return &EnumSignal{
+		signal: newSignal(name, desc, SignalKindEnum),
+
+		enum: enum,
+	}
+}
+
+func (es *EnumSignal) GetSize() int {
+	maxBitSize := 64
+	enumMaxIdx := es.enum.maxIndex
+
+	for i := 0; i < maxBitSize; i++ {
+		if enumMaxIdx <= 1<<i {
+			return i + 1
+		}
+	}
+
+	return maxBitSize
+}
+
+func (es *EnumSignal) ToStandard() (*standardSignal, error) {
+	return nil, es.errorf(errors.New(`cannot covert to "standard", the signal is of kind "enum"`))
+}
+
+func (es *EnumSignal) ToEnum() (*EnumSignal, error) {
+	return es, nil
+}
+
+func (es *EnumSignal) GetEnum() *SignalEnum {
+	return es.enum
 }
