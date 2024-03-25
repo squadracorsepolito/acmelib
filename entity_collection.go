@@ -67,6 +67,13 @@ func (ec *entityCollection[E]) removeEntity(id EntityID) error {
 	return nil
 }
 
+func (ec *entityCollection[E]) removeAllEntities() {
+	for id, e := range ec.entities {
+		delete(ec.entityNames, e.GetName())
+		delete(ec.entities, id)
+	}
+}
+
 func (ec *entityCollection[E]) updateEntityName(id EntityID, oldName, newName string) error {
 	if oldName == newName {
 		return fmt.Errorf(`"%s" is not a new name`, newName)

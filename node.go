@@ -35,16 +35,16 @@ func (n *Node) UpdateName(name string) error {
 	return n.entity.UpdateName(name)
 }
 
-func (n *Node) AddMessage(message *Message) error {
-	if err := n.messages.addEntity(message); err != nil {
-		return n.errorf(err)
-	}
+// func (n *Node) AddMessage(message *Message) error {
+// 	if err := n.messages.addEntity(message); err != nil {
+// 		return n.errorf(err)
+// 	}
 
-	message.ParentNode = n
-	n.setUpdateTimeNow()
+// 	message.ParentNode = n
+// 	n.setUpdateTimeNow()
 
-	return nil
-}
+// 	return nil
+// }
 
 func (n *Node) ListMessages() []*Message {
 	return n.messages.listEntities()

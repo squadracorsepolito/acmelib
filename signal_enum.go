@@ -1,7 +1,6 @@
 package acmelib
 
 import (
-	"errors"
 	"fmt"
 	"slices"
 )
@@ -41,21 +40,19 @@ func (sev *SignalEnumValue) UpdateName(name string) error {
 
 type SignalEnum struct {
 	*entity
-	signalRefs []*enumSignal
 
-	values *entityCollection[*SignalEnumValue]
-
-	maxIndex int
+	signalRefs []*EnumSignal
+	values     *entityCollection[*SignalEnumValue]
+	maxIndex   int
 }
 
 func NewSignalEnum(name, desc string) *SignalEnum {
 	return &SignalEnum{
-		entity:     newEntity(name, desc),
-		signalRefs: []*enumSignal{},
+		entity: newEntity(name, desc),
 
-		values: newEntityCollection[*SignalEnumValue](),
-
-		maxIndex: 0,
+		signalRefs: []*EnumSignal{},
+		values:     newEntityCollection[*SignalEnumValue](),
+		maxIndex:   0,
 	}
 }
 
@@ -65,7 +62,7 @@ func (se *SignalEnum) errorf(err error) error {
 }
 
 func (se *SignalEnum) AddValue(value *SignalEnumValue) error {
-	values := se.ValuesByIndex()
+	values := se.GetValuesByIndex()
 
 	for _, tmpVal := range values {
 		if value.Index == tmpVal.Index {
@@ -87,80 +84,20 @@ func (se *SignalEnum) AddValue(value *SignalEnumValue) error {
 	return nil
 }
 
-func (se *SignalEnum) ValuesByIndex() []*SignalEnumValue {
+func (se *SignalEnum) GetValuesByIndex() []*SignalEnumValue {
 	values := se.values.listEntities()
 	slices.SortFunc(values, func(a *SignalEnumValue, b *SignalEnumValue) int { return a.Index - b.Index })
 	return values
 }
 
-type enumSignal struct {
-	*entity
-	ParentMessage *Message
-
-	Enum     *SignalEnum
-	StartBit int
-}
-
-func newEnumSignal(name, desc string, enum *SignalEnum) *enumSignal {
-	sig := &enumSignal{
-		entity: newEntity(name, desc),
-
-		Enum: enum,
-	}
-
-	enum.signalRefs = append(enum.signalRefs, sig)
-
-	return sig
-}
-
-func (es *enumSignal) GetBitSize() int {
+func (se *SignalEnum) GetSize() int {
 	maxBitSize := 64
-	enumMaxIdx := es.Enum.maxIndex
 
 	for i := 0; i < maxBitSize; i++ {
-		if enumMaxIdx <= 1<<i {
+		if se.maxIndex <= 1<<i {
 			return i + 1
 		}
 	}
 
 	return maxBitSize
-}
-
-type EnumSignal struct {
-	*signal
-
-	enum *SignalEnum
-}
-
-func NewEnumSignal(name, desc string, enum *SignalEnum) *EnumSignal {
-	return &EnumSignal{
-		signal: newSignal(name, desc, SignalKindEnum),
-
-		enum: enum,
-	}
-}
-
-func (es *EnumSignal) GetSize() int {
-	maxBitSize := 64
-	enumMaxIdx := es.enum.maxIndex
-
-	for i := 0; i < maxBitSize; i++ {
-		if enumMaxIdx <= 1<<i {
-			return i + 1
-		}
-	}
-
-	return maxBitSize
-}
-
-func (es *EnumSignal) ToStandard() (*standardSignal, error) {
-	return nil, es.errorf(errors.New(`cannot covert to "standard", the signal is of kind "enum"`))
-}
-
-func (es *EnumSignal) ToEnum() (*EnumSignal, error) {
-	return es, nil
-}
-
-func (es *EnumSignal) GetEnum() *SignalEnum {
-	return es.enum
 }

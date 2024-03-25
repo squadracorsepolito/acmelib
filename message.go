@@ -8,31 +8,32 @@ import (
 
 type Message struct {
 	*entity
-	ParentNode *Node
 
-	signals *entityCollection[*standardSignal]
-
-	Size int
-
-	bitSize int
+	parentNode *Node
+	signals    *entityCollection[Signal]
+	sizeByte   int
+	sizeBit    int
 }
 
-func NewMessage(name, desc string, size int) *Message {
+func NewMessage(name, desc string, sizeByte int) *Message {
 	return &Message{
 		entity: newEntity(name, desc),
 
-		signals: newEntityCollection[*standardSignal](),
-
-		Size: size,
-
-		bitSize: size * 8,
+		parentNode: nil,
+		signals:    newEntityCollection[Signal](),
+		sizeByte:   sizeByte,
+		sizeBit:    sizeByte * 8,
 	}
+}
+
+func (m *Message) hasParent() bool {
+	return m.parentNode != nil
 }
 
 func (m *Message) errorf(err error) error {
 	msgErr := fmt.Errorf(`message "%s": %v`, m.Name, err)
-	if m.ParentNode != nil {
-		return m.ParentNode.errorf(msgErr)
+	if m.hasParent() {
+		return m.parentNode.errorf(msgErr)
 	}
 	return msgErr
 }
@@ -40,210 +41,145 @@ func (m *Message) errorf(err error) error {
 func (m *Message) String() string {
 	var builder strings.Builder
 
-	builder.WriteString("\nMESSAGE\n")
+	builder.WriteString("\n+++START MESSAGE+++\n\n")
 	builder.WriteString(m.toString())
-	builder.WriteString(fmt.Sprintf("size: %d\n", m.Size))
+	builder.WriteString(fmt.Sprintf("size: %d\n", m.sizeByte))
 
-	signalsByPos := m.SignalsByStartBit()
+	signalsByPos := m.GetSignalsByStartBit()
 	if len(signalsByPos) == 0 {
 		return builder.String()
 	}
 
 	builder.WriteString("signals:\n")
 	for _, sig := range signalsByPos {
-		builder.WriteString(fmt.Sprintf("\t- %s index: %d, from start_bit: %d\n", sig.Name, sig.Index, sig.StartBit))
+		builder.WriteString(sig.String())
 	}
+
+	builder.WriteString("\n+++END MESSAGE+++\n")
 
 	return builder.String()
 }
 
+func (m *Message) GetSize() int {
+	return m.sizeByte
+}
+
 func (m *Message) UpdateName(name string) error {
-	if m.ParentNode != nil {
-		if err := m.ParentNode.messages.updateEntityName(m.EntityID, m.Name, name); err != nil {
+	if m.hasParent() {
+		if err := m.parentNode.messages.updateEntityName(m.EntityID, m.Name, name); err != nil {
 			return m.errorf(err)
 		}
 	}
-
 	return m.entity.UpdateName(name)
 }
 
-func (m *Message) addSignal(sig *standardSignal) error {
+func (m *Message) addSignal(sig Signal) error {
 	if err := m.signals.addEntity(sig); err != nil {
 		return m.errorf(err)
 	}
 
-	sig.ParentMessage = m
+	sig.setParentMessage(m)
 	m.setUpdateTimeNow()
 
 	return nil
 }
 
-func (m *Message) verifySignalSize(sig *standardSignal) error {
-	sigSize := sig.BitSize()
-	if sigSize > m.bitSize {
-		return m.errorf(fmt.Errorf(`signal "%s" of size "%d" bits cannot fit in "%d" bytes`, sig.Name, sigSize, m.Size))
+func (m *Message) verifySignalSize(sig Signal) error {
+	sigSize := sig.GetSize()
+	if sigSize > m.sizeBit {
+		return m.errorf(fmt.Errorf(`signal "%s" of size "%d" bits cannot fit in "%d" bytes`, sig.GetName(), sigSize, m.sizeByte))
 	}
 	return nil
 }
 
-func (m *Message) AppendSignal(signal *standardSignal) error {
+func (m *Message) AppendSignal(signal Signal) error {
 	if err := m.verifySignalSize(signal); err != nil {
 		return err
 	}
 
 	if m.signals.getSize() == 0 {
-		signal.StartBit = 0
-		signal.Index = 0
-
+		signal.setStartBit(0)
 		return m.addSignal(signal)
 	}
 
-	signals := m.SignalsByStartBit()
+	signals := m.GetSignalsByStartBit()
 	sigCount := len(signals) - 1
 
 	lastSig := signals[sigCount]
-	startBit := lastSig.StartBit + lastSig.BitSize()
-	leftSpace := m.bitSize - startBit
-	sigSize := signal.BitSize()
+	startBit := lastSig.GetStartBit() + lastSig.GetSize()
+	leftSpace := m.sizeBit - startBit
+	sigSize := signal.GetSize()
 
 	if sigSize > leftSpace {
-		return m.errorf(fmt.Errorf(`signal "%s" of size "%d" bits cannot fit in "%d" bits left in the message`, signal.Name, sigSize, leftSpace))
+		return m.errorf(fmt.Errorf(`signal "%s" of size "%d" bits cannot fit in "%d" bits left in the message`, signal.GetName(), sigSize, leftSpace))
 	}
 
 	if err := m.addSignal(signal); err != nil {
 		return err
 	}
 
-	signal.StartBit = startBit
-	signal.Index = sigCount + 1
+	signal.setStartBit(startBit)
 
 	return nil
 }
 
-func (m *Message) InsertSignalAtIndex(signal *standardSignal, index int) error {
+func (m *Message) InsertSignal(signal Signal, startBit int) error {
 	if err := m.verifySignalSize(signal); err != nil {
 		return err
 	}
 
-	signals := m.SignalsByStartBit()
-	sigCount := len(signals)
-
-	if index > sigCount {
-		return m.errorf(fmt.Errorf(`signal "%s" index "%d" is out of range, valid values are from "0" to "%d"`, signal.Name, index, sigCount))
+	sigSize := signal.GetSize()
+	if startBit+sigSize > m.sizeBit {
+		return m.errorf(fmt.Errorf(`signal "%s" starting at bit "%d" of size "%d" bits cannot fit in "%d" bytes`, signal.GetName(), startBit, sigSize, m.sizeByte))
 	}
 
-	if sigCount == 0 {
-		signal.StartBit = 0
-		signal.Index = 0
-
-		return m.addSignal(signal)
-	}
-
-	leftSpace := m.getMaxSignalBitSize()
-	sigSize := signal.BitSize()
-
-	if sigSize > leftSpace {
-		return m.errorf(fmt.Errorf(`signal "%s" of size "%d" bits cannot fit in "%d" bits left in the message`, signal.Name, sigSize, leftSpace))
-	}
-
-	lastSig := signals[sigCount-1]
-	if sigCount == index {
-		signal.StartBit = lastSig.StartBit + lastSig.BitSize()
-		signal.Index = index
-
-		return m.addSignal(signal)
-	}
-
-	inserted := false
-	for _, tmpSig := range signals {
-		if inserted {
-			tmpSig.Index++
-			tmpSig.StartBit += sigSize
-			continue
-		}
-
-		if tmpSig.Index == index {
-			inserted = true
-
-			if err := m.addSignal(signal); err != nil {
-				return err
-			}
-
-			signal.Index = index
-			signal.StartBit = tmpSig.StartBit
-
-			tmpSig.Index++
-			tmpSig.StartBit += sigSize
-		}
-	}
-
-	return nil
-}
-
-func (m *Message) InsertSignalAtStartBit(signal *standardSignal, startBit int) error {
-	if err := m.verifySignalSize(signal); err != nil {
-		return err
-	}
-
-	sigSize := signal.BitSize()
-	if startBit+sigSize > m.bitSize {
-		return m.errorf(fmt.Errorf(`signal "%s" starting at bit "%d" of size "%d" bits cannot fit in "%d" bytes`, signal.Name, startBit, sigSize, m.Size))
-	}
-
-	signalsByPos := m.SignalsByStartBit()
+	signalsByPos := m.GetSignalsByStartBit()
 	sigCount := len(signalsByPos)
 
 	if sigCount == 0 {
-		signal.StartBit = startBit
-		signal.Index = 0
-
+		signal.setStartBit(startBit)
 		return m.addSignal(signal)
 	}
 
 	leftSpace := m.getMaxSignalBitSize()
 	if leftSpace < sigSize {
-		return m.errorf(fmt.Errorf(`signal "%s" of size "%d" bits cannot fit in "%d" bits left in the message`, signal.Name, sigSize, leftSpace))
+		return m.errorf(fmt.Errorf(`signal "%s" of size "%d" bits cannot fit in "%d" bits left in the message`, signal.GetName(), sigSize, leftSpace))
 	}
 
 	inserted := false
-	for idx, tmpSig := range signalsByPos {
+	for _, tmpSig := range signalsByPos {
 		if inserted {
-			tmpSig.Index++
 			continue
 		}
 
-		if startBit == tmpSig.StartBit {
-			return m.errorf(fmt.Errorf(`signal "%s" cannot start at bit "%d" because signal "%s" alreay does`, signal.Name, startBit, tmpSig.Name))
+		if startBit == tmpSig.GetStartBit() {
+			return m.errorf(fmt.Errorf(`signal "%s" cannot start at bit "%d" because signal "%s" alreay does`, signal.GetName(), startBit, tmpSig.GetName()))
 		}
 
-		if startBit > tmpSig.StartBit {
-			tmpSigSpan := tmpSig.StartBit + tmpSig.BitSize()
+		if startBit > tmpSig.GetStartBit() {
+			tmpSigSpan := tmpSig.GetStartBit() + tmpSig.GetSize()
 			if startBit < tmpSigSpan {
 				return m.errorf(fmt.Errorf(`signal "%s" cannot start at bit "%d" because signal "%s" spans from bit "%d" to "%d"`,
-					signal.Name, startBit, tmpSig.Name, tmpSig.StartBit, tmpSigSpan-1))
+					signal.GetName(), startBit, tmpSig.GetName(), tmpSig.GetStartBit(), tmpSigSpan-1))
 			}
 
 			continue
 		}
 
-		if startBit+sigSize > tmpSig.StartBit {
-			return m.errorf(fmt.Errorf(`signal "%s" cannot start at bit "%d" because it will span over signal "%s"`, signal.Name, startBit, tmpSig.Name))
+		if startBit+sigSize > tmpSig.GetStartBit() {
+			return m.errorf(fmt.Errorf(`signal "%s" cannot start at bit "%d" because it will span over signal "%s"`, signal.GetName(), startBit, tmpSig.GetName()))
 		}
 
 		if err := m.addSignal(signal); err != nil {
 			return err
 		}
 
-		signal.Index = idx
-		signal.StartBit = startBit
-		tmpSig.Index++
+		signal.setStartBit(startBit)
 		inserted = true
 	}
 
 	if !inserted {
-		signal.StartBit = startBit
-		signal.Index = sigCount
-
+		signal.setStartBit(startBit)
 		return m.addSignal(signal)
 	}
 
@@ -252,13 +188,12 @@ func (m *Message) InsertSignalAtStartBit(signal *standardSignal, startBit int) e
 
 func (m *Message) RemoveSignal(signalID EntityID) error {
 	removed := false
-	for _, sig := range m.SignalsByStartBit() {
+	for _, sig := range m.GetSignalsByStartBit() {
 		if removed {
-			sig.Index--
 			continue
 		}
 
-		if sig.EntityID == signalID {
+		if sig.GetEntityID() == signalID {
 			removed = true
 		}
 	}
@@ -274,10 +209,10 @@ func (m *Message) RemoveSignal(signalID EntityID) error {
 
 func (m *Message) CompactSignals() {
 	lastStartBit := 0
-	for _, sig := range m.SignalsByStartBit() {
-		if lastStartBit < sig.StartBit {
-			sig.StartBit = lastStartBit
-			lastStartBit += sig.BitSize()
+	for _, sig := range m.GetSignalsByStartBit() {
+		if lastStartBit < sig.GetStartBit() {
+			sig.setStartBit(lastStartBit)
+			lastStartBit += sig.GetSize()
 		}
 	}
 }
@@ -298,11 +233,11 @@ func (m *Message) getMaxSignalBitSize() int {
 
 func (m *Message) GetAvailableSignalSpaces() [][]int {
 	positions := [][]int{}
-	signals := m.SignalsByStartBit()
+	signals := m.GetSignalsByStartBit()
 
 	from := 0
 	for _, sig := range signals {
-		sigStartBit := sig.StartBit
+		sigStartBit := sig.GetStartBit()
 
 		if from > sigStartBit {
 			continue
@@ -312,68 +247,193 @@ func (m *Message) GetAvailableSignalSpaces() [][]int {
 			positions = append(positions, []int{from, sigStartBit - 1})
 		}
 
-		from = sigStartBit + sig.BitSize()
+		from = sigStartBit + sig.GetSize()
 	}
 
-	if from < m.bitSize {
-		positions = append(positions, []int{from, m.bitSize - 1})
+	if from < m.sizeBit {
+		positions = append(positions, []int{from, m.sizeBit - 1})
 	}
 
 	return positions
 }
 
-func (m *Message) SignalsByName() []*standardSignal {
+func (m *Message) GetSignalsByName() []Signal {
 	return sortByName(m.signals.listEntities())
 }
 
-func (m *Message) SignalsByCreateTime() []*standardSignal {
+func (m *Message) GetSignalsByCreateTime() []Signal {
 	return sortByCreateTime(m.signals.listEntities())
 }
 
-func (m *Message) SignalsByUpdateTime() []*standardSignal {
+func (m *Message) GetSignalsByUpdateTime() []Signal {
 	return sortByUpdateTime(m.signals.listEntities())
 }
 
-func (m *Message) SignalsByStartBit() []*standardSignal {
+func (m *Message) GetSignalsByStartBit() []Signal {
 	signals := m.signals.listEntities()
-	slices.SortFunc(signals, func(a, b *standardSignal) int { return a.StartBit - b.StartBit })
+	slices.SortFunc(signals, func(a, b Signal) int { return a.GetStartBit() - b.GetStartBit() })
 	return signals
 }
 
-func (m *Message) GetSignalByEntityID(id EntityID) (*standardSignal, error) {
+func (m *Message) GetSignalByEntityID(id EntityID) (Signal, error) {
 	return m.signals.getEntityByID(id)
 }
 
-func (m *Message) GetSignalByName(name string) (*standardSignal, error) {
+func (m *Message) GetSignalByName(name string) (Signal, error) {
 	return m.signals.getEntityByName(name)
 }
 
-func (m *Message) shiftSignalsLeft(index, offset int) error {
-	signals := m.SignalsByStartBit()
+func (m *Message) modifySignalSize(sigID EntityID, amount int) error {
+	if amount == 0 {
+		return nil
+	}
+
+	signals := m.GetSignalsByStartBit()
+
+	if amount < 0 {
+		found := false
+		for _, tmpSig := range signals {
+			if found {
+				tmpSig.setStartBit(tmpSig.GetStartBit() + amount)
+				continue
+			}
+
+			if tmpSig.GetEntityID() == sigID {
+				found = true
+			}
+		}
+
+		return nil
+	}
+
+	index := 0
+	for idx, tmpSig := range signals {
+		if tmpSig.GetEntityID() == sigID {
+			index = idx + 1
+			break
+		}
+	}
+
 	sigCount := len(signals)
+	if index == sigCount {
+		sig := signals[index-1]
+		exceedingBits := sig.GetStartBit() + sig.GetSize() + amount - m.sizeBit
+		if exceedingBits > 0 {
+			return fmt.Errorf(`cannot grow signal size because it will cause an overflow of "%d" bits in the message payload`, exceedingBits)
+		}
+
+		return nil
+	}
 
 	newStartingBits := []int{}
 	lastSigBitSize := 0
 	i := index
 	for {
 		tmpSig := signals[i]
-		newStartingBits = append(newStartingBits, tmpSig.StartBit+offset)
+		newStartingBits = append(newStartingBits, tmpSig.GetStartBit()+amount)
 
 		i++
 		if i == sigCount {
-			lastSigBitSize = tmpSig.BitSize()
+			lastSigBitSize = tmpSig.GetSize()
 			break
 		}
 	}
 
-	exceedingBits := newStartingBits[sigCount-1] + lastSigBitSize - m.bitSize
+	exceedingBits := newStartingBits[len(newStartingBits)-1] + lastSigBitSize - m.sizeBit
 	if exceedingBits > 0 {
-		return m.errorf(fmt.Errorf(`cannot shift signals left because it will exceed the message payload of "%d" bits`, exceedingBits))
+		return fmt.Errorf(`cannot grow signal size because it will cause an overflow of "%d" bits in the message payload`, exceedingBits)
 	}
 
 	for idx, startBit := range newStartingBits {
-		signals[idx+index].StartBit = startBit
+		signals[idx+index].setStartBit(startBit)
 	}
 
 	return nil
+}
+
+func (m *Message) RemoveAllSignals() {
+	m.signals.removeAllEntities()
+}
+
+func (m *Message) ShiftSignalLeft(signalEntityID EntityID, amount int) int {
+	if amount <= 0 {
+		return 0
+	}
+
+	signals := m.GetSignalsByStartBit()
+	perfShift := amount
+
+	var prevSig Signal
+	for idx, tmpSig := range signals {
+		if idx > 0 {
+			prevSig = signals[idx-1]
+		}
+
+		if tmpSig.GetEntityID() == signalEntityID {
+			tmpStartBit := tmpSig.GetStartBit()
+			targetStartBit := tmpStartBit - amount
+
+			if targetStartBit < 0 {
+				targetStartBit = 0
+			}
+
+			if prevSig != nil {
+				prevEndBit := prevSig.GetStartBit() + prevSig.GetSize()
+
+				if targetStartBit < prevEndBit {
+					targetStartBit = prevEndBit
+				}
+			}
+
+			tmpSig.setStartBit(targetStartBit)
+			perfShift = tmpStartBit - targetStartBit
+
+			break
+		}
+	}
+
+	return perfShift
+}
+
+func (m *Message) ShiftSignalRight(signalEntityID EntityID, amount int) int {
+	if amount <= 0 {
+		return 0
+	}
+
+	signals := m.GetSignalsByStartBit()
+	perfShift := amount
+
+	var nextSig Signal
+	for idx, tmpSig := range signals {
+		if idx == len(signals)-1 {
+			nextSig = nil
+		} else {
+			nextSig = signals[idx+1]
+		}
+
+		if tmpSig.GetEntityID() == signalEntityID {
+			tmpStartBit := tmpSig.GetStartBit()
+			targetStartBit := tmpStartBit + amount
+			targetEndBit := targetStartBit + tmpSig.GetSize()
+
+			if targetEndBit > m.sizeBit {
+				targetStartBit = m.sizeBit - tmpSig.GetSize()
+			}
+
+			if nextSig != nil {
+				nextStartBit := nextSig.GetStartBit()
+
+				if targetEndBit > nextStartBit {
+					targetStartBit = nextStartBit - tmpSig.GetSize()
+				}
+			}
+
+			tmpSig.setStartBit(targetStartBit)
+			perfShift = targetStartBit - tmpStartBit
+
+			break
+		}
+	}
+
+	return perfShift
 }

@@ -1,6 +1,7 @@
 package acmelib
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -50,6 +51,10 @@ func (e *entity) GetName() string {
 	return e.Name
 }
 
+func (e *entity) GetDesc() string {
+	return e.Desc
+}
+
 func (e *entity) GetCreateTime() time.Time {
 	return e.CreateTime
 }
@@ -85,9 +90,12 @@ func (e *entity) toString() string {
 
 	builder.WriteString("entity_id: " + e.EntityID.String() + "\n")
 	builder.WriteString("name: " + e.Name + "\n")
-	builder.WriteString("description: " + e.Desc + "\n")
-	builder.WriteString("create_time: " + e.CreateTime.String() + "\n")
-	builder.WriteString("update_time: " + e.UpdateTime.String() + "\n")
+
+	if len(e.Desc) > 0 {
+		builder.WriteString(fmt.Sprintf("desc: %s\n", e.Desc))
+	}
+
+	builder.WriteString(fmt.Sprintf("create_time: %s; update_time: %s\n", e.CreateTime.Format(time.RFC3339), e.UpdateTime.Format(time.RFC3339)))
 
 	return builder.String()
 }
