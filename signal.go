@@ -212,11 +212,15 @@ func NewEnumSignal(name, desc string, enum *SignalEnum) (*EnumSignal, error) {
 		return nil, errors.New("signal enum cannot be nil")
 	}
 
-	return &EnumSignal{
+	sig := &EnumSignal{
 		signal: newSignal(name, desc, SignalKindEnum),
 
 		enum: enum,
-	}, nil
+	}
+
+	enum.signalRefs = append(enum.signalRefs, sig)
+
+	return sig, nil
 }
 
 func (es *EnumSignal) String() string {
