@@ -41,6 +41,7 @@ func Test_Message_AppendSignal(t *testing.T) {
 	assert.NoError(msg.AppendSignal(sig1))
 	assert.NoError(msg.AppendSignal(sig2))
 	assert.NoError(msg.AppendSignal(sig3))
+
 	assert.NoError(msg.AppendSignal(sig4))
 
 	sigTypMassive := NewSignalType("massive", "", SignalTypeKindInteger, 128, true, -128, 127)

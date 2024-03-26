@@ -6,6 +6,17 @@ import (
 	"time"
 )
 
+const maxSize = 64
+
+func calcSizeFromValue(val int) int {
+	for i := 0; i < maxSize; i++ {
+		if val <= 1<<i {
+			return i + 1
+		}
+	}
+	return maxSize
+}
+
 type sortableByName interface {
 	GetName() string
 }

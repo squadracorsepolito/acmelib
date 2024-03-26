@@ -1,5 +1,11 @@
 package acmelib
 
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
 // func Test_SignalEnum_AddValue(t *testing.T) {
 // 	assert := assert.New(t)
 
@@ -33,35 +39,35 @@ package acmelib
 // 	t.Log(sig.String())
 // }
 
-// func Test_SignalEnumValue_UpdateIndex(t *testing.T) {
-// 	assert := assert.New(t)
+func Test_SignalEnumValue_UpdateIndex(t *testing.T) {
+	assert := assert.New(t)
 
-// 	msg0 := NewMessage("msg_0", "", 1)
+	msg0 := NewMessage("msg_0", "", 1)
 
-// 	sigEnum := NewSignalEnum("signal_enum", "")
+	sigEnum := NewSignalEnum("signal_enum", "")
 
-// 	sig0, err := NewEnumSignal("sig_0", "", sigEnum)
-// 	assert.NoError(err)
+	sig0, err := NewEnumSignal("sig_0", "", sigEnum)
+	assert.NoError(err)
 
-// 	assert.NoError(msg0.AppendSignal(sig0))
+	assert.NoError(msg0.AppendSignal(sig0))
 
-// 	sigEnumVal := NewSignalEnumValue("val", "", 0)
+	sigEnumVal := NewSignalEnumValue("val", "", 0)
 
-// 	assert.NoError(sigEnum.AddValue(sigEnumVal))
+	assert.NoError(sigEnum.AddValue(sigEnumVal))
 
-// 	assert.NoError(sigEnumVal.UpdateIndex(127))
-// 	assert.Error(sigEnumVal.UpdateIndex(512))
+	assert.NoError(sigEnumVal.UpdateIndex(127))
+	assert.Error(sigEnumVal.UpdateIndex(512))
 
-// 	msg1 := NewMessage("msg_1", "", 1)
+	msg1 := NewMessage("msg_1", "", 1)
 
-// 	sig1, err := NewEnumSignal("sig_1", "", sigEnum)
-// 	assert.NoError(err)
+	sig1, err := NewEnumSignal("sig_1", "", sigEnum)
+	assert.NoError(err)
 
-// 	assert.NoError(msg1.AppendSignal(sig1))
+	assert.NoError(msg1.AppendSignal(sig1))
 
-// 	assert.NoError(sigEnumVal.UpdateIndex(8))
-// 	assert.Error(sigEnumVal.UpdateIndex(512))
+	assert.NoError(sigEnumVal.UpdateIndex(8))
+	assert.Error(sigEnumVal.UpdateIndex(512))
 
-// 	t.Log(msg0)
-// 	t.Log(msg1)
-// }
+	t.Log(msg0)
+	t.Log(msg1)
+}
