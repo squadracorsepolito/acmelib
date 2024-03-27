@@ -64,10 +64,9 @@ func (es *EnumSignal) UpdateEnum(newEnum *SignalEnum) error {
 		return es.errorf(err)
 	}
 
-	es.enum.removeSignalRef(es.GetEntityID())
+	es.enum.removeSignalRef(es.EntityID())
 
 	es.enum = newEnum
-	es.setUpdateTimeNow()
 
 	return nil
 }

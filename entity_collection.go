@@ -7,8 +7,8 @@ import (
 )
 
 type collectableEntity interface {
-	GetEntityID() EntityID
-	GetName() string
+	EntityID() EntityID
+	Name() string
 }
 
 type entityCollection[E collectableEntity] struct {
@@ -39,12 +39,12 @@ func (ec *entityCollection[E]) verifyEntityName(name string) error {
 }
 
 func (ec *entityCollection[E]) addEntity(entity E) error {
-	name := entity.GetName()
+	name := entity.Name()
 	if err := ec.verifyEntityName(name); err != nil {
 		return err
 	}
 
-	id := entity.GetEntityID()
+	id := entity.EntityID()
 	if _, ok := ec.entities[id]; ok {
 		return fmt.Errorf(`duplicated id "%s"`, id)
 	}
@@ -61,7 +61,7 @@ func (ec *entityCollection[E]) removeEntity(id EntityID) error {
 		return err
 	}
 
-	delete(ec.entityNames, e.GetName())
+	delete(ec.entityNames, e.Name())
 	delete(ec.entities, id)
 
 	return nil
@@ -69,7 +69,7 @@ func (ec *entityCollection[E]) removeEntity(id EntityID) error {
 
 func (ec *entityCollection[E]) removeAllEntities() {
 	for id, e := range ec.entities {
-		delete(ec.entityNames, e.GetName())
+		delete(ec.entityNames, e.Name())
 		delete(ec.entities, id)
 	}
 }

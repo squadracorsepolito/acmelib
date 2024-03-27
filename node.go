@@ -18,7 +18,7 @@ func NewNode(name, desc string) *Node {
 }
 
 func (n *Node) errorf(err error) error {
-	nodeErr := fmt.Errorf(`node "%s": %v`, n.Name, err)
+	nodeErr := fmt.Errorf(`node "%s": %v`, n.name, err)
 	if n.ParentBus != nil {
 		return n.ParentBus.errorf(nodeErr)
 	}
@@ -27,7 +27,7 @@ func (n *Node) errorf(err error) error {
 
 func (n *Node) UpdateName(name string) error {
 	if n.ParentBus != nil {
-		if err := n.ParentBus.nodes.updateEntityName(n.EntityID, n.Name, name); err != nil {
+		if err := n.ParentBus.nodes.updateEntityName(n.entityID, n.name, name); err != nil {
 			return n.errorf(err)
 		}
 	}
@@ -54,8 +54,6 @@ func (n *Node) RemoveMessage(messageID EntityID) error {
 	if err := n.messages.removeEntity(messageID); err != nil {
 		return n.errorf(err)
 	}
-
-	n.setUpdateTimeNow()
 
 	return nil
 }

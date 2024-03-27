@@ -18,7 +18,7 @@ func NewBus(name, desc string) *Bus {
 }
 
 func (b *Bus) errorf(err error) error {
-	busErr := fmt.Errorf(`bus "%s": %v`, b.Name, err)
+	busErr := fmt.Errorf(`bus "%s": %v`, b.name, err)
 	if b.ParentProject != nil {
 		return b.ParentProject.errorf(busErr)
 	}
@@ -27,7 +27,7 @@ func (b *Bus) errorf(err error) error {
 
 func (b *Bus) UpdateName(name string) error {
 	if b.ParentProject != nil {
-		if err := b.ParentProject.buses.updateEntityName(b.EntityID, b.Name, name); err != nil {
+		if err := b.ParentProject.buses.updateEntityName(b.entityID, b.name, name); err != nil {
 			return b.errorf(err)
 		}
 	}
@@ -41,7 +41,6 @@ func (b *Bus) AddNode(node *Node) error {
 	}
 
 	node.ParentBus = b
-	b.setUpdateTimeNow()
 
 	return nil
 }
@@ -54,8 +53,6 @@ func (b *Bus) RemoveNode(nodeID EntityID) error {
 	if err := b.nodes.removeEntity(nodeID); err != nil {
 		return b.errorf(err)
 	}
-
-	b.setUpdateTimeNow()
 
 	return nil
 }

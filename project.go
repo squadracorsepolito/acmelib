@@ -17,7 +17,7 @@ func NewProject(name, desc string) *Project {
 }
 
 func (p *Project) errorf(err error) error {
-	return fmt.Errorf(`project "%s": %v`, p.Name, err)
+	return fmt.Errorf(`project "%s": %v`, p.name, err)
 }
 
 func (p *Project) AddBus(bus *Bus) error {
@@ -26,7 +26,6 @@ func (p *Project) AddBus(bus *Bus) error {
 	}
 
 	bus.ParentProject = p
-	p.setUpdateTimeNow()
 
 	return nil
 }
@@ -39,8 +38,6 @@ func (p *Project) RemoveBus(busID EntityID) error {
 	if err := p.buses.removeEntity(busID); err != nil {
 		return p.errorf(err)
 	}
-
-	p.setUpdateTimeNow()
 
 	return nil
 }

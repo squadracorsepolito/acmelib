@@ -15,21 +15,41 @@ const (
 	SignalKindMultiplexer SignalKind = "multiplexer"
 )
 
+type signalParentKind string
+
+const (
+	signalParentKindMessage           signalParentKind = "message"
+	signalParentKindMultiplexerSignal signalParentKind = "multiplexer_signal"
+)
+
+type signalParent interface {
+	errorf(err error) error
+
+	getSignalParentKind() signalParentKind
+
+	verifySignalName(name string) error
+	modifySignalName(sigID EntityID, newName string)
+
+	modifySignalSize(sigID EntityID, amount int) error
+
+	toParentMessage() (*Message, error)
+	toParentMultiplexerSignal() (*MultiplexerSignal, error)
+}
+
 type Signal interface {
-	GetEntityID() EntityID
-	GetName() string
-	GetDesc() string
-	GetCreateTime() time.Time
-	GetUpdateTime() time.Time
+	EntityID() EntityID
+	Name() string
+	Desc() string
+	CreateTime() time.Time
 
 	String() string
 
-	GetKind() SignalKind
+	Kind() SignalKind
 
-	GetParentMessage() *Message
-	setParentMessage(parentMessage *Message)
+	getParent() signalParent
+	setParent(parent signalParent)
 
-	GetStartBit() int
+	StartBit() int
 	setStartBit(startBit int)
 
 	GetSize() int
@@ -42,18 +62,20 @@ type Signal interface {
 type signal struct {
 	*entity
 
-	kind          SignalKind
-	parentMessage *Message
-	startBit      int
+	parent signalParent
+
+	kind     SignalKind
+	startBit int
 }
 
 func newSignal(name, desc string, kind SignalKind) *signal {
 	return &signal{
 		entity: newEntity(name, desc),
 
-		kind:          kind,
-		parentMessage: nil,
-		startBit:      0,
+		parent: nil,
+
+		kind:     kind,
+		startBit: 0,
 	}
 }
 
@@ -68,19 +90,19 @@ func (s *signal) String() string {
 	return builder.String()
 }
 
-func (s *signal) GetKind() SignalKind {
+func (s *signal) Kind() SignalKind {
 	return s.kind
 }
 
-func (s *signal) GetParentMessage() *Message {
-	return s.parentMessage
+func (s *signal) getParent() signalParent {
+	return s.parent
 }
 
-func (s *signal) setParentMessage(parentMessage *Message) {
-	s.parentMessage = parentMessage
+func (s *signal) setParent(parent signalParent) {
+	s.parent = parent
 }
 
-func (s *signal) GetStartBit() int {
+func (s *signal) StartBit() int {
 	return s.startBit
 }
 
@@ -89,30 +111,40 @@ func (s *signal) setStartBit(startBit int) {
 }
 
 func (s *signal) hasParent() bool {
-	return s.parentMessage != nil
+	return s.parent != nil
 }
 
 func (s *signal) errorf(err error) error {
-	sigErr := fmt.Errorf(`signal "%s": %v`, s.Name, err)
+	sigErr := fmt.Errorf(`signal "%s": %v`, s.name, err)
 	if s.hasParent() {
-		return s.parentMessage.errorf(sigErr)
+		return s.parent.errorf(sigErr)
 	}
 	return sigErr
 }
 
 func (s *signal) UpdateName(newName string) error {
-	if s.hasParent() {
-		if err := s.parentMessage.signals.updateEntityName(s.EntityID, s.Name, newName); err != nil {
-			return err
-		}
+	if s.name == newName {
+		return nil
 	}
-	return s.entity.UpdateName(newName)
+
+	if s.hasParent() {
+		if err := s.parent.verifySignalName(newName); err != nil {
+			return s.errorf(err)
+		}
+
+		s.parent.modifySignalName(s.entityID, newName)
+	}
+
+	s.name = newName
+
+	return nil
 }
 
 func (s *signal) modifySize(amount int) error {
 	if s.hasParent() {
-		return s.parentMessage.modifySignalSize(s.GetEntityID(), amount)
+		return s.parent.modifySignalSize(s.EntityID(), amount)
 	}
+
 	return nil
 }
 
@@ -202,7 +234,6 @@ func (ss *StandardSignal) UpdateType(newType *SignalType) error {
 	}
 
 	ss.typ = newType
-	ss.setUpdateTimeNow()
 
 	return nil
 }

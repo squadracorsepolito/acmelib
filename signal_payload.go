@@ -3,7 +3,6 @@ package acmelib
 import (
 	"errors"
 	"fmt"
-	"sync"
 
 	"golang.org/x/exp/slices"
 )
@@ -11,21 +10,16 @@ import (
 type signalPayload struct {
 	size    int
 	signals []Signal
-	mux     *sync.RWMutex
 }
 
 func newSignalPayload(size int) *signalPayload {
 	return &signalPayload{
 		size:    size,
 		signals: []Signal{},
-		mux:     &sync.RWMutex{},
 	}
 }
 
 func (sp *signalPayload) verifyBeforeAppend(sig Signal) error {
-	sp.mux.RLock()
-	defer sp.mux.RUnlock()
-
 	sigSize := sig.GetSize()
 	sigCount := len(sp.signals)
 	if sigCount == 0 {
@@ -37,7 +31,7 @@ func (sp *signalPayload) verifyBeforeAppend(sig Signal) error {
 	}
 
 	lastSig := sp.signals[sigCount-1]
-	trailingSpace := sp.size - (lastSig.GetStartBit() + lastSig.GetSize())
+	trailingSpace := sp.size - (lastSig.StartBit() + lastSig.GetSize())
 
 	if sigSize > trailingSpace {
 		return fmt.Errorf(`signal of size "%d" exceeds the available space ("%d") at the end of the payload`, sigSize, trailingSpace)
@@ -48,17 +42,14 @@ func (sp *signalPayload) verifyBeforeAppend(sig Signal) error {
 
 func (sp *signalPayload) append(sig Signal) error {
 	if err := sp.verifyBeforeAppend(sig); err != nil {
-		return fmt.Errorf(`cannot append signal "%s" : %v`, sig.GetName(), err)
+		return fmt.Errorf(`cannot append signal "%s" : %v`, sig.Name(), err)
 	}
-
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
 
 	if len(sp.signals) == 0 {
 		sig.setStartBit(0)
 	} else {
 		lastSig := sp.signals[len(sp.signals)-1]
-		sig.setStartBit(lastSig.GetStartBit() + lastSig.GetSize())
+		sig.setStartBit(lastSig.StartBit() + lastSig.GetSize())
 	}
 
 	sp.signals = append(sp.signals, sig)
@@ -82,11 +73,8 @@ func (sp *signalPayload) verifyBeforeInsert(sig Signal, startBit int) error {
 		return fmt.Errorf(`signal of size "%d" starting at "%d" exceeds the max payload size ("%d")`, sigSize, startBit, sp.size)
 	}
 
-	sp.mux.RLock()
-	defer sp.mux.RUnlock()
-
 	for _, tmpSig := range sp.signals {
-		tmpStartBit := tmpSig.GetStartBit()
+		tmpStartBit := tmpSig.StartBit()
 		tmpEndBit := tmpStartBit + tmpSig.GetSize()
 
 		if endBit <= tmpStartBit {
@@ -99,7 +87,7 @@ func (sp *signalPayload) verifyBeforeInsert(sig Signal, startBit int) error {
 
 		if startBit >= tmpStartBit || endBit > tmpStartBit {
 			return fmt.Errorf(`signal of size "%d" starting at "%d" intersects signal "%s" (start bit "%d", size "%d")`,
-				sigSize, startBit, tmpSig.GetName(), tmpStartBit, tmpSig.GetSize())
+				sigSize, startBit, tmpSig.Name(), tmpStartBit, tmpSig.GetSize())
 		}
 	}
 
@@ -108,11 +96,8 @@ func (sp *signalPayload) verifyBeforeInsert(sig Signal, startBit int) error {
 
 func (sp *signalPayload) insert(sig Signal, startBit int) error {
 	if err := sp.verifyBeforeInsert(sig, startBit); err != nil {
-		return fmt.Errorf(`cannot insert signal "%s" : %v`, sig.GetName(), err)
+		return fmt.Errorf(`cannot insert signal "%s" : %v`, sig.Name(), err)
 	}
-
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
 
 	if len(sp.signals) == 0 {
 		sig.setStartBit(startBit)
@@ -123,7 +108,7 @@ func (sp *signalPayload) insert(sig Signal, startBit int) error {
 
 	inserted := false
 	for idx, tmpSig := range sp.signals {
-		tmpStartBit := tmpSig.GetStartBit()
+		tmpStartBit := tmpSig.StartBit()
 
 		if tmpStartBit > startBit {
 			inserted = true
@@ -142,26 +127,17 @@ func (sp *signalPayload) insert(sig Signal, startBit int) error {
 }
 
 func (sp *signalPayload) remove(sigID EntityID) {
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
-
-	sp.signals = slices.DeleteFunc(sp.signals, func(s Signal) bool { return s.GetEntityID() == sigID })
+	sp.signals = slices.DeleteFunc(sp.signals, func(s Signal) bool { return s.EntityID() == sigID })
 }
 
 func (sp *signalPayload) removeAll() {
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
-
 	sp.signals = []Signal{}
 }
 
 func (sp *signalPayload) compact() {
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
-
 	lastStartBit := 0
 	for _, sig := range sp.signals {
-		tmpStartBit := sig.GetStartBit()
+		tmpStartBit := sig.StartBit()
 
 		if tmpStartBit == lastStartBit {
 			lastStartBit += sig.GetSize()
@@ -180,17 +156,14 @@ func (sp *signalPayload) modifyStartBitsOnShrink(sig Signal, amount int) {
 		return
 	}
 
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
-
 	found := false
 	for _, tmpSig := range sp.signals {
 		if found {
-			tmpSig.setStartBit(tmpSig.GetStartBit() - amount)
+			tmpSig.setStartBit(tmpSig.StartBit() - amount)
 			continue
 		}
 
-		if sig.GetEntityID() == tmpSig.GetEntityID() {
+		if sig.EntityID() == tmpSig.EntityID() {
 			found = true
 		}
 	}
@@ -205,15 +178,12 @@ func (sp *signalPayload) verifyBeforeGrow(sig Signal, amount int) error {
 	prevEndBit := 0
 	found := false
 
-	sp.mux.RLock()
-	defer sp.mux.RUnlock()
-
 	for _, tmpSig := range sp.signals {
-		tmpStartBit := tmpSig.GetStartBit()
+		tmpStartBit := tmpSig.StartBit()
 
 		if found {
 			availableSpace += tmpStartBit - prevEndBit
-		} else if tmpSig.GetEntityID() == sig.GetEntityID() {
+		} else if tmpSig.EntityID() == sig.EntityID() {
 			found = true
 		}
 
@@ -227,8 +197,6 @@ func (sp *signalPayload) verifyBeforeGrow(sig Signal, amount int) error {
 	}
 
 	return nil
-
-	// return amount <= availableSpace
 }
 
 func (sp *signalPayload) modifyStartBitsOnGrow(sig Signal, amount int) error {
@@ -237,11 +205,8 @@ func (sp *signalPayload) modifyStartBitsOnGrow(sig Signal, amount int) error {
 	}
 
 	if err := sp.verifyBeforeGrow(sig, amount); err != nil {
-		return fmt.Errorf(`cannot grow signal "%s" : %v`, sig.GetName(), err)
+		return fmt.Errorf(`cannot grow signal "%s" : %v`, sig.Name(), err)
 	}
-
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
 
 	prevEndBit := 0
 	spaces := []int{}
@@ -249,13 +214,13 @@ func (sp *signalPayload) modifyStartBitsOnGrow(sig Signal, amount int) error {
 	found := false
 
 	for idx, tmpSig := range sp.signals {
-		tmpStartBit := tmpSig.GetStartBit()
+		tmpStartBit := tmpSig.StartBit()
 
 		if found {
 			space := tmpStartBit - prevEndBit
 			spaces = append(spaces, space)
 
-		} else if sig.GetEntityID() == tmpSig.GetEntityID() {
+		} else if sig.EntityID() == tmpSig.EntityID() {
 			if idx == len(sp.signals)-1 {
 				return nil
 			}
@@ -280,7 +245,7 @@ func (sp *signalPayload) modifyStartBitsOnGrow(sig Signal, amount int) error {
 
 		acc -= tmpSpace
 		tmpSig := sp.signals[i]
-		tmpSig.setStartBit(tmpSig.GetStartBit() + acc)
+		tmpSig.setStartBit(tmpSig.StartBit() + acc)
 		spaceIdx++
 	}
 
@@ -295,16 +260,13 @@ func (sp *signalPayload) shiftLeft(sig Signal, amount int) int {
 	perfShift := amount
 	var prevSig Signal
 
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
-
 	for idx, tmpSig := range sp.signals {
 		if idx > 0 {
 			prevSig = sp.signals[idx-1]
 		}
 
-		if sig.GetEntityID() == tmpSig.GetEntityID() {
-			tmpStartBit := tmpSig.GetStartBit()
+		if sig.EntityID() == tmpSig.EntityID() {
+			tmpStartBit := tmpSig.StartBit()
 			targetStartBit := tmpStartBit - amount
 
 			if targetStartBit < 0 {
@@ -312,7 +274,7 @@ func (sp *signalPayload) shiftLeft(sig Signal, amount int) int {
 			}
 
 			if prevSig != nil {
-				prevEndBit := prevSig.GetStartBit() + prevSig.GetSize()
+				prevEndBit := prevSig.StartBit() + prevSig.GetSize()
 
 				if targetStartBit < prevEndBit {
 					targetStartBit = prevEndBit
@@ -337,9 +299,6 @@ func (sp *signalPayload) shiftRight(sig Signal, amount int) int {
 	perfShift := amount
 	var nextSig Signal
 
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
-
 	for idx, tmpSig := range sp.signals {
 		if idx == len(sp.signals)-1 {
 			nextSig = nil
@@ -347,8 +306,8 @@ func (sp *signalPayload) shiftRight(sig Signal, amount int) int {
 			nextSig = sp.signals[idx+1]
 		}
 
-		if sig.GetEntityID() == tmpSig.GetEntityID() {
-			tmpStartBit := tmpSig.GetStartBit()
+		if sig.EntityID() == tmpSig.EntityID() {
+			tmpStartBit := tmpSig.StartBit()
 			targetStartBit := tmpStartBit + amount
 			targetEndBit := targetStartBit + tmpSig.GetSize()
 
@@ -357,7 +316,7 @@ func (sp *signalPayload) shiftRight(sig Signal, amount int) int {
 			}
 
 			if nextSig != nil {
-				nextStartBit := nextSig.GetStartBit()
+				nextStartBit := nextSig.StartBit()
 
 				if targetEndBit > nextStartBit {
 					targetStartBit = nextStartBit - tmpSig.GetSize()

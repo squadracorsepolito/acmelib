@@ -23,11 +23,10 @@ func (id EntityID) String() string {
 }
 
 type entity struct {
-	EntityID   EntityID
-	Name       string
-	Desc       string
-	CreateTime time.Time
-	UpdateTime time.Time
+	entityID   EntityID
+	name       string
+	desc       string
+	createTime time.Time
 }
 
 func newEntity(name, desc string) *entity {
@@ -35,51 +34,40 @@ func newEntity(name, desc string) *entity {
 	createTime := time.Now()
 
 	return &entity{
-		EntityID:   id,
-		Name:       name,
-		Desc:       desc,
-		CreateTime: createTime,
-		UpdateTime: createTime,
+		entityID:   id,
+		name:       name,
+		desc:       desc,
+		createTime: createTime,
 	}
 }
 
-func (e *entity) GetEntityID() EntityID {
-	return e.EntityID
+func (e *entity) EntityID() EntityID {
+	return e.entityID
 }
 
-func (e *entity) GetName() string {
-	return e.Name
+func (e *entity) Name() string {
+	return e.name
 }
 
-func (e *entity) GetDesc() string {
-	return e.Desc
+func (e *entity) Desc() string {
+	return e.desc
 }
 
-func (e *entity) GetCreateTime() time.Time {
-	return e.CreateTime
-}
-
-func (e *entity) GetUpdateTime() time.Time {
-	return e.UpdateTime
-}
-
-func (e *entity) setUpdateTimeNow() {
-	e.UpdateTime = time.Now()
+func (e *entity) CreateTime() time.Time {
+	return e.createTime
 }
 
 func (e *entity) UpdateDesc(desc string) error {
-	if e.Desc != desc {
-		e.Desc = desc
-		e.setUpdateTimeNow()
+	if e.desc != desc {
+		e.desc = desc
 	}
 
 	return nil
 }
 
 func (e *entity) UpdateName(name string) error {
-	if e.Name != name {
-		e.Name = name
-		e.setUpdateTimeNow()
+	if e.name != name {
+		e.name = name
 	}
 
 	return nil
@@ -88,14 +76,14 @@ func (e *entity) UpdateName(name string) error {
 func (e *entity) toString() string {
 	var builder strings.Builder
 
-	builder.WriteString("entity_id: " + e.EntityID.String() + "\n")
-	builder.WriteString("name: " + e.Name + "\n")
+	builder.WriteString("entity_id: " + e.entityID.String() + "\n")
+	builder.WriteString("name: " + e.name + "\n")
 
-	if len(e.Desc) > 0 {
-		builder.WriteString(fmt.Sprintf("desc: %s\n", e.Desc))
+	if len(e.desc) > 0 {
+		builder.WriteString(fmt.Sprintf("desc: %s\n", e.desc))
 	}
 
-	builder.WriteString(fmt.Sprintf("create_time: %s; update_time: %s\n", e.CreateTime.Format(time.RFC3339), e.UpdateTime.Format(time.RFC3339)))
+	builder.WriteString(fmt.Sprintf("create_time: %s\n", e.createTime.Format(time.RFC3339)))
 
 	return builder.String()
 }

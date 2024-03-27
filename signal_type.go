@@ -3,10 +3,10 @@ package acmelib
 type SignalTypeKind string
 
 const (
-	SignalTypeKindFlag    SignalTypeKind = "signal_type_flag"
-	SignalTypeKindInteger SignalTypeKind = "signal_type_integer"
-	SignalTypeKindFloat   SignalTypeKind = "signal_type_float"
-	SignalTypeKindCustom  SignalTypeKind = "signal_type_custom"
+	SignalTypeKindFlag    SignalTypeKind = "flag"
+	SignalTypeKindInteger SignalTypeKind = "integer"
+	SignalTypeKindFloat   SignalTypeKind = "float"
+	SignalTypeKindCustom  SignalTypeKind = "custom"
 )
 
 type SignalType struct {

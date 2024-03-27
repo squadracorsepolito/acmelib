@@ -6,68 +6,138 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// func Test_SignalEnum_AddValue(t *testing.T) {
-// 	assert := assert.New(t)
+func Test_SignalEnum_AddValue(t *testing.T) {
+	assert := assert.New(t)
 
-// 	msg := NewMessage("message", "", 1)
+	msg := NewMessage("msg", "", 1)
 
-// 	sigEnum := NewSignalEnum("signal_enum", "")
+	enum := NewSignalEnum("enum", "")
 
-// 	sig, err := NewEnumSignal("signal", "", sigEnum)
-// 	assert.NoError(err)
+	sig, err := NewEnumSignal("sig", "", enum)
+	assert.NoError(err)
+	assert.NoError(msg.AppendSignal(sig))
 
-// 	assert.NoError(msg.AppendSignal(sig))
+	enumVal0 := NewSignalEnumValue("enum_val_0", "", 0)
+	enumVal1 := NewSignalEnumValue("enum_val_1", "", 1)
+	enumVal2 := NewSignalEnumValue("enum_val_2", "", 127)
 
-// 	sigEnumVal0 := NewSignalEnumValue("val_0", "", 8)
-// 	sigEnumVal1 := NewSignalEnumValue("val_1", "", 0)
-// 	sigEnumVal2 := NewSignalEnumValue("val_2", "", 512)
-// 	sigEnumVal3 := NewSignalEnumValue("val_3", "", 127)
+	// should insert enumVal0, enumVal1, and enumVal2 without returning errors
+	assert.NoError(enum.AddValue(enumVal0))
+	assert.NoError(enum.AddValue(enumVal1))
+	assert.NoError(enum.AddValue(enumVal2))
 
-// 	assert.NoError(sigEnum.AddValue(sigEnumVal0))
-// 	assert.NoError(sigEnum.AddValue(sigEnumVal1))
-// 	assert.Error(sigEnum.AddValue(sigEnumVal2))
-// 	assert.NoError(sigEnum.AddValue(sigEnumVal3))
+	assert.Equal(127, enum.GetMaxIndex())
 
-// 	sigEnumVal4 := NewSignalEnumValue("val_4", "", 8)
-// 	assert.Error(sigEnum.AddValue(sigEnumVal4))
+	// should return an error because index 128 cannot fit in 8 bits
+	enumVal3 := NewSignalEnumValue("enum_val_3", "", 128)
+	assert.Error(enum.AddValue(enumVal3))
 
-// 	correctOrder := []string{"val_1", "val_0", "val_3"}
-// 	for idx, val := range sigEnum.GetValuesByIndex() {
-// 		assert.Equal(correctOrder[idx], val.GetName())
-// 	}
+	// should return an error because enumVal4 has a duplicated name
+	enumVal4 := NewSignalEnumValue("enum_val_0", "", 2)
+	assert.Error(enum.AddValue(enumVal4))
 
-// 	t.Log(sig.String())
-// }
+	// should return an error because enumVal5 has a duplicated index
+	enumVal5 := NewSignalEnumValue("enum_val_5", "", 0)
+	assert.Error(enum.AddValue(enumVal5))
+}
+
+func Test_SignalEnum_RemoveValue(t *testing.T) {
+	assert := assert.New(t)
+
+	msg := NewMessage("msg", "", 1)
+
+	enum := NewSignalEnum("enum", "")
+
+	sig, err := NewEnumSignal("sig", "", enum)
+	assert.NoError(err)
+	assert.NoError(msg.AppendSignal(sig))
+
+	enumVal0 := NewSignalEnumValue("enum_val_0", "", 0)
+	enumVal1 := NewSignalEnumValue("enum_val_1", "", 1)
+	enumVal2 := NewSignalEnumValue("enum_val_2", "", 127)
+
+	assert.NoError(enum.AddValue(enumVal0))
+	assert.NoError(enum.AddValue(enumVal1))
+	assert.NoError(enum.AddValue(enumVal2))
+
+	// should remove enumVal0
+	assert.NoError(enum.RemoveValue(enumVal0.EntityID()))
+
+	expectedNames := []string{"enum_val_1", "enum_val_2"}
+	for idx, val := range enum.GetValues() {
+		assert.Equal(expectedNames[idx], val.Name())
+	}
+
+	// should remove enumVal2 and set the max index to 1
+	assert.NoError(enum.RemoveValue(enumVal2.EntityID()))
+	assert.Equal(1, len(enum.GetValues()))
+	assert.Equal(1, enum.GetMaxIndex())
+
+	// should return an error because enumVal0 is not part of the enum
+	assert.Error(enum.RemoveValue(enumVal0.EntityID()))
+}
+
+func Test_SignalEnumValue_UpdateName(t *testing.T) {
+	assert := assert.New(t)
+
+	enum := NewSignalEnum("enum", "")
+
+	enumVal0 := NewSignalEnumValue("enum_val_0", "", 0)
+	enumVal1 := NewSignalEnumValue("enum_val_1", "", 1)
+	enumVal2 := NewSignalEnumValue("enum_val_2", "", 2)
+
+	assert.NoError(enum.AddValue(enumVal0))
+	assert.NoError(enum.AddValue(enumVal1))
+
+	// should rename enumVal0 to my_new_enum_name
+	assert.NoError(enumVal0.UpdateName("my_new_enum_name"))
+	assert.Equal("my_new_enum_name", enumVal0.Name())
+
+	// should rename enumVal2 to my_new_enum_name
+	assert.NoError(enumVal2.UpdateName("my_new_enum_name"))
+	assert.Equal("my_new_enum_name", enumVal2.Name())
+
+	// should return an error because my_new_enum_name is already taken
+	assert.Error(enumVal1.UpdateName("my_new_enum_name"))
+}
 
 func Test_SignalEnumValue_UpdateIndex(t *testing.T) {
 	assert := assert.New(t)
 
 	msg0 := NewMessage("msg_0", "", 1)
+	msg1 := NewMessage("msg_1", "", 2)
 
-	sigEnum := NewSignalEnum("signal_enum", "")
+	enum := NewSignalEnum("enum", "")
 
-	sig0, err := NewEnumSignal("sig_0", "", sigEnum)
+	enumVal := NewSignalEnumValue("enum_val", "", 0)
+
+	assert.NoError(enum.AddValue(enumVal))
+
+	sig0, err := NewEnumSignal("sig_0", "", enum)
 	assert.NoError(err)
-
 	assert.NoError(msg0.AppendSignal(sig0))
 
-	sigEnumVal := NewSignalEnumValue("val", "", 0)
-
-	assert.NoError(sigEnum.AddValue(sigEnumVal))
-
-	assert.NoError(sigEnumVal.UpdateIndex(127))
-	assert.Error(sigEnumVal.UpdateIndex(512))
-
-	msg1 := NewMessage("msg_1", "", 1)
-
-	sig1, err := NewEnumSignal("sig_1", "", sigEnum)
+	sig1, err := NewEnumSignal("sig_1", "", enum)
 	assert.NoError(err)
-
 	assert.NoError(msg1.AppendSignal(sig1))
 
-	assert.NoError(sigEnumVal.UpdateIndex(8))
-	assert.Error(sigEnumVal.UpdateIndex(512))
+	// should not return error because there is no change in the index
+	assert.NoError(enumVal.UpdateIndex(0))
+	assert.Equal(0, enumVal.GetIndex())
 
-	t.Log(msg0)
-	t.Log(msg1)
+	// should set the index to 8
+	assert.NoError(enumVal.UpdateIndex(8))
+	assert.Equal(8, enumVal.GetIndex())
+
+	// should set the index to 127
+	assert.NoError(enumVal.UpdateIndex(127))
+	assert.Equal(127, enumVal.GetIndex())
+
+	// should return an error because msg0 has a payload of 8 bits
+	assert.Error(enumVal.UpdateIndex(255))
+	assert.Equal(127, enumVal.GetIndex())
+
+	// should set the index to 8
+	assert.NoError(enumVal.UpdateIndex(8))
+	assert.Equal(8, enumVal.GetIndex())
 }

@@ -10,9 +10,9 @@ func Test_Message(t *testing.T) {
 	assert := assert.New(t)
 
 	msg := NewMessage("msg_0", "msg_0_desc", 8)
-	assert.Equal(msg.Name, "msg_0")
-	assert.Equal(msg.Desc, "msg_0_desc")
-	assert.Equal(msg.GetSize(), 8)
+	assert.Equal(msg.name, "msg_0")
+	assert.Equal(msg.desc, "msg_0_desc")
+	assert.Equal(msg.Size(), 8)
 
 	t.Log(msg.String())
 }
@@ -51,13 +51,11 @@ func Test_Message_AppendSignal(t *testing.T) {
 	exidingSig, _ := NewStandardSignal("exiding_sig", "", sigTypInt8, 0, 100, 0, 1, nil)
 	assert.Error(msg.AppendSignal(exidingSig))
 
-	results := msg.GetSignalsByStartBit()
+	results := msg.Signals()
 	assert.Equal(len(results), 5)
 	for idx, sig := range results {
-		assert.Equal(sigNames[idx], sig.GetName())
+		assert.Equal(sigNames[idx], sig.Name())
 	}
-
-	t.Log(msg.String())
 }
 
 func Test_Message_InsertSignal(t *testing.T) {
@@ -102,10 +100,10 @@ func Test_Message_InsertSignal(t *testing.T) {
 
 	correctOrder := []string{"sig_0", "sig_3", "sig_2", "sig_1", "sig_4"}
 
-	results := msg.GetSignalsByStartBit()
+	results := msg.Signals()
 	assert.Equal(len(results), 5)
 	for idx, sig := range results {
-		assert.Equal(correctOrder[idx], sig.GetName())
+		assert.Equal(correctOrder[idx], sig.Name())
 	}
 
 	t.Log(msg.String())
@@ -133,15 +131,15 @@ func Test_Message_RemoveSignal(t *testing.T) {
 	assert.NoError(msg.AppendSignal(sig3))
 	assert.NoError(msg.AppendSignal(sig4))
 
-	assert.NoError(msg.RemoveSignal(sig2.EntityID))
+	assert.NoError(msg.RemoveSignal(sig2.entityID))
 	assert.Error(msg.RemoveSignal(EntityID("invalid_entity_id")))
 
 	correctOrder := []string{"sig_0", "sig_1", "sig_3", "sig_4"}
 
-	results := msg.GetSignalsByStartBit()
+	results := msg.Signals()
 	assert.Equal(len(results), 4)
 	for idx, sig := range results {
-		assert.Equal(correctOrder[idx], sig.GetName())
+		assert.Equal(correctOrder[idx], sig.Name())
 	}
 
 	t.Log(msg.String())
@@ -166,51 +164,8 @@ func Test_Message_CompactSignals(t *testing.T) {
 
 	correctStartBits := []int{0, 8, 16}
 
-	for idx, sig := range msg.GetSignalsByStartBit() {
-		assert.Equal(correctStartBits[idx], sig.GetStartBit())
-	}
-
-	t.Log(msg.String())
-}
-
-func Test_Message_GetAvailableSignalSpaces(t *testing.T) {
-	assert := assert.New(t)
-
-	msg := NewMessage("msg_0", "msg_0_desc", 8)
-
-	sigTypInt8 := NewSignalType("int8", "int8_desc", SignalTypeKindInteger, 8, true, -128, 127)
-
-	sig0, _ := NewStandardSignal("sig_0", "", sigTypInt8, 0, 100, 0, 1, nil)
-	sig1, _ := NewStandardSignal("sig_1", "", sigTypInt8, 0, 100, 0, 1, nil)
-	sig2, _ := NewStandardSignal("sig_2", "", sigTypInt8, 0, 100, 0, 1, nil)
-
-	assert.NoError(msg.InsertSignal(sig0, 2))
-	assert.NoError(msg.InsertSignal(sig1, 18))
-	assert.NoError(msg.InsertSignal(sig2, 26))
-
-	positions := msg.GetAvailableSignalSpaces()
-
-	correctPositions := [][]int{{0, 1}, {10, 17}, {34, 63}}
-
-	assert.Equal(len(positions), 3)
-	for idx, pos := range positions {
-		assert.Equal(correctPositions[idx][0], pos[0])
-		assert.Equal(correctPositions[idx][1], pos[1])
-	}
-
-	t.Log(msg.String())
-
-	sig4, _ := NewStandardSignal("sig_4", "", sigTypInt8, 0, 100, 0, 1, nil)
-	assert.NoError(msg.InsertSignal(sig4, 56))
-
-	positions = msg.GetAvailableSignalSpaces()
-
-	correctPositions = [][]int{{0, 1}, {10, 17}, {34, 55}}
-
-	assert.Equal(len(positions), 3)
-	for idx, pos := range positions {
-		assert.Equal(correctPositions[idx][0], pos[0])
-		assert.Equal(correctPositions[idx][1], pos[1])
+	for idx, sig := range msg.Signals() {
+		assert.Equal(correctStartBits[idx], sig.StartBit())
 	}
 
 	t.Log(msg.String())
@@ -227,26 +182,26 @@ func Test_Message_ShiftSignalLeft(t *testing.T) {
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig0, 12))
 
-	assert.Equal(0, msg.ShiftSignalLeft(sig0.GetEntityID(), 0))
+	assert.Equal(0, msg.ShiftSignalLeft(sig0.EntityID(), 0))
 
-	assert.Equal(1, msg.ShiftSignalLeft(sig0.GetEntityID(), 1))
-	assert.Equal(11, msg.ShiftSignalLeft(sig0.GetEntityID(), 16))
+	assert.Equal(1, msg.ShiftSignalLeft(sig0.EntityID(), 1))
+	assert.Equal(11, msg.ShiftSignalLeft(sig0.EntityID(), 16))
 
 	sig1, err := NewStandardSignal("signal_1", "", sigTypeInt4, -8, 7, 0, 1, nil)
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig1, 12))
 
-	assert.Equal(8, msg.ShiftSignalLeft(sig1.GetEntityID(), 16))
+	assert.Equal(8, msg.ShiftSignalLeft(sig1.EntityID(), 16))
 
 	sig2, err := NewStandardSignal("signal_2", "", sigTypeInt4, -8, 7, 0, 1, nil)
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig2, 12))
 
-	assert.Equal(4, msg.ShiftSignalLeft(sig2.GetEntityID(), 16))
+	assert.Equal(4, msg.ShiftSignalLeft(sig2.EntityID(), 16))
 
 	finalStartBits := []int{0, 4, 8}
-	for idx, sig := range msg.GetSignalsByStartBit() {
-		assert.Equal(finalStartBits[idx], sig.GetStartBit())
+	for idx, sig := range msg.Signals() {
+		assert.Equal(finalStartBits[idx], sig.StartBit())
 	}
 
 	t.Log(msg.String())
@@ -263,26 +218,26 @@ func Test_Message_ShiftSignalRight(t *testing.T) {
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig0, 0))
 
-	assert.Equal(0, msg.ShiftSignalRight(sig0.GetEntityID(), 0))
+	assert.Equal(0, msg.ShiftSignalRight(sig0.EntityID(), 0))
 
-	assert.Equal(1, msg.ShiftSignalRight(sig0.GetEntityID(), 1))
-	assert.Equal(11, msg.ShiftSignalRight(sig0.GetEntityID(), 16))
+	assert.Equal(1, msg.ShiftSignalRight(sig0.EntityID(), 1))
+	assert.Equal(11, msg.ShiftSignalRight(sig0.EntityID(), 16))
 
 	sig1, err := NewStandardSignal("signal_1", "", sigTypeInt4, -8, 7, 0, 1, nil)
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig1, 0))
 
-	assert.Equal(8, msg.ShiftSignalRight(sig1.GetEntityID(), 16))
+	assert.Equal(8, msg.ShiftSignalRight(sig1.EntityID(), 16))
 
 	sig2, err := NewStandardSignal("signal_2", "", sigTypeInt4, -8, 7, 0, 1, nil)
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig2, 0))
 
-	assert.Equal(4, msg.ShiftSignalRight(sig2.GetEntityID(), 16))
+	assert.Equal(4, msg.ShiftSignalRight(sig2.EntityID(), 16))
 
 	finalStartBits := []int{4, 8, 12}
-	for idx, sig := range msg.GetSignalsByStartBit() {
-		assert.Equal(finalStartBits[idx], sig.GetStartBit())
+	for idx, sig := range msg.Signals() {
+		assert.Equal(finalStartBits[idx], sig.StartBit())
 	}
 
 	t.Log(msg.String())
