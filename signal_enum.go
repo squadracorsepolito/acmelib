@@ -46,16 +46,10 @@ func (se *SignalEnum) verifyValueIndex(index int) error {
 				continue
 			}
 
-			switch tmpSig.parent.getSignalParentKind() {
-			case signalParentKindMessage:
-				msgParent, err := tmpSig.parent.toParentMessage()
-				if err != nil {
-					panic(err)
+			if tmpSig.hasParent() {
+				if err := tmpSig.Parent().verifySignalSizeAmount(tmpSig.EntityID(), newSize-prevSize); err != nil {
+					return fmt.Errorf(`index "%d" is invalid : %w`, index, err)
 				}
-				if err := msgParent.signalPayload.verifyBeforeGrow(tmpSig, newSize-prevSize); err != nil {
-					return fmt.Errorf(`index "%d" is invalid : %v`, index, err)
-				}
-
 			}
 		}
 	}
@@ -100,7 +94,7 @@ func (se *SignalEnum) setMaxIndex() {
 	currMax := 0
 
 	for _, tmpVal := range se.GetValues() {
-		tmpIdx := tmpVal.GetIndex()
+		tmpIdx := tmpVal.Index()
 
 		if tmpIdx > currMax {
 			currMax = tmpIdx
@@ -127,9 +121,9 @@ func (se *SignalEnum) AddValue(value *SignalEnumValue) error {
 		return se.errorf(err)
 	}
 
-	se.valueIndexes[value.GetIndex()] = value.EntityID()
+	se.valueIndexes[value.Index()] = value.EntityID()
 
-	index := value.GetIndex()
+	index := value.Index()
 	if index > se.maxIndex {
 		se.maxIndex = index
 	}
@@ -180,7 +174,7 @@ func (se *SignalEnum) GetSize() int {
 	return calcSizeFromValue(se.maxIndex)
 }
 
-func (se *SignalEnum) GetMaxIndex() int {
+func (se *SignalEnum) MaxIndex() int {
 	return se.maxIndex
 }
 
@@ -214,11 +208,11 @@ func (sev *SignalEnumValue) hasParentEnum() bool {
 	return sev.parentEnum != nil
 }
 
-func (sev *SignalEnumValue) GetParentEnum() *SignalEnum {
+func (sev *SignalEnumValue) ParentEnum() *SignalEnum {
 	return sev.parentEnum
 }
 
-func (sev *SignalEnumValue) GetIndex() int {
+func (sev *SignalEnumValue) Index() int {
 	return sev.index
 }
 

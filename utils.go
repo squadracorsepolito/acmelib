@@ -11,7 +11,7 @@ const maxSize = 64
 func calcSizeFromValue(val int) int {
 	for i := 0; i < maxSize; i++ {
 		if val < 1<<i {
-			return i + 1
+			return i
 		}
 	}
 	return maxSize

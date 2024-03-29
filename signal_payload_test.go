@@ -11,8 +11,10 @@ func Test_signalPayload_append(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size4Type := NewSignalType("4_bits", "", SignalTypeKindInteger, 4, false, 0, 15)
-	size2Type := NewSignalType("2_bits", "", SignalTypeKindInteger, 2, false, 0, 3)
+	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	assert.NoError(err)
+	size2Type, err := NewIntegerSignalType("2_bits", "", 2, false)
+	assert.NoError(err)
 
 	sig0, err := NewStandardSignal("sig_0", "", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
@@ -34,7 +36,7 @@ func Test_signalPayload_append(t *testing.T) {
 
 	expectedStartBits := []int{0, 4, 8, 12}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	payload.removeAll()
@@ -48,7 +50,7 @@ func Test_signalPayload_append(t *testing.T) {
 
 	expectedStartBits = []int{0, 4, 8, 12}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	// should produce an error because sig3 will exceed the max payload size
@@ -60,8 +62,10 @@ func Test_signalPayload_insert(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size2Type := NewSignalType("2_bits", "", SignalTypeKindInteger, 2, false, 0, 3)
-	size4Type := NewSignalType("4_bits", "", SignalTypeKindInteger, 4, false, 0, 15)
+	size2Type, err := NewIntegerSignalType("2_bits", "", 2, false)
+	assert.NoError(err)
+	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	assert.NoError(err)
 
 	sig0, err := NewStandardSignal("sig_0", "", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
@@ -84,7 +88,7 @@ func Test_signalPayload_insert(t *testing.T) {
 	expectedStartBits := []int{0, 4, 8, 12}
 	expectedNames := []string{"sig_3", "sig_1", "sig_2", "sig_0"}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 		assert.Equal(expectedNames[idx], sig.Name())
 	}
 
@@ -103,7 +107,7 @@ func Test_signalPayload_insert(t *testing.T) {
 	expectedStartBits = []int{0, 4, 8, 14}
 	expectedNames = []string{"sig_0", "sig_1", "sig_2", "sig_4"}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 		assert.Equal(expectedNames[idx], sig.Name())
 	}
 
@@ -127,7 +131,8 @@ func Test_signalPayload_remove(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size4Type := NewSignalType("4_bits", "", SignalTypeKindInteger, 4, false, 0, 15)
+	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	assert.NoError(err)
 
 	sig0, err := NewStandardSignal("sig_0", "", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
@@ -152,7 +157,7 @@ func Test_signalPayload_remove(t *testing.T) {
 	expectedStartBits := []int{0, 4, 12}
 	expectedNames := []string{"sig_0", "sig_1", "sig_3"}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 		assert.Equal(expectedNames[idx], sig.Name())
 	}
 
@@ -169,7 +174,8 @@ func Test_signalPayload_compact(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size2Type := NewSignalType("2_bits", "", SignalTypeKindInteger, 2, false, 0, 3)
+	size2Type, err := NewIntegerSignalType("2_bits", "", 2, false)
+	assert.NoError(err)
 
 	sig0, err := NewStandardSignal("sig_0", "", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
@@ -194,7 +200,7 @@ func Test_signalPayload_compact(t *testing.T) {
 	expectedStartBits := []int{0, 2, 4, 6}
 	expectedNames := []string{"sig_0", "sig_1", "sig_2", "sig_3"}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 		assert.Equal(expectedNames[idx], sig.Name())
 	}
 
@@ -214,7 +220,7 @@ func Test_signalPayload_compact(t *testing.T) {
 	expectedStartBits = []int{0, 2, 4, 6}
 	expectedNames = []string{"sig_0", "sig_1", "sig_2", "sig_3"}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 		assert.Equal(expectedNames[idx], sig.Name())
 	}
 }
@@ -224,8 +230,10 @@ func Test_signalPayload_modifyStartBitsOnShrink(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size2Type := NewSignalType("2_bits", "", SignalTypeKindInteger, 2, false, 0, 3)
-	size4Type := NewSignalType("4_bits", "", SignalTypeKindInteger, 4, false, 0, 15)
+	size2Type, err := NewIntegerSignalType("2_bits", "", 2, false)
+	assert.NoError(err)
+	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	assert.NoError(err)
 
 	sig0, err := NewStandardSignal("sig_0", "", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
@@ -245,20 +253,20 @@ func Test_signalPayload_modifyStartBitsOnShrink(t *testing.T) {
 
 	// should get this one after shrinking sig1 by 1
 	// 0 0 - - 1 1 1 - 2 2 - 3 3 - - -
-	payload.modifyStartBitsOnShrink(sig1, 1)
+	assert.NoError(payload.modifyStartBitsOnShrink(sig1, 1))
 
 	expectedStartBits := []int{0, 4, 8, 11}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	// should get this one after shrinking sig0 by 1
 	// 0 - - 1 1 1 - 2 2 - 3 3 - - - -
-	payload.modifyStartBitsOnShrink(sig0, 1)
+	assert.NoError(payload.modifyStartBitsOnShrink(sig0, 1))
 
 	expectedStartBits = []int{0, 3, 7, 10}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	payload.removeAll()
@@ -272,11 +280,11 @@ func Test_signalPayload_modifyStartBitsOnShrink(t *testing.T) {
 
 	// should get this one after shrinking sig1 by 2
 	// 0 0 1 1 2 2 3 3 - - - - - - - -
-	payload.modifyStartBitsOnShrink(sig1, 2)
+	assert.NoError(payload.modifyStartBitsOnShrink(sig1, 2))
 
 	expectedStartBits = []int{0, 2, 4, 6}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	payload.removeAll()
@@ -287,14 +295,27 @@ func Test_signalPayload_modifyStartBitsOnShrink(t *testing.T) {
 
 	// should get this one after shrinking sig0 by 1
 	// - - - - - - - - - - 0 - - - - -
-	payload.modifyStartBitsOnShrink(sig0, 1)
-
-	assert.Equal(10, payload.signals[0].StartBit())
+	assert.NoError(payload.modifyStartBitsOnShrink(sig0, 1))
+	assert.Equal(10, payload.signals[0].GetStartBit())
 
 	// should do nothing
-	payload.modifyStartBitsOnShrink(sig0, 0)
+	assert.NoError(payload.modifyStartBitsOnShrink(sig0, 0))
+	assert.Equal(10, payload.signals[0].GetStartBit())
 
-	assert.Equal(10, payload.signals[0].StartBit())
+	// should return an error because amount is negative
+	assert.Error(payload.modifyStartBitsOnShrink(sig0, -1))
+
+	payload.removeAll()
+
+	// starting from this payload
+	// 0 0 - - - - - - - - - - - - - -
+	assert.NoError(payload.append(sig0))
+
+	// should return an error because amount is greater then the signal size
+	assert.Error(payload.modifyStartBitsOnShrink(sig0, 3))
+
+	// should return an error because amount is greater equal to the signal size
+	assert.Error(payload.modifyStartBitsOnShrink(sig0, 2))
 }
 
 func Test_signalPayload_modifyStartBitsOnGrow(t *testing.T) {
@@ -302,8 +323,10 @@ func Test_signalPayload_modifyStartBitsOnGrow(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size2Type := NewSignalType("2_bits", "", SignalTypeKindInteger, 2, false, 0, 3)
-	size4Type := NewSignalType("4_bits", "", SignalTypeKindInteger, 4, false, 0, 15)
+	size2Type, err := NewIntegerSignalType("2_bits", "", 2, false)
+	assert.NoError(err)
+	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	assert.NoError(err)
 
 	sig0, err := NewStandardSignal("sig_0", "", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
@@ -327,7 +350,7 @@ func Test_signalPayload_modifyStartBitsOnGrow(t *testing.T) {
 
 	expectedStartBits := []int{0, 4, 9, 12}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	payload.removeAll()
@@ -345,7 +368,7 @@ func Test_signalPayload_modifyStartBitsOnGrow(t *testing.T) {
 
 	expectedStartBits = []int{0, 4, 11, 13}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	payload.removeAll()
@@ -363,7 +386,7 @@ func Test_signalPayload_modifyStartBitsOnGrow(t *testing.T) {
 
 	expectedStartBits = []int{0, 8, 12, 14}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	payload.removeAll()
@@ -406,7 +429,8 @@ func Test_signalPayload_shiftLeft(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size4Type := NewSignalType("4_bits", "", SignalTypeKindInteger, 4, false, 0, 15)
+	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	assert.NoError(err)
 
 	sig0, err := NewStandardSignal("sig_0", "", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
@@ -425,7 +449,7 @@ func Test_signalPayload_shiftLeft(t *testing.T) {
 
 	expectedStartBits := []int{0, 6}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	// should get this one after shifting sig1 by 4
@@ -435,7 +459,7 @@ func Test_signalPayload_shiftLeft(t *testing.T) {
 
 	expectedStartBits = []int{0, 4}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	payload.removeAll()
@@ -452,7 +476,7 @@ func Test_signalPayload_shiftLeft(t *testing.T) {
 
 	expectedStartBits = []int{0, 6}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	// should get 0 as result
@@ -469,7 +493,7 @@ func Test_signalPayload_shiftLeft(t *testing.T) {
 	// and should get 4 as result
 	assert.Equal(4, payload.shiftLeft(sig0, 4))
 
-	assert.Equal(8, payload.signals[0].StartBit())
+	assert.Equal(8, payload.signals[0].GetStartBit())
 }
 
 func Test_signalPayload_shiftRight(t *testing.T) {
@@ -477,7 +501,8 @@ func Test_signalPayload_shiftRight(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size4Type := NewSignalType("4_bits", "", SignalTypeKindInteger, 4, false, 0, 15)
+	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	assert.NoError(err)
 
 	sig0, err := NewStandardSignal("sig_0", "", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
@@ -496,7 +521,7 @@ func Test_signalPayload_shiftRight(t *testing.T) {
 
 	expectedStartBits := []int{6, 12}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	// should get this one after shifting sig0 by 4
@@ -506,7 +531,7 @@ func Test_signalPayload_shiftRight(t *testing.T) {
 
 	expectedStartBits = []int{8, 12}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	payload.removeAll()
@@ -523,7 +548,7 @@ func Test_signalPayload_shiftRight(t *testing.T) {
 
 	expectedStartBits = []int{6, 12}
 	for idx, sig := range payload.signals {
-		assert.Equal(expectedStartBits[idx], sig.StartBit())
+		assert.Equal(expectedStartBits[idx], sig.GetStartBit())
 	}
 
 	// should get 0 as result
@@ -540,5 +565,5 @@ func Test_signalPayload_shiftRight(t *testing.T) {
 	// and should get 4 as result
 	assert.Equal(4, payload.shiftRight(sig0, 4))
 
-	assert.Equal(4, payload.signals[0].StartBit())
+	assert.Equal(4, payload.signals[0].GetStartBit())
 }

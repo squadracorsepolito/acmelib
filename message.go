@@ -17,6 +17,8 @@ type Message struct {
 
 	sizeByte int
 	sizeBit  int
+
+	id int
 }
 
 func NewMessage(name, desc string, sizeByte int) *Message {
@@ -43,11 +45,14 @@ func (m *Message) addSignal(sig Signal) error {
 	id := sig.EntityID()
 
 	m.signals[id] = sig
-	m.signalNames[sig.Name()] = id
 
-	sig.setParent(m)
+	m.addSignalName(id, sig.Name())
 
 	return nil
+}
+
+func (m *Message) removeSignal(sigID EntityID) {
+	delete(m.signals, sigID)
 }
 
 func (m *Message) getSignalByID(sigID EntityID) (Signal, error) {
@@ -55,6 +60,14 @@ func (m *Message) getSignalByID(sigID EntityID) (Signal, error) {
 		return sig, nil
 	}
 	return nil, fmt.Errorf("signal not found")
+}
+
+func (m *Message) addSignalName(sigID EntityID, name string) {
+	m.signalNames[name] = sigID
+}
+
+func (m *Message) removeSignalName(name string) {
+	delete(m.signalNames, name)
 }
 
 // ---------------------------------------------------
@@ -69,7 +82,7 @@ func (m *Message) errorf(err error) error {
 	return msgErr
 }
 
-func (m *Message) getSignalParentKind() signalParentKind {
+func (m *Message) GetSignalParentKind() signalParentKind {
 	return signalParentKindMessage
 }
 
@@ -80,15 +93,35 @@ func (m *Message) verifySignalName(name string) error {
 	return nil
 }
 
-func (m *Message) modifySignalName(sigID EntityID, newName string) {
+func (m *Message) modifySignalName(sigID EntityID, newName string) error {
 	sig, err := m.getSignalByID(sigID)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	oldName := sig.Name()
-	delete(m.signalNames, oldName)
-	m.signalNames[newName] = sigID
+
+	m.removeSignalName(oldName)
+	m.addSignalName(sigID, newName)
+
+	return nil
+}
+
+func (m *Message) verifySignalSizeAmount(sigID EntityID, amount int) error {
+	if amount == 0 {
+		return nil
+	}
+
+	sig, err := m.getSignalByID(sigID)
+	if err != nil {
+		return err
+	}
+
+	if amount > 0 {
+		return m.signalPayload.verifyBeforeGrow(sig, amount)
+	}
+
+	return m.signalPayload.verifyBeforeShrink(sig, -amount)
 }
 
 func (m *Message) modifySignalSize(sigID EntityID, amount int) error {
@@ -105,16 +138,14 @@ func (m *Message) modifySignalSize(sigID EntityID, amount int) error {
 		return m.signalPayload.modifyStartBitsOnGrow(sig, amount)
 	}
 
-	m.signalPayload.modifyStartBitsOnShrink(sig, -amount)
-
-	return nil
+	return m.signalPayload.modifyStartBitsOnShrink(sig, -amount)
 }
 
-func (m *Message) toParentMessage() (*Message, error) {
+func (m *Message) ToParentMessage() (*Message, error) {
 	return m, nil
 }
 
-func (m *Message) toParentMultiplexerSignal() (*MultiplexerSignal, error) {
+func (m *Message) ToParentMultiplexerSignal() (*MultiplexerSignal, error) {
 	return nil, fmt.Errorf(`cannot convert to "%s" signal parent is of kind "%s"`,
 		signalParentKindMultiplexerSignal, signalParentKindMessage)
 }
@@ -145,12 +176,16 @@ func (m *Message) String() string {
 	return builder.String()
 }
 
-// ----------------------------
-// +++ START public getters +++
-// ----------------------------
-
 func (m *Message) Size() int {
 	return m.sizeByte
+}
+
+func (m *Message) ID() int {
+	return m.id
+}
+
+func (m *Message) SetID(messageID int) {
+	m.id = messageID
 }
 
 func (m *Message) Signals() []Signal {
@@ -179,10 +214,6 @@ func (m *Message) GetSignalByName(name string) (Signal, error) {
 	return sig, nil
 }
 
-// --------------------------
-// +++ END public getters +++
-// --------------------------
-
 func (m *Message) UpdateName(name string) error {
 	if m.hasParent() {
 		if err := m.parentNode.messages.updateEntityName(m.entityID, m.name, name); err != nil {
@@ -201,6 +232,8 @@ func (m *Message) AppendSignal(signal Signal) error {
 		return m.errorf(err)
 	}
 
+	signal.setParent(m)
+
 	return m.addSignal(signal)
 }
 
@@ -213,6 +246,8 @@ func (m *Message) InsertSignal(signal Signal, startBit int) error {
 		return m.errorf(err)
 	}
 
+	signal.setParent(m)
+
 	return m.addSignal(signal)
 }
 
@@ -224,8 +259,8 @@ func (m *Message) RemoveSignal(signalEntityID EntityID) error {
 
 	sig.setParent(nil)
 
-	delete(m.signals, signalEntityID)
-	delete(m.signalNames, sig.Name())
+	m.removeSignal(signalEntityID)
+	m.removeSignalName(sig.Name())
 
 	m.signalPayload.remove(signalEntityID)
 
@@ -236,6 +271,7 @@ func (m *Message) RemoveAllSignals() {
 	for tmpSigID, tmpSig := range m.signals {
 		tmpSig.setParent(nil)
 		delete(m.signals, tmpSigID)
+		m.removeSignalName(tmpSig.Name())
 	}
 
 	m.signalPayload.removeAll()

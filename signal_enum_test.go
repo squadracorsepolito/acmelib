@@ -19,17 +19,17 @@ func Test_SignalEnum_AddValue(t *testing.T) {
 
 	enumVal0 := NewSignalEnumValue("enum_val_0", "", 0)
 	enumVal1 := NewSignalEnumValue("enum_val_1", "", 1)
-	enumVal2 := NewSignalEnumValue("enum_val_2", "", 127)
+	enumVal2 := NewSignalEnumValue("enum_val_2", "", 255)
 
 	// should insert enumVal0, enumVal1, and enumVal2 without returning errors
 	assert.NoError(enum.AddValue(enumVal0))
 	assert.NoError(enum.AddValue(enumVal1))
 	assert.NoError(enum.AddValue(enumVal2))
 
-	assert.Equal(127, enum.GetMaxIndex())
+	assert.Equal(255, enum.MaxIndex())
 
-	// should return an error because index 128 cannot fit in 8 bits
-	enumVal3 := NewSignalEnumValue("enum_val_3", "", 128)
+	// should return an error because index 256 cannot fit in 8 bits
+	enumVal3 := NewSignalEnumValue("enum_val_3", "", 256)
 	assert.Error(enum.AddValue(enumVal3))
 
 	// should return an error because enumVal4 has a duplicated name
@@ -54,7 +54,7 @@ func Test_SignalEnum_RemoveValue(t *testing.T) {
 
 	enumVal0 := NewSignalEnumValue("enum_val_0", "", 0)
 	enumVal1 := NewSignalEnumValue("enum_val_1", "", 1)
-	enumVal2 := NewSignalEnumValue("enum_val_2", "", 127)
+	enumVal2 := NewSignalEnumValue("enum_val_2", "", 255)
 
 	assert.NoError(enum.AddValue(enumVal0))
 	assert.NoError(enum.AddValue(enumVal1))
@@ -71,7 +71,7 @@ func Test_SignalEnum_RemoveValue(t *testing.T) {
 	// should remove enumVal2 and set the max index to 1
 	assert.NoError(enum.RemoveValue(enumVal2.EntityID()))
 	assert.Equal(1, len(enum.GetValues()))
-	assert.Equal(1, enum.GetMaxIndex())
+	assert.Equal(1, enum.MaxIndex())
 
 	// should return an error because enumVal0 is not part of the enum
 	assert.Error(enum.RemoveValue(enumVal0.EntityID()))
@@ -123,21 +123,21 @@ func Test_SignalEnumValue_UpdateIndex(t *testing.T) {
 
 	// should not return error because there is no change in the index
 	assert.NoError(enumVal.UpdateIndex(0))
-	assert.Equal(0, enumVal.GetIndex())
+	assert.Equal(0, enumVal.Index())
 
 	// should set the index to 8
 	assert.NoError(enumVal.UpdateIndex(8))
-	assert.Equal(8, enumVal.GetIndex())
+	assert.Equal(8, enumVal.Index())
 
-	// should set the index to 127
-	assert.NoError(enumVal.UpdateIndex(127))
-	assert.Equal(127, enumVal.GetIndex())
+	// should set the index to 255
+	assert.NoError(enumVal.UpdateIndex(255))
+	assert.Equal(255, enumVal.Index())
 
 	// should return an error because msg0 has a payload of 8 bits
-	assert.Error(enumVal.UpdateIndex(255))
-	assert.Equal(127, enumVal.GetIndex())
+	assert.Error(enumVal.UpdateIndex(256))
+	assert.Equal(255, enumVal.Index())
 
 	// should set the index to 8
 	assert.NoError(enumVal.UpdateIndex(8))
-	assert.Equal(8, enumVal.GetIndex())
+	assert.Equal(8, enumVal.Index())
 }

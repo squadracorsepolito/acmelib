@@ -31,7 +31,7 @@ func (sp *signalPayload) verifyBeforeAppend(sig Signal) error {
 	}
 
 	lastSig := sp.signals[sigCount-1]
-	trailingSpace := sp.size - (lastSig.StartBit() + lastSig.GetSize())
+	trailingSpace := sp.size - (lastSig.getRelStartBit() + lastSig.GetSize())
 
 	if sigSize > trailingSpace {
 		return fmt.Errorf(`signal of size "%d" exceeds the available space ("%d") at the end of the payload`, sigSize, trailingSpace)
@@ -46,10 +46,10 @@ func (sp *signalPayload) append(sig Signal) error {
 	}
 
 	if len(sp.signals) == 0 {
-		sig.setStartBit(0)
+		sig.setRelStartBit(0)
 	} else {
 		lastSig := sp.signals[len(sp.signals)-1]
-		sig.setStartBit(lastSig.StartBit() + lastSig.GetSize())
+		sig.setRelStartBit(lastSig.getRelStartBit() + lastSig.GetSize())
 	}
 
 	sp.signals = append(sp.signals, sig)
@@ -74,7 +74,7 @@ func (sp *signalPayload) verifyBeforeInsert(sig Signal, startBit int) error {
 	}
 
 	for _, tmpSig := range sp.signals {
-		tmpStartBit := tmpSig.StartBit()
+		tmpStartBit := tmpSig.getRelStartBit()
 		tmpEndBit := tmpStartBit + tmpSig.GetSize()
 
 		if endBit <= tmpStartBit {
@@ -100,7 +100,7 @@ func (sp *signalPayload) insert(sig Signal, startBit int) error {
 	}
 
 	if len(sp.signals) == 0 {
-		sig.setStartBit(startBit)
+		sig.setRelStartBit(startBit)
 		sp.signals = append(sp.signals, sig)
 
 		return nil
@@ -108,7 +108,7 @@ func (sp *signalPayload) insert(sig Signal, startBit int) error {
 
 	inserted := false
 	for idx, tmpSig := range sp.signals {
-		tmpStartBit := tmpSig.StartBit()
+		tmpStartBit := tmpSig.getRelStartBit()
 
 		if tmpStartBit > startBit {
 			inserted = true
@@ -121,7 +121,7 @@ func (sp *signalPayload) insert(sig Signal, startBit int) error {
 		sp.signals = append(sp.signals, sig)
 	}
 
-	sig.setStartBit(startBit)
+	sig.setRelStartBit(startBit)
 
 	return nil
 }
@@ -137,7 +137,7 @@ func (sp *signalPayload) removeAll() {
 func (sp *signalPayload) compact() {
 	lastStartBit := 0
 	for _, sig := range sp.signals {
-		tmpStartBit := sig.StartBit()
+		tmpStartBit := sig.getRelStartBit()
 
 		if tmpStartBit == lastStartBit {
 			lastStartBit += sig.GetSize()
@@ -145,21 +145,37 @@ func (sp *signalPayload) compact() {
 		}
 
 		if lastStartBit < tmpStartBit {
-			sig.setStartBit(lastStartBit)
+			sig.setRelStartBit(lastStartBit)
 			lastStartBit += sig.GetSize()
 		}
 	}
 }
 
-func (sp *signalPayload) modifyStartBitsOnShrink(sig Signal, amount int) {
-	if amount <= 0 {
-		return
+func (sp *signalPayload) verifyBeforeShrink(sig Signal, amount int) error {
+	if amount < 0 {
+		return errors.New("amount cannot be negative")
+	}
+
+	if sig.GetSize()-amount <= 0 {
+		return fmt.Errorf(`amount "%d" makes the signal size ("%d") less or equal to 0`, amount, sig.GetSize())
+	}
+
+	return nil
+}
+
+func (sp *signalPayload) modifyStartBitsOnShrink(sig Signal, amount int) error {
+	if amount == 0 {
+		return nil
+	}
+
+	if err := sp.verifyBeforeShrink(sig, amount); err != nil {
+		return fmt.Errorf(`cannot shrink signal "%s" : %v`, sig.Name(), err)
 	}
 
 	found := false
 	for _, tmpSig := range sp.signals {
 		if found {
-			tmpSig.setStartBit(tmpSig.StartBit() - amount)
+			tmpSig.setRelStartBit(tmpSig.getRelStartBit() - amount)
 			continue
 		}
 
@@ -167,6 +183,8 @@ func (sp *signalPayload) modifyStartBitsOnShrink(sig Signal, amount int) {
 			found = true
 		}
 	}
+
+	return nil
 }
 
 func (sp *signalPayload) verifyBeforeGrow(sig Signal, amount int) error {
@@ -179,7 +197,7 @@ func (sp *signalPayload) verifyBeforeGrow(sig Signal, amount int) error {
 	found := false
 
 	for _, tmpSig := range sp.signals {
-		tmpStartBit := tmpSig.StartBit()
+		tmpStartBit := tmpSig.getRelStartBit()
 
 		if found {
 			availableSpace += tmpStartBit - prevEndBit
@@ -214,7 +232,7 @@ func (sp *signalPayload) modifyStartBitsOnGrow(sig Signal, amount int) error {
 	found := false
 
 	for idx, tmpSig := range sp.signals {
-		tmpStartBit := tmpSig.StartBit()
+		tmpStartBit := tmpSig.getRelStartBit()
 
 		if found {
 			space := tmpStartBit - prevEndBit
@@ -245,7 +263,7 @@ func (sp *signalPayload) modifyStartBitsOnGrow(sig Signal, amount int) error {
 
 		acc -= tmpSpace
 		tmpSig := sp.signals[i]
-		tmpSig.setStartBit(tmpSig.StartBit() + acc)
+		tmpSig.setRelStartBit(tmpSig.getRelStartBit() + acc)
 		spaceIdx++
 	}
 
@@ -266,7 +284,7 @@ func (sp *signalPayload) shiftLeft(sig Signal, amount int) int {
 		}
 
 		if sig.EntityID() == tmpSig.EntityID() {
-			tmpStartBit := tmpSig.StartBit()
+			tmpStartBit := tmpSig.getRelStartBit()
 			targetStartBit := tmpStartBit - amount
 
 			if targetStartBit < 0 {
@@ -274,14 +292,14 @@ func (sp *signalPayload) shiftLeft(sig Signal, amount int) int {
 			}
 
 			if prevSig != nil {
-				prevEndBit := prevSig.StartBit() + prevSig.GetSize()
+				prevEndBit := prevSig.getRelStartBit() + prevSig.GetSize()
 
 				if targetStartBit < prevEndBit {
 					targetStartBit = prevEndBit
 				}
 			}
 
-			tmpSig.setStartBit(targetStartBit)
+			tmpSig.setRelStartBit(targetStartBit)
 			perfShift = tmpStartBit - targetStartBit
 
 			break
@@ -307,7 +325,7 @@ func (sp *signalPayload) shiftRight(sig Signal, amount int) int {
 		}
 
 		if sig.EntityID() == tmpSig.EntityID() {
-			tmpStartBit := tmpSig.StartBit()
+			tmpStartBit := tmpSig.getRelStartBit()
 			targetStartBit := tmpStartBit + amount
 			targetEndBit := targetStartBit + tmpSig.GetSize()
 
@@ -316,14 +334,14 @@ func (sp *signalPayload) shiftRight(sig Signal, amount int) int {
 			}
 
 			if nextSig != nil {
-				nextStartBit := nextSig.StartBit()
+				nextStartBit := nextSig.getRelStartBit()
 
 				if targetEndBit > nextStartBit {
 					targetStartBit = nextStartBit - tmpSig.GetSize()
 				}
 			}
 
-			tmpSig.setStartBit(targetStartBit)
+			tmpSig.setRelStartBit(targetStartBit)
 			perfShift = targetStartBit - tmpStartBit
 
 			break

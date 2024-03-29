@@ -3,24 +3,32 @@ package acmelib
 type SignalUnitKind string
 
 const (
-	SignalUnitKindCustom      SignalUnitKind = "signal_unit_custom"
-	SignalUnitKindTemperature SignalUnitKind = "signal_unit_temperature"
-	SignalUnitKindVoltage     SignalUnitKind = "signal_unit_voltage"
-	SignalUnitKindCurrent     SignalUnitKind = "signal_unit_current"
+	SignalUnitKindCustom      SignalUnitKind = "custom"
+	SignalUnitKindTemperature SignalUnitKind = "temperature"
+	SignalUnitKindVoltage     SignalUnitKind = "voltage"
+	SignalUnitKindCurrent     SignalUnitKind = "current"
 )
 
-type SIgnalUnit struct {
+type SignalUnit struct {
 	*entity
 
-	Kind   SignalUnitKind
-	Symbol string
+	kind   SignalUnitKind
+	symbol string
 }
 
-func NewSignalUnit(name, desc string, kind SignalUnitKind, symbol string) *SIgnalUnit {
-	return &SIgnalUnit{
+func NewSignalUnit(name, desc string, kind SignalUnitKind, symbol string) *SignalUnit {
+	return &SignalUnit{
 		entity: newEntity(name, desc),
 
-		Kind:   kind,
-		Symbol: symbol,
+		kind:   kind,
+		symbol: symbol,
 	}
+}
+
+func (su *SignalUnit) Kind() SignalUnitKind {
+	return su.kind
+}
+
+func (su *SignalUnit) Symbol() string {
+	return su.symbol
 }
