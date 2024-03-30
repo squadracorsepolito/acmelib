@@ -786,6 +786,44 @@ func (ms *MultiplexerSignal) InsertMuxSignal(selectValue int, signal Signal, sta
 	return nil
 }
 
+func (ms *MultiplexerSignal) ShiftMuxSignalLeft(muxSignalEntityID EntityID, amount int) int {
+	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
+	if err != nil {
+		return 0
+	}
+
+	sig, err := ms.getMuxSignalByID(muxSignalEntityID)
+	if err != nil {
+		return 0
+	}
+
+	payload, _ := ms.getSignalPayload(selVal)
+	if payload == nil {
+		return 0
+	}
+
+	return payload.shiftLeft(sig, amount)
+}
+
+func (ms *MultiplexerSignal) ShiftMuxSignalRight(muxSignalEntityID EntityID, amount int) int {
+	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
+	if err != nil {
+		return 0
+	}
+
+	sig, err := ms.getMuxSignalByID(muxSignalEntityID)
+	if err != nil {
+		return 0
+	}
+
+	payload, _ := ms.getSignalPayload(selVal)
+	if payload == nil {
+		return 0
+	}
+
+	return payload.shiftRight(sig, amount)
+}
+
 func (ms *MultiplexerSignal) RemoveMuxSignal(muxSignalEntityID EntityID) error {
 	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
 	if err != nil {
@@ -828,22 +866,33 @@ func (ms *MultiplexerSignal) SelectSize() int {
 	return ms.selectSize
 }
 
-func (ms *MultiplexerSignal) SetSelectValueRange(from, to int) error {
+func (ms *MultiplexerSignal) AddSelectValueRange(from, to int) error {
 	if from > to {
 		return ms.errorf(fmt.Errorf(`cannot set select value range because from "%d" is greater then to "%d"`, from, to))
+	}
+
+	if err := ms.verifySelectValue(from); err != nil {
+		return ms.errorf(fmt.Errorf(`cannot set select value range : %w`, err))
+	}
+
+	if err := ms.verifySelectValue(to); err != nil {
+		return ms.errorf(fmt.Errorf(`cannot set select value range : %w`, err))
 	}
 
 	foundOne := false
 	foundSelVal := from
 	for i := from; i <= to; i++ {
-		_, ok := ms.signalPayloads[i]
-		if ok {
+		if _, ok := ms.signalPayloads[i]; ok {
 			if foundOne {
 				return ms.errorf(fmt.Errorf(`cannot set select value range because there are more than 1 payloads between "%d" an "%d"`, from, to))
 			}
 
 			foundSelVal = i
 			foundOne = true
+		}
+
+		if _, ok := ms.selValRanges[i]; ok {
+			return ms.errorf(fmt.Errorf(`cannot set select value range because value "%d" is already used in another range`, i))
 		}
 	}
 

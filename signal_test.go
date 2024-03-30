@@ -314,3 +314,61 @@ func Test_MultiplexerSignal_RemoveAllMuxSignals(t *testing.T) {
 	assert.Equal(1, len(msg.Signals()))
 	assert.Equal(0, len(muxSig0.GetSelectedMuxSignals(0)))
 }
+
+func Test_MultiplexerSignal_AddSelectValueRange(t *testing.T) {
+	assert := assert.New(t)
+
+	muxSig, err := NewMultiplexerSignal("mux_sig", "", 16, 4)
+	assert.NoError(err)
+
+	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	assert.NoError(err)
+
+	sig0, err := NewStandardSignal("sig_0", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	assert.NoError(err)
+	sig1, err := NewStandardSignal("sig_1", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	assert.NoError(err)
+	sig2, err := NewStandardSignal("sig_2", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	assert.NoError(err)
+	sig4, err := NewStandardSignal("sig_4", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	assert.NoError(err)
+	sig5, err := NewStandardSignal("sig_5", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	assert.NoError(err)
+
+	// setting a value range between 0 and 4
+	assert.NoError(muxSig.AddSelectValueRange(0, 4))
+
+	// appending sig0 and sig1 in the value range created before
+	assert.NoError(muxSig.InsertMuxSignal(2, sig0, 0))
+	assert.NoError(muxSig.InsertMuxSignal(0, sig1, 4))
+
+	// should get sig0 and sig1 because 3 is in the range
+	expectedNames := []string{"sig_0", "sig_1"}
+	for idx, tmpSig := range muxSig.GetSelectedMuxSignals(3) {
+		assert.Equal(expectedNames[idx], tmpSig.Name())
+	}
+
+	// inserting a signal with select value of 8, and creating a value range between 5 and 10
+	assert.NoError(muxSig.InsertMuxSignal(8, sig2, 0))
+	assert.NoError(muxSig.AddSelectValueRange(5, 10))
+	assert.Equal(1, len(muxSig.GetSelectedMuxSignals(10)))
+
+	// should return an error because from is greater then to
+	assert.Error(muxSig.AddSelectValueRange(20, 5))
+
+	// should return an error because from is invalid
+	assert.Error(muxSig.AddSelectValueRange(1024, 1025))
+
+	// should return an error because to is invalid
+	assert.Error(muxSig.AddSelectValueRange(11, 1024))
+
+	// should return an error because 3 is in another range
+	assert.Error(muxSig.AddSelectValueRange(3, 12))
+
+	// inserting sig4 and sig5 in different signal values
+	assert.NoError(muxSig.InsertMuxSignal(11, sig4, 0))
+	assert.NoError(muxSig.InsertMuxSignal(12, sig5, 0))
+
+	// should return an error because in the range between 11 and 12 there are 2 different payloads
+	assert.Error(muxSig.AddSelectValueRange(11, 12))
+}

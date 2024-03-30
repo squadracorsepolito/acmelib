@@ -3,6 +3,8 @@ package acmelib
 import (
 	"fmt"
 	"strings"
+
+	"golang.org/x/exp/maps"
 )
 
 type Message struct {
@@ -257,6 +259,20 @@ func (m *Message) RemoveSignal(signalEntityID EntityID) error {
 		return m.errorf(fmt.Errorf(`cannot remove signal with entity id "%s" : %v`, signalEntityID, err))
 	}
 
+	if sig.Kind() == SignalKindMultiplexer {
+		muxSig, err := sig.ToMultiplexer()
+		if err != nil {
+			panic(err)
+		}
+
+		for _, muxSignals := range muxSig.MuxSignals() {
+			for _, tmpSig := range muxSignals {
+				m.removeSignal(tmpSig.EntityID())
+				m.removeSignalName(tmpSig.Name())
+			}
+		}
+	}
+
 	sig.setParent(nil)
 
 	m.removeSignal(signalEntityID)
@@ -297,4 +313,8 @@ func (m *Message) ShiftSignalRight(signalEntityID EntityID, amount int) int {
 
 func (m *Message) CompactSignals() {
 	m.signalPayload.compact()
+}
+
+func (m *Message) SignalNames() []string {
+	return maps.Keys(m.signalNames)
 }
