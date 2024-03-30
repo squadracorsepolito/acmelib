@@ -42,7 +42,7 @@ func (sp *signalPayload) verifyBeforeAppend(sig Signal) error {
 
 func (sp *signalPayload) append(sig Signal) error {
 	if err := sp.verifyBeforeAppend(sig); err != nil {
-		return fmt.Errorf(`cannot append signal "%s" : %v`, sig.Name(), err)
+		return fmt.Errorf(`cannot append signal "%s" : %w`, sig.Name(), err)
 	}
 
 	if len(sp.signals) == 0 {
@@ -96,7 +96,7 @@ func (sp *signalPayload) verifyBeforeInsert(sig Signal, startBit int) error {
 
 func (sp *signalPayload) insert(sig Signal, startBit int) error {
 	if err := sp.verifyBeforeInsert(sig, startBit); err != nil {
-		return fmt.Errorf(`cannot insert signal "%s" : %v`, sig.Name(), err)
+		return fmt.Errorf(`cannot insert signal "%s" : %w`, sig.Name(), err)
 	}
 
 	if len(sp.signals) == 0 {
@@ -169,7 +169,7 @@ func (sp *signalPayload) modifyStartBitsOnShrink(sig Signal, amount int) error {
 	}
 
 	if err := sp.verifyBeforeShrink(sig, amount); err != nil {
-		return fmt.Errorf(`cannot shrink signal "%s" : %v`, sig.Name(), err)
+		return fmt.Errorf(`cannot shrink signal "%s" : %w`, sig.Name(), err)
 	}
 
 	found := false
@@ -223,7 +223,7 @@ func (sp *signalPayload) modifyStartBitsOnGrow(sig Signal, amount int) error {
 	}
 
 	if err := sp.verifyBeforeGrow(sig, amount); err != nil {
-		return fmt.Errorf(`cannot grow signal "%s" : %v`, sig.Name(), err)
+		return fmt.Errorf(`cannot grow signal "%s" : %w`, sig.Name(), err)
 	}
 
 	prevEndBit := 0

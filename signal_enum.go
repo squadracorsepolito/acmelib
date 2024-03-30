@@ -28,7 +28,7 @@ func NewSignalEnum(name, desc string) *SignalEnum {
 }
 
 func (se *SignalEnum) errorf(err error) error {
-	enumErr := fmt.Errorf(`signal enum "%s": %v`, se.Name(), err)
+	enumErr := fmt.Errorf(`signal enum "%s": %w`, se.Name(), err)
 	return enumErr
 }
 
@@ -197,7 +197,7 @@ func NewSignalEnumValue(name, desc string, index int) *SignalEnumValue {
 }
 
 func (sev *SignalEnumValue) errorf(err error) error {
-	enumValErr := fmt.Errorf(`signal enum value "%s": %v`, sev.Name(), err)
+	enumValErr := fmt.Errorf(`signal enum value "%s": %w`, sev.Name(), err)
 	if sev.hasParentEnum() {
 		return sev.parentEnum.errorf(enumValErr)
 	}

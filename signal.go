@@ -94,7 +94,7 @@ func (s *signal) modifySize(amount int) error {
 }
 
 func (s *signal) errorf(err error) error {
-	sigErr := fmt.Errorf(`signal "%s": %v`, s.name, err)
+	sigErr := fmt.Errorf(`signal "%s": %w`, s.name, err)
 	if s.hasParent() {
 		return s.parent.errorf(sigErr)
 	}
@@ -154,11 +154,11 @@ func (s *signal) UpdateName(newName string) error {
 
 	if s.hasParent() {
 		if err := s.parent.verifySignalName(newName); err != nil {
-			return s.errorf(err)
+			return s.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
 		}
 
 		if err := s.parent.modifySignalName(s.entityID, newName); err != nil {
-			return s.errorf(err)
+			return s.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
 		}
 	}
 

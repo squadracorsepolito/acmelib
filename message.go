@@ -7,6 +7,26 @@ import (
 	"golang.org/x/exp/maps"
 )
 
+type MessageID int
+
+type MessagePriority int
+
+const (
+	MessagePriorityVeryHigh MessagePriority = iota
+	MessagePriorityHigh
+	MessagePriorityMedium
+	MessagePriorityLow
+)
+
+type MessageIDGeneratorFn func(priority MessagePriority, messageCount int, nodeID NodeID) MessageID
+
+var defMsgIDGenFn = func(priority MessagePriority, messageCount int, nodeID NodeID) MessageID {
+	msgID := messageCount & 0b1111
+	msgID |= int(priority) << 9
+	msgID |= (int(nodeID) & 0b1111) << 5
+	return MessageID(msgID)
+}
+
 type Message struct {
 	*entity
 
@@ -20,7 +40,9 @@ type Message struct {
 	sizeByte int
 	sizeBit  int
 
-	id int
+	id       MessageID
+	idGenFn  MessageIDGeneratorFn
+	priority MessagePriority
 }
 
 func NewMessage(name, desc string, sizeByte int) *Message {
@@ -36,11 +58,19 @@ func NewMessage(name, desc string, sizeByte int) *Message {
 
 		sizeByte: sizeByte,
 		sizeBit:  sizeByte * 8,
+
+		id:       0,
+		idGenFn:  defMsgIDGenFn,
+		priority: MessagePriorityVeryHigh,
 	}
 }
 
 func (m *Message) hasParent() bool {
 	return m.parentNode != nil
+}
+
+func (m *Message) setParent(node *Node) {
+	m.parentNode = node
 }
 
 func (m *Message) addSignal(sig Signal) error {
@@ -72,12 +102,16 @@ func (m *Message) removeSignalName(name string) {
 	delete(m.signalNames, name)
 }
 
+func (m *Message) generateID(msgCount int, nodeID NodeID) {
+	m.id = m.idGenFn(m.priority, msgCount, nodeID)
+}
+
 // ---------------------------------------------------
 // +++ START signalParent interface implementation +++
 // ---------------------------------------------------
 
 func (m *Message) errorf(err error) error {
-	msgErr := fmt.Errorf(`message "%s": %v`, m.name, err)
+	msgErr := fmt.Errorf(`message "%s": %w`, m.name, err)
 	if m.hasParent() {
 		return m.parentNode.errorf(msgErr)
 	}
@@ -182,11 +216,11 @@ func (m *Message) Size() int {
 	return m.sizeByte
 }
 
-func (m *Message) ID() int {
+func (m *Message) ID() MessageID {
 	return m.id
 }
 
-func (m *Message) SetID(messageID int) {
+func (m *Message) SetID(messageID MessageID) {
 	m.id = messageID
 }
 
@@ -197,7 +231,7 @@ func (m *Message) Signals() []Signal {
 func (m *Message) GetSignalByEntityID(signalEntityID EntityID) (Signal, error) {
 	sig, err := m.getSignalByID(signalEntityID)
 	if err != nil {
-		return nil, m.errorf(fmt.Errorf(`cannot get signal with id "%s" : %v`, signalEntityID, err))
+		return nil, m.errorf(fmt.Errorf(`cannot get signal with id "%s" : %w`, signalEntityID, err))
 	}
 	return sig, nil
 }
@@ -210,24 +244,35 @@ func (m *Message) GetSignalByName(name string) (Signal, error) {
 
 	sig, err := m.getSignalByID(id)
 	if err != nil {
-		return nil, m.errorf(fmt.Errorf(`cannot get signal with name "%s" : %v`, name, err))
+		return nil, m.errorf(fmt.Errorf(`cannot get signal with name "%s" : %w`, name, err))
 	}
 
 	return sig, nil
 }
 
-func (m *Message) UpdateName(name string) error {
+func (m *Message) UpdateName(newName string) error {
+	if m.name == newName {
+		return nil
+	}
+
 	if m.hasParent() {
-		if err := m.parentNode.messages.updateEntityName(m.entityID, m.name, name); err != nil {
-			return m.errorf(err)
+		if err := m.parentNode.verifyMessageName(newName); err != nil {
+			return m.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
+		}
+
+		if err := m.parentNode.modifyMessageName(m.entityID, newName); err != nil {
+			return m.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
 		}
 	}
-	return m.entity.UpdateName(name)
+
+	m.name = newName
+
+	return nil
 }
 
 func (m *Message) AppendSignal(signal Signal) error {
 	if err := m.verifySignalName(signal.Name()); err != nil {
-		return m.errorf(fmt.Errorf(`cannot append signal "%s" : %v`, signal.Name(), err))
+		return m.errorf(fmt.Errorf(`cannot append signal "%s" : %w`, signal.Name(), err))
 	}
 
 	if err := m.signalPayload.append(signal); err != nil {
@@ -241,7 +286,7 @@ func (m *Message) AppendSignal(signal Signal) error {
 
 func (m *Message) InsertSignal(signal Signal, startBit int) error {
 	if err := m.verifySignalName(signal.Name()); err != nil {
-		return m.errorf(fmt.Errorf(`cannot insert signal "%s" : %v`, signal.Name(), err))
+		return m.errorf(fmt.Errorf(`cannot insert signal "%s" : %w`, signal.Name(), err))
 	}
 
 	if err := m.signalPayload.insert(signal, startBit); err != nil {
@@ -256,7 +301,7 @@ func (m *Message) InsertSignal(signal Signal, startBit int) error {
 func (m *Message) RemoveSignal(signalEntityID EntityID) error {
 	sig, err := m.getSignalByID(signalEntityID)
 	if err != nil {
-		return m.errorf(fmt.Errorf(`cannot remove signal with entity id "%s" : %v`, signalEntityID, err))
+		return m.errorf(fmt.Errorf(`cannot remove signal with entity id "%s" : %w`, signalEntityID, err))
 	}
 
 	if sig.Kind() == SignalKindMultiplexer {
@@ -317,4 +362,16 @@ func (m *Message) CompactSignals() {
 
 func (m *Message) SignalNames() []string {
 	return maps.Keys(m.signalNames)
+}
+
+func (m *Message) SetPriority(priority MessagePriority) {
+	m.priority = priority
+}
+
+func (m *Message) Priority() MessagePriority {
+	return m.priority
+}
+
+func (m *Message) SetIDGeneratorFn(idGeneratorFn MessageIDGeneratorFn) {
+	m.idGenFn = idGeneratorFn
 }

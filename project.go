@@ -25,7 +25,7 @@ func (p *Project) AddBus(bus *Bus) error {
 		return p.errorf(err)
 	}
 
-	bus.ParentProject = p
+	bus.parentProject = p
 
 	return nil
 }
