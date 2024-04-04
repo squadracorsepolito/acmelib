@@ -3,13 +3,11 @@ package acmelib
 import (
 	"fmt"
 	"strings"
-
-	"golang.org/x/exp/maps"
 )
 
-type MessageID int
+type MessageID uint32
 
-type MessagePriority int
+type MessagePriority uint
 
 const (
 	MessagePriorityVeryHigh MessagePriority = iota
@@ -18,13 +16,13 @@ const (
 	MessagePriorityLow
 )
 
-type MessageIDGeneratorFn func(priority MessagePriority, messageCount int, nodeID NodeID) MessageID
+type MessageIDGeneratorFn func(priority MessagePriority, messageCount int, nodeID NodeID) (messageID MessageID)
 
-var defMsgIDGenFn = func(priority MessagePriority, messageCount int, nodeID NodeID) MessageID {
-	msgID := messageCount & 0b1111
-	msgID |= int(priority) << 9
-	msgID |= (int(nodeID) & 0b1111) << 5
-	return MessageID(msgID)
+var defMsgIDGenFn = func(priority MessagePriority, messageCount int, nodeID NodeID) (messageID MessageID) {
+	messageID = (MessageID(messageCount) & 0b11111) << 4
+	messageID |= MessageID(priority) << 9
+	messageID |= MessageID(nodeID) & 0b1111
+	return messageID
 }
 
 type Message struct {
@@ -32,17 +30,21 @@ type Message struct {
 
 	parentNode *Node
 
-	signals     map[EntityID]Signal
-	signalNames map[string]EntityID
+	signals     *set[EntityID, Signal]
+	signalNames *set[string, EntityID]
 
 	signalPayload *signalPayload
 
 	sizeByte int
-	sizeBit  int
 
-	id       MessageID
-	idGenFn  MessageIDGeneratorFn
-	priority MessagePriority
+	id         MessageID
+	isStaticID bool
+	idGenFn    MessageIDGeneratorFn
+	priority   MessagePriority
+
+	cycleTime uint
+
+	receivers *set[EntityID, *Node]
 }
 
 func NewMessage(name, desc string, sizeByte int) *Message {
@@ -51,17 +53,21 @@ func NewMessage(name, desc string, sizeByte int) *Message {
 
 		parentNode: nil,
 
-		signals:     make(map[EntityID]Signal),
-		signalNames: make(map[string]EntityID),
+		signals:     newSet[EntityID, Signal]("signal"),
+		signalNames: newSet[string, EntityID]("signal name"),
 
 		signalPayload: newSignalPayload(sizeByte * 8),
 
 		sizeByte: sizeByte,
-		sizeBit:  sizeByte * 8,
 
-		id:       0,
-		idGenFn:  defMsgIDGenFn,
-		priority: MessagePriorityVeryHigh,
+		id:         0,
+		isStaticID: false,
+		idGenFn:    defMsgIDGenFn,
+		priority:   MessagePriorityVeryHigh,
+
+		cycleTime: 0,
+
+		receivers: newSet[EntityID, *Node]("receiver"),
 	}
 }
 
@@ -73,37 +79,16 @@ func (m *Message) setParent(node *Node) {
 	m.parentNode = node
 }
 
-func (m *Message) addSignal(sig Signal) error {
-	id := sig.EntityID()
-
-	m.signals[id] = sig
-
-	m.addSignalName(id, sig.Name())
-
-	return nil
-}
-
-func (m *Message) removeSignal(sigID EntityID) {
-	delete(m.signals, sigID)
-}
-
-func (m *Message) getSignalByID(sigID EntityID) (Signal, error) {
-	if sig, ok := m.signals[sigID]; ok {
-		return sig, nil
-	}
-	return nil, fmt.Errorf("signal not found")
-}
-
-func (m *Message) addSignalName(sigID EntityID, name string) {
-	m.signalNames[name] = sigID
-}
-
-func (m *Message) removeSignalName(name string) {
-	delete(m.signalNames, name)
-}
-
 func (m *Message) generateID(msgCount int, nodeID NodeID) {
+	if m.isStaticID {
+		return
+	}
 	m.id = m.idGenFn(m.priority, msgCount, nodeID)
+}
+
+func (m *Message) resetID() {
+	m.isStaticID = false
+	m.id = 0
 }
 
 // ---------------------------------------------------
@@ -118,27 +103,22 @@ func (m *Message) errorf(err error) error {
 	return msgErr
 }
 
-func (m *Message) GetSignalParentKind() signalParentKind {
-	return signalParentKindMessage
+func (m *Message) GetSignalParentKind() SignalParentKind {
+	return SignalParentKindMessage
 }
 
-func (m *Message) verifySignalName(name string) error {
-	if _, ok := m.signalNames[name]; ok {
-		return fmt.Errorf(`signal name "%s" is duplicated`, name)
-	}
-	return nil
+func (m *Message) verifySignalName(_ EntityID, name string) error {
+	return m.signalNames.verifyKey(name)
 }
 
 func (m *Message) modifySignalName(sigID EntityID, newName string) error {
-	sig, err := m.getSignalByID(sigID)
+	sig, err := m.signals.getValue(sigID)
 	if err != nil {
 		return err
 	}
 
 	oldName := sig.Name()
-
-	m.removeSignalName(oldName)
-	m.addSignalName(sigID, newName)
+	m.signalNames.modifyKey(oldName, newName, sigID)
 
 	return nil
 }
@@ -148,7 +128,7 @@ func (m *Message) verifySignalSizeAmount(sigID EntityID, amount int) error {
 		return nil
 	}
 
-	sig, err := m.getSignalByID(sigID)
+	sig, err := m.signals.getValue(sigID)
 	if err != nil {
 		return err
 	}
@@ -165,7 +145,7 @@ func (m *Message) modifySignalSize(sigID EntityID, amount int) error {
 		return nil
 	}
 
-	sig, err := m.getSignalByID(sigID)
+	sig, err := m.signals.getValue(sigID)
 	if err != nil {
 		return err
 	}
@@ -183,7 +163,7 @@ func (m *Message) ToParentMessage() (*Message, error) {
 
 func (m *Message) ToParentMultiplexerSignal() (*MultiplexerSignal, error) {
 	return nil, fmt.Errorf(`cannot convert to "%s" signal parent is of kind "%s"`,
-		signalParentKindMultiplexerSignal, signalParentKindMessage)
+		SignalParentKindMultiplexerSignal, SignalParentKindMessage)
 }
 
 // -------------------------------------------------
@@ -212,51 +192,13 @@ func (m *Message) String() string {
 	return builder.String()
 }
 
-func (m *Message) Size() int {
-	return m.sizeByte
-}
-
-func (m *Message) ID() MessageID {
-	return m.id
-}
-
-func (m *Message) SetID(messageID MessageID) {
-	m.id = messageID
-}
-
-func (m *Message) Signals() []Signal {
-	return m.signalPayload.signals
-}
-
-func (m *Message) GetSignalByEntityID(signalEntityID EntityID) (Signal, error) {
-	sig, err := m.getSignalByID(signalEntityID)
-	if err != nil {
-		return nil, m.errorf(fmt.Errorf(`cannot get signal with id "%s" : %w`, signalEntityID, err))
-	}
-	return sig, nil
-}
-
-func (m *Message) GetSignalByName(name string) (Signal, error) {
-	id, ok := m.signalNames[name]
-	if !ok {
-		return nil, fmt.Errorf("signal name not found")
-	}
-
-	sig, err := m.getSignalByID(id)
-	if err != nil {
-		return nil, m.errorf(fmt.Errorf(`cannot get signal with name "%s" : %w`, name, err))
-	}
-
-	return sig, nil
-}
-
 func (m *Message) UpdateName(newName string) error {
 	if m.name == newName {
 		return nil
 	}
 
 	if m.hasParent() {
-		if err := m.parentNode.verifyMessageName(newName); err != nil {
+		if err := m.parentNode.messageNames.verifyKey(newName); err != nil {
 			return m.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
 		}
 
@@ -271,7 +213,7 @@ func (m *Message) UpdateName(newName string) error {
 }
 
 func (m *Message) AppendSignal(signal Signal) error {
-	if err := m.verifySignalName(signal.Name()); err != nil {
+	if err := m.verifySignalName(signal.EntityID(), signal.Name()); err != nil {
 		return m.errorf(fmt.Errorf(`cannot append signal "%s" : %w`, signal.Name(), err))
 	}
 
@@ -279,13 +221,16 @@ func (m *Message) AppendSignal(signal Signal) error {
 		return m.errorf(err)
 	}
 
+	m.signals.add(signal.EntityID(), signal)
+	m.signalNames.add(signal.Name(), signal.EntityID())
+
 	signal.setParent(m)
 
-	return m.addSignal(signal)
+	return nil
 }
 
 func (m *Message) InsertSignal(signal Signal, startBit int) error {
-	if err := m.verifySignalName(signal.Name()); err != nil {
+	if err := m.verifySignalName(signal.EntityID(), signal.Name()); err != nil {
 		return m.errorf(fmt.Errorf(`cannot insert signal "%s" : %w`, signal.Name(), err))
 	}
 
@@ -293,13 +238,16 @@ func (m *Message) InsertSignal(signal Signal, startBit int) error {
 		return m.errorf(err)
 	}
 
+	m.signals.add(signal.EntityID(), signal)
+	m.signalNames.add(signal.Name(), signal.EntityID())
+
 	signal.setParent(m)
 
-	return m.addSignal(signal)
+	return nil
 }
 
 func (m *Message) RemoveSignal(signalEntityID EntityID) error {
-	sig, err := m.getSignalByID(signalEntityID)
+	sig, err := m.signals.getValue(signalEntityID)
 	if err != nil {
 		return m.errorf(fmt.Errorf(`cannot remove signal with entity id "%s" : %w`, signalEntityID, err))
 	}
@@ -312,16 +260,16 @@ func (m *Message) RemoveSignal(signalEntityID EntityID) error {
 
 		for _, muxSignals := range muxSig.MuxSignals() {
 			for _, tmpSig := range muxSignals {
-				m.removeSignal(tmpSig.EntityID())
-				m.removeSignalName(tmpSig.Name())
+				m.signals.remove(tmpSig.EntityID())
+				m.signalNames.remove(tmpSig.Name())
 			}
 		}
 	}
 
 	sig.setParent(nil)
 
-	m.removeSignal(signalEntityID)
-	m.removeSignalName(sig.Name())
+	m.signals.remove(signalEntityID)
+	m.signalNames.remove(sig.Name())
 
 	m.signalPayload.remove(signalEntityID)
 
@@ -329,17 +277,18 @@ func (m *Message) RemoveSignal(signalEntityID EntityID) error {
 }
 
 func (m *Message) RemoveAllSignals() {
-	for tmpSigID, tmpSig := range m.signals {
+	for _, tmpSig := range m.signals.entries() {
 		tmpSig.setParent(nil)
-		delete(m.signals, tmpSigID)
-		m.removeSignalName(tmpSig.Name())
 	}
+
+	m.signals.clear()
+	m.signalNames.clear()
 
 	m.signalPayload.removeAll()
 }
 
 func (m *Message) ShiftSignalLeft(signalEntityID EntityID, amount int) int {
-	sig, err := m.getSignalByID(signalEntityID)
+	sig, err := m.signals.getValue(signalEntityID)
 	if err != nil {
 		return 0
 	}
@@ -348,7 +297,7 @@ func (m *Message) ShiftSignalLeft(signalEntityID EntityID, amount int) int {
 }
 
 func (m *Message) ShiftSignalRight(signalEntityID EntityID, amount int) int {
-	sig, err := m.getSignalByID(signalEntityID)
+	sig, err := m.signals.getValue(signalEntityID)
 	if err != nil {
 		return 0
 	}
@@ -360,8 +309,38 @@ func (m *Message) CompactSignals() {
 	m.signalPayload.compact()
 }
 
+func (m *Message) Signals() []Signal {
+	return m.signalPayload.signals
+}
+
+func (m *Message) GetSignal(signalEntityID EntityID) (Signal, error) {
+	sig, err := m.signals.getValue(signalEntityID)
+	if err != nil {
+		return nil, m.errorf(fmt.Errorf(`cannot get signal with entity id "%s" : %w`, signalEntityID, err))
+	}
+	return sig, nil
+}
+
 func (m *Message) SignalNames() []string {
-	return maps.Keys(m.signalNames)
+	return m.signalNames.getKeys()
+}
+
+func (m *Message) SizeByte() int {
+	return m.sizeByte
+}
+
+func (m *Message) ID() MessageID {
+	return m.id
+}
+
+func (m *Message) SetIDGeneratorFn(idGeneratorFn MessageIDGeneratorFn) {
+	m.isStaticID = false
+	m.idGenFn = idGeneratorFn
+}
+
+func (m *Message) SetID(messageID MessageID) {
+	m.isStaticID = true
+	m.id = messageID
 }
 
 func (m *Message) SetPriority(priority MessagePriority) {
@@ -372,6 +351,22 @@ func (m *Message) Priority() MessagePriority {
 	return m.priority
 }
 
-func (m *Message) SetIDGeneratorFn(idGeneratorFn MessageIDGeneratorFn) {
-	m.idGenFn = idGeneratorFn
+func (m *Message) SetCycleTime(cycleTime uint) {
+	m.cycleTime = cycleTime
+}
+
+func (m *Message) CycleTime() uint {
+	return m.cycleTime
+}
+
+func (m *Message) AddReceiver(receiver *Node) {
+	m.receivers.add(receiver.entityID, receiver)
+}
+
+func (m *Message) RemoveReceiver(receiverEntityID EntityID) {
+	m.receivers.remove(receiverEntityID)
+}
+
+func (m *Message) Receivers() []*Node {
+	return m.receivers.getValues()
 }

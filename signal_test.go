@@ -224,7 +224,7 @@ func Test_MultiplexerSignal_AppendMuxSignal(t *testing.T) {
 
 	// should be possible to update sig4 name
 	assert.NoError(sig4.UpdateName("sig_44"))
-	tmpSig4, err := msg.getSignalByID(sig4.EntityID())
+	tmpSig4, err := msg.GetSignal(sig4.EntityID())
 	assert.NoError(err)
 	assert.Equal("sig_44", tmpSig4.Name())
 

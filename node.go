@@ -1,112 +1,69 @@
 package acmelib
 
-import "fmt"
+import (
+	"fmt"
 
-type NodeID int
+	"golang.org/x/exp/slices"
+)
+
+type NodeID uint32
 
 type Node struct {
 	*entity
 
-	parentBus *Bus
+	parentBuses *set[EntityID, *Bus]
+	parErrID    EntityID
 
-	messages     map[EntityID]*Message
-	messageNames map[string]EntityID
-	messageIDs   map[MessageID]EntityID
+	messages     *set[EntityID, *Message]
+	messageNames *set[string, EntityID]
+	messageIDs   *set[MessageID, EntityID]
 
 	id NodeID
 }
 
-func NewNode(name, desc string) *Node {
+func NewNode(name, desc string, id NodeID) *Node {
 	return &Node{
 		entity: newEntity(name, desc),
 
-		parentBus: nil,
+		parentBuses: newSet[EntityID, *Bus]("parent bus"),
+		parErrID:    "",
 
-		messages:     make(map[EntityID]*Message),
-		messageNames: make(map[string]EntityID),
-		messageIDs:   make(map[MessageID]EntityID),
+		messages:     newSet[EntityID, *Message]("message"),
+		messageNames: newSet[string, EntityID]("message name"),
+		messageIDs:   newSet[MessageID, EntityID]("message id"),
 
-		id: 0,
+		id: id,
 	}
-}
-
-func (n *Node) hasParent() bool {
-	return n.parentBus != nil
-}
-
-func (n *Node) getMessageByEntID(msgEntID EntityID) (*Message, error) {
-	if msg, ok := n.messages[msgEntID]; ok {
-		return msg, nil
-	}
-	return nil, fmt.Errorf("message not found")
-}
-
-func (n *Node) addMessageName(msgEntID EntityID, name string) {
-	n.messageNames[name] = msgEntID
-}
-
-func (n *Node) removeMessageName(name string) {
-	delete(n.messageNames, name)
-}
-
-func (n *Node) verifyMessageName(name string) error {
-	if _, ok := n.messageNames[name]; ok {
-		return fmt.Errorf(`message name "%s" is duplicated`, name)
-	}
-	return nil
 }
 
 func (n *Node) modifyMessageName(msgEntID EntityID, newName string) error {
-	msg, err := n.getMessageByEntID(msgEntID)
+	msg, err := n.messages.getValue(msgEntID)
 	if err != nil {
 		return err
 	}
 
-	oldName := msg.Name()
+	oldName := msg.name
+	n.messageNames.modifyKey(oldName, newName, msgEntID)
 
-	n.removeMessageName(oldName)
-	n.addMessageName(msgEntID, newName)
-
-	return nil
-}
-
-func (n *Node) verifyMessageID(msgID MessageID) error {
-	if _, ok := n.messageIDs[msgID]; ok {
-		return fmt.Errorf(`message id "%d" is duplicated`, msgID)
-	}
 	return nil
 }
 
 func (n *Node) errorf(err error) error {
-	nodeErr := fmt.Errorf(`node "%s": %w`, n.name, err)
-	if n.hasParent() {
-		return n.parentBus.errorf(nodeErr)
+	nodeErr := fmt.Errorf(`node "%s" : %w`, n.name, err)
+	if n.parentBuses.size() > 0 {
+		if n.parErrID != "" {
+			parBus, err := n.parentBuses.getValue(n.parErrID)
+			if err != nil {
+				panic(err)
+			}
+
+			n.parErrID = ""
+			return parBus.errorf(nodeErr)
+		}
+
+		return n.parentBuses.getValues()[0].errorf(nodeErr)
 	}
 	return nodeErr
-}
-
-func (n *Node) setParent(bus *Bus) {
-	n.parentBus = bus
-}
-
-func (n *Node) AddMessage(message *Message) error {
-	if err := n.verifyMessageName(message.Name()); err != nil {
-		return n.errorf(fmt.Errorf(`cannot add message "%s" : %w`, message.Name(), err))
-	}
-
-	message.generateID(len(n.messages)+1, n.id)
-	if err := n.verifyMessageID(message.ID()); err != nil {
-		return n.errorf(fmt.Errorf(`cannot add message "%s" : %w`, message.Name(), err))
-	}
-
-	entID := message.EntityID()
-	n.messages[entID] = message
-	n.addMessageName(entID, message.Name())
-	n.messageIDs[message.ID()] = entID
-
-	message.setParent(n)
-
-	return nil
 }
 
 func (n *Node) UpdateName(newName string) error {
@@ -114,14 +71,13 @@ func (n *Node) UpdateName(newName string) error {
 		return nil
 	}
 
-	if n.hasParent() {
-		if err := n.parentBus.verifyNodeName(newName); err != nil {
+	for _, tmpBus := range n.parentBuses.entries() {
+		if err := tmpBus.nodeNames.verifyKey(newName); err != nil {
+			n.parErrID = tmpBus.entityID
 			return n.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
 		}
 
-		if err := n.parentBus.modifyNodeName(n.entityID, newName); err != nil {
-			return n.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
-		}
+		tmpBus.modifyNodeName(n.entityID, newName)
 	}
 
 	n.name = newName
@@ -129,8 +85,65 @@ func (n *Node) UpdateName(newName string) error {
 	return nil
 }
 
-func (n *Node) SetID(nodeID NodeID) {
-	n.id = nodeID
+func (n *Node) ParentBuses() []*Bus {
+	return n.parentBuses.getValues()
+}
+
+func (n *Node) AddMessage(message *Message) error {
+	if err := n.messageNames.verifyKey(message.name); err != nil {
+		return n.errorf(fmt.Errorf(`cannot add message "%s" : %w`, message.name, err))
+	}
+
+	message.generateID(n.messages.size()+1, n.id)
+
+	if err := n.messageIDs.verifyKey(message.id); err != nil {
+		return n.errorf(fmt.Errorf(`cannot add message "%s" : %w`, message.name, err))
+	}
+
+	n.messages.add(message.entityID, message)
+	n.messageNames.add(message.name, message.entityID)
+	n.messageIDs.add(message.id, message.entityID)
+
+	message.setParent(n)
+
+	return nil
+}
+
+func (n *Node) RemoveMessage(messageEntityID EntityID) error {
+	msg, err := n.messages.getValue(messageEntityID)
+	if err != nil {
+		return n.errorf(fmt.Errorf(`cannot remove message with entity id "%s" : %w`, messageEntityID, err))
+	}
+
+	msg.setParent(nil)
+	msg.resetID()
+
+	n.messages.remove(messageEntityID)
+	n.messageNames.remove(msg.name)
+	n.messageIDs.clear()
+	for idx, tmpMsg := range n.Messages() {
+		tmpMsg.generateID(idx+1, n.id)
+		n.messageIDs.add(tmpMsg.id, tmpMsg.entityID)
+	}
+
+	return nil
+}
+
+func (n *Node) RemoveAllMessages() {
+	for _, tmpMsg := range n.messages.entries() {
+		tmpMsg.resetID()
+		tmpMsg.setParent(nil)
+	}
+
+	n.messages.clear()
+	n.messageNames.clear()
+	n.messageIDs.clear()
+}
+
+func (n *Node) Messages() []*Message {
+	msgSlice := n.messages.getValues()
+	slices.SortFunc(msgSlice, func(a, b *Message) int { return int(a.id) - int(b.id) })
+	return msgSlice
 }
 
 func (n *Node) ID() NodeID {

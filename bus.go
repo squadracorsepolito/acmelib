@@ -1,87 +1,74 @@
 package acmelib
 
-import "fmt"
+import (
+	"fmt"
+
+	"golang.org/x/exp/slices"
+)
 
 type Bus struct {
 	*entity
 
-	parentProject *Project
+	parentNetwork *Network
 
-	nodes     map[EntityID]*Node
-	nodeNames map[string]EntityID
-	nodeIDs   map[NodeID]EntityID
+	nodes     *set[EntityID, *Node]
+	nodeNames *set[string, EntityID]
+	nodeIDs   *set[NodeID, EntityID]
+
+	baudrate uint
 }
 
 func NewBus(name, desc string) *Bus {
 	return &Bus{
 		entity: newEntity(name, desc),
 
-		parentProject: nil,
+		parentNetwork: nil,
 
-		nodes:     make(map[EntityID]*Node),
-		nodeNames: make(map[string]EntityID),
-		nodeIDs:   make(map[NodeID]EntityID),
+		nodes:     newSet[EntityID, *Node]("node"),
+		nodeNames: newSet[string, EntityID]("node name"),
+		nodeIDs:   newSet[NodeID, EntityID]("node id"),
+
+		baudrate: 0,
 	}
 }
 
-func (b *Bus) hasParent() bool {
-	return b.parentProject != nil
+func (b *Bus) hasParentNetwork() bool {
+	return b.parentNetwork != nil
+}
+
+func (b *Bus) setParentNetwork(net *Network) {
+	b.parentNetwork = net
 }
 
 func (b *Bus) errorf(err error) error {
 	busErr := fmt.Errorf(`bus "%s": %w`, b.name, err)
-	if b.hasParent() {
-		return b.parentProject.errorf(busErr)
+	if b.hasParentNetwork() {
+		return b.parentNetwork.errorf(busErr)
 	}
 	return busErr
 }
 
-func (b *Bus) getNodeByEntID(nodeEndID EntityID) (*Node, error) {
-	if node, ok := b.nodes[nodeEndID]; ok {
-		return node, nil
-	}
-	return nil, fmt.Errorf("node not found")
-}
-
-func (b *Bus) addNodeName(nodeEndID EntityID, name string) {
-	b.nodeNames[name] = nodeEndID
-}
-
-func (b *Bus) removeNodeName(name string) {
-	delete(b.nodeNames, name)
-}
-
-func (b *Bus) verifyNodeName(name string) error {
-	if _, ok := b.nodeNames[name]; ok {
-		return fmt.Errorf(`node name "%s" is duplicated`, name)
-	}
-	return nil
-}
-
-func (b *Bus) modifyNodeName(nodeEndID EntityID, newName string) error {
-	node, err := b.getNodeByEntID(nodeEndID)
+func (b *Bus) modifyNodeName(nodeEntID EntityID, newName string) {
+	node, err := b.nodes.getValue(nodeEntID)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
-	oldName := node.Name()
-
-	b.removeNodeName(oldName)
-	b.addNodeName(nodeEndID, newName)
-
-	return nil
-}
-
-func (b *Bus) verifyNodeID(nodeID NodeID) error {
-	if _, ok := b.nodeIDs[nodeID]; ok {
-		return fmt.Errorf(`node id "%d" is duplicated`, nodeID)
-	}
-	return nil
+	oldName := node.name
+	b.nodeNames.modifyKey(oldName, newName, nodeEntID)
 }
 
 func (b *Bus) UpdateName(newName string) error {
 	if b.name == newName {
 		return nil
+	}
+
+	if b.hasParentNetwork() {
+		if err := b.parentNetwork.busNames.verifyKey(newName); err != nil {
+			return b.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
+		}
+
+		b.parentNetwork.modifyBusName(b.entityID, newName)
 	}
 
 	b.name = newName
@@ -90,21 +77,58 @@ func (b *Bus) UpdateName(newName string) error {
 }
 
 func (b *Bus) AddNode(node *Node) error {
-	if err := b.verifyNodeName(node.Name()); err != nil {
-		return b.errorf(fmt.Errorf(`cannot add node "%s" : %w`, node.Name(), err))
+	if err := b.nodeNames.verifyKey(node.name); err != nil {
+		return b.errorf(fmt.Errorf(`cannot add node "%s" : %w`, node.name, err))
 	}
 
-	node.SetID(NodeID(len(b.nodes) + 1))
-	if err := b.verifyNodeID(node.ID()); err != nil {
-		return b.errorf(fmt.Errorf(`cannot add node "%s" : %w`, node.Name(), err))
+	if err := b.nodeIDs.verifyKey(node.id); err != nil {
+		return b.errorf(fmt.Errorf(`cannot add node "%s" : %w`, node.name, err))
 	}
 
-	entID := node.EntityID()
-	b.nodes[entID] = node
-	b.addNodeName(entID, node.Name())
-	b.nodeIDs[node.ID()] = entID
+	node.parentBuses.add(b.entityID, b)
 
-	node.setParent(b)
+	b.nodes.add(node.entityID, node)
+	b.nodeNames.add(node.name, node.entityID)
+	b.nodeIDs.add(node.id, node.entityID)
 
 	return nil
+}
+
+func (b *Bus) RemoveNode(nodeEntityID EntityID) error {
+	node, err := b.nodes.getValue(nodeEntityID)
+	if err != nil {
+		return b.errorf(fmt.Errorf(`cannot remove node with entity id "%s" : %w`, nodeEntityID, err))
+	}
+
+	node.parentBuses.remove(b.entityID)
+
+	b.nodes.remove(nodeEntityID)
+	b.nodeNames.remove(node.name)
+	b.nodeIDs.remove(node.id)
+
+	return nil
+}
+
+func (b *Bus) RemoveAllNodes() {
+	for _, tmpNode := range b.nodes.entries() {
+		tmpNode.parentBuses.remove(b.entityID)
+	}
+
+	b.nodes.clear()
+	b.nodeNames.clear()
+	b.nodeIDs.clear()
+}
+
+func (b *Bus) Nodes() []*Node {
+	nodeSlice := b.nodes.getValues()
+	slices.SortFunc(nodeSlice, func(a, b *Node) int { return int(a.id) - int(b.id) })
+	return nodeSlice
+}
+
+func (b *Bus) SetBaudrate(baudrate uint) {
+	b.baudrate = baudrate
+}
+
+func (b *Bus) Baudrate() uint {
+	return b.baudrate
 }

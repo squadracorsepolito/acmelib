@@ -12,7 +12,7 @@ func Test_Message(t *testing.T) {
 	msg := NewMessage("msg_0", "msg_0_desc", 8)
 	assert.Equal(msg.name, "msg_0")
 	assert.Equal(msg.desc, "msg_0_desc")
-	assert.Equal(msg.Size(), 8)
+	assert.Equal(msg.SizeByte(), 8)
 
 }
 
