@@ -87,3 +87,92 @@ func (e *entity) toString() string {
 
 	return builder.String()
 }
+
+type entityWithAttributes struct {
+	*entity
+
+	attributeValues *set[EntityID, *AttributeValue]
+	attRefKind      AttributeReferenceKind
+}
+
+func newEntityWithAttributes(name, desc string, attRefKind AttributeReferenceKind) *entityWithAttributes {
+	return &entityWithAttributes{
+		entity: newEntity(name, desc),
+
+		attributeValues: newSet[EntityID, *AttributeValue]("attribute value"),
+		attRefKind:      attRefKind,
+	}
+}
+
+func (ewa *entityWithAttributes) AddAttributeValue(attribute Attribute, value any) error {
+	switch v := value.(type) {
+	case int:
+		if attribute.Kind() != AttributeKindInteger {
+			return fmt.Errorf(`cannot assign an int value to attribute "%s" of type "%s"`, attribute.Name(), attribute.Kind())
+		}
+		intAtt, err := attribute.ToInteger()
+		if err != nil {
+			return fmt.Errorf(`cannot assign value "%d" : %w`, v, err)
+		}
+		if v < intAtt.min || v > intAtt.max {
+			return fmt.Errorf(`cannot assign value "%d" because it is out of min/max range ("%d" - "%d")`, v, intAtt.min, intAtt.max)
+		}
+
+	case float64:
+		if attribute.Kind() != AttributeKindFloat {
+			return fmt.Errorf(`cannot assign a float64 value to attribute "%s" of type "%s"`, attribute.Name(), attribute.Kind())
+		}
+		floatAtt, err := attribute.ToFloat()
+		if err != nil {
+			return fmt.Errorf(`cannot assign value "%f" : %w`, v, err)
+		}
+		if v < floatAtt.min || v > floatAtt.max {
+			return fmt.Errorf(`cannot assign value "%f" because it is out of min/max range ("%f" - "%f")`, v, floatAtt.min, floatAtt.max)
+		}
+
+	case string:
+		switch attribute.Kind() {
+		case AttributeKindString:
+		case AttributeKindEnum:
+			enumAtt, err := attribute.ToEnum()
+			if err != nil {
+				return fmt.Errorf(`cannot assign value "%s" : %w`, v, err)
+			}
+			if !enumAtt.values.hasKey(v) {
+				return fmt.Errorf(`cannot assign value "%s" beacuse it is not present in the enum`, v)
+			}
+
+		default:
+			return fmt.Errorf(`cannot assign a string value to attribute "%s" of type "%s"`, attribute.Name(), attribute.Kind())
+		}
+	}
+
+	ewa.attributeValues.add(attribute.EntityID(), newAttributeValue(attribute, value))
+	attribute.addReference(newAttributeReference(ewa.entityID, ewa.attRefKind, value))
+
+	return nil
+}
+
+func (ewa *entityWithAttributes) RemoveAttributeValue(attributeEntityID EntityID) error {
+	att, err := ewa.attributeValues.getValue(attributeEntityID)
+	if err != nil {
+		return fmt.Errorf(`cannot remove attribute with entity id "%s" : %w`, attributeEntityID, err)
+	}
+
+	ewa.attributeValues.remove(attributeEntityID)
+	att.attribute.removeReference(ewa.entityID)
+
+	return nil
+}
+
+func (ewa *entityWithAttributes) RemoveAllAttributeValues() {
+	for _, attVal := range ewa.attributeValues.entries() {
+		attVal.attribute.removeReference(ewa.entityID)
+	}
+
+	ewa.attributeValues.clear()
+}
+
+func (ewa *entityWithAttributes) AttributeValues() []*AttributeValue {
+	return ewa.attributeValues.getValues()
+}

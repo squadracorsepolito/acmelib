@@ -43,6 +43,11 @@ type Signal interface {
 	Desc() string
 	CreateTime() time.Time
 
+	AddAttributeValue(attribute Attribute, value any) error
+	RemoveAttributeValue(attributeEntityID EntityID) error
+	RemoveAllAttributeValues()
+	AttributeValues() []*AttributeValue
+
 	String() string
 
 	Kind() SignalKind
@@ -62,7 +67,7 @@ type Signal interface {
 }
 
 type signal struct {
-	*entity
+	*entityWithAttributes
 
 	parent SignalParent
 
@@ -72,7 +77,7 @@ type signal struct {
 
 func newSignal(name, desc string, kind SignalKind) *signal {
 	return &signal{
-		entity: newEntity(name, desc),
+		entityWithAttributes: newEntityWithAttributes(name, desc, AttributeReferenceKindSignal),
 
 		parent: nil,
 

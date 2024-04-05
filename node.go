@@ -9,7 +9,7 @@ import (
 type NodeID uint32
 
 type Node struct {
-	*entity
+	*entityWithAttributes
 
 	parentBuses *set[EntityID, *Bus]
 	parErrID    EntityID
@@ -23,7 +23,7 @@ type Node struct {
 
 func NewNode(name, desc string, id NodeID) *Node {
 	return &Node{
-		entity: newEntity(name, desc),
+		entityWithAttributes: newEntityWithAttributes(name, desc, AttributeReferenceKindNode),
 
 		parentBuses: newSet[EntityID, *Bus]("parent bus"),
 		parErrID:    "",
@@ -50,6 +50,7 @@ func (n *Node) modifyMessageName(msgEntID EntityID, newName string) error {
 
 func (n *Node) errorf(err error) error {
 	nodeErr := fmt.Errorf(`node "%s" : %w`, n.name, err)
+
 	if n.parentBuses.size() > 0 {
 		if n.parErrID != "" {
 			parBus, err := n.parentBuses.getValue(n.parErrID)
@@ -63,6 +64,7 @@ func (n *Node) errorf(err error) error {
 
 		return n.parentBuses.getValues()[0].errorf(nodeErr)
 	}
+
 	return nodeErr
 }
 
@@ -104,7 +106,7 @@ func (n *Node) AddMessage(message *Message) error {
 	n.messageNames.add(message.name, message.entityID)
 	n.messageIDs.add(message.id, message.entityID)
 
-	message.setParent(n)
+	message.parentNodes.add(n.entityID, n)
 
 	return nil
 }
@@ -115,7 +117,7 @@ func (n *Node) RemoveMessage(messageEntityID EntityID) error {
 		return n.errorf(fmt.Errorf(`cannot remove message with entity id "%s" : %w`, messageEntityID, err))
 	}
 
-	msg.setParent(nil)
+	msg.parentNodes.remove(n.entityID)
 	msg.resetID()
 
 	n.messages.remove(messageEntityID)
@@ -132,7 +134,7 @@ func (n *Node) RemoveMessage(messageEntityID EntityID) error {
 func (n *Node) RemoveAllMessages() {
 	for _, tmpMsg := range n.messages.entries() {
 		tmpMsg.resetID()
-		tmpMsg.setParent(nil)
+		tmpMsg.parentNodes.remove(n.entityID)
 	}
 
 	n.messages.clear()

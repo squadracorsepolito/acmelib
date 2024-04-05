@@ -7,7 +7,7 @@ import (
 )
 
 type Bus struct {
-	*entity
+	*entityWithAttributes
 
 	parentNetwork *Network
 
@@ -20,7 +20,7 @@ type Bus struct {
 
 func NewBus(name, desc string) *Bus {
 	return &Bus{
-		entity: newEntity(name, desc),
+		entityWithAttributes: newEntityWithAttributes(name, desc, AttributeReferenceKindBus),
 
 		parentNetwork: nil,
 

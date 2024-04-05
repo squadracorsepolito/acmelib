@@ -26,9 +26,10 @@ var defMsgIDGenFn = func(priority MessagePriority, messageCount int, nodeID Node
 }
 
 type Message struct {
-	*entity
+	*entityWithAttributes
 
-	parentNode *Node
+	parentNodes *set[EntityID, *Node]
+	parErrID    EntityID
 
 	signals     *set[EntityID, Signal]
 	signalNames *set[string, EntityID]
@@ -49,9 +50,10 @@ type Message struct {
 
 func NewMessage(name, desc string, sizeByte int) *Message {
 	return &Message{
-		entity: newEntity(name, desc),
+		entityWithAttributes: newEntityWithAttributes(name, desc, AttributeReferenceKindMessage),
 
-		parentNode: nil,
+		parentNodes: newSet[EntityID, *Node]("parent node"),
+		parErrID:    "",
 
 		signals:     newSet[EntityID, Signal]("signal"),
 		signalNames: newSet[string, EntityID]("signal name"),
@@ -69,14 +71,6 @@ func NewMessage(name, desc string, sizeByte int) *Message {
 
 		receivers: newSet[EntityID, *Node]("receiver"),
 	}
-}
-
-func (m *Message) hasParent() bool {
-	return m.parentNode != nil
-}
-
-func (m *Message) setParent(node *Node) {
-	m.parentNode = node
 }
 
 func (m *Message) generateID(msgCount int, nodeID NodeID) {
@@ -97,9 +91,21 @@ func (m *Message) resetID() {
 
 func (m *Message) errorf(err error) error {
 	msgErr := fmt.Errorf(`message "%s": %w`, m.name, err)
-	if m.hasParent() {
-		return m.parentNode.errorf(msgErr)
+
+	if m.parentNodes.size() > 0 {
+		if m.parErrID != "" {
+			parNode, err := m.parentNodes.getValue(m.parErrID)
+			if err != nil {
+				panic(err)
+			}
+
+			m.parErrID = ""
+			return parNode.errorf(msgErr)
+		}
+
+		return m.parentNodes.getValues()[0].errorf(msgErr)
 	}
+
 	return msgErr
 }
 
@@ -197,19 +203,22 @@ func (m *Message) UpdateName(newName string) error {
 		return nil
 	}
 
-	if m.hasParent() {
-		if err := m.parentNode.messageNames.verifyKey(newName); err != nil {
+	for _, tmpNode := range m.parentNodes.entries() {
+		if err := tmpNode.messageNames.verifyKey(newName); err != nil {
+			m.parErrID = tmpNode.entityID
 			return m.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
 		}
 
-		if err := m.parentNode.modifyMessageName(m.entityID, newName); err != nil {
-			return m.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
-		}
+		tmpNode.modifyMessageName(m.entityID, newName)
 	}
 
 	m.name = newName
 
 	return nil
+}
+
+func (m *Message) ParentNodes() []*Node {
+	return m.parentNodes.getValues()
 }
 
 func (m *Message) AppendSignal(signal Signal) error {

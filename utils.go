@@ -42,6 +42,11 @@ func (s *set[K, V]) remove(key K) {
 	delete(s.m, key)
 }
 
+func (s *set[K, V]) hasKey(key K) bool {
+	_, ok := s.m[key]
+	return ok
+}
+
 func (s *set[K, V]) modifyKey(oldKey, newKey K, val V) {
 	s.remove(oldKey)
 	s.add(newKey, val)
