@@ -10,16 +10,16 @@ import (
 type SignalKind string
 
 const (
-	SignalKindStandard    SignalKind = "standard"
-	SignalKindEnum        SignalKind = "enum"
-	SignalKindMultiplexer SignalKind = "multiplexer"
+	SignalKindStandard    SignalKind = "signal-standard"
+	SignalKindEnum        SignalKind = "signal-enum"
+	SignalKindMultiplexer SignalKind = "signal-multiplexer"
 )
 
 type SignalParentKind string
 
 const (
-	SignalParentKindMessage           SignalParentKind = "message"
-	SignalParentKindMultiplexerSignal SignalParentKind = "multiplexer_signal"
+	SignalParentKindMessage           SignalParentKind = "signal_payload-message"
+	SignalParentKindMultiplexerSignal SignalParentKind = "signal_payload-multiplexer_signal"
 )
 
 type SignalParent interface {
@@ -47,6 +47,7 @@ type Signal interface {
 	RemoveAttributeValue(attributeEntityID EntityID) error
 	RemoveAllAttributeValues()
 	AttributeValues() []*AttributeValue
+	GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error)
 
 	String() string
 
@@ -67,7 +68,7 @@ type Signal interface {
 }
 
 type signal struct {
-	*entityWithAttributes
+	*attributeEntity
 
 	parent SignalParent
 
@@ -77,7 +78,7 @@ type signal struct {
 
 func newSignal(name, desc string, kind SignalKind) *signal {
 	return &signal{
-		entityWithAttributes: newEntityWithAttributes(name, desc, AttributeReferenceKindSignal),
+		attributeEntity: newAttributeEntity(name, desc, AttributeRefKindSignal),
 
 		parent: nil,
 

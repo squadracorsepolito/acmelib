@@ -2,6 +2,7 @@ package acmelib
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -57,20 +58,10 @@ func (e *entity) CreateTime() time.Time {
 	return e.createTime
 }
 
-func (e *entity) UpdateDesc(desc string) error {
+func (e *entity) UpdateDesc(desc string) {
 	if e.desc != desc {
 		e.desc = desc
 	}
-
-	return nil
-}
-
-func (e *entity) UpdateName(name string) error {
-	if e.name != name {
-		e.name = name
-	}
-
-	return nil
 }
 
 func (e *entity) toString() string {
@@ -88,15 +79,15 @@ func (e *entity) toString() string {
 	return builder.String()
 }
 
-type entityWithAttributes struct {
+type attributeEntity struct {
 	*entity
 
 	attributeValues *set[EntityID, *AttributeValue]
-	attRefKind      AttributeReferenceKind
+	attRefKind      AttributeRefKind
 }
 
-func newEntityWithAttributes(name, desc string, attRefKind AttributeReferenceKind) *entityWithAttributes {
-	return &entityWithAttributes{
+func newAttributeEntity(name, desc string, attRefKind AttributeRefKind) *attributeEntity {
+	return &attributeEntity{
 		entity: newEntity(name, desc),
 
 		attributeValues: newSet[EntityID, *AttributeValue]("attribute value"),
@@ -104,7 +95,7 @@ func newEntityWithAttributes(name, desc string, attRefKind AttributeReferenceKin
 	}
 }
 
-func (ewa *entityWithAttributes) AddAttributeValue(attribute Attribute, value any) error {
+func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) error {
 	switch v := value.(type) {
 	case int:
 		if attribute.Kind() != AttributeKindInteger {
@@ -147,32 +138,44 @@ func (ewa *entityWithAttributes) AddAttributeValue(attribute Attribute, value an
 		}
 	}
 
-	ewa.attributeValues.add(attribute.EntityID(), newAttributeValue(attribute, value))
-	attribute.addReference(newAttributeReference(ewa.entityID, ewa.attRefKind, value))
+	ae.attributeValues.add(attribute.EntityID(), newAttributeValue(attribute, value))
+	attribute.addReference(newAttributeRef(ae.entityID, ae.attRefKind, value))
 
 	return nil
 }
 
-func (ewa *entityWithAttributes) RemoveAttributeValue(attributeEntityID EntityID) error {
-	att, err := ewa.attributeValues.getValue(attributeEntityID)
+func (ae *attributeEntity) RemoveAttributeValue(attributeEntityID EntityID) error {
+	att, err := ae.attributeValues.getValue(attributeEntityID)
 	if err != nil {
 		return fmt.Errorf(`cannot remove attribute with entity id "%s" : %w`, attributeEntityID, err)
 	}
 
-	ewa.attributeValues.remove(attributeEntityID)
-	att.attribute.removeReference(ewa.entityID)
+	ae.attributeValues.remove(attributeEntityID)
+	att.attribute.removeReference(ae.entityID)
 
 	return nil
 }
 
-func (ewa *entityWithAttributes) RemoveAllAttributeValues() {
-	for _, attVal := range ewa.attributeValues.entries() {
-		attVal.attribute.removeReference(ewa.entityID)
+func (ae *attributeEntity) RemoveAllAttributeValues() {
+	for _, attVal := range ae.attributeValues.entries() {
+		attVal.attribute.removeReference(ae.entityID)
 	}
 
-	ewa.attributeValues.clear()
+	ae.attributeValues.clear()
 }
 
-func (ewa *entityWithAttributes) AttributeValues() []*AttributeValue {
-	return ewa.attributeValues.getValues()
+func (ae *attributeEntity) AttributeValues() []*AttributeValue {
+	attValSlice := ae.attributeValues.getValues()
+	slices.SortFunc(attValSlice, func(a, b *AttributeValue) int {
+		return strings.Compare(a.attribute.Name(), b.attribute.Name())
+	})
+	return attValSlice
+}
+
+func (ae *attributeEntity) GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error) {
+	attVal, err := ae.attributeValues.getValue(attributeEntityID)
+	if err != nil {
+		return nil, fmt.Errorf(`cannot get attribute with entity id "%s" : %w`, attributeEntityID, err)
+	}
+	return attVal, nil
 }

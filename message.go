@@ -26,7 +26,7 @@ var defMsgIDGenFn = func(priority MessagePriority, messageCount int, nodeID Node
 }
 
 type Message struct {
-	*entityWithAttributes
+	*attributeEntity
 
 	parentNodes *set[EntityID, *Node]
 	parErrID    EntityID
@@ -50,7 +50,7 @@ type Message struct {
 
 func NewMessage(name, desc string, sizeByte int) *Message {
 	return &Message{
-		entityWithAttributes: newEntityWithAttributes(name, desc, AttributeReferenceKindMessage),
+		attributeEntity: newAttributeEntity(name, desc, AttributeRefKindMessage),
 
 		parentNodes: newSet[EntityID, *Node]("parent node"),
 		parErrID:    "",

@@ -34,38 +34,38 @@ func (av *AttributeValue) Value() any {
 	return av.value
 }
 
-type AttributeReferenceKind string
+type AttributeRefKind string
 
 const (
-	AttributeReferenceKindBus     AttributeReferenceKind = "attribute_ref-bus"
-	AttributeReferenceKindNode    AttributeReferenceKind = "attribute_ref-node"
-	AttributeReferenceKindMessage AttributeReferenceKind = "attribute_ref-message"
-	AttributeReferenceKindSignal  AttributeReferenceKind = "attribute_ref-signal"
+	AttributeRefKindBus     AttributeRefKind = "attribute_ref-bus"
+	AttributeRefKindNode    AttributeRefKind = "attribute_ref-node"
+	AttributeRefKindMessage AttributeRefKind = "attribute_ref-message"
+	AttributeRefKindSignal  AttributeRefKind = "attribute_ref-signal"
 )
 
-type AttributeReference struct {
+type AttributeRef struct {
 	entityID EntityID
-	kind     AttributeReferenceKind
+	kind     AttributeRefKind
 	value    any
 }
 
-func newAttributeReference(entID EntityID, kind AttributeReferenceKind, val any) *AttributeReference {
-	return &AttributeReference{
+func newAttributeRef(entID EntityID, kind AttributeRefKind, val any) *AttributeRef {
+	return &AttributeRef{
 		entityID: entID,
 		kind:     kind,
 		value:    val,
 	}
 }
 
-func (af *AttributeReference) EntityID() EntityID {
+func (af *AttributeRef) EntityID() EntityID {
 	return af.entityID
 }
 
-func (af *AttributeReference) Kind() AttributeReferenceKind {
+func (af *AttributeRef) Kind() AttributeRefKind {
 	return af.kind
 }
 
-func (af *AttributeReference) Value() any {
+func (af *AttributeRef) Value() any {
 	return af.value
 }
 
@@ -76,11 +76,10 @@ type Attribute interface {
 	CreateTime() time.Time
 
 	Kind() AttributeKind
-	DefValue() any
 
-	addReference(ref *AttributeReference)
+	addReference(ref *AttributeRef)
 	removeReference(refID EntityID)
-	References() []*AttributeReference
+	References() []*AttributeRef
 
 	ToString() (*StringAttribute, error)
 	ToInteger() (*IntegerAttribute, error)
@@ -88,54 +87,56 @@ type Attribute interface {
 	ToEnum() (*EnumAttribute, error)
 }
 
-type attribute[T any] struct {
+type attribute struct {
 	*entity
 
-	kind     AttributeKind
-	defValue T
+	kind AttributeKind
 
-	references *set[EntityID, *AttributeReference]
+	references *set[EntityID, *AttributeRef]
 }
 
-func newAttribute[T any](name, desc string, kind AttributeKind, defValue T) *attribute[T] {
-	return &attribute[T]{
+func newAttribute(name, desc string, kind AttributeKind) *attribute {
+	return &attribute{
 		entity: newEntity(name, desc),
 
-		kind:     kind,
-		defValue: defValue,
+		kind: kind,
 
-		references: newSet[EntityID, *AttributeReference]("reference"),
+		references: newSet[EntityID, *AttributeRef]("reference"),
 	}
 }
 
-func (a *attribute[T]) Kind() AttributeKind {
+func (a *attribute) Kind() AttributeKind {
 	return a.kind
 }
 
-func (a *attribute[T]) DefValue() any {
-	return a.defValue
-}
-
-func (a *attribute[T]) addReference(ref *AttributeReference) {
+func (a *attribute) addReference(ref *AttributeRef) {
 	a.references.add(ref.entityID, ref)
 }
 
-func (a *attribute[T]) removeReference(refID EntityID) {
+func (a *attribute) removeReference(refID EntityID) {
 	a.references.remove(refID)
 }
 
-func (a *attribute[T]) References() []*AttributeReference {
+func (a *attribute) References() []*AttributeRef {
 	return a.references.getValues()
 }
 
 type StringAttribute struct {
-	*attribute[string]
+	*attribute
+
+	defValue string
 }
 
 func NewStringAttribute(name, desc, defValue string) *StringAttribute {
 	return &StringAttribute{
-		attribute: newAttribute(name, desc, AttributeKindString, defValue),
+		attribute: newAttribute(name, desc, AttributeKindString),
+
+		defValue: defValue,
 	}
+}
+
+func (sa *StringAttribute) DefValue() string {
+	return sa.defValue
 }
 
 func (sa *StringAttribute) ToString() (*StringAttribute, error) {
@@ -155,31 +156,37 @@ func (sa *StringAttribute) ToEnum() (*EnumAttribute, error) {
 }
 
 type IntegerAttribute struct {
-	*attribute[int]
+	*attribute
 
-	min int
-	max int
+	defValue int
+	min      int
+	max      int
 
 	isHexFormat bool
 }
 
-func NewIntegerAttribute(name, desc string, defVal, min, max int) (*IntegerAttribute, error) {
+func NewIntegerAttribute(name, desc string, defValue, min, max int) (*IntegerAttribute, error) {
 	if min > max {
 		return nil, fmt.Errorf("min value cannot be greater then max value")
 	}
 
-	if defVal < min || defVal > max {
-		return nil, fmt.Errorf(`default value "%d" is out of min/max range ("%d" - "%d")`, defVal, min, max)
+	if defValue < min || defValue > max {
+		return nil, fmt.Errorf(`default value "%d" is out of min/max range ("%d" - "%d")`, defValue, min, max)
 	}
 
 	return &IntegerAttribute{
-		attribute: newAttribute(name, desc, AttributeKindInteger, defVal),
+		attribute: newAttribute(name, desc, AttributeKindInteger),
 
-		min: min,
-		max: max,
+		defValue: defValue,
+		min:      min,
+		max:      max,
 
 		isHexFormat: false,
 	}, nil
+}
+
+func (ia *IntegerAttribute) DefValue() int {
+	return ia.defValue
 }
 
 func (ia *IntegerAttribute) Min() int {
@@ -215,27 +222,33 @@ func (ia *IntegerAttribute) ToEnum() (*EnumAttribute, error) {
 }
 
 type FloatAttribute struct {
-	*attribute[float64]
+	*attribute
 
-	min float64
-	max float64
+	defValue float64
+	min      float64
+	max      float64
 }
 
-func NewFloatAttribute(name, desc string, defVal, min, max float64) (*FloatAttribute, error) {
+func NewFloatAttribute(name, desc string, defValue, min, max float64) (*FloatAttribute, error) {
 	if min > max {
 		return nil, fmt.Errorf("min value cannot be greater then max value")
 	}
 
-	if defVal < min || defVal > max {
-		return nil, fmt.Errorf(`default value "%f" is out of min/max range ("%f" - "%f")`, defVal, min, max)
+	if defValue < min || defValue > max {
+		return nil, fmt.Errorf(`default value "%f" is out of min/max range ("%f" - "%f")`, defValue, min, max)
 	}
 
 	return &FloatAttribute{
-		attribute: newAttribute(name, desc, AttributeKindFloat, defVal),
+		attribute: newAttribute(name, desc, AttributeKindFloat),
 
-		min: min,
-		max: max,
+		defValue: defValue,
+		min:      min,
+		max:      max,
 	}, nil
+}
+
+func (fa *FloatAttribute) DefValue() float64 {
+	return fa.defValue
 }
 
 func (fa *FloatAttribute) Min() float64 {
@@ -263,12 +276,13 @@ func (fa *FloatAttribute) ToEnum() (*EnumAttribute, error) {
 }
 
 type EnumAttribute struct {
-	*attribute[string]
+	*attribute
 
-	values *set[string, int]
+	defValue string
+	values   *set[string, int]
 }
 
-func NewEnumAttribute(name, desc, defVal string, values ...string) (*EnumAttribute, error) {
+func NewEnumAttribute(name, desc string, values ...string) (*EnumAttribute, error) {
 	if len(values) == 0 {
 		return nil, fmt.Errorf("at least 1 value is required")
 	}
@@ -284,15 +298,16 @@ func NewEnumAttribute(name, desc, defVal string, values ...string) (*EnumAttribu
 		currIdx++
 	}
 
-	if !valSet.hasKey(defVal) {
-		return nil, fmt.Errorf(`default value "%s" is not present in the enum`, defVal)
-	}
-
 	return &EnumAttribute{
-		attribute: newAttribute(name, desc, AttributeKindEnum, defVal),
+		attribute: newAttribute(name, desc, AttributeKindEnum),
 
-		values: valSet,
+		defValue: values[0],
+		values:   valSet,
 	}, nil
+}
+
+func (ea *EnumAttribute) DefValue() string {
+	return ea.defValue
 }
 
 func (ea *EnumAttribute) Values() []string {

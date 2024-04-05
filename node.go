@@ -9,7 +9,7 @@ import (
 type NodeID uint32
 
 type Node struct {
-	*entityWithAttributes
+	*attributeEntity
 
 	parentBuses *set[EntityID, *Bus]
 	parErrID    EntityID
@@ -23,7 +23,7 @@ type Node struct {
 
 func NewNode(name, desc string, id NodeID) *Node {
 	return &Node{
-		entityWithAttributes: newEntityWithAttributes(name, desc, AttributeReferenceKindNode),
+		attributeEntity: newAttributeEntity(name, desc, AttributeRefKindNode),
 
 		parentBuses: newSet[EntityID, *Bus]("parent bus"),
 		parErrID:    "",
