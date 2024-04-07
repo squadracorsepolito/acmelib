@@ -1,6 +1,10 @@
 package acmelib
 
-import "fmt"
+import (
+	"fmt"
+	"slices"
+	"strings"
+)
 
 type Network struct {
 	*entity
@@ -9,6 +13,7 @@ type Network struct {
 	busNames *set[string, EntityID]
 }
 
+// NewNetwork returns a new [Network] with the given name and description.
 func NewNetwork(name, desc string) *Network {
 	return &Network{
 		entity: newEntity(name, desc),
@@ -32,10 +37,13 @@ func (p *Network) modifyBusName(busEntID EntityID, newName string) {
 	p.busNames.modifyKey(oldName, newName, busEntID)
 }
 
+// UpdateName updates the name of the [Network].
 func (p *Network) UpdateName(newName string) {
 	p.name = newName
 }
 
+// AddBus adds a [Bus] to the [Network].
+// It may return an error if the bus name is already taken.
 func (p *Network) AddBus(bus *Bus) error {
 	if err := p.busNames.verifyKey(bus.name); err != nil {
 		return p.errorf(fmt.Errorf(`cannot add bus "%s" : %w`, bus.name, err))
@@ -49,6 +57,8 @@ func (p *Network) AddBus(bus *Bus) error {
 	return nil
 }
 
+// RemoveBus removes a [Bus] that matches the given entity id from the [Network].
+// It may return an error if the bus with the given entity id is not part of the network.
 func (p *Network) RemoveBus(busEntityID EntityID) error {
 	bus, err := p.buses.getValue(busEntityID)
 	if err != nil {
@@ -63,6 +73,7 @@ func (p *Network) RemoveBus(busEntityID EntityID) error {
 	return nil
 }
 
+// RemoveAllBuses removes all [Bus]es from the [Network].
 func (p *Network) RemoveAllBuses() {
 	for _, tmpBus := range p.buses.entries() {
 		tmpBus.setParentNetwork(nil)
@@ -72,6 +83,11 @@ func (p *Network) RemoveAllBuses() {
 	p.busNames.clear()
 }
 
+// Buses returns a slice of all [Bus]es in the [Network] sorted by name.
 func (p *Network) Buses() []*Bus {
-	return p.buses.getValues()
+	busSlice := p.buses.getValues()
+	slices.SortFunc(busSlice, func(a, b *Bus) int {
+		return strings.Compare(a.name, b.name)
+	})
+	return busSlice
 }

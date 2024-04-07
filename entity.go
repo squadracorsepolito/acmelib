@@ -9,6 +9,17 @@ import (
 	"github.com/jaevor/go-nanoid"
 )
 
+// EntityID is the unique identifier of an entity.
+// Entities are:
+//   - networks
+//   - buses
+//   - nodes
+//   - messages
+//   - signals
+//   - signal enums
+//   - signal enum values
+//   - signal units
+//   - attributes
 type EntityID string
 
 func newEntityID() EntityID {
@@ -42,22 +53,27 @@ func newEntity(name, desc string) *entity {
 	}
 }
 
+// EntityID returns the unique identifier of the entity.
 func (e *entity) EntityID() EntityID {
 	return e.entityID
 }
 
+// Name returns the name of the entity.
 func (e *entity) Name() string {
 	return e.name
 }
 
+// Desc returns the description of the entity.
 func (e *entity) Desc() string {
 	return e.desc
 }
 
+// CreateTime returns the time when the entity was created.
 func (e *entity) CreateTime() time.Time {
 	return e.createTime
 }
 
+// UpdateDesc updates the description of the entity.
 func (e *entity) UpdateDesc(desc string) {
 	if e.desc != desc {
 		e.desc = desc

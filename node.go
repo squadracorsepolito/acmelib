@@ -6,6 +6,8 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// NodeID is a unique identifier for a node.
+// It must be manually assigned by the user.
 type NodeID uint32
 
 type Node struct {
@@ -21,6 +23,8 @@ type Node struct {
 	id NodeID
 }
 
+// NewNode creates a new [Node] with the given name, description, and id.
+// The id must be unique among all nodes within a bus.
 func NewNode(name, desc string, id NodeID) *Node {
 	return &Node{
 		attributeEntity: newAttributeEntity(name, desc, AttributeRefKindNode),
@@ -68,6 +72,8 @@ func (n *Node) errorf(err error) error {
 	return nodeErr
 }
 
+// UpdateName updates the name of the [Node].
+// It may return an error if the new name is already in use within a bus.
 func (n *Node) UpdateName(newName string) error {
 	if n.name == newName {
 		return nil
@@ -87,10 +93,14 @@ func (n *Node) UpdateName(newName string) error {
 	return nil
 }
 
+// ParentBuses returns a slice of [Bus]es that the [Node] is part of.
 func (n *Node) ParentBuses() []*Bus {
 	return n.parentBuses.getValues()
 }
 
+// AddMessage adds a [Message] to the [Node].
+// This means that the given message will be sent by the node.
+// It may return an error if the message name or the message id is already used by the node.
 func (n *Node) AddMessage(message *Message) error {
 	if err := n.messageNames.verifyKey(message.name); err != nil {
 		return n.errorf(fmt.Errorf(`cannot add message "%s" : %w`, message.name, err))
@@ -111,6 +121,8 @@ func (n *Node) AddMessage(message *Message) error {
 	return nil
 }
 
+// RemoveMessage removes a [Message] that matches the given entity id from the [Node].
+// It may return an error if the message with the given entity id is not sent by the node.
 func (n *Node) RemoveMessage(messageEntityID EntityID) error {
 	msg, err := n.messages.getValue(messageEntityID)
 	if err != nil {
@@ -131,6 +143,7 @@ func (n *Node) RemoveMessage(messageEntityID EntityID) error {
 	return nil
 }
 
+// RemoveAllMessages removes all messages from the [Node].
 func (n *Node) RemoveAllMessages() {
 	for _, tmpMsg := range n.messages.entries() {
 		tmpMsg.resetID()
@@ -142,12 +155,14 @@ func (n *Node) RemoveAllMessages() {
 	n.messageIDs.clear()
 }
 
+// Messages returns a slice of messages that the [Node] sends sorted by message id.
 func (n *Node) Messages() []*Message {
 	msgSlice := n.messages.getValues()
 	slices.SortFunc(msgSlice, func(a, b *Message) int { return int(a.id) - int(b.id) })
 	return msgSlice
 }
 
+// ID returns the node id.
 func (n *Node) ID() NodeID {
 	return n.id
 }

@@ -18,6 +18,7 @@ type Bus struct {
 	baudrate uint
 }
 
+// NewBus creates a new [Bus] with the given name and description.
 func NewBus(name, desc string) *Bus {
 	return &Bus{
 		attributeEntity: newAttributeEntity(name, desc, AttributeRefKindBus),
@@ -58,6 +59,8 @@ func (b *Bus) modifyNodeName(nodeEntID EntityID, newName string) {
 	b.nodeNames.modifyKey(oldName, newName, nodeEntID)
 }
 
+// UpdateName updates the name of the [Bus].
+// It may return an error if the new name is already in use within a network.
 func (b *Bus) UpdateName(newName string) error {
 	if b.name == newName {
 		return nil
@@ -76,6 +79,14 @@ func (b *Bus) UpdateName(newName string) error {
 	return nil
 }
 
+// ParentNetwork returns the [Network] that the [Bus] is part of.
+// If the [Bus] is not part of a [Network], it returns nil.
+func (b *Bus) ParentNetwork() *Network {
+	return b.parentNetwork
+}
+
+// AddNode adds the given [Node] to the [Bus].
+// It may return an error if the node name or the node id is already used by the bus.
 func (b *Bus) AddNode(node *Node) error {
 	if err := b.nodeNames.verifyKey(node.name); err != nil {
 		return b.errorf(fmt.Errorf(`cannot add node "%s" : %w`, node.name, err))
@@ -94,6 +105,8 @@ func (b *Bus) AddNode(node *Node) error {
 	return nil
 }
 
+// RemoveNode removes a [Node] that matches the given entity id from the [Bus].
+// It may return an error if the node with the given entity id is not part of the bus.
 func (b *Bus) RemoveNode(nodeEntityID EntityID) error {
 	node, err := b.nodes.getValue(nodeEntityID)
 	if err != nil {
@@ -109,6 +122,7 @@ func (b *Bus) RemoveNode(nodeEntityID EntityID) error {
 	return nil
 }
 
+// RemoveAllNodes removes all nodes from the [Bus].
 func (b *Bus) RemoveAllNodes() {
 	for _, tmpNode := range b.nodes.entries() {
 		tmpNode.parentBuses.remove(b.entityID)
@@ -119,16 +133,19 @@ func (b *Bus) RemoveAllNodes() {
 	b.nodeIDs.clear()
 }
 
+// Nodes returns a slice of all nodes in the [Bus] sorted by node id.
 func (b *Bus) Nodes() []*Node {
 	nodeSlice := b.nodes.getValues()
 	slices.SortFunc(nodeSlice, func(a, b *Node) int { return int(a.id) - int(b.id) })
 	return nodeSlice
 }
 
+// SetBaudrate sets the baudrate of the [Bus].
 func (b *Bus) SetBaudrate(baudrate uint) {
 	b.baudrate = baudrate
 }
 
+// Baudrate returns the baudrate of the [Bus].
 func (b *Bus) Baudrate() uint {
 	return b.baudrate
 }
