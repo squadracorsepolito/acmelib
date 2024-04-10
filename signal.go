@@ -903,7 +903,7 @@ func (ms *MultiplexerSignal) ShiftMuxSignalRight(muxSignalEntityID EntityID, amo
 }
 
 // RemoveMuxSignal removes the multiplexed signal with the given entity id from the [MultiplexerSignal].
-// It may return an error if the multipled signal with the given entity id
+// It may return an error if the multiplied signal with the given entity id
 // is not found in the [MultiplexerSignal].
 func (ms *MultiplexerSignal) RemoveMuxSignal(muxSignalEntityID EntityID) error {
 	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)

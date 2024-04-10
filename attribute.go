@@ -44,7 +44,7 @@ const (
 
 // AttributeRef connects an [Attribute] to an entity and the value
 // the latter has associated to the former.
-// It is usefull to connect an attribute to the entities that are using it.
+// It is useful to connect an attribute to the entities that are using it.
 type AttributeRef struct {
 	entityID EntityID
 	kind     AttributeRefKind

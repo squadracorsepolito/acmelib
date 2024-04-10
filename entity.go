@@ -151,7 +151,7 @@ func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) err
 				return fmt.Errorf(`cannot assign value "%s" : %w`, v, err)
 			}
 			if !enumAtt.values.hasKey(v) {
-				return fmt.Errorf(`cannot assign value "%s" beacuse it is not present in the enum`, v)
+				return fmt.Errorf(`cannot assign value "%s" becacuse it is not present in the enum`, v)
 			}
 
 		default:

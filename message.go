@@ -42,7 +42,7 @@ const (
 	MessagePriorityLow
 )
 
-// Message is the representation of data sent by a node throught the bus.
+// Message is the representation of data sent by a node thought the bus.
 // It holds a list of signals that are contained in the message payload.
 // A message can be assigned to more then 1 node.
 type Message struct {
@@ -127,7 +127,7 @@ func (m *Message) errorf(err error) error {
 	return msgErr
 }
 
-// GetSignalParentKind always retuns [SignalParentKindMessage].
+// GetSignalParentKind always returns [SignalParentKindMessage].
 // It can be used to check if the parent of a signal is a [Message] or a [MultiplexerSignal].
 func (m *Message) GetSignalParentKind() SignalParentKind {
 	return SignalParentKindMessage
