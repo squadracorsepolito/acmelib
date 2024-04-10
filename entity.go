@@ -16,6 +16,7 @@ import (
 //   - nodes
 //   - messages
 //   - signals
+//   - signal types
 //   - signal enums
 //   - signal enum values
 //   - signal units
@@ -111,6 +112,10 @@ func newAttributeEntity(name, desc string, attRefKind AttributeRefKind) *attribu
 	}
 }
 
+// AddAttributeValue adds an [Attribute] to the entity and it assign
+// the given value to it.
+// It may return an error if the given value is not valid for the given
+// [Attribute].
 func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) error {
 	switch v := value.(type) {
 	case int:
@@ -160,6 +165,10 @@ func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) err
 	return nil
 }
 
+// RemoveAttributeValue removes an [Attribute] with the given entity id from the entity.
+// It also removes the reference to the entity from the attribute.
+// It may return an error if the attribute with the given entity id does not exist
+// in the entity.
 func (ae *attributeEntity) RemoveAttributeValue(attributeEntityID EntityID) error {
 	att, err := ae.attributeValues.getValue(attributeEntityID)
 	if err != nil {
@@ -172,6 +181,7 @@ func (ae *attributeEntity) RemoveAttributeValue(attributeEntityID EntityID) erro
 	return nil
 }
 
+// RemoveAllAttributeValues removes all [Attributes] from the entity.
 func (ae *attributeEntity) RemoveAllAttributeValues() {
 	for _, attVal := range ae.attributeValues.entries() {
 		attVal.attribute.removeReference(ae.entityID)
@@ -180,6 +190,7 @@ func (ae *attributeEntity) RemoveAllAttributeValues() {
 	ae.attributeValues.clear()
 }
 
+// AttributeValues returns slice of all the attributes of the entity.
 func (ae *attributeEntity) AttributeValues() []*AttributeValue {
 	attValSlice := ae.attributeValues.getValues()
 	slices.SortFunc(attValSlice, func(a, b *AttributeValue) int {
@@ -188,6 +199,9 @@ func (ae *attributeEntity) AttributeValues() []*AttributeValue {
 	return attValSlice
 }
 
+// GetAttributeValue returns the [Attribute] with the given entity id from the entity.
+// It may return an error if the attribute with the given entity id does not exist
+// in the entity.
 func (ae *attributeEntity) GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error) {
 	attVal, err := ae.attributeValues.getValue(attributeEntityID)
 	if err != nil {

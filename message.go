@@ -5,17 +5,18 @@ import (
 	"strings"
 )
 
+// MessageID is the bus unique identifier of a [Message].
+// By default 11 bit message ids are used.
 type MessageID uint32
 
-type MessagePriority uint
-
-const (
-	MessagePriorityVeryHigh MessagePriority = iota
-	MessagePriorityHigh
-	MessagePriorityMedium
-	MessagePriorityLow
-)
-
+// MessageIDGeneratorFn is callback used for generating automatically
+// the [MessageID] of a [Message]. It is triggered when a [Message] is added to
+// a [Node] or when the former is removed. It takes as prameters the priority
+// of the message, the number of messages sended by the node, and the node id,
+// then it returns the computed message id.
+// By default the messages calculate their 11 bit ids by putting the node id
+// in the 4 lsb, the message count (number of messages sended by the node) from
+// bit 4 to 9, and the priority in the 2 msb.
 type MessageIDGeneratorFn func(priority MessagePriority, messageCount int, nodeID NodeID) (messageID MessageID)
 
 var defMsgIDGenFn = func(priority MessagePriority, messageCount int, nodeID NodeID) (messageID MessageID) {
@@ -24,6 +25,22 @@ var defMsgIDGenFn = func(priority MessagePriority, messageCount int, nodeID Node
 	messageID |= MessageID(nodeID) & 0b1111
 	return messageID
 }
+
+// MessagePriority rappresents the priority of a [Message].
+// The priorities are very high, high, medium, and low.
+// The higher priority has the value 0 and the lower has 3.
+type MessagePriority uint
+
+const (
+	// MessagePriorityVeryHigh defines a very high priority.
+	MessagePriorityVeryHigh MessagePriority = iota
+	// MessagePriorityHigh defines an high priority.
+	MessagePriorityHigh
+	// MessagePriorityMedium defines a medium priority.
+	MessagePriorityMedium
+	// MessagePriorityLow defines a low priority.
+	MessagePriorityLow
+)
 
 type Message struct {
 	*attributeEntity
@@ -49,6 +66,7 @@ type Message struct {
 }
 
 // NewMessage creates a new [Message] with the given name, description, and size (byte).
+// By default a [MessagePriority] of [MessagePriorityVeryHigh] is used.
 func NewMessage(name, desc string, sizeByte int) *Message {
 	return &Message{
 		attributeEntity: newAttributeEntity(name, desc, AttributeRefKindMessage),

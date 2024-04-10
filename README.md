@@ -1,2 +1,3 @@
 # acmelib
-A Golang library for managing complex CAN networks
+
+A Golang library for modelling complex CAN networks.

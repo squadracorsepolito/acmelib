@@ -7,19 +7,28 @@ import (
 	"time"
 )
 
+// SignalKind rappresents the kind of a [Signal].
+// It can be standard, enum, or multiplexer
 type SignalKind string
 
 const (
-	SignalKindStandard    SignalKind = "signal-standard"
-	SignalKindEnum        SignalKind = "signal-enum"
+	// SignalKindStandard defines a standard signal.
+	SignalKindStandard SignalKind = "signal-standard"
+	// SignalKindEnum defines a enum signal.
+	SignalKindEnum SignalKind = "signal-enum"
+	// SignalKindMultiplexer defines a multiplexer signal.
 	SignalKindMultiplexer SignalKind = "signal-multiplexer"
 )
 
+// SignalParentKind rappresents the kind of a [SignalParent].
+// It can be message or multiplexer signal.
 type SignalParentKind string
 
 const (
-	SignalParentKindMessage           SignalParentKind = "signal_payload-message"
-	SignalParentKindMultiplexerSignal SignalParentKind = "signal_payload-multiplexer_signal"
+	// SignalParentKindMessage defines a message parent.
+	SignalParentKindMessage SignalParentKind = "signal_parent-message"
+	// SignalParentKindMultiplexerSignal defines a multiplexer signal parent.
+	SignalParentKindMultiplexerSignal SignalParentKind = "signal_parent-multiplexer_signal"
 )
 
 type SignalParent interface {
@@ -173,10 +182,6 @@ func (s *signal) UpdateName(newName string) error {
 	return nil
 }
 
-// -----------------------
-// +++ STANDARD SIGNAL +++
-// -----------------------
-
 type StandardSignal struct {
 	*signal
 
@@ -188,6 +193,9 @@ type StandardSignal struct {
 	unit   *SignalUnit
 }
 
+// NewStandardSignal creates a new [StandardSignal] with the given name, description,
+// [SignalType], min, max, offset, scale, and unit.
+// It may return an error if the given [SignalType] is nil.
 func NewStandardSignal(name, desc string, typ *SignalType, min, max, offset, scale float64, unit *SignalUnit) (*StandardSignal, error) {
 	if typ == nil {
 		return nil, errors.New("signal type cannot be nil")
@@ -205,29 +213,25 @@ func NewStandardSignal(name, desc string, typ *SignalType, min, max, offset, sca
 	}, nil
 }
 
-// ---------------------------------------
-// +++ Signal interface implementation +++
-// ---------------------------------------
-
+// GetSize returns the size of the [StandardSignal].
 func (ss *StandardSignal) GetSize() int {
 	return ss.typ.size
 }
 
+// ToStandard returns the [StandardSignal] itself.
 func (ss *StandardSignal) ToStandard() (*StandardSignal, error) {
 	return ss, nil
 }
 
+// ToEnum always returns an error, because a [StandardSignal] cannot be converted to an [EnumSignal].
 func (ss *StandardSignal) ToEnum() (*EnumSignal, error) {
 	return nil, fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindEnum, SignalKindStandard)
 }
 
+// ToMultiplexer always returns an error, because a [StandardSignal] cannot be converted to a [MultiplexerSignal].
 func (ss *StandardSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 	return nil, fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindMultiplexer, SignalKindStandard)
 }
-
-// ----------------------
-// +++ public methods +++
-// ----------------------
 
 func (ss *StandardSignal) String() string {
 	var builder strings.Builder
@@ -241,10 +245,15 @@ func (ss *StandardSignal) String() string {
 	return builder.String()
 }
 
+// Type returns the [SignalType] of the [StandardSignal].
 func (ss *StandardSignal) Type() *SignalType {
 	return ss.typ
 }
 
+// SetType sets the [SignalType] of the [StandardSignal] to the given [SignalType], min, max,
+// scale, and offset.
+// It may return an error if the given [SignalType] is nil, or if the new signal type
+// size cannot fit in the message payload.
 func (ss *StandardSignal) SetType(typ *SignalType, min, max, offset, scale float64) error {
 	if typ == nil {
 		return errors.New("signal type cannot be nil")
@@ -263,33 +272,39 @@ func (ss *StandardSignal) SetType(typ *SignalType, min, max, offset, scale float
 	return nil
 }
 
+// Min returns the minimum value of the [StandardSignal].
+// It may differ from the minimum value of the signal type associated
+// with the [StandardSignal].
 func (ss *StandardSignal) Min() float64 {
 	return ss.min
 }
 
+// Max returns the maximum value of the [StandardSignal].
+// It may differ from the maximum value of the signal type associated
+// with the [StandardSignal].
 func (ss *StandardSignal) Max() float64 {
 	return ss.max
 }
 
+// Offset returns the offset of the [StandardSignal].
 func (ss *StandardSignal) Offset() float64 {
 	return ss.offset
 }
 
+// Scale returns the scale of the [StandardSignal].
 func (ss *StandardSignal) Scale() float64 {
 	return ss.scale
 }
 
+// Unit returns the [SignalUnit] of the [StandardSignal].
 func (ss *StandardSignal) Unit() *SignalUnit {
 	return ss.unit
 }
 
+// SetUnit sets the [SignalUnit] of the [StandardSignal] to the given one.
 func (ss *StandardSignal) SetUnit(unit *SignalUnit) {
 	ss.unit = unit
 }
-
-// -------------------
-// +++ ENUM SIGNAL +++
-// -------------------
 
 type EnumSignal struct {
 	*signal
@@ -297,6 +312,9 @@ type EnumSignal struct {
 	enum *SignalEnum
 }
 
+// NewEnumSignal creates a new [EnumSignal] with the given name, description,
+// and [SignalEnum].
+// It may return an error if the given [SignalEnum] is nil.
 func NewEnumSignal(name, desc string, enum *SignalEnum) (*EnumSignal, error) {
 	if enum == nil {
 		return nil, errors.New("signal enum cannot be nil")
@@ -313,29 +331,25 @@ func NewEnumSignal(name, desc string, enum *SignalEnum) (*EnumSignal, error) {
 	return sig, nil
 }
 
-// ---------------------------------------
-// +++ Signal interface implementation +++
-// ---------------------------------------
-
+// GetSize returns the size of the [EnumSignal].
 func (es *EnumSignal) GetSize() int {
 	return es.enum.GetSize()
 }
 
+// ToStandard always returns an error, because an [EnumSignal] cannot be converted to a [StandardSignal].
 func (es *EnumSignal) ToStandard() (*StandardSignal, error) {
 	return nil, fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindStandard, SignalKindEnum)
 }
 
+// ToEnum returns the [EnumSignal] itself.
 func (es *EnumSignal) ToEnum() (*EnumSignal, error) {
 	return es, nil
 }
 
+// ToMultiplexer always returns an error, because an [EnumSignal] cannot be converted to a [MultiplexerSignal].
 func (es *EnumSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 	return nil, fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindMultiplexer, SignalKindEnum)
 }
-
-// ----------------------
-// +++ public methods +++
-// ----------------------
 
 func (es *EnumSignal) String() string {
 	var builder strings.Builder
@@ -348,10 +362,14 @@ func (es *EnumSignal) String() string {
 	return builder.String()
 }
 
+// Enum returns the [SignalEnum] of the [EnumSignal].
 func (es *EnumSignal) Enum() *SignalEnum {
 	return es.enum
 }
 
+// SetEnum sets the [SignalEnum] of the [EnumSignal] to the given one.
+// It may return an error if the given [SignalEnum] is nil, or if the new enum
+// size cannot fit in the message payload.
 func (es *EnumSignal) SetEnum(enum *SignalEnum) error {
 	if enum == nil {
 		return errors.New("signal enum cannot be nil")
@@ -370,10 +388,6 @@ func (es *EnumSignal) SetEnum(enum *SignalEnum) error {
 	return nil
 }
 
-// --------------------------
-// +++ MULTIPLEXER SIGNAL +++
-// --------------------------
-
 type MultiplexerSignal struct {
 	*signal
 
@@ -390,8 +404,29 @@ type MultiplexerSignal struct {
 	selectSize int
 }
 
+// NewMultiplexerSignal creates a new [MultiplexerSignal] with the given name, description,
+// total size, and select size.
+// The select size defines the number bits used for selecting the different groups of signals
+// of the multiplexer (select size = log2(number of groups)).
+// The total size is the sum of the select and the maximum size of groups.
+// Ex. selectSize = 2, totalSize = 10 means that the [MultiplexerSignal] can have
+// 4 groups of 8 bits.
+// It may return an error if the select size is greater then the total size, or if
+// the total and select size are lower or equal to zero.
 func NewMultiplexerSignal(name, desc string, totalSize, selectSize int) (*MultiplexerSignal, error) {
-	ms := &MultiplexerSignal{
+	if selectSize <= 0 {
+		return nil, fmt.Errorf("the select size cannot be lower or equal to 0")
+	}
+
+	if totalSize <= 0 {
+		return nil, fmt.Errorf("the total size cannot be lower or equal to 0")
+	}
+
+	if selectSize > totalSize {
+		return nil, fmt.Errorf("the select size cannot be greater then the total size")
+	}
+
+	return &MultiplexerSignal{
 		signal: newSignal(name, desc, SignalKindMultiplexer),
 
 		muxSignals:     newSet[EntityID, Signal]("multiplexed signal"),
@@ -405,9 +440,7 @@ func NewMultiplexerSignal(name, desc string, totalSize, selectSize int) (*Multip
 
 		totalSize:  totalSize,
 		selectSize: selectSize,
-	}
-
-	return ms, nil
+	}, nil
 }
 
 func (ms *MultiplexerSignal) addSignalPayload(selVal int) *signalPayload {
@@ -565,10 +598,7 @@ func (ms *MultiplexerSignal) verifySelectValue(selVal int) error {
 	return nil
 }
 
-// ---------------------------------------------
-// +++ signalParent interface implementation +++
-// ---------------------------------------------
-
+// GetSignalParentKind always returns [SignalParentKindMultiplexerSignal].
 func (ms *MultiplexerSignal) GetSignalParentKind() SignalParentKind {
 	return SignalParentKindMultiplexerSignal
 }
@@ -674,38 +704,36 @@ func (ms *MultiplexerSignal) modifySignalSize(sigID EntityID, amount int) error 
 	return payload.modifyStartBitsOnShrink(sig, -amount)
 }
 
+// ToParentMessage always returns an error, since [MultiplexerSignal] cannot be converted to [Message].
 func (ms *MultiplexerSignal) ToParentMessage() (*Message, error) {
 	return nil, fmt.Errorf(`cannot convert to "%s" signal parent is of kind "%s"`,
 		SignalParentKindMessage, SignalParentKindMultiplexerSignal)
 }
 
+// ToParentMultiplexerSignal returns the [MultiplexerSignal] itself.
 func (ms *MultiplexerSignal) ToParentMultiplexerSignal() (*MultiplexerSignal, error) {
 	return ms, nil
 }
 
-// ---------------------------------------
-// +++ Signal interface implementation +++
-// ---------------------------------------
-
+// GetSize returns the total size of the [MultiplexerSignal].
 func (ms *MultiplexerSignal) GetSize() int {
 	return ms.totalSize
 }
 
+// ToStandard always returns an error, since [MultiplexerSignal] cannot be converted to [StandardSignal].
 func (ms *MultiplexerSignal) ToStandard() (*StandardSignal, error) {
 	return nil, ms.errorf(fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindStandard, SignalKindMultiplexer))
 }
 
+// ToEnum always returns an error, since [MultiplexerSignal] cannot be converted to [EnumSignal].
 func (ms *MultiplexerSignal) ToEnum() (*EnumSignal, error) {
 	return nil, ms.errorf(fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindEnum, SignalKindMultiplexer))
 }
 
+// ToMultiplexer always returns the [MultiplexerSignal] itself.
 func (ms *MultiplexerSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 	return ms, nil
 }
-
-// ----------------------
-// +++ public methods +++
-// ----------------------
 
 func (ms *MultiplexerSignal) String() string {
 	var builder strings.Builder
@@ -718,6 +746,7 @@ func (ms *MultiplexerSignal) String() string {
 	return builder.String()
 }
 
+// GetSelectedMuxSignals returns a slice of signals which belong to the selected group.
 func (ms *MultiplexerSignal) GetSelectedMuxSignals(selectValue int) []Signal {
 	payload, _ := ms.getSignalPayload(selectValue)
 
@@ -728,6 +757,10 @@ func (ms *MultiplexerSignal) GetSelectedMuxSignals(selectValue int) []Signal {
 	return []Signal{}
 }
 
+// MuxSignals returns a map of signal slices, with key the selector value and
+// the corresponding value is a slice of signals which belong to the selected group.
+// Keep in mind that the keys in the map are not sorted, so it is not guaranteed
+// that the first key in the map will corresponde to the smaller select value.
 func (ms *MultiplexerSignal) MuxSignals() map[int][]Signal {
 	res := make(map[int][]Signal)
 
@@ -738,6 +771,10 @@ func (ms *MultiplexerSignal) MuxSignals() map[int][]Signal {
 	return res
 }
 
+// AppendMuxSignal appends the [Signal] to the group specified by the select value.
+// It may return an error if the signal name is already used by the [MultiplexerSignal]
+// or by the [Message] that owns the [MultiplexerSignal]. Also, it may return an error
+// if the select value is out of bounds, or if the signal cannot fit in the group.
 func (ms *MultiplexerSignal) AppendMuxSignal(selectValue int, signal Signal) error {
 	if err := ms.verifySignalName(signal.EntityID(), signal.Name()); err != nil {
 		return ms.errorf(err)
@@ -763,6 +800,11 @@ func (ms *MultiplexerSignal) AppendMuxSignal(selectValue int, signal Signal) err
 	return nil
 }
 
+// InsertMuxSignal inserts the [Signal] to the group specified by the select value starting
+// from the specified bit.
+// It may return an error if the signal name is already used by the [MultiplexerSignal]
+// or by the [Message] that owns the [MultiplexerSignal]. Also, it may return an error
+// if the select value is out of bounds, or if the signal cannot fit in the group.
 func (ms *MultiplexerSignal) InsertMuxSignal(selectValue int, signal Signal, startBit int) error {
 	if err := ms.verifySignalName(signal.EntityID(), signal.Name()); err != nil {
 		return ms.errorf(err)
@@ -788,6 +830,8 @@ func (ms *MultiplexerSignal) InsertMuxSignal(selectValue int, signal Signal, sta
 	return nil
 }
 
+// ShiftMuxSignalLeft shifts the multiplexed signal with the given entity id left by the given amount.
+// It returns the amount of bits shifted.
 func (ms *MultiplexerSignal) ShiftMuxSignalLeft(muxSignalEntityID EntityID, amount int) int {
 	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
 	if err != nil {
@@ -807,6 +851,8 @@ func (ms *MultiplexerSignal) ShiftMuxSignalLeft(muxSignalEntityID EntityID, amou
 	return payload.shiftLeft(sig, amount)
 }
 
+// ShiftMuxSignalRight shifts the multiplexed signal with the given entity id right by the given amount.
+// It returns the amount of bits shifted.
 func (ms *MultiplexerSignal) ShiftMuxSignalRight(muxSignalEntityID EntityID, amount int) int {
 	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
 	if err != nil {
@@ -826,6 +872,9 @@ func (ms *MultiplexerSignal) ShiftMuxSignalRight(muxSignalEntityID EntityID, amo
 	return payload.shiftRight(sig, amount)
 }
 
+// RemoveMuxSignal removes the multiplexed signal with the given entity id from the [MultiplexerSignal].
+// It may return an error if the multipled signal with the given entity id
+// is not found in the [MultiplexerSignal].
 func (ms *MultiplexerSignal) RemoveMuxSignal(muxSignalEntityID EntityID) error {
 	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
 	if err != nil {
@@ -852,6 +901,7 @@ func (ms *MultiplexerSignal) RemoveMuxSignal(muxSignalEntityID EntityID) error {
 	return nil
 }
 
+// RemoveAllMuxSignals removes all the multiplexed signals from the [MultiplexerSignal].
 func (ms *MultiplexerSignal) RemoveAllMuxSignals() {
 	for muxSigID, tmpMuxSig := range ms.muxSignals.entries() {
 		tmpMuxSig.setParent(nil)
@@ -864,10 +914,17 @@ func (ms *MultiplexerSignal) RemoveAllMuxSignals() {
 	}
 }
 
+// SelectSize returns the number of bits of the select value in the [MultiplexerSignal].
 func (ms *MultiplexerSignal) SelectSize() int {
 	return ms.selectSize
 }
 
+// AddSelectValueRange adds a range of select values to the [MultiplexerSignal].
+// It is used when a range of select values is used for selecting one group.
+// Ex. from = 0, to = 2 means that there is only one group for select value 0, 1 and 2.
+// It may return an error if from is greater then to, or if any of the values in the range
+// is already used for selecting more then one group (ex. selVal = 0 -> group0,
+// selVal = 1 -> group1: cannot use the range from 0 to 1).
 func (ms *MultiplexerSignal) AddSelectValueRange(from, to int) error {
 	if from > to {
 		return ms.errorf(fmt.Errorf(`cannot set select value range because from "%d" is greater then to "%d"`, from, to))

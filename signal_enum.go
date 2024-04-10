@@ -18,6 +18,7 @@ type SignalEnum struct {
 	maxIndex int
 }
 
+// NewSignalEnum creates a new [SignalEnum] with the given name and description.
 func NewSignalEnum(name, desc string) *SignalEnum {
 	return &SignalEnum{
 		entity: newEntity(name, desc),
@@ -132,10 +133,14 @@ func (se *SignalEnum) setMaxIndex() {
 	se.maxIndex = currMax
 }
 
+// UpdateName updates the name of the [SignalEnum] to the given new one.
 func (se *SignalEnum) UpdateName(newName string) {
 	se.name = newName
 }
 
+// AddValue adds the given [SignalEnumValue] to the [SignalEnum].
+// It may return an error if the value name is already in use within
+// the signal enum, or if it has an invalid index.
 func (se *SignalEnum) AddValue(value *SignalEnumValue) error {
 	if err := se.verifyValueIndex(value.index); err != nil {
 		return se.errorf(fmt.Errorf(`cannot add value "%s" : %w`, value.name, err))
@@ -159,6 +164,8 @@ func (se *SignalEnum) AddValue(value *SignalEnumValue) error {
 	return nil
 }
 
+// RemoveValue removes the [SignalEnumValue] with the given entity id from the [SignalEnum].
+// It may return an error if the value with the given entity id is not found.
 func (se *SignalEnum) RemoveValue(valueEntityID EntityID) error {
 	val, err := se.values.getValue(valueEntityID)
 	if err != nil {
@@ -184,6 +191,7 @@ func (se *SignalEnum) RemoveValue(valueEntityID EntityID) error {
 	return nil
 }
 
+// RemoveAllValues removes all enum values from the [SignalEnum].
 func (se *SignalEnum) RemoveAllValues() {
 	for _, tmpVal := range se.values.entries() {
 		tmpVal.setParentEnum(nil)
@@ -194,16 +202,19 @@ func (se *SignalEnum) RemoveAllValues() {
 	se.valueIndexes.clear()
 }
 
+// GetValues returns a slice of all the enum values of the [SignalEnum].
 func (se *SignalEnum) GetValues() []*SignalEnumValue {
 	valueSlice := se.values.getValues()
 	slices.SortFunc(valueSlice, func(a *SignalEnumValue, b *SignalEnumValue) int { return a.index - b.index })
 	return valueSlice
 }
 
+// GetSize returns the size of the [SignalEnum] in bits.
 func (se *SignalEnum) GetSize() int {
 	return calcSizeFromValue(se.maxIndex)
 }
 
+// MaxIndex returns the highest index of the enum values of the [SignalEnum].
 func (se *SignalEnum) MaxIndex() int {
 	return se.maxIndex
 }
@@ -216,6 +227,8 @@ type SignalEnumValue struct {
 	index int
 }
 
+// NewSignalEnumValue creates a new [SignalEnumValue] with the given name,
+// description, and index.
 func NewSignalEnumValue(name, desc string, index int) *SignalEnumValue {
 	return &SignalEnumValue{
 		entity: newEntity(name, desc),
@@ -242,6 +255,8 @@ func (sev *SignalEnumValue) errorf(err error) error {
 	return enumValErr
 }
 
+// UpdateName updates the name of the [SignalEnumValue] to the given new one.
+// It may return an error if the new name is already in use within the parent enum.
 func (sev *SignalEnumValue) UpdateName(newName string) error {
 	if sev.name == newName {
 		return nil
@@ -260,10 +275,14 @@ func (sev *SignalEnumValue) UpdateName(newName string) error {
 	return nil
 }
 
+// ParentEnum returns the parent [SignalEnum] of the [SignalEnumValue],
+// or nil if not set.
 func (sev *SignalEnumValue) ParentEnum() *SignalEnum {
 	return sev.parentEnum
 }
 
+// UpdateIndex updates the index of the [SignalEnumValue] to the given new one.
+// It may return an error if the new index is invalid.
 func (sev *SignalEnumValue) UpdateIndex(newIndex int) error {
 	if sev.index == newIndex {
 		return nil
@@ -282,6 +301,7 @@ func (sev *SignalEnumValue) UpdateIndex(newIndex int) error {
 	return nil
 }
 
+// Index returns the index of the [SignalEnumValue].
 func (sev *SignalEnumValue) Index() int {
 	return sev.index
 }
