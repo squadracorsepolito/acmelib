@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+// Network is the highest level entity in the package.
+// Its main purpose is to hold all buses belonging to the same network.
+// For example, a car can be seen as a network with multiple buses that
+// are serving different areas or ECUs in the vehicle.
 type Network struct {
 	*entity
 

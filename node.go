@@ -10,6 +10,9 @@ import (
 // It must be manually assigned by the user.
 type NodeID uint32
 
+// Node is the representation of an ECU.
+// It holds a list of messages which are sent to other nodes throught the bus.
+// A node can be assigned to more then 1 bus.
 type Node struct {
 	*attributeEntity
 

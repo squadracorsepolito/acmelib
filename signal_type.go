@@ -16,6 +16,7 @@ const (
 	SignalTypeKindFloat SignalTypeKind = "signal_type-float"
 )
 
+// SignalType is the representation of a signal type.
 type SignalType struct {
 	*entity
 

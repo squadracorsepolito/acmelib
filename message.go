@@ -42,6 +42,9 @@ const (
 	MessagePriorityLow
 )
 
+// Message is the representation of data sent by a node throught the bus.
+// It holds a list of signals that are contained in the message payload.
+// A message can be assigned to more then 1 node.
 type Message struct {
 	*attributeEntity
 

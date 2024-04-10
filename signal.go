@@ -31,9 +31,12 @@ const (
 	SignalParentKindMultiplexerSignal SignalParentKind = "signal_parent-multiplexer_signal"
 )
 
+// SignalParent interface specifies the common methods of
+// a parent of a signal.
 type SignalParent interface {
 	errorf(err error) error
 
+	// GetSignalParentKind return the [SignalParentKind] of the parent.
 	GetSignalParentKind() SignalParentKind
 
 	verifySignalName(sigID EntityID, name string) error
@@ -42,37 +45,57 @@ type SignalParent interface {
 	verifySignalSizeAmount(sigID EntityID, amount int) error
 	modifySignalSize(sigID EntityID, amount int) error
 
+	// ToParentMessage returns the signal parent as a [Message].
 	ToParentMessage() (*Message, error)
+	// ToParentMultiplexerSignal returns the signal parent as a [MultiplexerSignal].
 	ToParentMultiplexerSignal() (*MultiplexerSignal, error)
 }
 
+// Signal interface specifies all common methods of
+// [StandardSignal], [EnumSignal], and [MultiplexerSignal].
 type Signal interface {
+	// EntityID returns the entity id of the signal.
 	EntityID() EntityID
+	// Name returns the name of the signal.
 	Name() string
+	// Desc returns the description of the signal.
 	Desc() string
+	// CreateTime returns the creation time of the signal.
 	CreateTime() time.Time
 
+	// AddAttributeValue adds to the signal an [Attribute] and its value.
 	AddAttributeValue(attribute Attribute, value any) error
+	// RemoveAttributeValue removes from the signal an [Attribute] and its value.
 	RemoveAttributeValue(attributeEntityID EntityID) error
+	// RemoveAllAttributeValues removes all [Attribute] and their values from the signal.
 	RemoveAllAttributeValues()
+	// AttributeValues returns all [Attribute] and their values from the signal.
 	AttributeValues() []*AttributeValue
+	// GetAttributeValue returns the value of an [Attribute] and its value from the signal.
 	GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error)
 
 	String() string
 
+	// Kind returns the kind of the signal.
 	Kind() SignalKind
 
+	// Parent returns the parent of the signal.
 	Parent() SignalParent
 	setParent(parent SignalParent)
 
+	// GetStartBit returns the start bit of the signal.
 	GetStartBit() int
 	getRelStartBit() int
 	setRelStartBit(startBit int)
 
+	// GetSize returns the size of the signal.
 	GetSize() int
 
+	// ToStandard returns the signal as a [StandardSignal].
 	ToStandard() (*StandardSignal, error)
+	// ToEnum returns the signal as a [EnumSignal].
 	ToEnum() (*EnumSignal, error)
+	// ToMultiplexer returns the signal as a [MultiplexerSignal].
 	ToMultiplexer() (*MultiplexerSignal, error)
 }
 
@@ -182,6 +205,8 @@ func (s *signal) UpdateName(newName string) error {
 	return nil
 }
 
+// StandardSignal is the representation of a normal signal that has a [SignalType],
+// a min, a max, an offset, a scale, and can have a [SignalUnit].
 type StandardSignal struct {
 	*signal
 
@@ -306,6 +331,7 @@ func (ss *StandardSignal) SetUnit(unit *SignalUnit) {
 	ss.unit = unit
 }
 
+// EnumSignal is a signal that holds a [SignalEnum].
 type EnumSignal struct {
 	*signal
 
@@ -388,6 +414,10 @@ func (es *EnumSignal) SetEnum(enum *SignalEnum) error {
 	return nil
 }
 
+// MultiplexerSignal is a signal that holds other signals that are
+// multiplexed by the first n bits specified with the select size attribute.
+// It can multiplex all the kinds of signals (Standard, Enum, Multiplexer),
+// so it is possible to create multiple levels of multiplexing.
 type MultiplexerSignal struct {
 	*signal
 

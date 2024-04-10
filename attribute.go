@@ -88,21 +88,34 @@ const (
 	AttributeKindEnum AttributeKind = "attribute-enum"
 )
 
+// Attribute interface specifies all common methods of
+// [StringAttribute], [IntegerAttribute], [FloatAttribute], and
+// [EnumAttribute].
 type Attribute interface {
+	// EntityID returns the entity id of an attribute.
 	EntityID() EntityID
+	// Name returns the name of an attribute.
 	Name() string
+	// Desc returns the description of an attribute.
 	Desc() string
+	// CreateTime returns the time of creation of an attribute.
 	CreateTime() time.Time
 
+	// Kind returns the [AttributeKind] of an attribute.
 	Kind() AttributeKind
 
 	addReference(ref *AttributeRef)
 	removeReference(refID EntityID)
+	// References returns a slice of references of an attribute.
 	References() []*AttributeRef
 
+	// ToString converts the attribute to a [StringAttribute].
 	ToString() (*StringAttribute, error)
+	// ToInteger converts the attribute to a [IntegerAttribute].
 	ToInteger() (*IntegerAttribute, error)
+	// ToFloat converts the attribute to a [FloatAttribute].
 	ToFloat() (*FloatAttribute, error)
+	// ToEnum converts the attribute to a [EnumAttribute].
 	ToEnum() (*EnumAttribute, error)
 }
 
@@ -140,6 +153,7 @@ func (a *attribute) References() []*AttributeRef {
 	return a.references.getValues()
 }
 
+// StringAttribute is an [Attribute] that holds a string value.
 type StringAttribute struct {
 	*attribute
 
@@ -181,6 +195,7 @@ func (sa *StringAttribute) ToEnum() (*EnumAttribute, error) {
 	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindEnum, AttributeKindString)
 }
 
+// IntegerAttribute is an [Attribute] that holds an integer value.
 type IntegerAttribute struct {
 	*attribute
 
@@ -260,6 +275,7 @@ func (ia *IntegerAttribute) ToEnum() (*EnumAttribute, error) {
 	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindEnum, AttributeKindInteger)
 }
 
+// FloatAttribute is an [Attribute] that holds a float value.
 type FloatAttribute struct {
 	*attribute
 
@@ -325,6 +341,7 @@ func (fa *FloatAttribute) ToEnum() (*EnumAttribute, error) {
 	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindEnum, AttributeKindFloat)
 }
 
+// EnumAttribute is an [Attribute] that holds an enum as value.
 type EnumAttribute struct {
 	*attribute
 

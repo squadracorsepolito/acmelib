@@ -6,6 +6,8 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// Bus is the virtual representation of physical CAN bus cable.
+// It holds a list of nodes that are connected to it.
 type Bus struct {
 	*attributeEntity
 

@@ -5,6 +5,8 @@ import (
 	"slices"
 )
 
+// SignalEnum is the representation of an enum that can be assigned
+// to a signal.
 type SignalEnum struct {
 	*entity
 
@@ -219,6 +221,8 @@ func (se *SignalEnum) MaxIndex() int {
 	return se.maxIndex
 }
 
+// SignalEnumValue holds the key (name) and the value (index) of a signal enum
+// entry.
 type SignalEnumValue struct {
 	*entity
 
