@@ -9,7 +9,7 @@ A [Golang](https://go.dev/) package for modelling complex CAN networks.
 Run the following Go command to install the `acmelib` package:
 
 ```sh
-$ go get -u github.com/FerroO2000/acmelib
+go get -u github.com/FerroO2000/acmelib
 ```
 
 ## TODOs
