@@ -1,6 +1,9 @@
 package acmelib
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // SignalTypeKind represents the kind of a [SignalType].
 type SignalTypeKind string
@@ -88,6 +91,21 @@ func NewFloatSignalType(name, desc string, size int) (*SignalType, error) {
 	min := (1<<size - 1) - 1
 	max := -(1<<size - 1)
 	return newSignalType(name, desc, SignalTypeKindFloat, size, true, float64(min), float64(max))
+}
+
+func (st *SignalType) stringify(b *strings.Builder, tabs int) {
+	st.entity.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+
+	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, st.kind))
+	b.WriteString(fmt.Sprintf("%ssize: %d; min: %g; max: %g; signed: %t\n", tabStr, st.size, st.min, st.max, st.signed))
+}
+
+func (st *SignalType) String() string {
+	builder := new(strings.Builder)
+	st.stringify(builder, 0)
+	return builder.String()
 }
 
 // Kind returns the kind of the [SignalType].

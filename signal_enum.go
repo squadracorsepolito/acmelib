@@ -3,6 +3,7 @@ package acmelib
 import (
 	"fmt"
 	"slices"
+	"strings"
 )
 
 // SignalEnum is the representation of an enum that can be assigned
@@ -140,6 +141,30 @@ func (se *SignalEnum) UpdateName(newName string) {
 	se.name = newName
 }
 
+func (se *SignalEnum) stringify(b *strings.Builder, tabs int) {
+	se.entity.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+
+	b.WriteString(fmt.Sprintf("%smax_index: %d\n", tabStr, se.maxIndex))
+
+	if se.values.size() == 0 {
+		return
+	}
+
+	b.WriteString(fmt.Sprintf("%svalues:\n", tabStr))
+	for _, enumVal := range se.Values() {
+		enumVal.stringify(b, tabs+1)
+		b.WriteRune('\n')
+	}
+}
+
+func (se *SignalEnum) String() string {
+	builder := new(strings.Builder)
+	se.stringify(builder, 0)
+	return builder.String()
+}
+
 // AddValue adds the given [SignalEnumValue] to the [SignalEnum].
 // It may return an error if the value name is already in use within
 // the signal enum, or if it has an invalid index.
@@ -204,8 +229,8 @@ func (se *SignalEnum) RemoveAllValues() {
 	se.valueIndexes.clear()
 }
 
-// GetValues returns a slice of all the enum values of the [SignalEnum].
-func (se *SignalEnum) GetValues() []*SignalEnumValue {
+// Values returns a slice of all the enum values of the [SignalEnum].
+func (se *SignalEnum) Values() []*SignalEnumValue {
 	valueSlice := se.values.getValues()
 	slices.SortFunc(valueSlice, func(a *SignalEnumValue, b *SignalEnumValue) int { return a.index - b.index })
 	return valueSlice
@@ -257,6 +282,18 @@ func (sev *SignalEnumValue) errorf(err error) error {
 		return sev.parentEnum.errorf(enumValErr)
 	}
 	return enumValErr
+}
+
+func (sev *SignalEnumValue) stringify(b *strings.Builder, tabs int) {
+	sev.entity.stringify(b, tabs)
+	tabStr := getTabString(tabs)
+	b.WriteString(fmt.Sprintf("%sindex: %d\n", tabStr, sev.index))
+}
+
+func (sev *SignalEnumValue) String() string {
+	builder := new(strings.Builder)
+	sev.stringify(builder, 0)
+	return builder.String()
 }
 
 // UpdateName updates the name of the [SignalEnumValue] to the given new one.

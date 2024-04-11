@@ -2,6 +2,7 @@ package acmelib
 
 import (
 	"fmt"
+	"strings"
 
 	"golang.org/x/exp/slices"
 )
@@ -9,6 +10,10 @@ import (
 // NodeID is a unique identifier for a node.
 // It must be manually assigned by the user.
 type NodeID uint32
+
+func (nid NodeID) String() string {
+	return fmt.Sprintf("%d", nid)
+}
 
 // Node is the representation of an ECU.
 // It holds a list of messages which are sent to other nodes thought the bus.
@@ -73,6 +78,30 @@ func (n *Node) errorf(err error) error {
 	}
 
 	return nodeErr
+}
+
+func (n *Node) stringify(b *strings.Builder, tabs int) {
+	n.entity.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+
+	b.WriteString(fmt.Sprintf("%snode_id: %s\n", tabStr, n.id.String()))
+
+	if n.messages.size() == 0 {
+		return
+	}
+
+	b.WriteString(fmt.Sprintf("%smessages:\n", tabStr))
+	for _, msg := range n.Messages() {
+		msg.stringify(b, tabs+1)
+		b.WriteRune('\n')
+	}
+}
+
+func (n *Node) String() string {
+	builder := new(strings.Builder)
+	n.stringify(builder, 0)
+	return builder.String()
 }
 
 // UpdateName updates the name of the [Node].

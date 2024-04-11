@@ -74,6 +74,7 @@ type Signal interface {
 	// GetAttributeValue returns the value of an [Attribute] and its value from the signal.
 	GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error)
 
+	stringify(b *strings.Builder, tabs int)
 	String() string
 
 	// Kind returns the kind of the signal.
@@ -159,15 +160,13 @@ func (s *signal) setRelStartBit(startBit int) {
 	s.relStartBit = startBit
 }
 
-func (s *signal) String() string {
-	var builder strings.Builder
+func (s *signal) stringify(b *strings.Builder, tabs int) {
+	s.entity.stringify(b, tabs)
 
-	builder.WriteString("\n+++START SIGNAL+++\n\n")
-	builder.WriteString(s.toString())
-	builder.WriteString(fmt.Sprintf("kind: %s\n", s.kind))
-	builder.WriteString(fmt.Sprintf("start_bit: %d; ", s.relStartBit))
+	tabStr := getTabString(tabs)
 
-	return builder.String()
+	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, s.kind))
+	b.WriteString(fmt.Sprintf("%sstart_bit: %d; ", tabStr, s.relStartBit))
 }
 
 func (s *signal) GetStartBit() int {
@@ -258,15 +257,26 @@ func (ss *StandardSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 	return nil, fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindMultiplexer, SignalKindStandard)
 }
 
+func (ss *StandardSignal) stringify(b *strings.Builder, tabs int) {
+	ss.signal.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+
+	b.WriteString(fmt.Sprintf("size: %d\n", ss.GetSize()))
+	b.WriteString(fmt.Sprintf("%smin: %g; max: %g; offset: %g; scale: %g\n", tabStr, ss.min, ss.max, ss.offset, ss.scale))
+
+	b.WriteString(fmt.Sprintf("%stype:\n", tabStr))
+	ss.typ.stringify(b, tabs+1)
+
+	if ss.unit != nil {
+		b.WriteString(fmt.Sprintf("%sunit:\n", tabStr))
+		ss.unit.stringify(b, tabs+1)
+	}
+}
+
 func (ss *StandardSignal) String() string {
-	var builder strings.Builder
-
-	builder.WriteString(ss.signal.String())
-	builder.WriteString(fmt.Sprintf("size: %d\n", ss.GetSize()))
-	builder.WriteString(fmt.Sprintf("min: %f; max: %f; offset: %f; scale: %f\n", ss.min, ss.max, ss.offset, ss.scale))
-
-	builder.WriteString("\n+++END SIGNAL+++\n\n")
-
+	builder := new(strings.Builder)
+	ss.stringify(builder, 0)
 	return builder.String()
 }
 
@@ -377,14 +387,19 @@ func (es *EnumSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 	return nil, fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindMultiplexer, SignalKindEnum)
 }
 
+func (es *EnumSignal) stringify(b *strings.Builder, tabs int) {
+	es.signal.stringify(b, tabs)
+	b.WriteString(fmt.Sprintf("size: %d\n", es.GetSize()))
+
+	tabStr := getTabString(tabs)
+	b.WriteString(fmt.Sprintf("%senum:\n", tabStr))
+
+	es.enum.stringify(b, tabs+1)
+}
+
 func (es *EnumSignal) String() string {
-	var builder strings.Builder
-
-	builder.WriteString(es.signal.String())
-	builder.WriteString(fmt.Sprintf("size: %d\n", es.GetSize()))
-
-	builder.WriteString("\n+++END SIGNAL+++\n\n")
-
+	builder := new(strings.Builder)
+	es.stringify(builder, 0)
 	return builder.String()
 }
 
@@ -765,14 +780,31 @@ func (ms *MultiplexerSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 	return ms, nil
 }
 
+func (ms *MultiplexerSignal) stringify(b *strings.Builder, tabs int) {
+	ms.signal.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+
+	b.WriteString(fmt.Sprintf("size: %d\n", ms.GetSize()))
+
+	if ms.muxSignals.size() == 0 {
+		return
+	}
+
+	for selVal, muxGroup := range ms.MuxSignals() {
+		b.WriteString(fmt.Sprintf("%sselect value: %d\n", tabStr, selVal))
+
+		b.WriteString(fmt.Sprintf("%smultiplexed signals:\n", tabStr))
+		for _, muxSig := range muxGroup {
+			muxSig.stringify(b, tabs+1)
+			b.WriteRune('\n')
+		}
+	}
+}
+
 func (ms *MultiplexerSignal) String() string {
-	var builder strings.Builder
-
-	builder.WriteString(ms.signal.String())
-	builder.WriteString(fmt.Sprintf("size: %d\n", ms.GetSize()))
-
-	builder.WriteString("\n+++END SIGNAL+++\n\n")
-
+	builder := new(strings.Builder)
+	ms.stringify(builder, 0)
 	return builder.String()
 }
 

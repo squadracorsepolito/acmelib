@@ -2,6 +2,7 @@ package acmelib
 
 import (
 	"fmt"
+	"strings"
 
 	"golang.org/x/exp/slices"
 )
@@ -59,6 +60,30 @@ func (b *Bus) modifyNodeName(nodeEntID EntityID, newName string) {
 
 	oldName := node.name
 	b.nodeNames.modifyKey(oldName, newName, nodeEntID)
+}
+
+func (b *Bus) stringify(builder *strings.Builder, tabs int) {
+	b.entity.stringify(builder, tabs)
+
+	tabStr := getTabString(tabs)
+
+	builder.WriteString(fmt.Sprintf("%sbaudrate: %d\n", tabStr, b.baudrate))
+
+	if b.nodes.size() == 0 {
+		return
+	}
+
+	builder.WriteString(fmt.Sprintf("%snodes:\n", tabStr))
+	for _, node := range b.Nodes() {
+		node.stringify(builder, tabs+1)
+		builder.WriteRune('\n')
+	}
+}
+
+func (b *Bus) String() string {
+	builder := new(strings.Builder)
+	b.stringify(builder, 0)
+	return builder.String()
 }
 
 // UpdateName updates the name of the [Bus].

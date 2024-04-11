@@ -94,3 +94,11 @@ func (s *set[K, V]) getValues() []V {
 	}
 	return values
 }
+
+func getTabString(tabs int) string {
+	tabStr := ""
+	for i := 0; i < tabs; i++ {
+		tabStr += "\t"
+	}
+	return tabStr
+}

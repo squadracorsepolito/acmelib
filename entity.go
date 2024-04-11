@@ -81,19 +81,17 @@ func (e *entity) UpdateDesc(desc string) {
 	}
 }
 
-func (e *entity) toString() string {
-	var builder strings.Builder
+func (e *entity) stringify(b *strings.Builder, tabs int) {
+	tabStr := getTabString(tabs)
 
-	builder.WriteString("entity_id: " + e.entityID.String() + "\n")
-	builder.WriteString("name: " + e.name + "\n")
+	b.WriteString(fmt.Sprintf("%sentity_id: %s\n", tabStr, e.entityID.String()))
+	b.WriteString(fmt.Sprintf("%sname: %s\n", tabStr, e.name))
 
 	if len(e.desc) > 0 {
-		builder.WriteString(fmt.Sprintf("desc: %s\n", e.desc))
+		b.WriteString(fmt.Sprintf("%sdesc: %s\n", tabStr, e.desc))
 	}
 
-	builder.WriteString(fmt.Sprintf("create_time: %s\n", e.createTime.Format(time.RFC3339)))
-
-	return builder.String()
+	b.WriteString(fmt.Sprintf("%screate_time: %s\n", tabStr, e.createTime.Format(time.RFC3339)))
 }
 
 type attributeEntity struct {
@@ -109,6 +107,21 @@ func newAttributeEntity(name, desc string, attRefKind AttributeRefKind) *attribu
 
 		attributeValues: newSet[EntityID, *AttributeValue]("attribute value"),
 		attRefKind:      attRefKind,
+	}
+}
+
+func (ae *attributeEntity) stringify(b *strings.Builder, tabs int) {
+	ae.entity.stringify(b, tabs)
+
+	if ae.attributeValues.size() == 0 {
+		return
+	}
+
+	tabStr := getTabString(tabs)
+	b.WriteString(fmt.Sprintf("%sattribute values:\n", tabStr))
+	for _, attVal := range ae.AttributeValues() {
+		b.WriteString(fmt.Sprintf("%s\t%s: %v", tabStr, attVal.attribute.Name(), attVal.value))
+		b.WriteRune('\n')
 	}
 }
 

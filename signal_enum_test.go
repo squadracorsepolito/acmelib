@@ -64,13 +64,13 @@ func Test_SignalEnum_RemoveValue(t *testing.T) {
 	assert.NoError(enum.RemoveValue(enumVal0.EntityID()))
 
 	expectedNames := []string{"enum_val_1", "enum_val_2"}
-	for idx, val := range enum.GetValues() {
+	for idx, val := range enum.Values() {
 		assert.Equal(expectedNames[idx], val.Name())
 	}
 
 	// should remove enumVal2 and set the max index to 1
 	assert.NoError(enum.RemoveValue(enumVal2.EntityID()))
-	assert.Equal(1, len(enum.GetValues()))
+	assert.Equal(1, len(enum.Values()))
 	assert.Equal(1, enum.MaxIndex())
 
 	// should return an error because enumVal0 is not part of the enum

@@ -194,25 +194,27 @@ func (m *Message) ToParentMultiplexerSignal() (*MultiplexerSignal, error) {
 		SignalParentKindMultiplexerSignal, SignalParentKindMessage)
 }
 
+func (m *Message) stringify(b *strings.Builder, tabs int) {
+	m.entity.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+
+	b.WriteString(fmt.Sprintf("%ssize: %d\n", tabStr, m.sizeByte))
+
+	if m.signals.size() == 0 {
+		return
+	}
+
+	b.WriteString(fmt.Sprintf("%ssignals:\n", tabStr))
+	for _, sig := range m.Signals() {
+		sig.stringify(b, tabs+1)
+		b.WriteRune('\n')
+	}
+}
+
 func (m *Message) String() string {
-	var builder strings.Builder
-
-	builder.WriteString("\n+++START MESSAGE+++\n\n")
-	builder.WriteString(m.toString())
-	builder.WriteString(fmt.Sprintf("size: %d\n", m.sizeByte))
-
-	signalsByPos := m.Signals()
-	if len(signalsByPos) == 0 {
-		return builder.String()
-	}
-
-	builder.WriteString("signals:\n")
-	for _, sig := range signalsByPos {
-		builder.WriteString(sig.String())
-	}
-
-	builder.WriteString("\n+++END MESSAGE+++\n")
-
+	builder := new(strings.Builder)
+	m.stringify(builder, 0)
 	return builder.String()
 }
 

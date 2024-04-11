@@ -1,5 +1,10 @@
 package acmelib
 
+import (
+	"fmt"
+	"strings"
+)
+
 // SignalUnitKind defines the kind of a [SignalUnit].
 type SignalUnitKind string
 
@@ -31,6 +36,21 @@ func NewSignalUnit(name, desc string, kind SignalUnitKind, symbol string) *Signa
 		kind:   kind,
 		symbol: symbol,
 	}
+}
+
+func (su *SignalUnit) stringify(b *strings.Builder, tabs int) {
+	su.entity.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+
+	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, su.kind))
+	b.WriteString(fmt.Sprintf("%ssymbol: %s\n", tabStr, su.symbol))
+}
+
+func (su *SignalUnit) String() string {
+	builder := new(strings.Builder)
+	su.stringify(builder, 0)
+	return builder.String()
 }
 
 // Kind returns the kind of the [SignalUnit].
