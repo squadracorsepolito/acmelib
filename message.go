@@ -9,6 +9,10 @@ import (
 // By default 11 bit message ids are used.
 type MessageID uint32
 
+func (mid MessageID) String() string {
+	return fmt.Sprintf("%d", mid)
+}
+
 // MessageIDGeneratorFn is callback used for generating automatically
 // the [MessageID] of a [Message]. It is triggered when a [Message] is added to
 // a [Node] or when the former is removed. It takes as prameters the priority
@@ -199,7 +203,23 @@ func (m *Message) stringify(b *strings.Builder, tabs int) {
 
 	tabStr := getTabString(tabs)
 
-	b.WriteString(fmt.Sprintf("%ssize: %d\n", tabStr, m.sizeByte))
+	if m.id != 0 {
+		b.WriteString(fmt.Sprintf("%smessage_id: %d; is_static_id: %t\n", tabStr, m.id, m.isStaticID))
+	}
+
+	b.WriteString(fmt.Sprintf("%spriority: %d (very_high=0; low=3)\n", tabStr, m.priority))
+	b.WriteString(fmt.Sprintf("%ssize: %d bytes\n", tabStr, m.sizeByte))
+
+	if m.cycleTime != 0 {
+		b.WriteString(fmt.Sprintf("%scycle_time: %d ms\n", tabStr, m.cycleTime))
+	}
+
+	if m.receivers.size() > 0 {
+		b.WriteString(fmt.Sprintf("%sreceivers:\n", tabStr))
+		for _, rec := range m.Receivers() {
+			b.WriteString(fmt.Sprintf("%sname: %s; node_id: %d; entity_id: %s\n", tabStr, rec.name, rec.id, rec.entityID))
+		}
+	}
 
 	if m.signals.size() == 0 {
 		return

@@ -2,6 +2,7 @@ package acmelib
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -16,6 +17,11 @@ func newAttributeValue(att Attribute, val any) *AttributeValue {
 		attribute: att,
 		value:     val,
 	}
+}
+
+func (av *AttributeValue) stringify(b *strings.Builder, tabs int) {
+	b.WriteString(fmt.Sprintf("%sname: %s; type: %s; value: %v\n",
+		getTabString(tabs), av.attribute.Name(), av.attribute.Kind(), av.value))
 }
 
 // Attribute returns the [Attribute] of the [AttributeValue].
@@ -57,6 +63,10 @@ func newAttributeRef(entID EntityID, kind AttributeRefKind, val any) *AttributeR
 		kind:     kind,
 		value:    val,
 	}
+}
+
+func (af *AttributeRef) stringify(b *strings.Builder, tabs int) {
+	b.WriteString(fmt.Sprintf("%skind: %s; entity_id: %s;value: %v\n", getTabString(tabs), af.kind, af.entityID, af.value))
 }
 
 // EntityID returns the entity id of the [AttributeRef]
@@ -109,6 +119,8 @@ type Attribute interface {
 	// References returns a slice of references of an attribute.
 	References() []*AttributeRef
 
+	String() string
+
 	// ToString converts the attribute to a string attribute.
 	ToString() (*StringAttribute, error)
 	// ToInteger converts the attribute to a integer attribute.
@@ -134,6 +146,22 @@ func newAttribute(name, desc string, kind AttributeKind) *attribute {
 		kind: kind,
 
 		references: newSet[EntityID, *AttributeRef]("reference"),
+	}
+}
+
+func (a *attribute) stringify(b *strings.Builder, tabs int) {
+	a.entity.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, a.kind))
+
+	if a.references.size() == 0 {
+		return
+	}
+
+	b.WriteString(fmt.Sprintf("%sreferences:\n", tabStr))
+	for _, ref := range a.References() {
+		ref.stringify(b, tabs+1)
 	}
 }
 
@@ -168,6 +196,17 @@ func NewStringAttribute(name, desc, defValue string) *StringAttribute {
 
 		defValue: defValue,
 	}
+}
+
+func (sa *StringAttribute) stringify(b *strings.Builder, tabs int) {
+	sa.attribute.stringify(b, tabs)
+	b.WriteString(fmt.Sprintf("%sdefault_value: %s\n", getTabString(tabs), sa.defValue))
+}
+
+func (sa *StringAttribute) String() string {
+	builder := new(strings.Builder)
+	sa.stringify(builder, 0)
+	return builder.String()
 }
 
 // DefValue returns the default value of the [StringAttribute].
@@ -228,6 +267,20 @@ func NewIntegerAttribute(name, desc string, defValue, min, max int) (*IntegerAtt
 
 		isHexFormat: false,
 	}, nil
+}
+
+func (ia *IntegerAttribute) stringify(b *strings.Builder, tabs int) {
+	ia.attribute.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+	b.WriteString(fmt.Sprintf("%smin: %d; max: %d; hex_format: %t\n", tabStr, ia.min, ia.max, ia.isHexFormat))
+	b.WriteString(fmt.Sprintf("%sdefault_value: %d\n", tabStr, ia.defValue))
+}
+
+func (ia *IntegerAttribute) String() string {
+	builder := new(strings.Builder)
+	ia.stringify(builder, 0)
+	return builder.String()
 }
 
 // DefValue returns the default value of the [IntegerAttribute].
@@ -306,6 +359,20 @@ func NewFloatAttribute(name, desc string, defValue, min, max float64) (*FloatAtt
 	}, nil
 }
 
+func (fa *FloatAttribute) stringify(b *strings.Builder, tabs int) {
+	fa.attribute.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+	b.WriteString(fmt.Sprintf("%smin: %g; max: %g\n", tabStr, fa.min, fa.max))
+	b.WriteString(fmt.Sprintf("%sdefault_value: %g\n", tabStr, fa.defValue))
+}
+
+func (fa *FloatAttribute) String() string {
+	builder := new(strings.Builder)
+	fa.stringify(builder, 0)
+	return builder.String()
+}
+
 // DefValue returns the default value of the [FloatAttribute].
 func (fa *FloatAttribute) DefValue() float64 {
 	return fa.defValue
@@ -374,6 +441,24 @@ func NewEnumAttribute(name, desc string, values ...string) (*EnumAttribute, erro
 		defValue: values[0],
 		values:   valSet,
 	}, nil
+}
+
+func (ea *EnumAttribute) stringify(b *strings.Builder, tabs int) {
+	ea.attribute.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+
+	for idx, val := range ea.Values() {
+		b.WriteString(fmt.Sprintf("%value: %s; index: %d\n", tabStr, val, idx))
+	}
+
+	b.WriteString(fmt.Sprintf("%sdefault_value: %s\n", tabStr, ea.defValue))
+}
+
+func (ea *EnumAttribute) String() string {
+	builder := new(strings.Builder)
+	ea.stringify(builder, 0)
+	return builder.String()
 }
 
 // DefValue returns the default value of the [EnumAttribute].

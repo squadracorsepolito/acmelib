@@ -120,8 +120,7 @@ func (ae *attributeEntity) stringify(b *strings.Builder, tabs int) {
 	tabStr := getTabString(tabs)
 	b.WriteString(fmt.Sprintf("%sattribute values:\n", tabStr))
 	for _, attVal := range ae.AttributeValues() {
-		b.WriteString(fmt.Sprintf("%s\t%s: %v", tabStr, attVal.attribute.Name(), attVal.value))
-		b.WriteRune('\n')
+		attVal.stringify(b, tabs+1)
 	}
 }
 
