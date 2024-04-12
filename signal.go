@@ -36,7 +36,7 @@ const (
 type SignalParent interface {
 	errorf(err error) error
 
-	// GetSignalParentKind return the [SignalParentKind] of the parent.
+	// GetSignalParentKind return the kind of the parent.
 	GetSignalParentKind() SignalParentKind
 
 	verifySignalName(sigID EntityID, name string) error
@@ -45,9 +45,9 @@ type SignalParent interface {
 	verifySignalSizeAmount(sigID EntityID, amount int) error
 	modifySignalSize(sigID EntityID, amount int) error
 
-	// ToParentMessage returns the signal parent as a [Message].
+	// ToParentMessage returns the signal parent as a message.
 	ToParentMessage() (*Message, error)
-	// ToParentMultiplexerSignal returns the signal parent as a [MultiplexerSignal].
+	// ToParentMultiplexerSignal returns the signal parent as a multiplexer signal.
 	ToParentMultiplexerSignal() (*MultiplexerSignal, error)
 }
 
@@ -63,15 +63,15 @@ type Signal interface {
 	// CreateTime returns the creation time of the signal.
 	CreateTime() time.Time
 
-	// AddAttributeValue adds to the signal an [Attribute] and its value.
+	// AddAttributeValue adds to the signal an attribute and its value.
 	AddAttributeValue(attribute Attribute, value any) error
-	// RemoveAttributeValue removes from the signal an [Attribute] and its value.
+	// RemoveAttributeValue removes from the signal an attribute and its value.
 	RemoveAttributeValue(attributeEntityID EntityID) error
-	// RemoveAllAttributeValues removes all [Attribute] and their values from the signal.
+	// RemoveAllAttributeValues removes all attribute and their values from the signal.
 	RemoveAllAttributeValues()
-	// AttributeValues returns all [Attribute] and their values from the signal.
+	// AttributeValues returns all attribute and their values from the signal.
 	AttributeValues() []*AttributeValue
-	// GetAttributeValue returns the value of an [Attribute] and its value from the signal.
+	// GetAttributeValue returns the value of an attribute and its value from the signal.
 	GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error)
 
 	stringify(b *strings.Builder, tabs int)
@@ -92,11 +92,11 @@ type Signal interface {
 	// GetSize returns the size of the signal.
 	GetSize() int
 
-	// ToStandard returns the signal as a [StandardSignal].
+	// ToStandard returns the signal as a standard signal.
 	ToStandard() (*StandardSignal, error)
-	// ToEnum returns the signal as a [EnumSignal].
+	// ToEnum returns the signal as a enum signal.
 	ToEnum() (*EnumSignal, error)
-	// ToMultiplexer returns the signal as a [MultiplexerSignal].
+	// ToMultiplexer returns the signal as a multiplexer signal.
 	ToMultiplexer() (*MultiplexerSignal, error)
 }
 

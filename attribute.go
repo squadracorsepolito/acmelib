@@ -101,7 +101,7 @@ type Attribute interface {
 	// CreateTime returns the time of creation of an attribute.
 	CreateTime() time.Time
 
-	// Kind returns the [AttributeKind] of an attribute.
+	// Kind returns the kind of an attribute.
 	Kind() AttributeKind
 
 	addReference(ref *AttributeRef)
@@ -109,13 +109,13 @@ type Attribute interface {
 	// References returns a slice of references of an attribute.
 	References() []*AttributeRef
 
-	// ToString converts the attribute to a [StringAttribute].
+	// ToString converts the attribute to a string attribute.
 	ToString() (*StringAttribute, error)
-	// ToInteger converts the attribute to a [IntegerAttribute].
+	// ToInteger converts the attribute to a integer attribute.
 	ToInteger() (*IntegerAttribute, error)
-	// ToFloat converts the attribute to a [FloatAttribute].
+	// ToFloat converts the attribute to a float attribute.
 	ToFloat() (*FloatAttribute, error)
-	// ToEnum converts the attribute to a [EnumAttribute].
+	// ToEnum converts the attribute to a enum attribute.
 	ToEnum() (*EnumAttribute, error)
 }
 
