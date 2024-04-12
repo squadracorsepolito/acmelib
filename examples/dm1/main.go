@@ -11,18 +11,18 @@ import (
 
 const dm1MsgName = "DM1"
 
-var uint16bit, _ = acmelib.NewIntegerSignalType("16_bit", "", 16, false)
-var mVUnit = acmelib.NewSignalUnit("milli_volt", "", acmelib.SignalUnitKindVoltage, "mV")
-var flagType = acmelib.NewFlagSignalType("flag", "")
-var uint8bit, _ = acmelib.NewIntegerSignalType("uint_8", "", 8, false)
+var uint16bit, _ = acmelib.NewIntegerSignalType("16_bit", 16, false)
+var mVUnit = acmelib.NewSignalUnit("milli_volt", acmelib.SignalUnitKindVoltage, "mV")
+var flagType = acmelib.NewFlagSignalType("flag")
+var uint8bit, _ = acmelib.NewIntegerSignalType("uint_8", 8, false)
 
 func main() {
-	bmslv := acmelib.NewNode("BMS_LV", "", 0)
+	bmslv := acmelib.NewNode("BMS_LV", 0)
 
-	battPackGen := acmelib.NewMessage("BMSLV_BatteryPackGeneral", "", 6)
+	battPackGen := acmelib.NewMessage("BMSLV_BatteryPackGeneral", 6)
 
-	currSens, _ := acmelib.NewStandardSignal("Current_Sensor_mV", "", uint16bit, 0, uint16bit.Max(), 0, 0.076, mVUnit)
-	totVolt, _ := acmelib.NewStandardSignal("Total_voltage", "", uint16bit, 0, uint16bit.Max(), 0, 0.076, mVUnit)
+	currSens, _ := acmelib.NewStandardSignal("Current_Sensor_mV", uint16bit, 0, uint16bit.Max(), 0, 0.076, mVUnit)
+	totVolt, _ := acmelib.NewStandardSignal("Total_voltage", uint16bit, 0, uint16bit.Max(), 0, 0.076, mVUnit)
 
 	if err := battPackGen.AppendSignal(currSens); err != nil {
 		panic(err)
@@ -31,9 +31,9 @@ func main() {
 		panic(err)
 	}
 
-	msgStatus := acmelib.NewMessage("BMSLV_Status", "", 6)
+	msgStatus := acmelib.NewMessage("BMSLV_Status", 6)
 
-	isRelOpen, _ := acmelib.NewStandardSignal("is_relary_open", "", flagType, flagType.Min(), flagType.Max(), 0, 1, nil)
+	isRelOpen, _ := acmelib.NewStandardSignal("is_relary_open", flagType, flagType.Min(), flagType.Max(), 0, 1, nil)
 
 	if err := msgStatus.AppendSignal(isRelOpen); err != nil {
 		panic(err)
@@ -44,10 +44,10 @@ func main() {
 
 	sinEnum, _ := genSin(bmslv.Messages())
 
-	dm1Msg := acmelib.NewMessage(dm1MsgName, "", 8)
-	sinSig, _ := acmelib.NewEnumSignal("sin", "", sinEnum)
-	fmiSig, _ := acmelib.NewEnumSignal("fmi", "", initFmi())
-	occSig, _ := acmelib.NewStandardSignal("occ_counter", "", uint8bit, uint8bit.Min(), uint8bit.Max(), 0, 1, nil)
+	dm1Msg := acmelib.NewMessage(dm1MsgName, 8)
+	sinSig, _ := acmelib.NewEnumSignal("sin", sinEnum)
+	fmiSig, _ := acmelib.NewEnumSignal("fmi", initFmi())
+	occSig, _ := acmelib.NewStandardSignal("occ_counter", uint8bit, uint8bit.Min(), uint8bit.Max(), 0, 1, nil)
 
 	if err := dm1Msg.InsertSignal(sinSig, 0); err != nil {
 		panic(err)
@@ -65,7 +65,7 @@ func main() {
 }
 
 func genSin(messages []*acmelib.Message) (*acmelib.SignalEnum, error) {
-	sinEnum := acmelib.NewSignalEnum("sin", "")
+	sinEnum := acmelib.NewSignalEnum("sin")
 
 	sigNames := make(map[string]int)
 	idx := 0
@@ -83,7 +83,7 @@ func genSin(messages []*acmelib.Message) (*acmelib.SignalEnum, error) {
 	}
 
 	for enumValname, enumValIdx := range sigNames {
-		sigEnumVal := acmelib.NewSignalEnumValue(enumValname, "", enumValIdx)
+		sigEnumVal := acmelib.NewSignalEnumValue(enumValname, enumValIdx)
 		if err := sinEnum.AddValue(sigEnumVal); err != nil {
 			panic(err)
 		}
@@ -97,8 +97,8 @@ func genSin(messages []*acmelib.Message) (*acmelib.SignalEnum, error) {
 }
 
 func initFmi() *acmelib.SignalEnum {
-	fmi := acmelib.NewSignalEnum("fmi", "")
-	fmi.AddValue(acmelib.NewSignalEnumValue("high_severity", "", 0))
-	fmi.AddValue(acmelib.NewSignalEnumValue("condition_exists", "", 31))
+	fmi := acmelib.NewSignalEnum("fmi")
+	fmi.AddValue(acmelib.NewSignalEnumValue("high_severity", 0))
+	fmi.AddValue(acmelib.NewSignalEnumValue("condition_exists", 31))
 	return fmi
 }

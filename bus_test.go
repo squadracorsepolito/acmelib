@@ -9,11 +9,11 @@ import (
 func Test_Bus_AddNode(t *testing.T) {
 	assert := assert.New(t)
 
-	bus := NewBus("bus", "")
+	bus := NewBus("bus")
 
-	node0 := NewNode("node_0", "", 0)
-	node1 := NewNode("node_1", "", 1)
-	node2 := NewNode("node_2", "", 2)
+	node0 := NewNode("node_0", 0)
+	node1 := NewNode("node_1", 1)
+	node2 := NewNode("node_2", 2)
 
 	// should add node0, node1, and node2 without errors
 	assert.NoError(bus.AddNode(node0))
@@ -27,23 +27,23 @@ func Test_Bus_AddNode(t *testing.T) {
 	}
 
 	// should return an error because id 1 is already taken
-	dupIDNode := NewNode("", "", 2)
+	dupIDNode := NewNode("", 2)
 	assert.Error(bus.AddNode(dupIDNode))
 
 	// should return an error because name node_1 is already taken
-	dupNameNode := NewNode("node_1", "", 3)
+	dupNameNode := NewNode("node_1", 3)
 	assert.Error(bus.AddNode(dupNameNode))
 }
 
 func Test_Bus_RemoveNode(t *testing.T) {
 	assert := assert.New(t)
 
-	bus := NewBus("bus", "")
+	bus := NewBus("bus")
 
-	node0 := NewNode("node_0", "", 0)
-	node1 := NewNode("node_1", "", 1)
-	node2 := NewNode("node_2", "", 2)
-	node3 := NewNode("node_3", "", 3)
+	node0 := NewNode("node_0", 0)
+	node1 := NewNode("node_1", 1)
+	node2 := NewNode("node_2", 2)
+	node3 := NewNode("node_3", 3)
 
 	assert.NoError(bus.AddNode(node0))
 	assert.NoError(bus.AddNode(node1))
@@ -66,12 +66,12 @@ func Test_Bus_RemoveNode(t *testing.T) {
 func Test_Bus_RemoveAllNodes(t *testing.T) {
 	assert := assert.New(t)
 
-	bus := NewBus("bus", "")
+	bus := NewBus("bus")
 
-	node0 := NewNode("node_0", "", 0)
-	node1 := NewNode("node_1", "", 1)
-	node2 := NewNode("node_2", "", 2)
-	node3 := NewNode("node_3", "", 3)
+	node0 := NewNode("node_0", 0)
+	node1 := NewNode("node_1", 1)
+	node2 := NewNode("node_2", 2)
+	node3 := NewNode("node_3", 3)
 
 	assert.NoError(bus.AddNode(node0))
 	assert.NoError(bus.AddNode(node1))
@@ -86,10 +86,10 @@ func Test_Bus_RemoveAllNodes(t *testing.T) {
 func Test_Bus_UpdateName(t *testing.T) {
 	assert := assert.New(t)
 
-	net := NewNetwork("proj", "")
+	net := NewNetwork("net")
 
-	bus0 := NewBus("bus_0", "")
-	bus1 := NewBus("bus_1", "")
+	bus0 := NewBus("bus_0")
+	bus1 := NewBus("bus_1")
 
 	assert.NoError(net.AddBus(bus0))
 	assert.NoError(net.AddBus(bus1))

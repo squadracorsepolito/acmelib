@@ -9,9 +9,9 @@ import (
 func Test_attributeEntity_AddAttributeValue(t *testing.T) {
 	assert := assert.New(t)
 
-	e := newAttributeEntity("entity", "", AttributeRefKindBus)
+	e := newAttributeEntity("entity", AttributeRefKindBus)
 
-	intAtt, err := NewIntegerAttribute("int_att", "", 0, 0, 100)
+	intAtt, err := NewIntegerAttribute("int_att", 0, 0, 100)
 	assert.NoError(err)
 
 	// should not return an error
@@ -24,7 +24,7 @@ func Test_attributeEntity_AddAttributeValue(t *testing.T) {
 	// should return an error beacause the value is out of range
 	assert.Error(e.AddAttributeValue(intAtt, 1000))
 
-	floatAtt, err := NewFloatAttribute("float_att", "", 0, 0, 100)
+	floatAtt, err := NewFloatAttribute("float_att", 0, 0, 100)
 	assert.NoError(err)
 
 	// should not return an error
@@ -37,7 +37,7 @@ func Test_attributeEntity_AddAttributeValue(t *testing.T) {
 	// should return an error beacause the value is out of range
 	assert.Error(e.AddAttributeValue(floatAtt, 1000.0))
 
-	strAtt := NewStringAttribute("str_att", "", "")
+	strAtt := NewStringAttribute("str_att", "")
 
 	// should not return an error
 	assert.NoError(e.AddAttributeValue(strAtt, "string"))
@@ -71,13 +71,13 @@ func Test_attributeEntity_AddAttributeValue(t *testing.T) {
 func Test_attributeEntity_RemoveAttributeValue(t *testing.T) {
 	assert := assert.New(t)
 
-	e := newAttributeEntity("entity", "", AttributeRefKindBus)
+	e := newAttributeEntity("entity", AttributeRefKindBus)
 
-	intAtt0, err := NewIntegerAttribute("int_att_0", "", 0, 0, 100)
+	intAtt0, err := NewIntegerAttribute("int_att_0", 0, 0, 100)
 	assert.NoError(err)
-	intAtt1, err := NewIntegerAttribute("int_att_1", "", 0, 0, 100)
+	intAtt1, err := NewIntegerAttribute("int_att_1", 0, 0, 100)
 	assert.NoError(err)
-	intAtt2, err := NewIntegerAttribute("int_att_2", "", 0, 0, 100)
+	intAtt2, err := NewIntegerAttribute("int_att_2", 0, 0, 100)
 	assert.NoError(err)
 
 	assert.NoError(e.AddAttributeValue(intAtt0, 10))
@@ -100,13 +100,13 @@ func Test_attributeEntity_RemoveAttributeValue(t *testing.T) {
 func Test_attributeEntity_RemoveAllAttributeValues(t *testing.T) {
 	assert := assert.New(t)
 
-	e := newAttributeEntity("entity", "", AttributeRefKindBus)
+	e := newAttributeEntity("entity", AttributeRefKindBus)
 
-	intAtt0, err := NewIntegerAttribute("int_att_0", "", 0, 0, 100)
+	intAtt0, err := NewIntegerAttribute("int_att_0", 0, 0, 100)
 	assert.NoError(err)
-	intAtt1, err := NewIntegerAttribute("int_att_1", "", 0, 0, 100)
+	intAtt1, err := NewIntegerAttribute("int_att_1", 0, 0, 100)
 	assert.NoError(err)
-	intAtt2, err := NewIntegerAttribute("int_att_2", "", 0, 0, 100)
+	intAtt2, err := NewIntegerAttribute("int_att_2", 0, 0, 100)
 	assert.NoError(err)
 
 	assert.NoError(e.AddAttributeValue(intAtt0, 10))

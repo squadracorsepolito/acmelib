@@ -72,11 +72,11 @@ type Message struct {
 	receivers *set[EntityID, *Node]
 }
 
-// NewMessage creates a new [Message] with the given name, description, and size (byte).
+// NewMessage creates a new [Message] with the given name and size in bytes.
 // By default a [MessagePriority] of [MessagePriorityVeryHigh] is used.
-func NewMessage(name, desc string, sizeByte int) *Message {
+func NewMessage(name string, sizeByte int) *Message {
 	return &Message{
-		attributeEntity: newAttributeEntity(name, desc, AttributeRefKindMessage),
+		attributeEntity: newAttributeEntity(name, AttributeRefKindMessage),
 
 		parentNodes: newSet[EntityID, *Node]("parent node"),
 		parErrID:    "",

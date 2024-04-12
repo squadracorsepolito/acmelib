@@ -27,11 +27,11 @@ type SignalUnit struct {
 	symbol string
 }
 
-// NewSignalUnit creates a new [SignalUnit] with the given name, description,
+// NewSignalUnit creates a new [SignalUnit] with the given name,
 // kind, and symbol.
-func NewSignalUnit(name, desc string, kind SignalUnitKind, symbol string) *SignalUnit {
+func NewSignalUnit(name string, kind SignalUnitKind, symbol string) *SignalUnit {
 	return &SignalUnit{
-		entity: newEntity(name, desc),
+		entity: newEntity(name),
 
 		kind:   kind,
 		symbol: symbol,

@@ -17,10 +17,10 @@ type Network struct {
 	busNames *set[string, EntityID]
 }
 
-// NewNetwork returns a new [Network] with the given name and description.
-func NewNetwork(name, desc string) *Network {
+// NewNetwork returns a new [Network] with the given name.
+func NewNetwork(name string) *Network {
 	return &Network{
-		entity: newEntity(name, desc),
+		entity: newEntity(name),
 
 		buses:    newSet[EntityID, *Bus]("bus"),
 		busNames: newSet[string, EntityID]("bus name"),

@@ -11,20 +11,20 @@ func Test_signalPayload_append(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
 	assert.NoError(err)
-	size2Type, err := NewIntegerSignalType("2_bits", "", 2, false)
+	size2Type, err := NewIntegerSignalType("2_bits", 2, false)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size4Type, 0, 15, 0, 1, nil)
+	sig0, err := NewStandardSignal("sig_0", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size4Type, 0, 15, 0, 1, nil)
+	sig1, err := NewStandardSignal("sig_1", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig2, err := NewStandardSignal("sig_2", "", size4Type, 0, 15, 0, 1, nil)
+	sig2, err := NewStandardSignal("sig_2", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig3, err := NewStandardSignal("sig_3", "", size4Type, 0, 15, 0, 1, nil)
+	sig3, err := NewStandardSignal("sig_3", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig4, err := NewStandardSignal("sig_4", "", size2Type, 0, 3, 0, 1, nil)
+	sig4, err := NewStandardSignal("sig_4", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
 
 	// should get this payload after appending sig0, sig1, sig2, and sig3
@@ -62,20 +62,20 @@ func Test_signalPayload_insert(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size2Type, err := NewIntegerSignalType("2_bits", "", 2, false)
+	size2Type, err := NewIntegerSignalType("2_bits", 2, false)
 	assert.NoError(err)
-	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size4Type, 0, 15, 0, 1, nil)
+	sig0, err := NewStandardSignal("sig_0", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size4Type, 0, 15, 0, 1, nil)
+	sig1, err := NewStandardSignal("sig_1", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig2, err := NewStandardSignal("sig_2", "", size4Type, 0, 15, 0, 1, nil)
+	sig2, err := NewStandardSignal("sig_2", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig3, err := NewStandardSignal("sig_3", "", size4Type, 0, 15, 0, 1, nil)
+	sig3, err := NewStandardSignal("sig_3", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig4, err := NewStandardSignal("sig_4", "", size2Type, 0, 3, 0, 1, nil)
+	sig4, err := NewStandardSignal("sig_4", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
 
 	// should get this payload after inserting sig0, sig1, sig2, and sig3
@@ -131,16 +131,16 @@ func Test_signalPayload_remove(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size4Type, 0, 15, 0, 1, nil)
+	sig0, err := NewStandardSignal("sig_0", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size4Type, 0, 15, 0, 1, nil)
+	sig1, err := NewStandardSignal("sig_1", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig2, err := NewStandardSignal("sig_2", "", size4Type, 0, 15, 0, 1, nil)
+	sig2, err := NewStandardSignal("sig_2", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig3, err := NewStandardSignal("sig_3", "", size4Type, 0, 15, 0, 1, nil)
+	sig3, err := NewStandardSignal("sig_3", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
 
 	// starting from this payload
@@ -174,16 +174,16 @@ func Test_signalPayload_compact(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size2Type, err := NewIntegerSignalType("2_bits", "", 2, false)
+	size2Type, err := NewIntegerSignalType("2_bits", 2, false)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size2Type, 0, 3, 0, 1, nil)
+	sig0, err := NewStandardSignal("sig_0", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size2Type, 0, 3, 0, 1, nil)
+	sig1, err := NewStandardSignal("sig_1", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
-	sig2, err := NewStandardSignal("sig_2", "", size2Type, 0, 3, 0, 1, nil)
+	sig2, err := NewStandardSignal("sig_2", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
-	sig3, err := NewStandardSignal("sig_3", "", size2Type, 0, 3, 0, 1, nil)
+	sig3, err := NewStandardSignal("sig_3", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
 
 	// starting from this payload
@@ -230,18 +230,18 @@ func Test_signalPayload_modifyStartBitsOnShrink(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size2Type, err := NewIntegerSignalType("2_bits", "", 2, false)
+	size2Type, err := NewIntegerSignalType("2_bits", 2, false)
 	assert.NoError(err)
-	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size2Type, 0, 3, 0, 1, nil)
+	sig0, err := NewStandardSignal("sig_0", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size4Type, 0, 15, 0, 1, nil)
+	sig1, err := NewStandardSignal("sig_1", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig2, err := NewStandardSignal("sig_2", "", size2Type, 0, 3, 0, 1, nil)
+	sig2, err := NewStandardSignal("sig_2", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
-	sig3, err := NewStandardSignal("sig_3", "", size2Type, 0, 3, 0, 1, nil)
+	sig3, err := NewStandardSignal("sig_3", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
 
 	// starting from this payload
@@ -323,18 +323,18 @@ func Test_signalPayload_modifyStartBitsOnGrow(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size2Type, err := NewIntegerSignalType("2_bits", "", 2, false)
+	size2Type, err := NewIntegerSignalType("2_bits", 2, false)
 	assert.NoError(err)
-	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size2Type, 0, 3, 0, 1, nil)
+	sig0, err := NewStandardSignal("sig_0", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size4Type, 0, 15, 0, 1, nil)
+	sig1, err := NewStandardSignal("sig_1", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig2, err := NewStandardSignal("sig_2", "", size2Type, 0, 3, 0, 1, nil)
+	sig2, err := NewStandardSignal("sig_2", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
-	sig3, err := NewStandardSignal("sig_3", "", size2Type, 0, 3, 0, 1, nil)
+	sig3, err := NewStandardSignal("sig_3", size2Type, 0, 3, 0, 1, nil)
 	assert.NoError(err)
 
 	// starting from this payload
@@ -429,12 +429,12 @@ func Test_signalPayload_shiftLeft(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size4Type, 0, 15, 0, 1, nil)
+	sig0, err := NewStandardSignal("sig_0", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size4Type, 0, 15, 0, 1, nil)
+	sig1, err := NewStandardSignal("sig_1", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
 
 	// starting from this payload
@@ -501,12 +501,12 @@ func Test_signalPayload_shiftRight(t *testing.T) {
 
 	payload := newSignalPayload(16)
 
-	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size4Type, 0, 15, 0, 1, nil)
+	sig0, err := NewStandardSignal("sig_0", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size4Type, 0, 15, 0, 1, nil)
+	sig1, err := NewStandardSignal("sig_1", size4Type, 0, 15, 0, 1, nil)
 	assert.NoError(err)
 
 	// starting from this payload

@@ -22,9 +22,9 @@ type Bus struct {
 }
 
 // NewBus creates a new [Bus] with the given name and description.
-func NewBus(name, desc string) *Bus {
+func NewBus(name string) *Bus {
 	return &Bus{
-		attributeEntity: newAttributeEntity(name, desc, AttributeRefKindBus),
+		attributeEntity: newAttributeEntity(name, AttributeRefKindBus),
 
 		parentNetwork: nil,
 

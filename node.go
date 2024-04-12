@@ -31,11 +31,11 @@ type Node struct {
 	id NodeID
 }
 
-// NewNode creates a new [Node] with the given name, description, and id.
+// NewNode creates a new [Node] with the given name and id.
 // The id must be unique among all nodes within a bus.
-func NewNode(name, desc string, id NodeID) *Node {
+func NewNode(name string, id NodeID) *Node {
 	return &Node{
-		attributeEntity: newAttributeEntity(name, desc, AttributeRefKindNode),
+		attributeEntity: newAttributeEntity(name, AttributeRefKindNode),
 
 		parentBuses: newSet[EntityID, *Bus]("parent bus"),
 		parErrID:    "",

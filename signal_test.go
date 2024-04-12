@@ -9,14 +9,14 @@ import (
 func Test_signal_UpdateName(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", "", 2)
+	msg := NewMessage("msg", 2)
 
-	size8Type, err := NewIntegerSignalType("8_bits", "", 8, false)
+	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
 	assert.NoError(err)
 
-	stdSig0, err := NewStandardSignal("std_sig_0", "", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
+	stdSig0, err := NewStandardSignal("std_sig_0", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
 	assert.NoError(err)
-	stdSig1, err := NewStandardSignal("std_sig_1", "", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
+	stdSig1, err := NewStandardSignal("std_sig_1", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
 	assert.NoError(err)
 
 	assert.NoError(msg.AppendSignal(stdSig0))
@@ -37,16 +37,16 @@ func Test_signal_UpdateName(t *testing.T) {
 func Test_StandardSignal(t *testing.T) {
 	assert := assert.New(t)
 
-	size8Type, err := NewIntegerSignalType("8_bits", "", 8, false)
+	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
 	assert.NoError(err)
 
-	voltUnit := NewSignalUnit("volt", "", SignalUnitKindVoltage, "V")
-	currUnit := NewSignalUnit("ampere", "", SignalUnitKindCurrent, "A")
+	voltUnit := NewSignalUnit("volt", SignalUnitKindVoltage, "V")
+	currUnit := NewSignalUnit("ampere", SignalUnitKindCurrent, "A")
 
-	sig, err := NewStandardSignal("sig", "", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, voltUnit)
+	sig, err := NewStandardSignal("sig", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, voltUnit)
 	assert.NoError(err)
 
-	_, err = NewStandardSignal("sig", "", nil, 0, 0, 0, 1, nil)
+	_, err = NewStandardSignal("sig", nil, 0, 0, 0, 1, nil)
 	assert.Error(err)
 
 	assert.Equal(size8Type.EntityID(), sig.Type().EntityID())
@@ -70,16 +70,16 @@ func Test_StandardSignal(t *testing.T) {
 func Test_StandardSignal_SetType(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", "", 2)
+	msg := NewMessage("msg", 2)
 
-	size16Type, err := NewIntegerSignalType("16_bits", "", 16, false)
+	size16Type, err := NewIntegerSignalType("16_bits", 16, false)
 	assert.NoError(err)
-	size8Type, err := NewIntegerSignalType("8_bits", "", 8, false)
+	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size16Type, size16Type.Min(), size16Type.Max(), 0, 1, nil)
+	sig0, err := NewStandardSignal("sig_0", size16Type, size16Type.Min(), size16Type.Max(), 0, 1, nil)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
+	sig1, err := NewStandardSignal("sig_1", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
 	assert.NoError(err)
 
 	// starting from this message payload
@@ -106,16 +106,16 @@ func Test_StandardSignal_SetType(t *testing.T) {
 func Test_EnumSignal_SetEnum(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", "", 2)
+	msg := NewMessage("msg", 2)
 
-	size8Enum := NewSignalEnum("8_bits", "")
-	assert.NoError(size8Enum.AddValue(NewSignalEnumValue("val_255", "", 255)))
-	size9Enum := NewSignalEnum("9_bits", "")
-	assert.NoError(size9Enum.AddValue(NewSignalEnumValue("val_256", "", 256)))
+	size8Enum := NewSignalEnum("8_bits")
+	assert.NoError(size8Enum.AddValue(NewSignalEnumValue("val_255", 255)))
+	size9Enum := NewSignalEnum("9_bits")
+	assert.NoError(size9Enum.AddValue(NewSignalEnumValue("val_256", 256)))
 
-	sig0, err := NewEnumSignal("sig_0", "", size9Enum)
+	sig0, err := NewEnumSignal("sig_0", size9Enum)
 	assert.NoError(err)
-	sig1, err := NewEnumSignal("sig_1", "", size8Enum)
+	sig1, err := NewEnumSignal("sig_1", size8Enum)
 	assert.NoError(err)
 
 	// starting from this message payload
@@ -142,25 +142,25 @@ func Test_EnumSignal_SetEnum(t *testing.T) {
 func Test_MultiplexerSignal_AppendMuxSignal(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", "", 2)
+	msg := NewMessage("msg", 2)
 
-	muxSig0, err := NewMultiplexerSignal("mux_sig_0", "", 16, 1)
-	assert.NoError(err)
-
-	size8Type, err := NewIntegerSignalType("8_bits", "", 8, false)
-	assert.NoError(err)
-	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	muxSig0, err := NewMultiplexerSignal("mux_sig_0", 16, 1)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
+	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
 	assert.NoError(err)
-	sig2, err := NewStandardSignal("sig_2", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+
+	sig0, err := NewStandardSignal("sig_0", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
 	assert.NoError(err)
-	sig3, err := NewStandardSignal("sig_3", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	sig1, err := NewStandardSignal("sig_1", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
 	assert.NoError(err)
-	sig4, err := NewStandardSignal("sig_4", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	sig2, err := NewStandardSignal("sig_2", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	assert.NoError(err)
+	sig3, err := NewStandardSignal("sig_3", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	assert.NoError(err)
+	sig4, err := NewStandardSignal("sig_4", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
 	assert.NoError(err)
 
 	// starting with a multiplexer signal that spreads over the entire message payload
@@ -192,7 +192,7 @@ func Test_MultiplexerSignal_AppendMuxSignal(t *testing.T) {
 	// should return an error because sig4 of size 4 cannot fit in the payload at select value 1
 	assert.Error(muxSig0.AppendMuxSignal(1, sig4))
 
-	muxSig1, err := NewMultiplexerSignal("mux_sig_1", "", 7, 1)
+	muxSig1, err := NewMultiplexerSignal("mux_sig_1", 7, 1)
 	assert.NoError(err)
 
 	// muxSig0 at select value 0 should nest muxSig1 after sig0
@@ -205,7 +205,7 @@ func Test_MultiplexerSignal_AppendMuxSignal(t *testing.T) {
 	assert.NoError(muxSig1.AppendMuxSignal(1, sig4))
 	assert.Equal(10, sig4.GetStartBit())
 
-	sig5, err := NewStandardSignal("sig_5", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	sig5, err := NewStandardSignal("sig_5", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
 	assert.NoError(err)
 
 	// should return an error because select value is negative
@@ -234,7 +234,7 @@ func Test_MultiplexerSignal_AppendMuxSignal(t *testing.T) {
 	// should return an error because there is no more space
 	assert.Error(sig4.SetType(size8Type, size8Type.Min(), size8Type.Max(), 0, 1))
 
-	size2Type, err := NewIntegerSignalType("2_bits", "", 2, false)
+	size2Type, err := NewIntegerSignalType("2_bits", 2, false)
 	assert.NoError(err)
 
 	// this time it should be possible because it is shrinking
@@ -247,21 +247,21 @@ func Test_MultiplexerSignal_AppendMuxSignal(t *testing.T) {
 func Test_MultiplexerSignal_RemoveMuxSignal(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", "", 2)
+	msg := NewMessage("msg", 2)
 
-	muxSig0, err := NewMultiplexerSignal("mux_sig_0", "", 16, 1)
+	muxSig0, err := NewMultiplexerSignal("mux_sig_0", 16, 1)
 	assert.NoError(err)
-	muxSig1, err := NewMultiplexerSignal("mux_sig_1", "", 7, 1)
-	assert.NoError(err)
-
-	size8Type, err := NewIntegerSignalType("8_bits", "", 8, false)
-	assert.NoError(err)
-	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	muxSig1, err := NewMultiplexerSignal("mux_sig_1", 7, 1)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
+	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
+	assert.NoError(err)
+
+	sig0, err := NewStandardSignal("sig_0", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
+	assert.NoError(err)
+	sig1, err := NewStandardSignal("sig_1", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
 	assert.NoError(err)
 
 	// starting with this message payload
@@ -284,21 +284,21 @@ func Test_MultiplexerSignal_RemoveMuxSignal(t *testing.T) {
 func Test_MultiplexerSignal_RemoveAllMuxSignals(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", "", 2)
+	msg := NewMessage("msg", 2)
 
-	muxSig0, err := NewMultiplexerSignal("mux_sig_0", "", 16, 1)
+	muxSig0, err := NewMultiplexerSignal("mux_sig_0", 16, 1)
 	assert.NoError(err)
-	muxSig1, err := NewMultiplexerSignal("mux_sig_1", "", 7, 1)
-	assert.NoError(err)
-
-	size8Type, err := NewIntegerSignalType("8_bits", "", 8, false)
-	assert.NoError(err)
-	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	muxSig1, err := NewMultiplexerSignal("mux_sig_1", 7, 1)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
+	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
+	assert.NoError(err)
+
+	sig0, err := NewStandardSignal("sig_0", size8Type, size8Type.Min(), size8Type.Max(), 0, 1, nil)
+	assert.NoError(err)
+	sig1, err := NewStandardSignal("sig_1", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
 	assert.NoError(err)
 
 	// starting with this message payload
@@ -318,21 +318,21 @@ func Test_MultiplexerSignal_RemoveAllMuxSignals(t *testing.T) {
 func Test_MultiplexerSignal_AddSelectValueRange(t *testing.T) {
 	assert := assert.New(t)
 
-	muxSig, err := NewMultiplexerSignal("mux_sig", "", 16, 4)
+	muxSig, err := NewMultiplexerSignal("mux_sig", 16, 4)
 	assert.NoError(err)
 
-	size4Type, err := NewIntegerSignalType("4_bits", "", 4, false)
+	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	sig0, err := NewStandardSignal("sig_0", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
 	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	sig1, err := NewStandardSignal("sig_1", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
 	assert.NoError(err)
-	sig2, err := NewStandardSignal("sig_2", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	sig2, err := NewStandardSignal("sig_2", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
 	assert.NoError(err)
-	sig4, err := NewStandardSignal("sig_4", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	sig4, err := NewStandardSignal("sig_4", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
 	assert.NoError(err)
-	sig5, err := NewStandardSignal("sig_5", "", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
+	sig5, err := NewStandardSignal("sig_5", size4Type, size4Type.Min(), size4Type.Max(), 0, 1, nil)
 	assert.NoError(err)
 
 	// setting a value range between 0 and 4

@@ -21,10 +21,10 @@ type SignalEnum struct {
 	maxIndex int
 }
 
-// NewSignalEnum creates a new [SignalEnum] with the given name and description.
-func NewSignalEnum(name, desc string) *SignalEnum {
+// NewSignalEnum creates a new [SignalEnum] with the given name.
+func NewSignalEnum(name string) *SignalEnum {
 	return &SignalEnum{
-		entity: newEntity(name, desc),
+		entity: newEntity(name),
 
 		parentSignals: newSet[EntityID, *EnumSignal]("parent signal"),
 		parErrID:      "",
@@ -256,11 +256,10 @@ type SignalEnumValue struct {
 	index int
 }
 
-// NewSignalEnumValue creates a new [SignalEnumValue] with the given name,
-// description, and index.
-func NewSignalEnumValue(name, desc string, index int) *SignalEnumValue {
+// NewSignalEnumValue creates a new [SignalEnumValue] with the given name and index.
+func NewSignalEnumValue(name string, index int) *SignalEnumValue {
 	return &SignalEnumValue{
-		entity: newEntity(name, desc),
+		entity: newEntity(name),
 
 		parentEnum: nil,
 

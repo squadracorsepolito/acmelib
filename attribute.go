@@ -139,9 +139,9 @@ type attribute struct {
 	references *set[EntityID, *AttributeRef]
 }
 
-func newAttribute(name, desc string, kind AttributeKind) *attribute {
+func newAttribute(name string, kind AttributeKind) *attribute {
 	return &attribute{
-		entity: newEntity(name, desc),
+		entity: newEntity(name),
 
 		kind: kind,
 
@@ -188,11 +188,11 @@ type StringAttribute struct {
 	defValue string
 }
 
-// NewStringAttribute creates a new [StringAttribute] with the given name, description,
+// NewStringAttribute creates a new [StringAttribute] with the given name,
 // and default value.
-func NewStringAttribute(name, desc, defValue string) *StringAttribute {
+func NewStringAttribute(name, defValue string) *StringAttribute {
 	return &StringAttribute{
-		attribute: newAttribute(name, desc, AttributeKindString),
+		attribute: newAttribute(name, AttributeKindString),
 
 		defValue: defValue,
 	}
@@ -245,11 +245,11 @@ type IntegerAttribute struct {
 	isHexFormat bool
 }
 
-// NewIntegerAttribute creates a new [IntegerAttribute] with the given name, description,
+// NewIntegerAttribute creates a new [IntegerAttribute] with the given name,
 // default value, min, and max.
 // It may return an error if the default value is out of the min/max range,
 // or if the min value is greater then the max value.
-func NewIntegerAttribute(name, desc string, defValue, min, max int) (*IntegerAttribute, error) {
+func NewIntegerAttribute(name string, defValue, min, max int) (*IntegerAttribute, error) {
 	if min > max {
 		return nil, fmt.Errorf("min value cannot be greater then max value")
 	}
@@ -259,7 +259,7 @@ func NewIntegerAttribute(name, desc string, defValue, min, max int) (*IntegerAtt
 	}
 
 	return &IntegerAttribute{
-		attribute: newAttribute(name, desc, AttributeKindInteger),
+		attribute: newAttribute(name, AttributeKindInteger),
 
 		defValue: defValue,
 		min:      min,
@@ -337,11 +337,11 @@ type FloatAttribute struct {
 	max      float64
 }
 
-// NewFloatAttribute creates a new [FloatAttribute] with the given name, description,
+// NewFloatAttribute creates a new [FloatAttribute] with the given name,
 // default value, min, and max.
 // It may return an error if the default value is out of the min/max range,
 // or if the min value is greater then the max value.
-func NewFloatAttribute(name, desc string, defValue, min, max float64) (*FloatAttribute, error) {
+func NewFloatAttribute(name string, defValue, min, max float64) (*FloatAttribute, error) {
 	if min > max {
 		return nil, fmt.Errorf("min value cannot be greater then max value")
 	}
@@ -351,7 +351,7 @@ func NewFloatAttribute(name, desc string, defValue, min, max float64) (*FloatAtt
 	}
 
 	return &FloatAttribute{
-		attribute: newAttribute(name, desc, AttributeKindFloat),
+		attribute: newAttribute(name, AttributeKindFloat),
 
 		defValue: defValue,
 		min:      min,
@@ -416,10 +416,10 @@ type EnumAttribute struct {
 	values   *set[string, int]
 }
 
-// NewEnumAttribute creates a new [EnumAttribute] with the given name, description,
-// and values. The first value is always selected as the default one.
+// NewEnumAttribute creates a new [EnumAttribute] with the given name and values.
+// The first value is always selected as the default one.
 // It may return an error if no values are passed.
-func NewEnumAttribute(name, desc string, values ...string) (*EnumAttribute, error) {
+func NewEnumAttribute(name string, values ...string) (*EnumAttribute, error) {
 	if len(values) == 0 {
 		return nil, fmt.Errorf("at least 1 value is required")
 	}
@@ -436,7 +436,7 @@ func NewEnumAttribute(name, desc string, values ...string) (*EnumAttribute, erro
 	}
 
 	return &EnumAttribute{
-		attribute: newAttribute(name, desc, AttributeKindEnum),
+		attribute: newAttribute(name, AttributeKindEnum),
 
 		defValue: values[0],
 		values:   valSet,

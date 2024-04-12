@@ -30,13 +30,13 @@ type SignalType struct {
 	max    float64
 }
 
-func newSignalType(name, desc string, kind SignalTypeKind, size int, signed bool, min, max float64) (*SignalType, error) {
+func newSignalType(name string, kind SignalTypeKind, size int, signed bool, min, max float64) (*SignalType, error) {
 	if size <= 0 {
 		return nil, fmt.Errorf("signal type size cannot be negative")
 	}
 
 	return &SignalType{
-		entity: newEntity(name, desc),
+		entity: newEntity(name),
 
 		kind:   kind,
 		size:   size,
@@ -47,16 +47,16 @@ func newSignalType(name, desc string, kind SignalTypeKind, size int, signed bool
 }
 
 // NewCustomSignalType creates a new [SignalType] of kind [SignalTypeKindCustom]
-// with the given name, description, size, signed, and min/max values.
+// with the given name, size, signed, and min/max values.
 // It may return an error if the size is negative.
-func NewCustomSignalType(name, desc string, size int, signed bool, min, max float64) (*SignalType, error) {
-	return newSignalType(name, desc, SignalTypeKindCustom, size, signed, min, max)
+func NewCustomSignalType(name string, size int, signed bool, min, max float64) (*SignalType, error) {
+	return newSignalType(name, SignalTypeKindCustom, size, signed, min, max)
 }
 
 // NewFlagSignalType creates a new [SignalType] of kind [SignalTypeKindFlag]
-// with the given name and description.
-func NewFlagSignalType(name, desc string) *SignalType {
-	sig, err := newSignalType(name, desc, SignalTypeKindFlag, 1, false, 0, 1)
+// with the given name.
+func NewFlagSignalType(name string) *SignalType {
+	sig, err := newSignalType(name, SignalTypeKindFlag, 1, false, 0, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -64,9 +64,9 @@ func NewFlagSignalType(name, desc string) *SignalType {
 }
 
 // NewIntegerSignalType creates a new [SignalType] of kind [SignalTypeKindInteger]
-// with the given name, description, size, and signed.
+// with the given name, size, and signed.
 // It may return an error if the size is negative.
-func NewIntegerSignalType(name, desc string, size int, signed bool) (*SignalType, error) {
+func NewIntegerSignalType(name string, size int, signed bool) (*SignalType, error) {
 	var min float64
 	var max float64
 
@@ -81,16 +81,16 @@ func NewIntegerSignalType(name, desc string, size int, signed bool) (*SignalType
 		max = float64(tmp)
 	}
 
-	return newSignalType(name, desc, SignalTypeKindInteger, size, signed, min, max)
+	return newSignalType(name, SignalTypeKindInteger, size, signed, min, max)
 }
 
 // NewFloatSignalType creates a new [SignalType] of kind [SignalTypeKindFloat]
-// with the given name, description, and size.
+// with the given name and size.
 // It may return an error if the size is negative.
-func NewFloatSignalType(name, desc string, size int) (*SignalType, error) {
+func NewFloatSignalType(name string, size int) (*SignalType, error) {
 	min := (1<<size - 1) - 1
 	max := -(1<<size - 1)
-	return newSignalType(name, desc, SignalTypeKindFloat, size, true, float64(min), float64(max))
+	return newSignalType(name, SignalTypeKindFloat, size, true, float64(min), float64(max))
 }
 
 func (st *SignalType) stringify(b *strings.Builder, tabs int) {

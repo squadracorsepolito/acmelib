@@ -9,11 +9,11 @@ import (
 func Test_Node_AddMessage(t *testing.T) {
 	assert := assert.New(t)
 
-	node := NewNode("node", "", 0)
+	node := NewNode("node", 0)
 
-	msg0 := NewMessage("msg_0", "", 1)
-	msg1 := NewMessage("msg_1", "", 1)
-	msg2 := NewMessage("msg_2", "", 1)
+	msg0 := NewMessage("msg_0", 1)
+	msg1 := NewMessage("msg_1", 1)
+	msg2 := NewMessage("msg_2", 1)
 
 	// should add msg0, msg1, and msg2 without errors
 	assert.NoError(node.AddMessage(msg0))
@@ -27,24 +27,24 @@ func Test_Node_AddMessage(t *testing.T) {
 	}
 
 	// should return an error because id 3 is already taken
-	dupIDMsg := NewMessage("", "", 1)
+	dupIDMsg := NewMessage("", 1)
 	dupIDMsg.SetID(0x30)
 	assert.Error(node.AddMessage(dupIDMsg))
 
 	// should return an error because name msg_2 is already taken
-	dupNameMsg := NewMessage("msg_2", "", 1)
+	dupNameMsg := NewMessage("msg_2", 1)
 	assert.Error(node.AddMessage(dupNameMsg))
 }
 
 func Test_Node_RemoveMessage(t *testing.T) {
 	assert := assert.New(t)
 
-	node := NewNode("node", "", 0)
+	node := NewNode("node", 0)
 
-	msg0 := NewMessage("msg_0", "", 1)
-	msg1 := NewMessage("msg_1", "", 1)
-	msg2 := NewMessage("msg_2", "", 1)
-	msg3 := NewMessage("msg_3", "", 1)
+	msg0 := NewMessage("msg_0", 1)
+	msg1 := NewMessage("msg_1", 1)
+	msg2 := NewMessage("msg_2", 1)
+	msg3 := NewMessage("msg_3", 1)
 
 	msg3.SetID(0x100)
 
@@ -69,12 +69,12 @@ func Test_Node_RemoveMessage(t *testing.T) {
 func Test_Node_RemoveAllMessages(t *testing.T) {
 	assert := assert.New(t)
 
-	node := NewNode("node", "", 0)
+	node := NewNode("node", 0)
 
-	msg0 := NewMessage("msg_0", "", 1)
-	msg1 := NewMessage("msg_1", "", 1)
-	msg2 := NewMessage("msg_2", "", 1)
-	msg3 := NewMessage("msg_3", "", 1)
+	msg0 := NewMessage("msg_0", 1)
+	msg1 := NewMessage("msg_1", 1)
+	msg2 := NewMessage("msg_2", 1)
+	msg3 := NewMessage("msg_3", 1)
 
 	assert.NoError(node.AddMessage(msg0))
 	assert.NoError(node.AddMessage(msg1))
@@ -89,10 +89,10 @@ func Test_Node_RemoveAllMessages(t *testing.T) {
 func Test_Node_UpdateName(t *testing.T) {
 	assert := assert.New(t)
 
-	bus := NewBus("bus", "")
+	bus := NewBus("bus")
 
-	node0 := NewNode("node_0", "", 0)
-	node1 := NewNode("node_1", "", 1)
+	node0 := NewNode("node_0", 0)
+	node1 := NewNode("node_1", 1)
 
 	assert.NoError(bus.AddNode(node0))
 	assert.NoError(bus.AddNode(node1))

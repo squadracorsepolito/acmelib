@@ -109,9 +109,9 @@ type signal struct {
 	relStartBit int
 }
 
-func newSignal(name, desc string, kind SignalKind) *signal {
+func newSignal(name string, kind SignalKind) *signal {
 	return &signal{
-		attributeEntity: newAttributeEntity(name, desc, AttributeRefKindSignal),
+		attributeEntity: newAttributeEntity(name, AttributeRefKindSignal),
 
 		parent: nil,
 
@@ -217,16 +217,16 @@ type StandardSignal struct {
 	unit   *SignalUnit
 }
 
-// NewStandardSignal creates a new [StandardSignal] with the given name, description,
+// NewStandardSignal creates a new [StandardSignal] with the given name,
 // [SignalType], min, max, offset, scale, and unit.
 // It may return an error if the given [SignalType] is nil.
-func NewStandardSignal(name, desc string, typ *SignalType, min, max, offset, scale float64, unit *SignalUnit) (*StandardSignal, error) {
+func NewStandardSignal(name string, typ *SignalType, min, max, offset, scale float64, unit *SignalUnit) (*StandardSignal, error) {
 	if typ == nil {
 		return nil, errors.New("signal type cannot be nil")
 	}
 
 	return &StandardSignal{
-		signal: newSignal(name, desc, SignalKindStandard),
+		signal: newSignal(name, SignalKindStandard),
 
 		typ:    typ,
 		min:    min,
@@ -348,16 +348,15 @@ type EnumSignal struct {
 	enum *SignalEnum
 }
 
-// NewEnumSignal creates a new [EnumSignal] with the given name, description,
-// and [SignalEnum].
+// NewEnumSignal creates a new [EnumSignal] with the given name and [SignalEnum].
 // It may return an error if the given [SignalEnum] is nil.
-func NewEnumSignal(name, desc string, enum *SignalEnum) (*EnumSignal, error) {
+func NewEnumSignal(name string, enum *SignalEnum) (*EnumSignal, error) {
 	if enum == nil {
 		return nil, errors.New("signal enum cannot be nil")
 	}
 
 	sig := &EnumSignal{
-		signal: newSignal(name, desc, SignalKindEnum),
+		signal: newSignal(name, SignalKindEnum),
 
 		enum: enum,
 	}
@@ -449,7 +448,7 @@ type MultiplexerSignal struct {
 	selectSize int
 }
 
-// NewMultiplexerSignal creates a new [MultiplexerSignal] with the given name, description,
+// NewMultiplexerSignal creates a new [MultiplexerSignal] with the given name,
 // total size, and select size.
 // The select size defines the number bits used for selecting the different groups of signals
 // of the multiplexer (select size = log2(number of groups)).
@@ -458,7 +457,7 @@ type MultiplexerSignal struct {
 // 4 groups of 8 bits.
 // It may return an error if the select size is greater then the total size, or if
 // the total and select size are lower or equal to zero.
-func NewMultiplexerSignal(name, desc string, totalSize, selectSize int) (*MultiplexerSignal, error) {
+func NewMultiplexerSignal(name string, totalSize, selectSize int) (*MultiplexerSignal, error) {
 	if selectSize <= 0 {
 		return nil, fmt.Errorf("the select size cannot be lower or equal to 0")
 	}
@@ -472,7 +471,7 @@ func NewMultiplexerSignal(name, desc string, totalSize, selectSize int) (*Multip
 	}
 
 	return &MultiplexerSignal{
-		signal: newSignal(name, desc, SignalKindMultiplexer),
+		signal: newSignal(name, SignalKindMultiplexer),
 
 		muxSignals:     newSet[EntityID, Signal]("multiplexed signal"),
 		muxSignalNames: newSet[string, EntityID]("multiplexed signal name"),

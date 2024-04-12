@@ -42,14 +42,14 @@ type entity struct {
 	createTime time.Time
 }
 
-func newEntity(name, desc string) *entity {
+func newEntity(name string) *entity {
 	id := newEntityID()
 	createTime := time.Now()
 
 	return &entity{
 		entityID:   id,
 		name:       name,
-		desc:       desc,
+		desc:       "",
 		createTime: createTime,
 	}
 }
@@ -74,11 +74,9 @@ func (e *entity) CreateTime() time.Time {
 	return e.createTime
 }
 
-// UpdateDesc updates the description of the entity.
-func (e *entity) UpdateDesc(desc string) {
-	if e.desc != desc {
-		e.desc = desc
-	}
+// SetDesc sets the description of the entity.
+func (e *entity) SetDesc(desc string) {
+	e.desc = desc
 }
 
 func (e *entity) stringify(b *strings.Builder, tabs int) {
@@ -101,9 +99,9 @@ type attributeEntity struct {
 	attRefKind      AttributeRefKind
 }
 
-func newAttributeEntity(name, desc string, attRefKind AttributeRefKind) *attributeEntity {
+func newAttributeEntity(name string, attRefKind AttributeRefKind) *attributeEntity {
 	return &attributeEntity{
-		entity: newEntity(name, desc),
+		entity: newEntity(name),
 
 		attributeValues: newSet[EntityID, *AttributeValue]("attribute value"),
 		attRefKind:      attRefKind,
