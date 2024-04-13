@@ -48,12 +48,10 @@ const (
 
 // Message is the representation of data sent by a node thought the bus.
 // It holds a list of signals that are contained in the message payload.
-// A message can be assigned to more then 1 node.
 type Message struct {
 	*attributeEntity
 
-	parentNodes *set[EntityID, *Node]
-	parErrID    EntityID
+	senderNode *Node
 
 	signals     *set[EntityID, Signal]
 	signalNames *set[string, EntityID]
@@ -78,8 +76,7 @@ func NewMessage(name string, sizeByte int) *Message {
 	return &Message{
 		attributeEntity: newAttributeEntity(name, AttributeRefKindMessage),
 
-		parentNodes: newSet[EntityID, *Node]("parent node"),
-		parErrID:    "",
+		senderNode: nil,
 
 		signals:     newSet[EntityID, Signal]("signal"),
 		signalNames: newSet[string, EntityID]("signal name"),
@@ -111,23 +108,15 @@ func (m *Message) resetID() {
 	m.id = 0
 }
 
+func (m *Message) hasSenderNode() bool {
+	return m.senderNode != nil
+}
+
 func (m *Message) errorf(err error) error {
 	msgErr := fmt.Errorf(`message "%s": %w`, m.name, err)
-
-	if m.parentNodes.size() > 0 {
-		if m.parErrID != "" {
-			parNode, err := m.parentNodes.getValue(m.parErrID)
-			if err != nil {
-				panic(err)
-			}
-
-			m.parErrID = ""
-			return parNode.errorf(msgErr)
-		}
-
-		return m.parentNodes.getValues()[0].errorf(msgErr)
+	if m.hasSenderNode() {
+		return m.senderNode.errorf(msgErr)
 	}
-
 	return msgErr
 }
 
@@ -245,13 +234,11 @@ func (m *Message) UpdateName(newName string) error {
 		return nil
 	}
 
-	for _, tmpNode := range m.parentNodes.entries() {
-		if err := tmpNode.messageNames.verifyKey(newName); err != nil {
-			m.parErrID = tmpNode.entityID
+	if m.hasSenderNode() {
+		if err := m.senderNode.messageNames.verifyKey(newName); err != nil {
 			return m.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
 		}
-
-		tmpNode.modifyMessageName(m.entityID, newName)
+		m.senderNode.modifyMessageName(m.entityID, newName)
 	}
 
 	m.name = newName
@@ -259,9 +246,10 @@ func (m *Message) UpdateName(newName string) error {
 	return nil
 }
 
-// ParentNodes returns a slice of nodes that send the [Message].
-func (m *Message) ParentNodes() []*Node {
-	return m.parentNodes.getValues()
+// SenderNode returns the [Node] that sends the [Message].
+// It returns nil if the message is not added to a node.
+func (m *Message) SenderNode() *Node {
+	return m.senderNode
 }
 
 // AppendSignal appends a [Signal] to the last position of the [Message] payload.

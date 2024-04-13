@@ -148,7 +148,7 @@ func (n *Node) AddMessage(message *Message) error {
 	n.messageNames.add(message.name, message.entityID)
 	n.messageIDs.add(message.id, message.entityID)
 
-	message.parentNodes.add(n.entityID, n)
+	message.senderNode = n
 
 	return nil
 }
@@ -161,7 +161,7 @@ func (n *Node) RemoveMessage(messageEntityID EntityID) error {
 		return n.errorf(fmt.Errorf(`cannot remove message with entity id "%s" : %w`, messageEntityID, err))
 	}
 
-	msg.parentNodes.remove(n.entityID)
+	msg.senderNode = nil
 	msg.resetID()
 
 	n.messages.remove(messageEntityID)
@@ -179,7 +179,7 @@ func (n *Node) RemoveMessage(messageEntityID EntityID) error {
 func (n *Node) RemoveAllMessages() {
 	for _, tmpMsg := range n.messages.entries() {
 		tmpMsg.resetID()
-		tmpMsg.parentNodes.remove(n.entityID)
+		tmpMsg.senderNode = nil
 	}
 
 	n.messages.clear()
