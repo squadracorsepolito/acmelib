@@ -21,8 +21,10 @@ func main() {
 
 	battPackGen := acmelib.NewMessage("BMSLV_BatteryPackGeneral", 6)
 
-	currSens, _ := acmelib.NewStandardSignal("Current_Sensor_mV", uint16bit, 0, uint16bit.Max(), 0, 0.076, mVUnit)
-	totVolt, _ := acmelib.NewStandardSignal("Total_voltage", uint16bit, 0, uint16bit.Max(), 0, 0.076, mVUnit)
+	currSens, _ := acmelib.NewStandardSignal("Current_Sensor_mV", uint16bit)
+	currSens.SetUnit(mVUnit)
+	totVolt, _ := acmelib.NewStandardSignal("Total_voltage", uint16bit)
+	totVolt.SetUnit(mVUnit)
 
 	if err := battPackGen.AppendSignal(currSens); err != nil {
 		panic(err)
@@ -33,7 +35,7 @@ func main() {
 
 	msgStatus := acmelib.NewMessage("BMSLV_Status", 6)
 
-	isRelOpen, _ := acmelib.NewStandardSignal("is_relary_open", flagType, flagType.Min(), flagType.Max(), 0, 1, nil)
+	isRelOpen, _ := acmelib.NewStandardSignal("is_relary_open", flagType)
 
 	if err := msgStatus.AppendSignal(isRelOpen); err != nil {
 		panic(err)
@@ -47,7 +49,7 @@ func main() {
 	dm1Msg := acmelib.NewMessage(dm1MsgName, 8)
 	sinSig, _ := acmelib.NewEnumSignal("sin", sinEnum)
 	fmiSig, _ := acmelib.NewEnumSignal("fmi", initFmi())
-	occSig, _ := acmelib.NewStandardSignal("occ_counter", uint8bit, uint8bit.Min(), uint8bit.Max(), 0, 1, nil)
+	occSig, _ := acmelib.NewStandardSignal("occ_counter", uint8bit)
 
 	if err := dm1Msg.InsertSignal(sinSig, 0); err != nil {
 		panic(err)

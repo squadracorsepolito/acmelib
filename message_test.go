@@ -24,15 +24,15 @@ func Test_Message_AppendSignal(t *testing.T) {
 
 	sigNames := []string{"sig_0", "sig_1", "sig_2", "sig_3", "sig_4"}
 
-	sig0, _ := NewStandardSignal(sigNames[0], sigTypInt8, 0, 100, 0, 1, nil)
-	sig1, _ := NewStandardSignal(sigNames[1], sigTypInt8, 0, 100, 0, 1, nil)
-	sig2, _ := NewStandardSignal(sigNames[2], sigTypInt8, 0, 100, 0, 1, nil)
-	sig3, _ := NewStandardSignal(sigNames[3], sigTypInt8, 0, 100, 0, 1, nil)
-	sig4, _ := NewStandardSignal(sigNames[4], sigTypInt32, 0, 100, 0, 1, nil)
+	sig0, _ := NewStandardSignal(sigNames[0], sigTypInt8)
+	sig1, _ := NewStandardSignal(sigNames[1], sigTypInt8)
+	sig2, _ := NewStandardSignal(sigNames[2], sigTypInt8)
+	sig3, _ := NewStandardSignal(sigNames[3], sigTypInt8)
+	sig4, _ := NewStandardSignal(sigNames[4], sigTypInt32)
 
 	assert.NoError(msg.AppendSignal(sig0))
 
-	duplicatedSigName, _ := NewStandardSignal(sigNames[0], sigTypInt8, 0, 100, 0, 1, nil)
+	duplicatedSigName, _ := NewStandardSignal(sigNames[0], sigTypInt8)
 	assert.Error(msg.AppendSignal(duplicatedSigName))
 
 	assert.NoError(msg.AppendSignal(sig1))
@@ -42,10 +42,10 @@ func Test_Message_AppendSignal(t *testing.T) {
 	assert.NoError(msg.AppendSignal(sig4))
 
 	sigTypMassive, _ := newSignalType("massive", SignalTypeKindInteger, 128, true, -128, 127)
-	massiveSig, _ := NewStandardSignal("massive_sig", sigTypMassive, 0, 100, 0, 1, nil)
+	massiveSig, _ := NewStandardSignal("massive_sig", sigTypMassive)
 	assert.Error(msg.AppendSignal(massiveSig))
 
-	exidingSig, _ := NewStandardSignal("exiding_sig", sigTypInt8, 0, 100, 0, 1, nil)
+	exidingSig, _ := NewStandardSignal("exiding_sig", sigTypInt8)
 	assert.Error(msg.AppendSignal(exidingSig))
 
 	results := msg.Signals()
@@ -65,20 +65,20 @@ func Test_Message_InsertSignal(t *testing.T) {
 
 	sigNames := []string{"sig_0", "sig_1", "sig_2", "sig_3", "sig_4"}
 
-	sig0, _ := NewStandardSignal(sigNames[0], sigTypInt8, 0, 100, 0, 1, nil)
-	sig1, _ := NewStandardSignal(sigNames[1], sigTypInt8, 0, 100, 0, 1, nil)
-	sig2, _ := NewStandardSignal(sigNames[2], sigTypInt8, 0, 100, 0, 1, nil)
-	sig3, _ := NewStandardSignal(sigNames[3], sigTypInt8, 0, 100, 0, 1, nil)
-	sig4, _ := NewStandardSignal(sigNames[4], sigTypInt32, 0, 100, 0, 1, nil)
+	sig0, _ := NewStandardSignal(sigNames[0], sigTypInt8)
+	sig1, _ := NewStandardSignal(sigNames[1], sigTypInt8)
+	sig2, _ := NewStandardSignal(sigNames[2], sigTypInt8)
+	sig3, _ := NewStandardSignal(sigNames[3], sigTypInt8)
+	sig4, _ := NewStandardSignal(sigNames[4], sigTypInt32)
 
 	assert.NoError(msg.InsertSignal(sig0, 0))
 
 	assert.NoError(msg.InsertSignal(sig1, 24))
 
-	duplicatedSigName, _ := NewStandardSignal(sigNames[0], sigTypInt8, 0, 100, 0, 1, nil)
+	duplicatedSigName, _ := NewStandardSignal(sigNames[0], sigTypInt8)
 	assert.Error(msg.InsertSignal(duplicatedSigName, 16))
 
-	overlappingSig, _ := NewStandardSignal("overlapping_sig", sigTypInt8, 0, 100, 0, 1, nil)
+	overlappingSig, _ := NewStandardSignal("overlapping_sig", sigTypInt8)
 	assert.Error(msg.InsertSignal(overlappingSig, 0))
 	assert.Error(msg.InsertSignal(overlappingSig, 7))
 	assert.Error(msg.InsertSignal(overlappingSig, 23))
@@ -88,10 +88,10 @@ func Test_Message_InsertSignal(t *testing.T) {
 	assert.NoError(msg.InsertSignal(sig4, 32))
 
 	sigTypMassive, _ := newSignalType("massive", SignalTypeKindInteger, 128, true, -128, 127)
-	massiveSig, _ := NewStandardSignal("massive_sig", sigTypMassive, 0, 100, 0, 1, nil)
+	massiveSig, _ := NewStandardSignal("massive_sig", sigTypMassive)
 	assert.Error(msg.InsertSignal(massiveSig, 0))
 
-	exidingSig, _ := NewStandardSignal("exiding_sig", sigTypInt8, 0, 100, 0, 1, nil)
+	exidingSig, _ := NewStandardSignal("exiding_sig", sigTypInt8)
 	assert.Error(msg.InsertSignal(exidingSig, 0))
 	assert.Error(msg.InsertSignal(exidingSig, 64))
 
@@ -115,11 +115,11 @@ func Test_Message_RemoveSignal(t *testing.T) {
 
 	sigNames := []string{"sig_0", "sig_1", "sig_2", "sig_3", "sig_4"}
 
-	sig0, _ := NewStandardSignal(sigNames[0], sigTypInt8, 0, 100, 0, 1, nil)
-	sig1, _ := NewStandardSignal(sigNames[1], sigTypInt8, 0, 100, 0, 1, nil)
-	sig2, _ := NewStandardSignal(sigNames[2], sigTypInt8, 0, 100, 0, 1, nil)
-	sig3, _ := NewStandardSignal(sigNames[3], sigTypInt8, 0, 100, 0, 1, nil)
-	sig4, _ := NewStandardSignal(sigNames[4], sigTypInt32, 0, 100, 0, 1, nil)
+	sig0, _ := NewStandardSignal(sigNames[0], sigTypInt8)
+	sig1, _ := NewStandardSignal(sigNames[1], sigTypInt8)
+	sig2, _ := NewStandardSignal(sigNames[2], sigTypInt8)
+	sig3, _ := NewStandardSignal(sigNames[3], sigTypInt8)
+	sig4, _ := NewStandardSignal(sigNames[4], sigTypInt32)
 
 	assert.NoError(msg.AppendSignal(sig0))
 	assert.NoError(msg.AppendSignal(sig1))
@@ -147,9 +147,9 @@ func Test_Message_CompactSignals(t *testing.T) {
 
 	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, -128, 127)
 
-	sig0, _ := NewStandardSignal("sig_0", sigTypInt8, 0, 100, 0, 1, nil)
-	sig1, _ := NewStandardSignal("sig_1", sigTypInt8, 0, 100, 0, 1, nil)
-	sig2, _ := NewStandardSignal("sig_2", sigTypInt8, 0, 100, 0, 1, nil)
+	sig0, _ := NewStandardSignal("sig_0", sigTypInt8)
+	sig1, _ := NewStandardSignal("sig_1", sigTypInt8)
+	sig2, _ := NewStandardSignal("sig_2", sigTypInt8)
 
 	assert.NoError(msg.InsertSignal(sig0, 2))
 	assert.NoError(msg.InsertSignal(sig1, 18))
@@ -173,7 +173,7 @@ func Test_Message_ShiftSignalLeft(t *testing.T) {
 	sigTypeInt4, err := newSignalType("int4", SignalTypeKindInteger, 4, true, -8, 7)
 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("signal_0", sigTypeInt4, -8, 7, 0, 1, nil)
+	sig0, err := NewStandardSignal("signal_0", sigTypeInt4)
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig0, 12))
 
@@ -182,13 +182,13 @@ func Test_Message_ShiftSignalLeft(t *testing.T) {
 	assert.Equal(1, msg.ShiftSignalLeft(sig0.EntityID(), 1))
 	assert.Equal(11, msg.ShiftSignalLeft(sig0.EntityID(), 16))
 
-	sig1, err := NewStandardSignal("signal_1", sigTypeInt4, -8, 7, 0, 1, nil)
+	sig1, err := NewStandardSignal("signal_1", sigTypeInt4)
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig1, 12))
 
 	assert.Equal(8, msg.ShiftSignalLeft(sig1.EntityID(), 16))
 
-	sig2, err := NewStandardSignal("signal_2", sigTypeInt4, -8, 7, 0, 1, nil)
+	sig2, err := NewStandardSignal("signal_2", sigTypeInt4)
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig2, 12))
 
@@ -208,7 +208,7 @@ func Test_Message_ShiftSignalRight(t *testing.T) {
 
 	sigTypeInt4, _ := newSignalType("int4", SignalTypeKindInteger, 4, true, -8, 7)
 
-	sig0, err := NewStandardSignal("signal_0", sigTypeInt4, -8, 7, 0, 1, nil)
+	sig0, err := NewStandardSignal("signal_0", sigTypeInt4)
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig0, 0))
 
@@ -217,13 +217,13 @@ func Test_Message_ShiftSignalRight(t *testing.T) {
 	assert.Equal(1, msg.ShiftSignalRight(sig0.EntityID(), 1))
 	assert.Equal(11, msg.ShiftSignalRight(sig0.EntityID(), 16))
 
-	sig1, err := NewStandardSignal("signal_1", sigTypeInt4, -8, 7, 0, 1, nil)
+	sig1, err := NewStandardSignal("signal_1", sigTypeInt4)
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig1, 0))
 
 	assert.Equal(8, msg.ShiftSignalRight(sig1.EntityID(), 16))
 
-	sig2, err := NewStandardSignal("signal_2", sigTypeInt4, -8, 7, 0, 1, nil)
+	sig2, err := NewStandardSignal("signal_2", sigTypeInt4)
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig2, 0))
 

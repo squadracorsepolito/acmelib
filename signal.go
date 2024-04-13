@@ -217,10 +217,9 @@ type StandardSignal struct {
 	unit   *SignalUnit
 }
 
-// NewStandardSignal creates a new [StandardSignal] with the given name,
-// [SignalType], min, max, offset, scale, and unit.
+// NewStandardSignal creates a new [StandardSignal] with the given name and [SignalType].
 // It may return an error if the given [SignalType] is nil.
-func NewStandardSignal(name string, typ *SignalType, min, max, offset, scale float64, unit *SignalUnit) (*StandardSignal, error) {
+func NewStandardSignal(name string, typ *SignalType) (*StandardSignal, error) {
 	if typ == nil {
 		return nil, errors.New("signal type cannot be nil")
 	}
@@ -229,11 +228,11 @@ func NewStandardSignal(name string, typ *SignalType, min, max, offset, scale flo
 		signal: newSignal(name, SignalKindStandard),
 
 		typ:    typ,
-		min:    min,
-		max:    max,
-		offset: offset,
-		scale:  scale,
-		unit:   unit,
+		min:    typ.min,
+		max:    typ.max,
+		offset: 0,
+		scale:  1,
+		unit:   nil,
 	}, nil
 }
 
@@ -285,11 +284,11 @@ func (ss *StandardSignal) Type() *SignalType {
 	return ss.typ
 }
 
-// SetType sets the [SignalType] of the [StandardSignal] to the given [SignalType], min, max,
-// scale, and offset.
+// SetType sets the [SignalType] of the [StandardSignal].
+// It resets the physical values.
 // It may return an error if the given [SignalType] is nil, or if the new signal type
 // size cannot fit in the message payload.
-func (ss *StandardSignal) SetType(typ *SignalType, min, max, offset, scale float64) error {
+func (ss *StandardSignal) SetType(typ *SignalType) error {
 	if typ == nil {
 		return errors.New("signal type cannot be nil")
 	}
@@ -299,6 +298,21 @@ func (ss *StandardSignal) SetType(typ *SignalType, min, max, offset, scale float
 	}
 
 	ss.typ = typ
+	ss.min = typ.min
+	ss.max = typ.max
+	ss.offset = 0
+	ss.scale = 1
+
+	return nil
+}
+
+// SetPhysicalValues sets the physical min, max, offset, and scale of the [StandardSignal].
+// It returns an error if the scale is equal to 0.
+func (ss *StandardSignal) SetPhysicalValues(min, max, offset, scale float64) error {
+	if scale == 0 {
+		return ss.errorf(fmt.Errorf("scale cannot be 0"))
+	}
+
 	ss.min = min
 	ss.max = max
 	ss.offset = offset
@@ -331,14 +345,14 @@ func (ss *StandardSignal) Scale() float64 {
 	return ss.scale
 }
 
-// Unit returns the [SignalUnit] of the [StandardSignal].
-func (ss *StandardSignal) Unit() *SignalUnit {
-	return ss.unit
-}
-
 // SetUnit sets the [SignalUnit] of the [StandardSignal] to the given one.
 func (ss *StandardSignal) SetUnit(unit *SignalUnit) {
 	ss.unit = unit
+}
+
+// Unit returns the [SignalUnit] of the [StandardSignal].
+func (ss *StandardSignal) Unit() *SignalUnit {
+	return ss.unit
 }
 
 // EnumSignal is a signal that holds a [SignalEnum].
