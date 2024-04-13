@@ -19,6 +19,7 @@ type SignalEnum struct {
 	valueIndexes *set[int, EntityID]
 
 	maxIndex int
+	minSize  int
 }
 
 // NewSignalEnum creates a new [SignalEnum] with the given name.
@@ -34,6 +35,7 @@ func NewSignalEnum(name string) *SignalEnum {
 		valueIndexes: newSet[int, EntityID]("value index"),
 
 		maxIndex: 0,
+		minSize:  1,
 	}
 }
 
@@ -238,12 +240,27 @@ func (se *SignalEnum) Values() []*SignalEnumValue {
 
 // GetSize returns the size of the [SignalEnum] in bits.
 func (se *SignalEnum) GetSize() int {
-	return calcSizeFromValue(se.maxIndex)
+	maxIdxSize := calcSizeFromValue(se.maxIndex)
+	if se.minSize > maxIdxSize {
+		return se.minSize
+	}
+	return maxIdxSize
 }
 
 // MaxIndex returns the highest index of the enum values of the [SignalEnum].
 func (se *SignalEnum) MaxIndex() int {
 	return se.maxIndex
+}
+
+// SetMinSize sets the minimum size in bit of the [SignalEnum].
+// By defaul it is set to 1.
+func (se *SignalEnum) SetMinSize(minSize int) {
+	se.minSize = minSize
+}
+
+// MinSize return the minimum size of the [SignalEnum] in bits.
+func (se *SignalEnum) MinSize() int {
+	return se.minSize
 }
 
 // SignalEnumValue holds the key (name) and the value (index) of a signal enum

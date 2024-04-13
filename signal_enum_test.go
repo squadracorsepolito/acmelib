@@ -6,6 +6,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Test_SignalEnum(t *testing.T) {
+	assert := assert.New(t)
+
+	enum := NewSignalEnum("sig_enum")
+	assert.Equal("sig_enum", enum.Name())
+
+	enum.SetMinSize(8)
+	assert.Equal(8, enum.GetSize())
+}
+
 func Test_SignalEnum_AddValue(t *testing.T) {
 	assert := assert.New(t)
 
