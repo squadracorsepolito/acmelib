@@ -11,13 +11,30 @@ import (
 type Parser struct {
 	s *scanner
 
-	usePrev bool
-	curr    *token
+	usePrev   bool
+	currToken *token
+
+	filename string
 
 	foundVer    bool
 	foundNewSym bool
 	foundBitTim bool
 	foundNode   bool
+}
+
+func NewParser(filename string, file []byte) *Parser {
+	return &Parser{
+		s: newScanner(bytes.NewReader(file), string(file)),
+
+		usePrev: false,
+
+		filename: filename,
+
+		foundVer:    false,
+		foundNewSym: false,
+		foundBitTim: false,
+		foundNode:   false,
+	}
 }
 
 func (p *Parser) parseUint(val string) (uint32, error) {
@@ -51,30 +68,17 @@ func (p *Parser) parseDouble(val string) (float64, error) {
 	return strconv.ParseFloat(val, 64)
 }
 
-func NewParser(file []byte) *Parser {
-	return &Parser{
-		s: newScanner(bytes.NewReader(file), string(file)),
-
-		usePrev: false,
-
-		foundVer:    false,
-		foundNewSym: false,
-		foundBitTim: false,
-		foundNode:   false,
-	}
-}
-
 func (p *Parser) scan() *token {
 	if p.usePrev {
 		p.usePrev = false
-		return p.curr
+		return p.currToken
 	}
 
 	token := p.s.scan()
 	if token.isSpace() {
 		token = p.s.scan()
 	}
-	p.curr = token
+	p.currToken = token
 
 	return token
 }
@@ -83,25 +87,30 @@ func (p *Parser) unscan() {
 	p.usePrev = true
 }
 
-func (p *Parser) errorf(msg string) error {
-	return fmt.Errorf(`%s; got "%s" at line %d, column %d`, msg, p.curr.value, p.curr.line, p.curr.col)
+func (p *Parser) errorf(format string, args ...any) error {
+	msg := fmt.Sprintf(format, args...)
+	val := p.currToken.value
+	if !p.currToken.isError() {
+		val = `"` + val + `"`
+	}
+	return fmt.Errorf(`syntax error at %s:%d:%d; %s: %s`, p.filename, p.currToken.line, p.currToken.col, msg, val)
 }
 
-func (p *Parser) expectSyntax(kind syntaxKind) error {
-	if !p.scan().isSyntax(kind) {
-		return p.errorf(fmt.Sprintf("expected %q", getSyntaxRune(kind)))
+func (p *Parser) expectPunct(kind punctKind) error {
+	if !p.scan().isPunct(kind) {
+		return p.errorf(fmt.Sprintf(`expected "%q"`, getPunctRune(kind)))
 	}
 	return nil
 }
 
-func (p *Parser) Parse() (*DBC, error) {
-	ast := new(DBC)
+func (p *Parser) Parse() (*File, error) {
+	ast := new(File)
 	t := p.scan()
 
 	for !t.isEOF() {
 		switch t.kind {
 		case tokenError:
-			return nil, p.errorf("syntax error")
+			return nil, p.errorf("unexpected token")
 
 		case tokenKeyword:
 			keywordKind := getKeywordKind(t.value)
@@ -268,7 +277,7 @@ func (p *Parser) parseNewSymbols() (*NewSymbols, error) {
 
 	ns := new(NewSymbols)
 
-	if err := p.expectSyntax(syntaxColon); err != nil {
+	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
 	}
 
@@ -307,7 +316,7 @@ func (p *Parser) parseBitTiming() (*BitTiming, error) {
 
 	bt := new(BitTiming)
 
-	if err := p.expectSyntax(syntaxColon); err != nil {
+	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
 	}
 
@@ -325,7 +334,7 @@ func (p *Parser) parseBitTiming() (*BitTiming, error) {
 	}
 	bt.Baudrate = baudrate
 
-	if err := p.expectSyntax(syntaxColon); err != nil {
+	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
 	}
 
@@ -339,7 +348,7 @@ func (p *Parser) parseBitTiming() (*BitTiming, error) {
 	}
 	bt.BitTimingReg1 = btr1
 
-	if err := p.expectSyntax(syntaxComma); err != nil {
+	if err := p.expectPunct(punctComma); err != nil {
 		return nil, err
 	}
 
@@ -372,7 +381,7 @@ func (p *Parser) parseNodes() (*Nodes, error) {
 
 	node := new(Nodes)
 
-	if err := p.expectSyntax(syntaxColon); err != nil {
+	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
 	}
 
@@ -436,7 +445,7 @@ func (p *Parser) parseValueTable() (*ValueTable, error) {
 		vt.Values = append(vt.Values, vd)
 	}
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 
@@ -470,7 +479,7 @@ func (p *Parser) parseMessage() (*Message, error) {
 	}
 	msg.Name = t.value
 
-	if err := p.expectSyntax(syntaxColon); err != nil {
+	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
 	}
 
@@ -545,7 +554,7 @@ func (p *Parser) parseSignal() (*Signal, error) {
 		p.unscan()
 	}
 
-	if err := p.expectSyntax(syntaxColon); err != nil {
+	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
 	}
 
@@ -559,7 +568,7 @@ func (p *Parser) parseSignal() (*Signal, error) {
 	}
 	sig.StartBit = startBit
 
-	if err := p.expectSyntax(syntaxPipe); err != nil {
+	if err := p.expectPunct(punctPipe); err != nil {
 		return nil, err
 	}
 
@@ -573,7 +582,7 @@ func (p *Parser) parseSignal() (*Signal, error) {
 	}
 	sig.Size = size
 
-	if err := p.expectSyntax(syntaxAt); err != nil {
+	if err := p.expectPunct(punctAt); err != nil {
 		return nil, err
 	}
 
@@ -594,8 +603,8 @@ func (p *Parser) parseSignal() (*Signal, error) {
 	}
 
 	t = p.scan()
-	syntKind := getSyntaxKind(t.value)
-	if t.kind != tokenSyntax || (syntKind != syntaxPlus && syntKind != syntaxMinus) {
+	syntKind := getPunctKind(t.value)
+	if t.kind != tokenPunct || (syntKind != punctPlus && syntKind != punctMinus) {
 		return nil, p.errorf(`expected "+" or "-"`)
 	}
 	if t.value == "+" {
@@ -604,7 +613,7 @@ func (p *Parser) parseSignal() (*Signal, error) {
 		sig.ValueType = SignalSigned
 	}
 
-	if err := p.expectSyntax(syntaxLeftParen); err != nil {
+	if err := p.expectPunct(punctLeftParen); err != nil {
 		return nil, err
 	}
 
@@ -618,7 +627,7 @@ func (p *Parser) parseSignal() (*Signal, error) {
 	}
 	sig.Factor = factor
 
-	if err := p.expectSyntax(syntaxComma); err != nil {
+	if err := p.expectPunct(punctComma); err != nil {
 		return nil, err
 	}
 
@@ -632,11 +641,11 @@ func (p *Parser) parseSignal() (*Signal, error) {
 	}
 	sig.Offset = offset
 
-	if err := p.expectSyntax(syntaxRightParen); err != nil {
+	if err := p.expectPunct(punctRightParen); err != nil {
 		return nil, err
 	}
 
-	if err := p.expectSyntax(syntaxLeftSquareBrace); err != nil {
+	if err := p.expectPunct(punctLeftSquareBrace); err != nil {
 		return nil, err
 	}
 
@@ -650,7 +659,7 @@ func (p *Parser) parseSignal() (*Signal, error) {
 	}
 	sig.Min = min
 
-	if err := p.expectSyntax(syntaxPipe); err != nil {
+	if err := p.expectPunct(punctPipe); err != nil {
 		return nil, err
 	}
 
@@ -664,7 +673,7 @@ func (p *Parser) parseSignal() (*Signal, error) {
 	}
 	sig.Max = max
 
-	if err := p.expectSyntax(syntaxRightSquareBrace); err != nil {
+	if err := p.expectPunct(punctRightSquareBrace); err != nil {
 		return nil, err
 	}
 
@@ -680,7 +689,7 @@ func (p *Parser) parseSignal() (*Signal, error) {
 	}
 	sig.Receivers = append(sig.Receivers, t.value)
 	for {
-		if !p.scan().isSyntax(syntaxComma) {
+		if !p.scan().isPunct(punctComma) {
 			p.unscan()
 			break
 		}
@@ -717,7 +726,7 @@ func (p *Parser) parseMessageTransmitter() (*MessageTransmitter, error) {
 		mt.Transmitters = append(mt.Transmitters, node)
 	}
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 
@@ -741,7 +750,7 @@ func (p *Parser) parseEnvVar() (*EnvVar, error) {
 	}
 	envVar.Name = t.value
 
-	if err := p.expectSyntax(syntaxColon); err != nil {
+	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
 	}
 
@@ -763,7 +772,7 @@ func (p *Parser) parseEnvVar() (*EnvVar, error) {
 		return nil, p.errorf("envvar type must be 0, 1 or 2")
 	}
 
-	if err := p.expectSyntax(syntaxLeftSquareBrace); err != nil {
+	if err := p.expectPunct(punctLeftSquareBrace); err != nil {
 		return nil, err
 	}
 
@@ -777,7 +786,7 @@ func (p *Parser) parseEnvVar() (*EnvVar, error) {
 	}
 	envVar.Min = min
 
-	if err := p.expectSyntax(syntaxPipe); err != nil {
+	if err := p.expectPunct(punctPipe); err != nil {
 		return nil, err
 	}
 
@@ -791,7 +800,7 @@ func (p *Parser) parseEnvVar() (*EnvVar, error) {
 	}
 	envVar.Max = max
 
-	if err := p.expectSyntax(syntaxLeftSquareBrace); err != nil {
+	if err := p.expectPunct(punctLeftSquareBrace); err != nil {
 		return nil, err
 	}
 
@@ -839,7 +848,7 @@ func (p *Parser) parseEnvVar() (*EnvVar, error) {
 
 	for {
 		t = p.scan()
-		if !t.isSyntax(syntaxComma) {
+		if !t.isPunct(punctComma) {
 			p.unscan()
 			break
 		}
@@ -851,7 +860,7 @@ func (p *Parser) parseEnvVar() (*EnvVar, error) {
 		envVar.AccessNodes = append(envVar.AccessNodes, nodeName)
 	}
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 
@@ -867,7 +876,7 @@ func (p *Parser) parseEnvVarData() (*EnvVarData, error) {
 	}
 	evData.EnvVarName = evName
 
-	if err := p.expectSyntax(syntaxColon); err != nil {
+	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
 	}
 
@@ -881,7 +890,7 @@ func (p *Parser) parseEnvVarData() (*EnvVarData, error) {
 	}
 	evData.DataSize = dataSize
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 
@@ -902,7 +911,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 		}
 		sigType.TypeName = t.value
 
-		if err := p.expectSyntax(syntaxColon); err != nil {
+		if err := p.expectPunct(punctColon); err != nil {
 			return nil, nil, err
 		}
 
@@ -911,7 +920,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 			return nil, nil, p.errorf("expected signal start bit")
 		}
 
-		if err := p.expectSyntax(syntaxPipe); err != nil {
+		if err := p.expectPunct(punctPipe); err != nil {
 			return nil, nil, err
 		}
 
@@ -925,7 +934,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 		}
 		sigType.Size = size
 
-		if err := p.expectSyntax(syntaxAt); err != nil {
+		if err := p.expectPunct(punctAt); err != nil {
 			return nil, nil, err
 		}
 
@@ -946,8 +955,8 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 		}
 
 		t = p.scan()
-		syntKind := getSyntaxKind(t.value)
-		if t.kind != tokenSyntax || (syntKind != syntaxPlus && syntKind != syntaxMinus) {
+		syntKind := getPunctKind(t.value)
+		if t.kind != tokenPunct || (syntKind != punctPlus && syntKind != punctMinus) {
 			return nil, nil, p.errorf(`expected "+" or "-"`)
 		}
 		if t.value == "+" {
@@ -956,7 +965,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 			sigType.ValueType = SignalSigned
 		}
 
-		if err := p.expectSyntax(syntaxLeftParen); err != nil {
+		if err := p.expectPunct(punctLeftParen); err != nil {
 			return nil, nil, err
 		}
 
@@ -970,7 +979,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 		}
 		sigType.Factor = factor
 
-		if err := p.expectSyntax(syntaxComma); err != nil {
+		if err := p.expectPunct(punctComma); err != nil {
 			return nil, nil, err
 		}
 
@@ -984,11 +993,11 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 		}
 		sigType.Offset = offset
 
-		if err := p.expectSyntax(syntaxRightParen); err != nil {
+		if err := p.expectPunct(punctRightParen); err != nil {
 			return nil, nil, err
 		}
 
-		if err := p.expectSyntax(syntaxLeftSquareBrace); err != nil {
+		if err := p.expectPunct(punctLeftSquareBrace); err != nil {
 			return nil, nil, err
 		}
 
@@ -1002,7 +1011,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 		}
 		sigType.Min = min
 
-		if err := p.expectSyntax(syntaxPipe); err != nil {
+		if err := p.expectPunct(punctPipe); err != nil {
 			return nil, nil, err
 		}
 
@@ -1016,7 +1025,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 		}
 		sigType.Max = max
 
-		if err := p.expectSyntax(syntaxRightSquareBrace); err != nil {
+		if err := p.expectPunct(punctRightSquareBrace); err != nil {
 			return nil, nil, err
 		}
 
@@ -1036,7 +1045,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 		}
 		sigType.DefaultValue = defVal
 
-		if err := p.expectSyntax(syntaxComma); err != nil {
+		if err := p.expectPunct(punctComma); err != nil {
 			return nil, nil, err
 		}
 
@@ -1046,7 +1055,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 		}
 		sigType.ValueTableName = t.value
 
-		if err := p.expectSyntax(syntaxSemicolon); err != nil {
+		if err := p.expectPunct(punctSemicolon); err != nil {
 			return nil, nil, err
 		}
 
@@ -1069,7 +1078,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 		}
 		sigType.TypeName = t.value
 
-		if err := p.expectSyntax(syntaxSemicolon); err != nil {
+		if err := p.expectPunct(punctSemicolon); err != nil {
 			return nil, nil, err
 		}
 
@@ -1145,7 +1154,7 @@ func (p *Parser) parseComment() (*Comment, error) {
 	}
 	com.Text = t.value
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 
@@ -1284,7 +1293,7 @@ func (p *Parser) parseAttribute() (*Attribute, error) {
 		}
 		att.EnumValues = append(att.EnumValues, t.value)
 		for {
-			if !p.scan().isSyntax(syntaxComma) {
+			if !p.scan().isPunct(punctComma) {
 				p.unscan()
 				break
 			}
@@ -1299,7 +1308,7 @@ func (p *Parser) parseAttribute() (*Attribute, error) {
 		return nil, p.errorf("expected attribute type keyword to be INT, HEX, FLOAT, STRING or ENUM")
 	}
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 
@@ -1350,7 +1359,7 @@ func (p *Parser) parseAttributeDefault() (*AttributeDefault, error) {
 		return nil, p.errorf("expected attribute default value")
 	}
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 
@@ -1454,7 +1463,7 @@ func (p *Parser) parseAttributeValue() (*AttributeValue, error) {
 		return nil, p.errorf("expected attribute value")
 	}
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 
@@ -1507,7 +1516,7 @@ func (p *Parser) parseValueEncoding() (*ValueEncoding, error) {
 		valEnc.Values = append(valEnc.Values, vd)
 	}
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 
@@ -1539,7 +1548,7 @@ func (p *Parser) parseSignalGroup() (*SignalGroup, error) {
 	}
 	sigGroup.Repetitions = r
 
-	if err := p.expectSyntax(syntaxColon); err != nil {
+	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
 	}
 
@@ -1551,7 +1560,7 @@ func (p *Parser) parseSignalGroup() (*SignalGroup, error) {
 		sigGroup.SignalNames = append(sigGroup.SignalNames, t.value)
 	}
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 
@@ -1592,7 +1601,7 @@ func (p *Parser) parseSignalExtValueType() (*SignalExtValueType, error) {
 		return nil, p.errorf("signal extended value type must be 0, 1 or 2")
 	}
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 
@@ -1650,7 +1659,7 @@ func (p *Parser) parseExtendedMux() (*ExtendedMux, error) {
 
 	for {
 		t = p.scan()
-		if !t.isSyntax(syntaxComma) {
+		if !t.isPunct(punctComma) {
 			p.unscan()
 			break
 		}
@@ -1662,7 +1671,7 @@ func (p *Parser) parseExtendedMux() (*ExtendedMux, error) {
 		extMux.Ranges = append(extMux.Ranges, r)
 	}
 
-	if err := p.expectSyntax(syntaxSemicolon); err != nil {
+	if err := p.expectPunct(punctSemicolon); err != nil {
 		return nil, err
 	}
 

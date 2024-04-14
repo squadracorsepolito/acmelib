@@ -4,7 +4,15 @@ func GetNewSymbols() []string {
 	return newSymbolsValues
 }
 
-type DBC struct {
+type Location struct {
+	Filename string
+	Line     int
+	Pos      int
+}
+
+type File struct {
+	Location *Location
+
 	Version             string
 	NewSymbols          *NewSymbols
 	BitTiming           *BitTiming
@@ -27,25 +35,35 @@ type DBC struct {
 }
 
 type NewSymbols struct {
+	Location *Location
+
 	Symbols []string
 }
 
 type BitTiming struct {
+	Location *Location
+
 	Baudrate      uint32
 	BitTimingReg1 uint32
 	BitTimingReg2 uint32
 }
 
 type Nodes struct {
+	Location *Location
+
 	Names []string
 }
 
 type ValueTable struct {
+	Location *Location
+
 	Name   string
 	Values []*ValueDescription
 }
 
 type ValueDescription struct {
+	Location *Location
+
 	ID   uint32
 	Name string
 }
@@ -58,6 +76,8 @@ const (
 )
 
 type ValueEncoding struct {
+	Location *Location
+
 	Kind       ValueEncodingKind
 	MessageID  uint32
 	SignalName string
@@ -66,6 +86,8 @@ type ValueEncoding struct {
 }
 
 type Message struct {
+	Location *Location
+
 	ID          uint32
 	Name        string
 	Size        uint32
@@ -88,6 +110,8 @@ const (
 )
 
 type Signal struct {
+	Location *Location
+
 	Name           string
 	IsMultiplexor  bool
 	IsMultiplexed  bool
@@ -113,12 +137,16 @@ const (
 )
 
 type SignalExtValueType struct {
+	Location *Location
+
 	MessageID    uint32
 	SignalName   string
 	ExtValueType SignalExtValueTypeType
 }
 
 type MessageTransmitter struct {
+	Location *Location
+
 	MessageID    uint32
 	Transmitters []string
 }
@@ -145,6 +173,8 @@ const (
 )
 
 type EnvVar struct {
+	Location *Location
+
 	Name         string
 	Type         EnvVarType
 	Min          float64
@@ -157,11 +187,15 @@ type EnvVar struct {
 }
 
 type EnvVarData struct {
+	Location *Location
+
 	EnvVarName string
 	DataSize   uint32
 }
 
 type SignalType struct {
+	Location *Location
+
 	TypeName       string
 	Size           uint32
 	ByteOrder      SignalByteOrder
@@ -176,12 +210,16 @@ type SignalType struct {
 }
 
 type SignalTypeRef struct {
+	Location *Location
+
 	TypeName   string
 	MessageID  uint32
 	SignalName string
 }
 
 type SignalGroup struct {
+	Location *Location
+
 	MessageID   uint32
 	GroupName   string
 	Repetitions uint32
@@ -199,6 +237,8 @@ const (
 )
 
 type Comment struct {
+	Location *Location
+
 	Kind       CommentKind
 	Text       string
 	NodeName   string
@@ -228,6 +268,8 @@ const (
 )
 
 type Attribute struct {
+	Location *Location
+
 	Kind       AttributeKind
 	Type       AttributeType
 	Name       string
@@ -250,6 +292,8 @@ const (
 )
 
 type AttributeDefault struct {
+	Location *Location
+
 	Type          AttributeDefaultType
 	AttributeName string
 	ValueString   string
@@ -268,6 +312,8 @@ const (
 )
 
 type AttributeValue struct {
+	Location *Location
+
 	AttributeKind AttributeKind
 	Type          AttributeValueType
 	AttributeName string
@@ -282,11 +328,15 @@ type AttributeValue struct {
 }
 
 type ExtendedMuxRange struct {
+	Location *Location
+
 	From uint32
 	To   uint32
 }
 
 type ExtendedMux struct {
+	Location *Location
+
 	MessageID       uint32
 	MultiplexorName string
 	MultiplexedName string

@@ -19,8 +19,8 @@ go get -u github.com/FerroO2000/acmelib
 
 ## TODOs
 
-- Adding examples
 - Linking the Network model with the dbc parser
-- Adding templates for messages, signals, signal enums, and signal types
+- Improving dbc parser
+- Adding examples
 - Adding JSON/Yaml and Protobuf parsing of the model
 - Improving test coverage

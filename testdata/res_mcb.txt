@@ -1,0 +1,2221 @@
+entity_id: Kmi9zn1r6axTQyLDSAUpY
+name: test_network
+create_time: 2024-04-14T19:32:36+02:00
+buses:
+	entity_id: m4E_BpKKPyqDYeYHVhQoF
+	name: dbc bus
+	create_time: 2024-04-14T19:32:36+02:00
+	baudrate: 0
+	nodes:
+		entity_id: dtCYP1Nkge3Ht0zxOGB6w
+		name: sens_rear
+		create_time: 2024-04-14T19:32:36+02:00
+		node_id: 0
+		messages:
+			entity_id: 6yZACbB8HxBsuxz6XhJnD
+			name: Sens_Rear_1
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 17; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 6 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: yTco4BY46Kakv72kjdOG2
+				name: Pot_RL_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: aPIULxokhHRmIPnRtcIE_
+					name: Pot_RL_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: 3E8kj0n6y265YuPhJmTSr
+				name: Pot_RR_Voltage_RR
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: zzV7cb-12ePFIXzgLCq7J
+					name: Pot_RR_Voltage_RR_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: gRn7LwM0ealWyhyxE3tYf
+				name: BrakePressure_Rear_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 32; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: HJQtUA7YAw43h1ug9HaoQ
+					name: BrakePressure_Rear_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+
+			entity_id: ELsdZX6mBmbrtF6c_pGVw
+			name: Sens_Rear_ShutdownStatus
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 48; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 1 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: hEL9jUegSuRBUI9xp9skm
+				name: isShutClosed_postBSPD
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: 8Q0RQLDKEamYLumZndhbP
+					name: isShutClosed_postBSPD_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+				entity_id: f4hxIZ2aoP5CYb94vnX9i
+				name: isShutClosed_preFunghi
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 1; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: Qel6uxW5u_XF0K9WELf9y
+					name: isShutClosed_preFunghi_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+				entity_id: ViuGq2nA6pFcloUTLJKu1
+				name: isShutClosed_postInvMono
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 2; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: gDefuFWcPShvSz0IGfgdT
+					name: isShutClosed_postInvMono_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+				entity_id: 9msc0-rscPGIo1ySrzd-C
+				name: isShutClosed_postInvFR
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 3; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: vRjC2y7lvBYAAes3BSXBo
+					name: isShutClosed_postInvFR_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+				entity_id: JvfXUsYH-bUT_UQrrRyaN
+				name: isBSPDinError
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 4; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: 6GfZjc8Z2v7O7amd6S69q
+					name: isBSPDinError_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+
+			entity_id: tzocVXPozGmHEAeRM9lZA
+			name: Sens_Rear_3
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 289; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: JR5dh_INA7i_ULKEm44sL
+				name: Straingauge_PushRR_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: WrBQRHYKfRQiuEp5MjE4J
+					name: Straingauge_PushRR_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: Yb3zCAh_Id0d34j5_S2Ej
+				name: Straingauge_TieRR_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: eqx5XiWUicLeGfDVemeli
+					name: Straingauge_TieRR_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: p6zhcNGjMrqHfxS4EaRBX
+				name: Straingauge_PushRL_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 32; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: tsgesNu90Sx1em9A4i_bB
+					name: Straingauge_PushRL_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: f58WjOwsL43i5-cWpWbPA
+				name: Straingauge_TieRL_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 48; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: qpeYfvnRX5fzoyRxLIa4Y
+					name: Straingauge_TieRL_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+
+			entity_id: BTrCcByyivVlbg_845ZyV
+			name: Sens_Rear_NTC
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 1025; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: R4laNR1_Aso0RIH3BTj21
+				name: NTC_1_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: n44DaWReqGq9pnHmIcw8_
+					name: NTC_1_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: QsIQGnEZNGa_8vg1YMxeR
+					name: NTC_1_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: YhS4T_EDlZi6Vufc9dQlc
+				name: NTC_2_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 10; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: 3Btf-vnyLgwU7mLSFl3Ev
+					name: NTC_2_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: Xucy0U9WWesuDT7sxNyXc
+					name: NTC_2_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: 0xgqXc8haxZzzYYjlVLgz
+				name: NTC_3_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 20; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: u3LDA0XVnOBPcgAQ8m4EM
+					name: NTC_3_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: dxGn46frAumwdJTd8ohNJ
+					name: NTC_3_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: Zabn6l8C43dV1f_3q_Q7y
+				name: NTC_4_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 30; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: pJOgrLRoWfXn5TK-3U4P1
+					name: NTC_4_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: tkUanKTS169OmjfQ1_ex-
+					name: NTC_4_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: aoWxbjoPhbivGYsIv77Wf
+				name: NTC_5_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 40; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: f305VSLatzSOM3bGMDvSz
+					name: NTC_5_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: 7GarQKAhKZf9TVpnZU-Mt
+					name: NTC_5_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: 7U7USygnErQlJY65CwP3S
+				name: NTC_6_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 50; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: LMvAd4K3Ya7wN97aNI81R
+					name: NTC_6_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: e_zcl6YajZiHxL-lIe0Ej
+					name: NTC_6_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+
+			entity_id: qWbtP0fq0IIY3qtbHvnfP
+			name: Sens_Rear_2
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 1026; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 4 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: jn8XgmKdn-cM8zIcHihMM
+				name: CoolingPressure_DX_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: Ym8k7PZIpqHNDwPm-E9bo
+					name: CoolingPressure_DX_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: -76UEaTGfg4e4QBGlKBK4
+				name: CoolingPressure_SX_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: b_FG9QIHfWeuihiA4lHL9
+					name: CoolingPressure_SX_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+
+
+		entity_id: pXrAfuhx0BroIAoOAloaK
+		name: tlb_bat
+		create_time: 2024-04-14T19:32:36+02:00
+		node_id: 1
+		messages:
+			entity_id: fAs59WSg9jjxd0XJMTd_S
+			name: TLB_Battery_ShutStatus
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 18; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 3 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: Y9Z6-GznnL_SYaoKTX9Wk
+				name: isShutClosed_preAMS_IMD_Latch
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: vfe_9U6DE5kmcWO-BtDvW
+					name: isShutClosed_preAMS_IMD_Latch_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: 1pQZN9YFdvwh0QLhvmnKV
+				name: isShutClosed_postAMSLatch
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 1; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: oYVBch6qLSHdcwGbG1djQ
+					name: isShutClosed_postAMSLatch_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: 4zWQxKS_ovLtpdJiTOxgb
+				name: isShutClosed_postIMDLatch
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 2; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: T_wFEs0Pxtq603cjAP5cO
+					name: isShutClosed_postIMDLatch_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: fy5BgoIv-ZAQ9bVJaQN5w
+				name: isShutdownClosed_preTLBBattFinal
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 3; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: w4lo4R9ZyV05OC_14qkUY
+					name: isShutdownClosed_preTLBBattFinal_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: WSNMCUefHXLcgYkjD4BtD
+				name: isAMSErrorLatched
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 4; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: I8tlkqynVGPzTxSB4BrmT
+					name: isAMSErrorLatched_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: 5wqwyx8F_Zy72FFFBYFp1
+				name: isIMDErrorLatched
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 5; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: vcapMsckuPS9lmIirDiQE
+					name: isIMDErrorLatched_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: Y7Bfbx124sntWvXyNOZNm
+				name: isSdPrchRlyClosed
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 6; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: tfkf9L1Do48ZFEjHhMfds
+					name: isSdPrchRlyClosed_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: jsEQfpMwgIFIqDrnDu7k9
+				name: ShutdownADC_postSDPrechargeRelay
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 8; size: 8
+				min: 0; max: 255; offset: 0; scale: 0.117
+				type:
+					entity_id: 1LATbbTkuxPGGHnFo-ccB
+					name: ShutdownADC_postSDPrechargeRelay_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 8; min: 0; max: 255; signed: false
+				unit:
+					entity_id: VE4zpFBHAzn5MFJVWEUqK
+					name: ShutdownADC_postSDPrechargeRelay_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: V
+
+				entity_id: skPFk0Z0ZCBFabo4gpQRn
+				name: ShutdownADC_AIRsOpeningDelayCaps
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 8
+				min: 0; max: 255; offset: 0; scale: 0.117
+				type:
+					entity_id: LBRgHgsdo_ItRTbYp4t6k
+					name: ShutdownADC_AIRsOpeningDelayCaps_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 8; min: 0; max: 255; signed: false
+				unit:
+					entity_id: 56JPqRrEmikN5AobbSEQ8
+					name: ShutdownADC_AIRsOpeningDelayCaps_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: V
+
+
+			entity_id: 8u_ts3uBVKoTdkZ-LvzDS
+			name: TLB_Battery_TSALStatus
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 19; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 3 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: lV6d8kjiLuILGk504wbtQ
+				name: TSAL_isGreenON
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: df6oyEQrrVwLUNTAfFOFL
+					name: TSAL_isGreenON_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: tqLehEodOw2b5VA0fv15O
+				name: TSAL_isAIRPosClosed
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 1; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: obf57QIjEQfJXaOGzWgOe
+					name: TSAL_isAIRPosClosed_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: e8OAQPBlkAtb8Nr8L_21e
+				name: TSAL_IsAIRNegClosed
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 2; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: p1JTOpozCgg-JmemJAcrl
+					name: TSAL_IsAIRNegClosed_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: Owqi5Vx_Nz5tv_Abh3uhE
+				name: TSAL_IsRelayPrechargeClosed
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 3; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: ISqPHuuSlBX6mkpKIsbYl
+					name: TSAL_IsRelayPrechargeClosed_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: NZuJUnR3Y5MjT9tCUwOXs
+				name: TSAL_isDCBusOver60V
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 4; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: QpBsvkWULuDxcvViHLtlU
+					name: TSAL_isDCBusOver60V_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: 4W-PNHmB8ElLX60TTo-s4
+				name: IntentionalState_AIRPos
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 5; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: mVOtJQz4xKkktUh_Hdvfr
+					name: IntentionalState_AIRPos_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: 9uDpb8U-tuwUYzEpfOxcI
+				name: IntentionalState_AIRNeg
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 6; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: 1BQdZCPgcFctV6kAt4Jxb
+					name: IntentionalState_AIRNeg_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: EqbIw5a2wNXMckiNF_DmI
+				name: IntentionalState_RelayPrecharge
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 7; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: SS9uUAdKeP3T5l2OT0arq
+					name: IntentionalState_RelayPrecharge_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: McNA_RBuKXhB_0-2DRi8n
+				name: SCS_Short2GND_AirPos
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 8; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: TZugFrsQpK_VMiL-rELER
+					name: SCS_Short2GND_AirPos_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: VmTnUXWO_UgKXmAejdF4a
+				name: SCS_Short2GND_AirNeg
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 9; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: hlKmAOwxxk8Y9JwIIKBQa
+					name: SCS_Short2GND_AirNeg_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: 5xCToSt3uqdG0ZDOBhDiW
+				name: SCS_isAnyShort2GND_Present
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 10; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: GIVcdAwLULRxlWESO5ftY
+					name: SCS_isAnyShort2GND_Present_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: BVezuVrEy5ouZ0opRttS6
+				name: Imp_isAnyImp_Present
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 11; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: mWDcYS_qXuGlykKoUjQou
+					name: Imp_isAnyImp_Present_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: lrETlZdHU-5Pq0AExbRJg
+				name: Imp_isAIRPosImp_Present
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 12; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: -kY3IOMgD0NkTvofLnoOn
+					name: Imp_isAIRPosImp_Present_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: OGzkpMbCtt7bnpgUTSvCh
+				name: Imp_isAIRNegImp_Present
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 13; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: WMCYJBQ1krT7G3JT_2u-V
+					name: Imp_isAIRNegImp_Present_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: Ugl-vjAohCc-RMr8nY-gR
+				name: Imp_isRelayPrechargeImp_Present
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 14; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: qjTMZXGWhPlzmMTgJUlIa
+					name: Imp_isRelayPrechargeImp_Present_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: 4yZWAmg9QVfhetE-rEZyN
+				name: Imp_isDCBusVoltageImp_Present
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 15; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: gFKCB8tr93Z6w_ANq9m0o
+					name: Imp_isDCBusVoltageImp_Present_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: eTTFwXNcU2VlcHNBNtnFG
+				name: Imp_isAnyImp_Latched
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: mhov1lb0OVVkeE7pshXwg
+					name: Imp_isAnyImp_Latched_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+
+
+		entity_id: vAWFPB3u1oTI7vE7WZw8h
+		name: bms_lv
+		create_time: 2024-04-14T19:32:36+02:00
+		node_id: 2
+		messages:
+			entity_id: -Xl2twHPG01ZpSC27sEjN
+			name: BMSLV_Helo
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 20; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: UOkmfOyGu0JGnqRBYlIbJ
+				name: time
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 64
+				min: 0; max: 1.8446744073709552e+19; offset: 0; scale: 1
+				type:
+					entity_id: vRuTYIEQYA-Jk2NQgqlx5
+					name: time_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 64; min: 0; max: 1.8446744073709552e+19; signed: false
+
+
+			entity_id: R4PYWtx4jf2wNHEYcQUGB
+			name: Sens_Front_Helo
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 21; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: Xc8rejpyewAhMo6tXRcMj
+				name: time
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 64
+				min: 0; max: 1.8446744073709552e+19; offset: 0; scale: 1
+				type:
+					entity_id: sc-BMQ-OZt53sESSm7wpP
+					name: time_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 64; min: 0; max: 1.8446744073709552e+19; signed: false
+
+
+			entity_id: L7Dd-oF0wm_URv32Rv9ls
+			name: Sens_Rear_Helo
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 22; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: LVNWxinV6uvN1lo40XeIJ
+				name: time
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 64
+				min: 0; max: 1.8446744073709552e+19; offset: 0; scale: 1
+				type:
+					entity_id: D-rz23Rx9m_NCfwKlLEdk
+					name: time_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 64; min: 0; max: 1.8446744073709552e+19; signed: false
+
+
+			entity_id: bv2-DzqY-uswiXeRRyTbb
+			name: Steering_Helo
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 23; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: VPkz4pJs1xs_ZifHJ65n1
+				name: time
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 64
+				min: 0; max: 1.8446744073709552e+19; offset: 0; scale: 1
+				type:
+					entity_id: NjypcNlqwvBqMKL_qa3di
+					name: time_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 64; min: 0; max: 1.8446744073709552e+19; signed: false
+
+
+			entity_id: CRM9ULUgGHd5T2QCnxvMk
+			name: TLB_Battery_Helo
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 24; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: a-gM6R_ftRA2QltzOQYYi
+				name: time
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 64
+				min: 0; max: 1.8446744073709552e+19; offset: 0; scale: 1
+				type:
+					entity_id: k8k_vCO7BuAtuSPMEt4r9
+					name: time_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 64; min: 0; max: 1.8446744073709552e+19; signed: false
+
+
+			entity_id: TutNLYeJzoQtU14nIXTns
+			name: dSpaxe_Helo
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 25; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: 51Q8GTSROmfV7sRyQI7eY
+				name: time
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 64
+				min: 0; max: 1.8446744073709552e+19; offset: 0; scale: 1
+				type:
+					entity_id: xbAkJpgGbrv3FY46m6z3f
+					name: time_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 64; min: 0; max: 1.8446744073709552e+19; signed: false
+
+
+			entity_id: 0s3InN2ewg3z2QRCYeFyB
+			name: BMSLV_CellVoltage1
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 256; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: _sm00HBm4uwwllMiiaBsA
+				name: Cell_1_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 16
+				min: 0; max: 2490.33; offset: 2000; scale: 0.038
+				type:
+					entity_id: EdDwGideJY1BMdhfErhvt
+					name: Cell_1_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 2490.33; signed: false
+
+				entity_id: oV9eFp7B8aq2-xbqQeO7h
+				name: Cell_2_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 16
+				min: 0; max: 2490.33; offset: 2000; scale: 0.038
+				type:
+					entity_id: 2BkzXSmj1UnbTSxXPb7xG
+					name: Cell_2_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 2490.33; signed: false
+
+				entity_id: A8CT-AFwNrwdvzZE-v5Uk
+				name: Cell_3_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 32; size: 16
+				min: 0; max: 2490.33; offset: 2000; scale: 0.038
+				type:
+					entity_id: MUAD7FKz57GOabuiJkj-s
+					name: Cell_3_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 2490.33; signed: false
+
+				entity_id: JQs6gpb6q6sMbF6Dd73nw
+				name: Cell_4_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 48; size: 16
+				min: 0; max: 2490.33; offset: 2000; scale: 0.038
+				type:
+					entity_id: aJC3C5yT5H92MzQIXXAEY
+					name: Cell_4_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 2490.33; signed: false
+
+
+			entity_id: cx9btzhjHhbWiZT4DZgGu
+			name: BMSLV_CellVoltage2
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 257; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 6 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: KFzsDq3JHi9xJbqagm0_s
+				name: Cell_5_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 16
+				min: 0; max: 2490.33; offset: 2000; scale: 0.038
+				type:
+					entity_id: --ITVw2cV8bMknxe_f0XF
+					name: Cell_5_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 2490.33; signed: false
+
+				entity_id: EbxEgZ_dbf4DlZk_a40rI
+				name: Cell_6_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 16
+				min: 0; max: 2490.33; offset: 2000; scale: 0.038
+				type:
+					entity_id: 5f814ETmNmIuegqzKaw0H
+					name: Cell_6_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 2490.33; signed: false
+
+				entity_id: lz4emcEEveFFv4PNBHCO7
+				name: Cell_7_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 32; size: 16
+				min: 0; max: 2490.33; offset: 2000; scale: 0.038
+				type:
+					entity_id: Slfp04wv7PV1gRmf4RZlu
+					name: Cell_7_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 2490.33; signed: false
+
+
+			entity_id: -IgKbboq4SlcqIy_vBbrK
+			name: BMSLV_BatteryPackGeneral
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 258; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 6 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: 74qHyJKGtLSG_0s03xPgW
+				name: Current_Sensor_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 16
+				min: 0; max: 4980.66; offset: 0; scale: 0.076
+				type:
+					entity_id: 19TvJeks2GUEIW7TYoSm8
+					name: Current_Sensor_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 4980.66; signed: false
+
+				entity_id: 4CqAEssB143kDP0kxGPO5
+				name: LV_Total_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 16
+				min: 0; max: 17497.845; offset: 14000; scale: 0.267
+				type:
+					entity_id: OPo2U9eCGSnLEUV-Eyzbg
+					name: LV_Total_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 17497.845; signed: false
+
+				entity_id: UH4v7dgEiJEB-0HTuiAs_
+				name: LV_Total_Voltage_Sum_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 32; size: 16
+				min: 0; max: 17497.845; offset: 14000; scale: 0.267
+				type:
+					entity_id: Ze_1FlVJ248-_-hszkj_R
+					name: LV_Total_Voltage_Sum_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 17497.845; signed: false
+
+
+			entity_id: xSpqIpgaVk2li0JM69T7S
+			name: BMSLV_Status
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 259; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 4 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: Hoo1RsU87Q-NrK3HjAPmd
+				name: isRelayOpen
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: H10yKIF0sMaG7je0Bp-bO
+					name: isRelayOpen_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: XLCaXCItQjDmbf2ckwQcR
+				name: cell1_OV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 1; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: 4PNdu2v72fCWmoS_5niiT
+					name: cell1_OV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: UkWtf7gF_vGKN4AqZTl4J
+				name: cell2_OV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 2; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: Ygs8HjYvk9WpIV_uCnbFF
+					name: cell2_OV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: W83Xi5WzU3L9hIhHeSWym
+				name: cell3_OV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 3; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: N4o9-GUp0xM2jTmdh2j-7
+					name: cell3_OV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: rmdOhXxv9_Srqte66C9Xe
+				name: cell4_OV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 4; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: dkLA798FeedfwrN_DHEXE
+					name: cell4_OV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: bqMjIz-MkADnQr93xq7y5
+				name: cell5_OV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 5; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: kSaMHdMFN10VID-aql0Tx
+					name: cell5_OV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: Lfb-VZfps7f06wS9LUcEG
+				name: cell6_OV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 6; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: 73loPqC16PvXSA8CHWz2x
+					name: cell6_OV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: QWSNMgte-Ps_P5mukKmE-
+				name: cell7_OV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 7; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: LMU00v9nG5694tCxCfPqt
+					name: cell7_OV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: ldvKBCdSwEpIs5s5ksrKC
+				name: cell1_UV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 8; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: iEnfu9A6JpOpLNiRYk2oR
+					name: cell1_UV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: ZdFe2tRUqeeOPwynFExFZ
+				name: cell2_UV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 9; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: L-p2MoIfODBqgScGeATqD
+					name: cell2_UV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: eJDJ32nGq9FEIyOJpmTJg
+				name: cell3_UV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 10; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: sRD7DusBwiNYuoYHRsTNV
+					name: cell3_UV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: NMydfVaXo5sTVH8PGFRb6
+				name: cell4_UV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 11; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: SB6PvLwRcqiKT0F2znuFd
+					name: cell4_UV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: 7EVA7xtLU4U7Cmjw2dWYt
+				name: cell5_UV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 12; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: aeXzlLctsviIuI6Bo_HZ0
+					name: cell5_UV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: upmFUQv-TxClF0geg0w1t
+				name: cell6_UV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 13; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: 98_D1-_AcksuUZgMTHFhd
+					name: cell6_UV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: KU6DQxgluwiIB47w3nd-2
+				name: cell7_UV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 14; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: mBwF8BQL6_yXfP_9efp4-
+					name: cell7_UV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: 4jMK1AqjQdpo-05cHqyMO
+				name: temp1_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 15; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: AZQpBYEjmdrtvumxE42ec
+					name: temp1_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: mcadhLCGnGooRZDui7x0C
+				name: temp2_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: zIa3kbq3tirZAaxwrWn4p
+					name: temp2_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: J-o-YeX1zjwupTSY13u7f
+				name: temp3_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 17; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: FhKxp78_nZLKGjGQ3NvSb
+					name: temp3_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: 2JistJswlPKgHW8XHyESl
+				name: temp4_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 18; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: BHSnbgeC3fGfSaEjw0Beg
+					name: temp4_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: GqyGOQcO-Npg7cPG1s8Qo
+				name: temp5_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 19; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: 71Pf1Ktc-oeLZnkgyqUob
+					name: temp5_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: B_G6PSnuFMVUPhwIBGjnn
+				name: temp6_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 20; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: ImXbHr3MqGOCky_c1UJQU
+					name: temp6_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: STGL_ffxRNOJN1TBL8Wk2
+				name: temp7_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 21; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: sbNyFJ19LrhhoVBlMDiNF
+					name: temp7_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: 7HsKBNJdnf_M6_ixKekrR
+				name: temp8_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 22; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: 1NOoKda-9M_AHoGZy4SNC
+					name: temp8_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: BVTPD05ZKXf7TR1k4Olzp
+				name: temp9_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 23; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: 56iG7uGB1I9SSpeMCF78w
+					name: temp9_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: azP4LS142z1I7W7Qr9xAU
+				name: temp10_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 24; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: nUzWwIJ1WfKGxLdYpQwnS
+					name: temp10_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: rX4C6DxoOcqIHnaShYB-W
+				name: temp11_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 25; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: RGRGiLPYWnJrEtwBwjCD1
+					name: temp11_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+				entity_id: UoMkTty3EpHwyybX7MiJd
+				name: temp12_OT
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 26; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: vr27fKWmPHhghaAL3JXt4
+					name: temp12_OT_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+
+			entity_id: 22kEgjRmRCjil3HifDCqQ
+			name: BMSLV_Temp1
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 260; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: Sfwfo-9VqZ0fcpxjBVJ4y
+				name: NTC1_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 1; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: AkaB28eCMihfvjTE_zasP
+					name: NTC1_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: Mq-d8Y3GNtWmUv8XC3zKW
+					name: NTC1_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: 8uS6MNydriaZED0tCHC8g
+				name: NTC2_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 11; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: 6jtb6P6PWruHRn3-Y--x2
+					name: NTC2_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: Q8r-XfkYObZt9TIAlb4qZ
+					name: NTC2_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: HETBbATgo4gEPgERduAr7
+				name: NTC3_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 21; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: NmxaK272Fz9d7k_7uoVKn
+					name: NTC3_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: x7wY_NLjR4EDnJ2QaeFKs
+					name: NTC3_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: FI4h5U2VA6dJqryhnjgkd
+				name: NTC4_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 31; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: x0jtT-Q_ynuU4h7uVyCL3
+					name: NTC4_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: WT5LeX8hu7zo_xB2pvYSz
+					name: NTC4_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: EpRN7E69s6CftV33X0BIQ
+				name: NTC5_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 41; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: 3EQxOuJ-B_iUnG7P6Khbn
+					name: NTC5_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: Rz43KJdI8ksK39hiES9Ah
+					name: NTC5_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: _ISbCxLrBEltBXYTYbecv
+				name: NTC6_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 54; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: EjrKhV9plCYg_eeElTf2J
+					name: NTC6_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: PAVqhA-YAdR3405ulZ-t2
+					name: NTC6_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+
+			entity_id: iRqq_14WgT4dUl5yStN77
+			name: BMSLV_Temp2
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 261; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: 3bC05cAqqaQhnOuteiWFN
+				name: NTC1_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 1; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: QOFqvGOdljKE0OPKQaAt9
+					name: NTC1_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: JnR9rtVCbDNkOZ29Z37hx
+					name: NTC1_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: GcvitRVoANXo9Jg_q5jaR
+				name: NTC2_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 11; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: pLixcwoljCuIEJQc1dLKQ
+					name: NTC2_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: sx6TC0j9PM7EFbl8WJmvS
+					name: NTC2_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: rsebO9hH8mJBp4BwkUf89
+				name: NTC3_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 21; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: x-zTI__a6uGm8zYIPoPoL
+					name: NTC3_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: pQFy1bmSnj6hBZHd1fmKs
+					name: NTC3_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: _eTLQEiQN-2du4F5RZD2b
+				name: NTC4_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 31; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: sXr2JlfhRlzftJVDB2V04
+					name: NTC4_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: -zQDoHCHgCpO37uknXDJ2
+					name: NTC4_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: 8xqk88X0CTPHrDZdYfNe-
+				name: NTC5_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 41; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: Ens5G-vswYNdCDEbmkzRd
+					name: NTC5_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: dK1JAayfY3BkXvOA58QtN
+					name: NTC5_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: TiMGiJMm1zMDniOpkTrGo
+				name: NTC6_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 54; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: sHWSck6R8wx1y3weM4q30
+					name: NTC6_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: Yw7VriKWH3oaGvKoV06KC
+					name: NTC6_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+
+
+		entity_id: ib-LLxC-Ga0aOtfslnLgu
+		name: dash
+		create_time: 2024-04-14T19:32:36+02:00
+		node_id: 3
+		messages:
+			entity_id: thW79iyAfwouKoW6hW1ZM
+			name: Steering_RTD
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 38; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 1 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: wqr3r_RcGU8YWqR1HCsNd
+				name: RTD_CMD
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 8
+				min: 0; max: 255; offset: 0; scale: 1
+				type:
+					entity_id: x0C5lLrZRXXDmgYswVFyG
+					name: RTD_CMD_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 8; min: 0; max: 255; signed: false
+
+
+			entity_id: IH_vDVEjoIEQonB2mlqK6
+			name: Steering_MotorControl_Debug
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 1280; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 1 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: od8ADmoMh3eoHWKZMnboy
+				name: FrontLeft_ON
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: Ua1YcReigrDQwC0fRFHLk
+					name: FrontLeft_ON_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+				entity_id: E1wnMw--OKnEJuei1-Z5j
+				name: FrontRight_ON
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 1; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: CvrldHyeTH4_plMZ4RkM3
+					name: FrontRight_ON_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+				entity_id: YSv0mjD7idbjY7WzsgSgX
+				name: RearLeft_ON
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 2; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: p2Rh-cBhJUSeGyYQCR1BG
+					name: RearLeft_ON_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+				entity_id: DbF3QibJkLqGGsa4f8iHT
+				name: RearRight_ON
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 3; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: A9DR9pgbVdfucZF-pReeX
+					name: RearRight_ON_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+
+
+		entity_id: dMh15qyVxDt-OX69-M8d1
+		name: dspace
+		create_time: 2024-04-14T19:32:36+02:00
+		node_id: 4
+		messages:
+			entity_id: L2tenX6h6YkYNmylEXhy2
+			name: dSpace_RTD_ACK
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 37; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 1 bytes
+			receivers:
+			name: dash; node_id: 3; entity_id: ib-LLxC-Ga0aOtfslnLgu
+			signals:
+				entity_id: I-G-HYC7oCie-tfmlvg9_
+				name: RTD_FSM_STATE
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 8
+				min: -1; max: 6; offset: 0; scale: 1
+				type:
+					entity_id: Mh93yGtDNmLq67iNYyvem
+					name: RTD_FSM_STATE_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 8; min: -1; max: 6; signed: true
+
+
+			entity_id: 1-0oAaaICVEYglGb6jbPd
+			name: BMSLV_RelayOverride
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 255; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 2 bytes
+			receivers:
+			name: bms_lv; node_id: 2; entity_id: vAWFPB3u1oTI7vE7WZw8h
+			signals:
+				entity_id: rAMIGufEnobI0kCqHD-tl
+				name: password
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 15
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: c6905TCbQ11KkMclQKcSZ
+					name: password_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 15; min: 0; max: 65535; signed: false
+
+				entity_id: ojMzA-dCiiml6VI5wsTH3
+				name: close_relay
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 15; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: ni0KZPU7wzcCAMuRNxOiJ
+					name: close_relay_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: false
+
+
+			entity_id: 1uaY91eOiChO_8zLiUQVv
+			name: dSpace_PeripheralsCTRL
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 512; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 3 bytes
+			receivers:
+			name: dash; node_id: 3; entity_id: ib-LLxC-Ga0aOtfslnLgu
+			signals:
+				entity_id: kLUzDJ64VbM2J1Ds_1wHD
+				name: BrakeLightON_CTRL
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: WE4j-VI31TVn6_NKR5Diz
+					name: BrakeLightON_CTRL_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+				entity_id: ubFmMEudhtAoh7e_W0OTX
+				name: RadFAN_PWM_CTRL
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 8; size: 8
+				min: 0; max: 255; offset: 0; scale: 1
+				type:
+					entity_id: hZ5mPV5pAcBbxYIU3HOQZ
+					name: RadFAN_PWM_CTRL_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 8; min: 0; max: 255; signed: false
+
+				entity_id: SQl4xKb7pBX7M1lBQI_ni
+				name: BattHVFan_CTRL
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 8
+				min: 0; max: 255; offset: 0; scale: 1
+				type:
+					entity_id: G6U9VkDumlSCOQ1JJmPn-
+					name: BattHVFan_CTRL_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 8; min: 0; max: 255; signed: false
+
+
+
+		entity_id: rdeObiiMsb-OTRjo5ghFO
+		name: sens_front
+		create_time: 2024-04-14T19:32:36+02:00
+		node_id: 5
+		messages:
+			entity_id: aOU4rcH085xeL9aBakyd9
+			name: Sens_Front_1
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 5; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: 6_38f8Uxc3nT1sTwHHQ_T
+				name: Throttle_0_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: HC_wvLJ5h0NNMDO9Fj5VC
+					name: Throttle_0_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: L9zM0TJx4Dlt4Y9HqEkqM
+				name: Throttle_1_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: N6XarEKo4EuRtRpr2RJ0W
+					name: Throttle_1_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: oAndacFwkyUNBEsJlT-fq
+				name: Steering_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 32; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: sr8l6K09QkVHQpeyx2Svv
+					name: Steering_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: tb44HtTJq4UjDT6k3OpW_
+				name: Brake_Straingauge_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 48; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: nfysYEshV9RRN8_HoKWsB
+					name: Brake_Straingauge_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+
+			entity_id: 9knjNCqacrw8m8KM-3Q2X
+			name: Sens_Front_2
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 16; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 6 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: NIs8DjPiHLzJzYwYBlqN7
+				name: Pot_FL_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: oucsnBC8_nOsEvvlTefeH
+					name: Pot_FL_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: iOiJMOCc0ixErJGtGlNNO
+				name: Pot_FR_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: b_9orG1GArx4nBJqbHvQo
+					name: Pot_FR_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: EcwO4SfNQ5bhYuA1k72KA
+				name: BrakePressure_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 32; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: OF3rab2-IM4TC1Pcdn5a-
+					name: BrakePressure_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+
+			entity_id: 4kK7sObG1mPEzK5snRnPz
+			name: Sens_Front_ShutdownStatus
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 49; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 1 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: XQdR0j-wCdABmbBVeGeci
+				name: isShutClosed_preInertia
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: x7lxLDJjYCiU2MzfCZUCr
+					name: isShutClosed_preInertia_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+				entity_id: T1oNVI5Xms2AtWbyt2Lbs
+				name: isShutClosed_postInertia
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 1; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: a4StO7cE5aTIMMXaIfLUK
+					name: isShutClosed_postInertia_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+				entity_id: LlvmVn7mjZnPDe_GBblbm
+				name: isShutClosed_postBOTS
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 2; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: -NqUXa-Noovqb400dagpg
+					name: isShutClosed_postBOTS_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+				entity_id: NcIYORnFnRzcO-WphcBrF
+				name: isShutClosed_postCockpit
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 3; size: 1
+				min: 0; max: 1; offset: 0; scale: 1
+				type:
+					entity_id: EKXrkVfHHEV-8waF7kR_M
+					name: isShutClosed_postCockpit_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 1; min: 0; max: 1; signed: true
+
+
+			entity_id: lszTD5TrCha8DSOlpRWcg
+			name: Sens_Front_3
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 288; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: sN_PKbgrqFIlRyRy51hnf
+				name: Straingauge_PushFR_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: c5X2wJafu2IjxYAaJCDkl
+					name: Straingauge_PushFR_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: ddxVf8XA7gkw89pRE-fWv
+				name: Straingauge_TieFR_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 16; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: JiEucQdRUzP9K5YLjcnUM
+					name: Straingauge_TieFR_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: eT4FNSTxzfbGyqCCSKuLn
+				name: Straingauge_PushFL_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 32; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: FBojSEE2ojq3gj50mfsQ1
+					name: Straingauge_PushFL_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+				entity_id: era1dax1H261yLD2i8gbc
+				name: Straingauge_TieFL_Voltage_mV
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 48; size: 16
+				min: 0; max: 65535; offset: 0; scale: 1
+				type:
+					entity_id: jWAW-484n305zDrmXc4jG
+					name: Straingauge_TieFL_Voltage_mV_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 16; min: 0; max: 65535; signed: false
+
+
+			entity_id: oQmaT2Nb8jE4tPbdMtR73
+			name: Sens_Front_NTC
+			create_time: 2024-04-14T19:32:36+02:00
+			message_id: 1024; is_static_id: true
+			priority: 0 (very_high=0; low=3)
+			size: 8 bytes
+			receivers:
+			name: dspace; node_id: 4; entity_id: dMh15qyVxDt-OX69-M8d1
+			signals:
+				entity_id: 6ufdJtDesEnfVMgbq9mLN
+				name: NTC_1_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 0; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: MwbLaMeT7nbpNYSC3bhDO
+					name: NTC_1_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: Urtap5hcij3E9y9B5zGvv
+					name: NTC_1_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: jYeRdxXtx-eh189hA2kT-
+				name: NTC_2_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 10; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: HpI8yG8sC959GnrcEwHk1
+					name: NTC_2_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: HDG5Ed08RP9RqwbFCwhmk
+					name: NTC_2_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: 6jlYduw9TkmYf8wHRn4I0
+				name: NTC_3_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 20; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: XR8OCBfcd4jKjTrRNDk46
+					name: NTC_3_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: QyMM0dLjjSNc3VqKvbQZO
+					name: NTC_3_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: oKsGo0EarUFBPWr00Ckft
+				name: NTC_4_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 30; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: VNKpbAJcdjX7RrLzV3HLT
+					name: NTC_4_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: s5UB_IE_ey0Ef8N7cUKJf
+					name: NTC_4_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: HHYpdkDk8kyiOg551pmlO
+				name: NTC_Spare1_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 40; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: CCj3KK_Z7dJmGONBKuzpM
+					name: NTC_Spare1_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: vjYyaBYTNS02zSMIyJVp3
+					name: NTC_Spare1_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+				entity_id: otXC8paVPtlv6mTzhCkbZ
+				name: NTC_Spare2_Resistance
+				create_time: 2024-04-14T19:32:36+02:00
+				kind: signal-standard
+				start_bit: 50; size: 10
+				min: 0; max: 31968.75; offset: 1000; scale: 31.25
+				type:
+					entity_id: Vw2Z__GQR9esDhUcl8J1P
+					name: NTC_Spare2_Resistance_type
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_type-custom
+					size: 10; min: 0; max: 31968.75; signed: false
+				unit:
+					entity_id: UmOK3NqWw0aqmr53mcrGB
+					name: NTC_Spare2_Resistance_unit
+					create_time: 2024-04-14T19:32:36+02:00
+					kind: signal_unit-custom
+					symbol: Ohm
+
+
+
+

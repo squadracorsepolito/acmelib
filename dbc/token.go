@@ -13,7 +13,7 @@ const (
 	tokenMuxIndicator
 	tokenString
 	tokenKeyword
-	tokenSyntax
+	tokenPunct
 )
 
 var tokenNames = map[tokenKind]string{
@@ -27,7 +27,7 @@ var tokenNames = map[tokenKind]string{
 	tokenMuxIndicator: "mux_indicator",
 	tokenString:       "string",
 	tokenKeyword:      "keyword",
-	tokenSyntax:       "syntax",
+	tokenPunct:        "punct",
 }
 
 type token struct {
@@ -78,9 +78,9 @@ func (t *token) isKeyword(k keywordKind) bool {
 	return getKeywordKind(t.value) == k
 }
 
-func (t *token) isSyntax(s syntaxKind) bool {
-	if t.kind != tokenSyntax {
+func (t *token) isPunct(s punctKind) bool {
+	if t.kind != tokenPunct {
 		return false
 	}
-	return getSyntaxKind(t.value) == s
+	return getPunctKind(t.value) == s
 }

@@ -154,8 +154,8 @@ func (s *scanner) scan() *token {
 	case ch == '"':
 		return s.scanString()
 
-	case isSyntaxKeyword(ch):
-		return s.emitToken(tokenSyntax)
+	case isPunctKeyword(ch):
+		return s.emitToken(tokenPunct)
 	}
 
 	return s.emitErrorToken("unrecognized symbol")
@@ -218,7 +218,7 @@ func (s *scanner) scanSpace() *token {
 func (s *scanner) scanNumber() *token {
 	firstCh := s.read()
 	hasMore := false
-	isRange := false
+	// isRange := false
 
 loop:
 	for {
@@ -230,10 +230,13 @@ loop:
 			return s.scanHexNumber()
 
 		case !isNumber(ch) && ch != '.':
-			if ch == '-' && isNumber(firstCh) && !isRange {
-				isRange = true
-				continue
-			}
+			// if ch == '-' && isNumber(firstCh) && !isRange {
+			// 	nextCh := s.read()
+			// 	if isNumber(nextCh) {
+			// 		isRange = true
+			// 		continue
+			// 	}
+			// }
 			s.unread()
 			break loop
 
@@ -244,13 +247,13 @@ loop:
 
 	if !hasMore {
 		if firstCh == '-' || firstCh == '+' {
-			return s.emitToken(tokenSyntax)
+			return s.emitToken(tokenPunct)
 		}
 	}
 
-	if isRange {
-		return s.emitToken(tokenNumberRange)
-	}
+	// if isRange {
+	// 	return s.emitToken(tokenNumberRange)
+	// }
 
 	return s.emitToken(tokenNumber)
 }

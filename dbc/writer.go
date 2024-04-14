@@ -58,7 +58,7 @@ func (w *Writer) formatUint(val uint32) string {
 	return strconv.FormatUint(uint64(val), 10)
 }
 
-func (w *Writer) Write(ast *DBC) string {
+func (w *Writer) Write(ast *File) string {
 	if ast.Version != "" {
 		w.writeVersion(ast.Version)
 	}

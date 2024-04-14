@@ -167,6 +167,22 @@ func (b *Bus) Nodes() []*Node {
 	return nodeSlice
 }
 
+// GetNodeByName returns the [Node] with the given name from the [Bus].
+// It may return an error if the node with the given name is not part of the bus.
+func (b *Bus) GetNodeByName(nodeName string) (*Node, error) {
+	id, err := b.nodeNames.getValue(nodeName)
+	if err != nil {
+		return nil, b.errorf(fmt.Errorf(`cannot get node with name "%s" : %w`, nodeName, err))
+	}
+
+	node, err := b.nodes.getValue(id)
+	if err != nil {
+		return nil, b.errorf(fmt.Errorf(`cannot get node with name "%s" : %w`, nodeName, err))
+	}
+
+	return node, nil
+}
+
 // SetBaudrate sets the baudrate of the [Bus].
 func (b *Bus) SetBaudrate(baudrate uint) {
 	b.baudrate = baudrate
