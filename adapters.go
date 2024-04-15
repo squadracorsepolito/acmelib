@@ -77,7 +77,15 @@ func handleDBCFile(net *Network, file *dbc.File) error {
 			case dbc.SignalUnsigned:
 				signed = false
 			}
-			tmpSigType, err := NewCustomSignalType(fmt.Sprintf("%s_type", dbcSig.Name), int(dbcSig.Size), signed, dbcSig.Min, dbcSig.Max)
+			order := SignalTypeOrderLittleEndian
+			switch dbcSig.ByteOrder {
+			case dbc.SignalLittleEndian:
+				order = SignalTypeOrderLittleEndian
+			case dbc.SignalBigEndian:
+				order = SignalTypeOrderBigEndian
+			}
+
+			tmpSigType, err := NewCustomSignalType(fmt.Sprintf("%s_type", dbcSig.Name), int(dbcSig.Size), signed, order, dbcSig.Min, dbcSig.Max)
 			if err != nil {
 				return err
 			}
