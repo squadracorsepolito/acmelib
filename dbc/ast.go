@@ -13,17 +13,11 @@ func GetNewSymbols() []string {
 	return newSymbolsValues
 }
 
-// LocationPos specifies the line and the column in the file.
-type LocationPos struct {
-	Line int
-	Col  int
-}
-
 // Location is the position in the DBC file of an AST entity.
 type Location struct {
 	Filename string
-	StartPos *LocationPos
-	EndPos   *LocationPos
+	Line     int
+	Col      int
 }
 
 // File definition:

@@ -15,8 +15,7 @@ type Parser struct {
 	usePrev   bool
 	currToken *token
 
-	filename    string
-	locPosStack []*LocationPos
+	filename string
 
 	foundVer    bool
 	foundNewSym bool
@@ -31,8 +30,7 @@ func NewParser(filename string, file []byte) *Parser {
 
 		usePrev: false,
 
-		filename:    filename,
-		locPosStack: []*LocationPos{},
+		filename: filename,
 
 		foundVer:    false,
 		foundNewSym: false,
@@ -91,30 +89,11 @@ func (p *Parser) unscan() {
 	p.usePrev = true
 }
 
-func (p *Parser) pushLocationPos() {
-	p.locPosStack = append(p.locPosStack, &LocationPos{
-		Line: p.currToken.line,
-		Col:  p.currToken.col,
-	})
-}
-
-func (p *Parser) popLocationPos() *LocationPos {
-	if len(p.locPosStack) == 0 {
-		return nil
-	}
-	pos := p.locPosStack[len(p.locPosStack)-1]
-	p.locPosStack = p.locPosStack[:len(p.locPosStack)-1]
-	return pos
-}
-
 func (p *Parser) getLocation() *Location {
 	return &Location{
 		Filename: p.filename,
-		StartPos: p.popLocationPos(),
-		EndPos: &LocationPos{
-			Line: p.currToken.line,
-			Col:  p.currToken.col,
-		},
+		Line:     p.currToken.line,
+		Col:      p.currToken.col,
 	}
 }
 
@@ -143,7 +122,6 @@ func (p *Parser) Parse() (*File, error) {
 	}
 
 	t := p.scan()
-
 	for !t.isEOF() {
 		switch t.kind {
 		case tokenError:
