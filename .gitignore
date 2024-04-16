@@ -20,5 +20,4 @@
 # Go workspace file
 go.work
 
-# Result got from load mcb.dbc test
-testdata/*.txt
+testdata_res/

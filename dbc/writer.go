@@ -15,15 +15,16 @@ func writeSlice[T any](slice []T, writeFn func(T), newLineFn func()) {
 	}
 }
 
+// Writer is a DBC file writer.
 type Writer struct {
 	f *strings.Builder
 }
 
+// NewWriter creates a new DBC [Writer].
 func NewWriter() *Writer {
 	return &Writer{
 		f: &strings.Builder{},
 	}
-
 }
 
 func (w *Writer) print(format string, a ...any) {

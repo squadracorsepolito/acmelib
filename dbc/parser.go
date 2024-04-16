@@ -8,13 +8,15 @@ import (
 	"strings"
 )
 
+// Parser is a parser for DBC files.
 type Parser struct {
 	s *scanner
 
 	usePrev   bool
 	currToken *token
 
-	filename string
+	filename    string
+	locPosStack []*LocationPos
 
 	foundVer    bool
 	foundNewSym bool
@@ -22,13 +24,15 @@ type Parser struct {
 	foundNode   bool
 }
 
+// NewParser creates a new [Parser] for the given file.
 func NewParser(filename string, file []byte) *Parser {
 	return &Parser{
 		s: newScanner(bytes.NewReader(file), string(file)),
 
 		usePrev: false,
 
-		filename: filename,
+		filename:    filename,
+		locPosStack: []*LocationPos{},
 
 		foundVer:    false,
 		foundNewSym: false,
@@ -87,6 +91,33 @@ func (p *Parser) unscan() {
 	p.usePrev = true
 }
 
+func (p *Parser) pushLocationPos() {
+	p.locPosStack = append(p.locPosStack, &LocationPos{
+		Line: p.currToken.line,
+		Col:  p.currToken.col,
+	})
+}
+
+func (p *Parser) popLocationPos() *LocationPos {
+	if len(p.locPosStack) == 0 {
+		return nil
+	}
+	pos := p.locPosStack[len(p.locPosStack)-1]
+	p.locPosStack = p.locPosStack[:len(p.locPosStack)-1]
+	return pos
+}
+
+func (p *Parser) getLocation() *Location {
+	return &Location{
+		Filename: p.filename,
+		StartPos: p.popLocationPos(),
+		EndPos: &LocationPos{
+			Line: p.currToken.line,
+			Col:  p.currToken.col,
+		},
+	}
+}
+
 func (p *Parser) errorf(format string, args ...any) error {
 	msg := fmt.Sprintf(format, args...)
 	val := p.currToken.value
@@ -103,6 +134,8 @@ func (p *Parser) expectPunct(kind punctKind) error {
 	return nil
 }
 
+// Parse parses the file and returns a [File].
+// It may return an error if it fails to parse the file.
 func (p *Parser) Parse() (*File, error) {
 	ast := new(File)
 	ast.Location = &Location{

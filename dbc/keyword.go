@@ -1,7 +1,5 @@
 package dbc
 
-const DummyNode = "Vector__XXX"
-
 type keywordKind uint
 
 const (

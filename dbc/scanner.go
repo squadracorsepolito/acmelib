@@ -215,10 +215,14 @@ func (s *scanner) scanSpace() *token {
 	return s.emitToken(tokenSpace)
 }
 
+func (s *scanner) peek() rune {
+	return rune(s.input[s.pos])
+}
+
 func (s *scanner) scanNumber() *token {
 	firstCh := s.read()
 	hasMore := false
-	// isRange := false
+	isRange := false
 
 loop:
 	for {
@@ -230,13 +234,14 @@ loop:
 			return s.scanHexNumber()
 
 		case !isNumber(ch) && ch != '.':
-			// if ch == '-' && isNumber(firstCh) && !isRange {
-			// 	nextCh := s.read()
-			// 	if isNumber(nextCh) {
-			// 		isRange = true
-			// 		continue
-			// 	}
-			// }
+			if ch == '-' && isNumber(firstCh) && !isRange {
+				nextCh := s.peek()
+				if isNumber(nextCh) {
+					s.read()
+					isRange = true
+					continue loop
+				}
+			}
 			s.unread()
 			break loop
 
@@ -251,9 +256,9 @@ loop:
 		}
 	}
 
-	// if isRange {
-	// 	return s.emitToken(tokenNumberRange)
-	// }
+	if isRange {
+		return s.emitToken(tokenNumberRange)
+	}
 
 	return s.emitToken(tokenNumber)
 }
