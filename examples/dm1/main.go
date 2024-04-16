@@ -12,7 +12,7 @@ import (
 const dm1MsgName = "DM1"
 
 var uint16bit, _ = acmelib.NewIntegerSignalType("16_bit", 16, false)
-var mVUnit = acmelib.NewSignalUnit("milli_volt", acmelib.SignalUnitKindVoltage, "mV")
+var mVUnit = acmelib.NewSignalUnit("milli_volt", acmelib.SignalUnitKindElectrical, "mV")
 var flagType = acmelib.NewFlagSignalType("flag")
 var uint8bit, _ = acmelib.NewIntegerSignalType("uint_8", 8, false)
 

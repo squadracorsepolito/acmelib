@@ -40,8 +40,8 @@ func Test_StandardSignal(t *testing.T) {
 	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
 	assert.NoError(err)
 
-	voltUnit := NewSignalUnit("volt", SignalUnitKindVoltage, "V")
-	currUnit := NewSignalUnit("ampere", SignalUnitKindCurrent, "A")
+	voltUnit := NewSignalUnit("volt", SignalUnitKindElectrical, "V")
+	currUnit := NewSignalUnit("ampere", SignalUnitKindElectrical, "A")
 
 	sig, err := NewStandardSignal("sig", size8Type)
 	assert.NoError(err)

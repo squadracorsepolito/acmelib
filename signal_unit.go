@@ -13,10 +13,8 @@ const (
 	SignalUnitKindCustom SignalUnitKind = "signal_unit-custom"
 	// SignalUnitKindTemperature defines a temperature unit.
 	SignalUnitKindTemperature SignalUnitKind = "signal_unit-temperature"
-	// SignalUnitKindVoltage defines a voltage unit.
-	SignalUnitKindVoltage SignalUnitKind = "signal_unit-voltage"
-	// SignalUnitKindCurrent defines a current unit.
-	SignalUnitKindCurrent SignalUnitKind = "signal_unit-current"
+	// SignalUnitKindElectrical defines an electrical unit.
+	SignalUnitKindElectrical SignalUnitKind = "signal_unit-electrical"
 )
 
 // SignalUnit is an entity that defines the physical unit of a [Signal].

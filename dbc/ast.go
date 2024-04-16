@@ -1,5 +1,7 @@
 package dbc
 
+const FileExtension = ".dbc"
+
 func GetNewSymbols() []string {
 	return newSymbolsValues
 }

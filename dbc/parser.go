@@ -105,6 +105,10 @@ func (p *Parser) expectPunct(kind punctKind) error {
 
 func (p *Parser) Parse() (*File, error) {
 	ast := new(File)
+	ast.Location = &Location{
+		Filename: p.filename,
+	}
+
 	t := p.scan()
 
 	for !t.isEOF() {
