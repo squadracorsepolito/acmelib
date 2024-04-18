@@ -1,0 +1,1262 @@
+VERSION "created by canmatrix"
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_ :
+
+BU_ : HVB IVTMain PC VCU Charger
+
+BO_ 288 INFO_01_DbgV: 8 HVB
+	SG_ BMS_eDbgVId M : 7|16@0+ (1,0) [0|255] "" PC
+	SG_ BMS_VDbgV000 m0 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV001 m0 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV002 m0 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV003 m1 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV004 m1 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV005 m1 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV006 m2 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV007 m2 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV008 m2 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV009 m3 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV010 m3 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV011 m3 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV012 m4 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV013 m4 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV014 m4 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV015 m5 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV016 m5 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV017 m5 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV018 m6 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV019 m6 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV020 m6 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV021 m7 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV022 m7 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV023 m7 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV024 m8 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV025 m8 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV026 m8 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV027 m9 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV028 m9 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV029 m9 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV030 m10 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV031 m10 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV032 m10 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV033 m11 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV034 m11 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV035 m11 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV036 m12 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV037 m12 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV038 m12 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV039 m13 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV040 m13 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV041 m13 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV042 m14 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV043 m14 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV044 m14 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV045 m15 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV046 m15 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV047 m15 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV048 m16 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV049 m16 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV050 m16 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV051 m17 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV052 m17 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV053 m17 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV054 m18 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV055 m18 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV056 m18 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV057 m19 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV058 m19 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV059 m19 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV060 m20 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV061 m20 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV062 m20 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV063 m21 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV064 m21 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV065 m21 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV066 m22 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV067 m22 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV068 m22 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV069 m23 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV070 m23 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV071 m23 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV072 m24 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV073 m24 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV074 m24 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV075 m25 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV076 m25 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV077 m25 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV078 m26 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV079 m26 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV080 m26 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV081 m27 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV082 m27 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV083 m27 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV084 m28 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV085 m28 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV086 m28 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV087 m29 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV088 m29 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV089 m29 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV090 m30 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV091 m30 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV092 m30 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV093 m31 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV094 m31 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV095 m31 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV096 m32 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV097 m32 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV098 m32 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV099 m33 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV100 m33 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV101 m33 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV102 m34 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV103 m34 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV104 m34 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV105 m35 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV106 m35 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV107 m35 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV108 m36 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV109 m36 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV110 m36 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV111 m37 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV112 m37 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV113 m37 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV114 m38 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV115 m38 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV116 m38 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV117 m39 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV118 m39 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV119 m39 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV120 m40 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV121 m40 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV122 m40 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV123 m41 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV124 m41 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV125 m41 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV126 m42 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV127 m42 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV128 m42 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV129 m43 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV130 m43 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV131 m43 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV132 m44 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV133 m44 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV134 m44 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV135 m45 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV136 m45 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV137 m45 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV138 m46 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV139 m46 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV140 m46 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV141 m47 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV142 m47 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV143 m47 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV144 m48 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV145 m48 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV146 m48 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV147 m49 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV148 m49 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV149 m49 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV150 m50 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV151 m50 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV152 m50 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV153 m51 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV154 m51 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV155 m51 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV156 m52 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV157 m52 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV158 m52 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV159 m53 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV160 m53 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV161 m53 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV162 m54 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV163 m54 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV164 m54 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV165 m55 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV166 m55 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV167 m55 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV168 m56 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV169 m56 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV170 m56 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV171 m57 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV172 m57 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV173 m57 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV174 m58 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV175 m58 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV176 m58 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV177 m59 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV178 m59 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV179 m59 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV180 m60 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV181 m60 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV182 m60 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV183 m61 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV184 m61 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV185 m61 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV186 m62 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV187 m62 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV188 m62 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV189 m63 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV190 m63 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV191 m63 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV192 m64 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV193 m64 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV194 m64 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV195 m65 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV196 m65 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV197 m65 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV198 m66 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV199 m66 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV200 m66 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV201 m67 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV202 m67 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV203 m67 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV204 m68 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV205 m68 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV206 m68 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV207 m69 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV208 m69 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV209 m69 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV210 m70 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV211 m70 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV212 m70 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV213 m71 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV214 m71 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV215 m71 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV216 m72 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV217 m72 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV218 m72 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV219 m73 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV220 m73 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV221 m73 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV222 m74 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV223 m74 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV224 m74 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV225 m75 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV226 m75 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV227 m75 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV228 m76 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV229 m76 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV230 m76 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV231 m77 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV232 m77 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV233 m77 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV234 m78 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV235 m78 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV236 m78 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV237 m79 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV238 m79 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV239 m79 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV240 m80 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV241 m80 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV242 m80 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV243 m81 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV244 m81 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV245 m81 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV246 m82 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV247 m82 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV248 m82 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV249 m83 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV250 m83 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV251 m83 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV252 m84 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV253 m84 : 39|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV254 m84 : 55|16@0+ (0.001,0) [0|4.95] "V" PC
+	SG_ BMS_VDbgV255 m85 : 23|16@0+ (0.001,0) [0|4.95] "V" PC
+
+BO_ 289 INFO_02_DbgT: 8 HVB
+	SG_ BMS_eDbgTId M : 7|16@0+ (1,0) [0|127] "" PC
+	SG_ BMS_TDbgT000 m0 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT001 m0 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT002 m0 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT003 m1 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT004 m1 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT005 m1 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT006 m2 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT007 m2 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT008 m2 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT009 m3 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT010 m3 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT011 m3 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT012 m4 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT013 m4 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT014 m4 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT015 m5 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT016 m5 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT017 m5 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT018 m6 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT019 m6 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT020 m6 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT021 m7 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT022 m7 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT023 m7 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT024 m8 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT025 m8 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT026 m8 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT027 m9 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT028 m9 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT029 m9 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT030 m10 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT031 m10 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT032 m10 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT033 m11 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT034 m11 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT035 m11 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT036 m12 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT037 m12 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT038 m12 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT039 m13 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT040 m13 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT041 m13 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT042 m14 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT043 m14 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT044 m14 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT045 m15 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT046 m15 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT047 m15 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT048 m16 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT049 m16 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT050 m16 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT051 m17 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT052 m17 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT053 m17 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT054 m18 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT055 m18 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT056 m18 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT057 m19 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT058 m19 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT059 m19 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT060 m20 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT061 m20 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT062 m20 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT063 m21 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT064 m21 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT065 m21 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT066 m22 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT067 m22 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT068 m22 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT069 m23 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT070 m23 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT071 m23 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT072 m24 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT073 m24 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT074 m24 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT075 m25 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT076 m25 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT077 m25 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT078 m26 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT079 m26 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT080 m26 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT081 m27 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT082 m27 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT083 m27 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT084 m28 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT085 m28 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT086 m28 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT087 m29 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT088 m29 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT089 m29 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT090 m30 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT091 m30 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT092 m30 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT093 m31 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT094 m31 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT095 m31 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT096 m32 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT097 m32 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT098 m32 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT099 m33 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT100 m33 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT101 m33 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT102 m34 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT103 m34 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT104 m34 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT105 m35 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT106 m35 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT107 m35 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT108 m36 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT109 m36 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT110 m36 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT111 m37 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT112 m37 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT113 m37 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT114 m38 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT115 m38 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT116 m38 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT117 m39 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT118 m39 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT119 m39 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT120 m40 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT121 m40 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT122 m40 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT123 m41 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT124 m41 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT125 m41 : 55|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT126 m42 : 23|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+	SG_ BMS_TDbgT127 m42 : 39|16@0+ (0.01,-273.15) [-40|105] "degC" PC
+
+BO_ 336 HVB_TX_VCUCmd: 2 VCU
+	SG_ VCU_bHvbInvReq : 0|1@0+ (1,0) [0|1] "" HVB
+	SG_ VCU_ClrErr : 6|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ VCU_bBalReq : 8|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ VCU_bAllVTReq : 14|1@0+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 512 HVB_RX_Diagnosis: 8 HVB
+	SG_ HVB_Diag_Flash : 0|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_eeprom : 1|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_RAM : 2|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_CAN : 4|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_UART : 5|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_cell_sna : 16|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_vcu_can_sna : 17|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_bat_curr_sna : 18|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_inv_vlt_sna : 19|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_bat_vlt_sna : 20|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_cell_ut : 32|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_cell_ot : 33|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_cell_uv : 34|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_cell_ov : 35|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_bat_uv : 36|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_imd_sna : 37|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_imd__low_r : 38|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_bat_curr_oc : 40|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Diag_inv_vlt_ov : 41|1@0+ (1,0) [0|1] "" Vector__XXX
+	SG_ HVB_Recovery_Active : 56|1@0+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 514 HVB_RX_CurrentLimits: 8 HVB
+	SG_ HVB_ChargeCurLimits : 7|16@0+ (0.02,0) [0|1310.7] "mA" Charger,VCU
+	SG_ HVB_DischargeCurLimits : 23|16@0+ (0.02,0) [0|1310.7] "mA" Charger,VCU
+	SG_ HVB_pwrHvb : 39|16@0- (0.04,0) [-1310.72|1310.68] "kW" Charger,VCU
+
+BO_ 515 HVB_RX_Status: 8 HVB
+	SG_ HVB_stSys : 7|8@0+ (1,0) [0|255] "" Charger,VCU
+	SG_ HVB_stInv : 15|8@0+ (1,0) [0|255] "" Charger,VCU
+
+BO_ 516 HVB_RX_Measure: 8 HVB
+	SG_ HVB_iHvb : 7|16@0- (0.1,0) [-3276.8|3276.7] "A" Charger,VCU
+	SG_ HVB_uHvb : 23|16@0+ (0.02,0) [0|1310.7] "V" Charger,VCU
+	SG_ HVB_uBus : 39|16@0+ (0.02,0) [0|1310.7] "V" Vector__XXX
+
+BO_ 517 HVB_RX_Actuator: 8 HVB
+	SG_ HVB_bInvCntaNegCmd : 0|1@0+ (1,0) [0|1] "" Charger,VCU
+	SG_ HVB_bInvCntaNegSt : 1|1@0+ (1,0) [0|1] "" Charger,VCU
+	SG_ HVB_bInvCntaPreCmd : 2|1@0+ (1,0) [0|1] "" Charger,VCU
+	SG_ HVB_bInvCntaPreSt : 3|1@0+ (1,0) [0|1] "" Charger,VCU
+	SG_ HVB_bInvCntaPosCmd : 4|1@0+ (1,0) [0|1] "" Charger,VCU
+	SG_ HVB_bInvCntaPosSt : 5|1@0+ (1,0) [0|1] "" Charger,VCU
+	SG_ HVB_noCntRoll_VCU : 51|4@0+ (1,0) [0|15] "" Charger,VCU
+	SG_ HVB_noCrc8ReqMsg_VCU : 63|8@0+ (1,0) [0|255] "" Charger,VCU
+
+BO_ 518 HVB_RX_VCell: 8 HVB
+	SG_ HVB_uCellMax : 7|16@0+ (0.0001,0) [0|6.5535] "V" Charger,VCU
+	SG_ HVB_uCellMean : 23|16@0+ (0.0001,0) [0|6.5535] "V" Charger,VCU
+	SG_ HVB_uCellMin : 39|16@0+ (0.0001,0) [0|6.5535] "V" Charger,VCU
+	SG_ HVB_idxCell_uMax : 55|8@0+ (1,0) [0|255] "" Vector__XXX
+	SG_ HVB_idxCell_uMin : 63|8@0+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 519 HVB_RX_SOC: 8 HVB
+	SG_ HVB_rSoCHvb_uCellMax : 7|32@0- (0.04,50) [-31.92|131.88] "%" Charger,VCU
+	SG_ HVB_rSoCHvb_uCellMin : 39|32@0- (0.04,50) [-31.92|131.88] "%" Charger,VCU
+
+BO_ 520 HVB_RX_TCell: 8 HVB
+	SG_ HVB_tCellMax : 7|16@0+ (0.01,-273.15) [-40|105] "degC" Charger,VCU
+	SG_ HVB_tCellMean : 23|16@0+ (0.01,-273.15) [-40|105] "degC" Charger,VCU
+	SG_ HVB_tCellMin : 39|16@0+ (0.01,-273.15) [-40|105] "degC" Charger,VCU
+
+BO_ 521 HVB_RX_Insulation: 8 HVB
+	SG_ HVB_stResIsol : 15|8@0+ (1,0) [0|255] "" Charger,VCU
+	SG_ HVB_resIsol : 39|16@0+ (10,0) [0|655350] "kOhm" Charger,VCU
+
+BO_ 527 HVB_RX_SWVersion: 8 HVB
+	SG_ HVB_noSwVers0 : 7|32@0+ (1,0) [0|4294967295] "" Charger,VCU
+	SG_ HVB_noSwVers1 : 39|32@0+ (1,0) [0|4294967295] "" Charger,VCU
+
+BO_ 1041 IVTMain_Msg_Cmd: 8 HVB
+
+BO_ 1297 IVTMain_Msg_Response: 8 IVTMain
+
+BO_ 1313 IVTMain_Msg_Result_I: 6 IVTMain
+	SG_ IVTMain_ID_Result_I : 7|8@0+ (1,0) [0|0] "" HVB
+	SG_ IVTMain_MsgCount_Result_I : 11|4@0+ (1,0) [0|0] "" HVB
+	SG_ IVTMain_Result_I_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_I_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_I_Meas_Err : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_I_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_I : 23|32@0- (1,0) [-2147483648|2147483647] "mA" HVB
+
+BO_ 1314 IVTMain_Msg_Result_U1: 6 IVTMain
+	SG_ IVTMain_ID_Result_U1 : 7|8@0+ (1,0) [1|1] "" HVB
+	SG_ IVTMain_MsgCount_Result_U1 : 11|4@0+ (1,0) [0|0] "" HVB
+	SG_ IVTMain_Result_U1_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U1_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U1_Meas_Err : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U1_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U1 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" HVB
+
+BO_ 1315 IVTMain_Msg_Result_U2: 6 IVTMain
+	SG_ IVTMain_ID_Result_U2 : 7|8@0+ (1,0) [2|2] "" HVB
+	SG_ IVTMain_MsgCount_Result_U2 : 11|4@0+ (1,0) [0|0] "" HVB
+	SG_ IVTMain_Result_U2_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U2_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U2_Meas_Err : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U2_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U2 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" HVB
+
+BO_ 1316 IVTMain_Msg_Result_U3: 6 IVTMain
+	SG_ IVTMain_ID_Result_U3 : 7|8@0+ (1,0) [3|3] "" HVB
+	SG_ IVTMain_MsgCount_Result_U3 : 11|4@0+ (1,0) [0|0] "" HVB
+	SG_ IVTMain_Result_U3_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U3_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U3_Meas_Err : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U3_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_U3 : 23|32@0- (1,0) [-2147483648|2147483647] "mV" HVB
+
+BO_ 1317 IVTMain_Msg_Result_T: 6 IVTMain
+	SG_ IVTMain_ID_Result_T : 7|8@0+ (1,0) [4|4] "" HVB
+	SG_ IVTMain_MsgCount_Result_T : 11|4@0+ (1,0) [0|0] "" HVB
+	SG_ IVTMain_Result_T_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_T_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_T_Meas_Err : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_T_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_T : 23|32@0- (0.1,0) [-2147483648|2147483647] "�C" HVB
+
+BO_ 1318 IVTMain_Msg_Result_W: 6 IVTMain
+	SG_ IVTMain_ID_Result_W : 7|8@0+ (1,0) [5|5] "" HVB
+	SG_ IVTMain_MsgCount_Result_W : 11|4@0+ (1,0) [0|0] "" HVB
+	SG_ IVTMain_Result_W_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_W_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_W_Meas_Err : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_W_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_W : 23|32@0- (1,0) [-2147483648|2147483647] "W" HVB
+
+BO_ 1319 IVTMain_Msg_Result_As: 6 IVTMain
+	SG_ IVTMain_ID_Result_As : 7|8@0+ (1,0) [6|6] "" HVB
+	SG_ IVTMain_MsgCount_Result_As : 11|4@0+ (1,0) [0|0] "" HVB
+	SG_ IVTMain_Result_As_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_As_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_As_Meas_Err : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_As_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_As : 23|32@0- (1,0) [-21474836478|2147483647] "As" HVB
+
+BO_ 1320 IVTMain_Msg_Result_Wh: 6 IVTMain
+	SG_ IVTMain_ID_Result_Wh : 7|8@0+ (1,0) [7|7] "" HVB
+	SG_ IVTMain_MsgCount_Result_Wh : 11|4@0+ (1,0) [0|0] "" HVB
+	SG_ IVTMain_Result_Wh_OCS : 12|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_Wh_Channel_Error : 13|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_Wh_Meas_Err : 14|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_Wh_System_Error : 15|1@0+ (1,0) [0|0] "" Vector__XXX
+	SG_ IVTMain_Result_Wh : 23|32@0- (1,0) [-2147483648|2147483647] "Wh" HVB
+
+CM_ BU_ PC "Calibration and debug tool reading the BMS firmware revision and the single cell voltages and temperatures.";
+CM_ SG_ 514 HVB_ChargeCurLimits "Maximum potential charging power limit. even in case of a protection this values is shown what might possible if no protection is on";
+CM_ SG_ 514 HVB_DischargeCurLimits "Maximum discharging power limit. even in case of a protection this values is shown what might possible if no protection is on";
+CM_ SG_ 514 HVB_pwrHvb "instantaneous net power (+ for input, - for output)";
+CM_ SG_ 527 HVB_noSwVers0 "Software version hash.";
+CM_ SG_ 527 HVB_noSwVers1 "Software version hash.";
+CM_ SG_ 517 HVB_bInvCntaPosCmd "Inverter bus psoitive contactor command.";
+CM_ SG_ 517 HVB_bInvCntaPosSt "Inverter bus positive contactor status";
+CM_ SG_ 517 HVB_bInvCntaPreCmd "Inverter bus negative contactor command.";
+CM_ SG_ 517 HVB_bInvCntaPreSt "Inverter bus positive contactor status";
+CM_ SG_ 517 HVB_noCntRoll_VCU "Rolling Counter; Generated by BMS and sent to VCU";
+CM_ SG_ 517 HVB_noCrc8ReqMsg_VCU "SAE J1850 CRC8 (poly: 0x1D, initial value: 0xFF, final XOR: 0xFF) calculated using the previous message bytes.";
+CM_ SG_ 517 HVB_bInvCntaNegCmd "Inverter bus negative contactor command.";
+CM_ SG_ 517 HVB_bInvCntaNegSt "Inverter bus negative contactor status";
+CM_ SG_ 521 HVB_resIsol "Battery IMD insulation resistance measure.";
+CM_ SG_ 521 HVB_stResIsol "present system main state (State Machine)";
+CM_ SG_ 519 HVB_rSoCHvb_uCellMax "Estimated state of charge based on the cell array with the highest OCV";
+CM_ SG_ 519 HVB_rSoCHvb_uCellMin "Estimated state of charge based on the cell array with the lowest OCV";
+CM_ SG_ 515 HVB_stInv "present state for Inverter";
+CM_ SG_ 515 HVB_stSys "present system main state (State Machine)";
+CM_ SG_ 520 HVB_tCellMean "Average temperature of the cell bodies.";
+CM_ SG_ 520 HVB_tCellMin "Lowest measured cell body temperature.";
+CM_ SG_ 520 HVB_tCellMax "Highest cell temperature";
+CM_ SG_ 518 HVB_idxCell_uMax "Cell ID reporting the highest voltage";
+CM_ SG_ 518 HVB_idxCell_uMin "Cell ID reporting the lowest voltage";
+CM_ SG_ 518 HVB_uCellMax "Highest cell voltage";
+CM_ SG_ 518 HVB_uCellMean "Average cell voltage.";
+CM_ SG_ 518 HVB_uCellMin "Lowest cell voltage.";
+CM_ BO_ 288 "Single cell voltage (multiplexed). Sent only if enabled within BMS_00_Req.";
+CM_ SG_ 288 BMS_eDbgVId "Single cell ID.";
+CM_ SG_ 288 BMS_VDbgV002 "Cell 2 voltage.";
+CM_ SG_ 288 BMS_VDbgV044 "Cell 44 voltage.";
+CM_ SG_ 288 BMS_VDbgV104 "Cell 104 voltage.";
+CM_ SG_ 288 BMS_VDbgV147 "Cell 147 voltage.";
+CM_ SG_ 288 BMS_VDbgV087 "Cell 87 voltage.";
+CM_ SG_ 288 BMS_VDbgV098 "Cell 98 voltage.";
+CM_ SG_ 288 BMS_VDbgV123 "Cell 123 voltage.";
+CM_ SG_ 288 BMS_VDbgV166 "Cell 166 voltage.";
+CM_ SG_ 288 BMS_VDbgV177 "Cell 177 voltage.";
+CM_ SG_ 288 BMS_VDbgV021 "Cell 21 voltage.";
+CM_ SG_ 288 BMS_VDbgV054 "Cell 54 voltage.";
+CM_ SG_ 288 BMS_VDbgV144 "Cell 144 voltage.";
+CM_ SG_ 288 BMS_VDbgV165 "Cell 165 voltage.";
+CM_ SG_ 288 BMS_VDbgV174 "Cell 174 voltage.";
+CM_ SG_ 288 BMS_VDbgV016 "Cell 16 voltage.";
+CM_ SG_ 288 BMS_VDbgV036 "Cell 36 voltage.";
+CM_ SG_ 288 BMS_VDbgV134 "Cell 134 voltage.";
+CM_ SG_ 288 BMS_VDbgV193 "Cell 193 voltage.";
+CM_ SG_ 288 BMS_VDbgV041 "Cell 41 voltage.";
+CM_ SG_ 288 BMS_VDbgV133 "Cell 133 voltage.";
+CM_ SG_ 288 BMS_VDbgV150 "Cell 150 voltage.";
+CM_ SG_ 288 BMS_VDbgV157 "Cell 157 voltage.";
+CM_ SG_ 288 BMS_VDbgV194 "Cell 194 voltage.";
+CM_ SG_ 288 BMS_VDbgV045 "Cell 45 voltage.";
+CM_ SG_ 288 BMS_VDbgV051 "Cell 51 voltage.";
+CM_ SG_ 288 BMS_VDbgV078 "Cell 78 voltage.";
+CM_ SG_ 288 BMS_VDbgV221 "Cell 221 voltage.";
+CM_ SG_ 288 BMS_VDbgV068 "Cell 68 voltage.";
+CM_ SG_ 288 BMS_VDbgV082 "Cell 82 voltage.";
+CM_ SG_ 288 BMS_VDbgV231 "Cell 231 voltage.";
+CM_ SG_ 288 BMS_VDbgV151 "Cell 151 voltage.";
+CM_ SG_ 288 BMS_VDbgV029 "Cell 29 voltage.";
+CM_ SG_ 288 BMS_VDbgV052 "Cell 52 voltage.";
+CM_ SG_ 288 BMS_VDbgV152 "Cell 152 voltage.";
+CM_ SG_ 288 BMS_VDbgV070 "Cell 70 voltage.";
+CM_ SG_ 288 BMS_VDbgV073 "Cell 73 voltage.";
+CM_ SG_ 288 BMS_VDbgV081 "Cell 81 voltage.";
+CM_ SG_ 288 BMS_VDbgV111 "Cell 111 voltage.";
+CM_ SG_ 288 BMS_VDbgV182 "Cell 182 voltage.";
+CM_ SG_ 288 BMS_VDbgV015 "Cell 15 voltage.";
+CM_ SG_ 288 BMS_VDbgV116 "Cell 116 voltage.";
+CM_ SG_ 288 BMS_VDbgV172 "Cell 172 voltage.";
+CM_ SG_ 288 BMS_VDbgV062 "Cell 62 voltage.";
+CM_ SG_ 288 BMS_VDbgV105 "Cell 105 voltage.";
+CM_ SG_ 288 BMS_VDbgV245 "Cell 245 voltage.";
+CM_ SG_ 288 BMS_VDbgV254 "Cell 254 voltage.";
+CM_ SG_ 288 BMS_VDbgV009 "Cell 9 voltage.";
+CM_ SG_ 288 BMS_VDbgV056 "Cell 56 voltage.";
+CM_ SG_ 288 BMS_VDbgV076 "Cell 76 voltage.";
+CM_ SG_ 288 BMS_VDbgV185 "Cell 185 voltage.";
+CM_ SG_ 288 BMS_VDbgV216 "Cell 216 voltage.";
+CM_ SG_ 288 BMS_VDbgV091 "Cell 91 voltage.";
+CM_ SG_ 288 BMS_VDbgV107 "Cell 107 voltage.";
+CM_ SG_ 288 BMS_VDbgV161 "Cell 161 voltage.";
+CM_ SG_ 288 BMS_VDbgV138 "Cell 138 voltage.";
+CM_ SG_ 288 BMS_VDbgV233 "Cell 233 voltage.";
+CM_ SG_ 288 BMS_VDbgV000 "Cell 0 voltage.";
+CM_ SG_ 288 BMS_VDbgV101 "Cell 101 voltage.";
+CM_ SG_ 288 BMS_VDbgV171 "Cell 171 voltage.";
+CM_ SG_ 288 BMS_VDbgV019 "Cell 19 voltage.";
+CM_ SG_ 288 BMS_VDbgV038 "Cell 38 voltage.";
+CM_ SG_ 288 BMS_VDbgV053 "Cell 53 voltage.";
+CM_ SG_ 288 BMS_VDbgV067 "Cell 67 voltage.";
+CM_ SG_ 288 BMS_VDbgV132 "Cell 132 voltage.";
+CM_ SG_ 288 BMS_VDbgV085 "Cell 85 voltage.";
+CM_ SG_ 288 BMS_VDbgV106 "Cell 106 voltage.";
+CM_ SG_ 288 BMS_VDbgV141 "Cell 141 voltage.";
+CM_ SG_ 288 BMS_VDbgV158 "Cell 158 voltage.";
+CM_ SG_ 288 BMS_VDbgV218 "Cell 218 voltage.";
+CM_ SG_ 288 BMS_VDbgV241 "Cell 241 voltage.";
+CM_ SG_ 288 BMS_VDbgV103 "Cell 103 voltage.";
+CM_ SG_ 288 BMS_VDbgV140 "Cell 140 voltage.";
+CM_ SG_ 288 BMS_VDbgV173 "Cell 173 voltage.";
+CM_ SG_ 288 BMS_VDbgV205 "Cell 205 voltage.";
+CM_ SG_ 288 BMS_VDbgV211 "Cell 211 voltage.";
+CM_ SG_ 288 BMS_VDbgV020 "Cell 20 voltage.";
+CM_ SG_ 288 BMS_VDbgV025 "Cell 25 voltage.";
+CM_ SG_ 288 BMS_VDbgV184 "Cell 184 voltage.";
+CM_ SG_ 288 BMS_VDbgV248 "Cell 248 voltage.";
+CM_ SG_ 288 BMS_VDbgV249 "Cell 249 voltage.";
+CM_ SG_ 288 BMS_VDbgV030 "Cell 30 voltage.";
+CM_ SG_ 288 BMS_VDbgV092 "Cell 92 voltage.";
+CM_ SG_ 288 BMS_VDbgV189 "Cell 189 voltage.";
+CM_ SG_ 288 BMS_VDbgV244 "Cell 244 voltage.";
+CM_ SG_ 288 BMS_VDbgV026 "Cell 26 voltage.";
+CM_ SG_ 288 BMS_VDbgV050 "Cell 50 voltage.";
+CM_ SG_ 288 BMS_VDbgV063 "Cell 63 voltage.";
+CM_ SG_ 288 BMS_VDbgV074 "Cell 74 voltage.";
+CM_ SG_ 288 BMS_VDbgV239 "Cell 239 voltage.";
+CM_ SG_ 288 BMS_VDbgV055 "Cell 55 voltage.";
+CM_ SG_ 288 BMS_VDbgV089 "Cell 89 voltage.";
+CM_ SG_ 288 BMS_VDbgV112 "Cell 112 voltage.";
+CM_ SG_ 288 BMS_VDbgV122 "Cell 122 voltage.";
+CM_ SG_ 288 BMS_VDbgV198 "Cell 198 voltage.";
+CM_ SG_ 288 BMS_VDbgV192 "Cell 192 voltage.";
+CM_ SG_ 288 BMS_VDbgV237 "Cell 237 voltage.";
+CM_ SG_ 288 BMS_VDbgV072 "Cell 72 voltage.";
+CM_ SG_ 288 BMS_VDbgV155 "Cell 155 voltage.";
+CM_ SG_ 288 BMS_VDbgV197 "Cell 197 voltage.";
+CM_ SG_ 288 BMS_VDbgV201 "Cell 201 voltage.";
+CM_ SG_ 288 BMS_VDbgV234 "Cell 234 voltage.";
+CM_ SG_ 288 BMS_VDbgV027 "Cell 27 voltage.";
+CM_ SG_ 288 BMS_VDbgV028 "Cell 28 voltage.";
+CM_ SG_ 288 BMS_VDbgV049 "Cell 49 voltage.";
+CM_ SG_ 288 BMS_VDbgV069 "Cell 69 voltage.";
+CM_ SG_ 288 BMS_VDbgV097 "Cell 97 voltage.";
+CM_ SG_ 288 BMS_VDbgV120 "Cell 120 voltage.";
+CM_ SG_ 288 BMS_VDbgV228 "Cell 228 voltage.";
+CM_ SG_ 288 BMS_VDbgV235 "Cell 235 voltage.";
+CM_ SG_ 288 BMS_VDbgV246 "Cell 246 voltage.";
+CM_ SG_ 288 BMS_VDbgV032 "Cell 32 voltage.";
+CM_ SG_ 288 BMS_VDbgV046 "Cell 46 voltage.";
+CM_ SG_ 288 BMS_VDbgV181 "Cell 181 voltage.";
+CM_ SG_ 288 BMS_VDbgV251 "Cell 251 voltage.";
+CM_ SG_ 288 BMS_VDbgV253 "Cell 253 voltage.";
+CM_ SG_ 288 BMS_VDbgV013 "Cell 13 voltage.";
+CM_ SG_ 288 BMS_VDbgV135 "Cell 135 voltage.";
+CM_ SG_ 288 BMS_VDbgV196 "Cell 196 voltage.";
+CM_ SG_ 288 BMS_VDbgV202 "Cell 202 voltage.";
+CM_ SG_ 288 BMS_VDbgV227 "Cell 227 voltage.";
+CM_ SG_ 288 BMS_VDbgV225 "Cell 225 voltage.";
+CM_ SG_ 288 BMS_VDbgV240 "Cell 240 voltage.";
+CM_ SG_ 288 BMS_VDbgV012 "Cell 12 voltage.";
+CM_ SG_ 288 BMS_VDbgV024 "Cell 24 voltage.";
+CM_ SG_ 288 BMS_VDbgV060 "Cell 60 voltage.";
+CM_ SG_ 288 BMS_VDbgV075 "Cell 75 voltage.";
+CM_ SG_ 288 BMS_VDbgV186 "Cell 186 voltage.";
+CM_ SG_ 288 BMS_VDbgV040 "Cell 40 voltage.";
+CM_ SG_ 288 BMS_VDbgV094 "Cell 94 voltage.";
+CM_ SG_ 288 BMS_VDbgV117 "Cell 117 voltage.";
+CM_ SG_ 288 BMS_VDbgV188 "Cell 188 voltage.";
+CM_ SG_ 288 BMS_VDbgV250 "Cell 250 voltage.";
+CM_ SG_ 288 BMS_VDbgV252 "Cell 252 voltage.";
+CM_ SG_ 288 BMS_VDbgV115 "Cell 115 voltage.";
+CM_ SG_ 288 BMS_VDbgV153 "Cell 153 voltage.";
+CM_ SG_ 288 BMS_VDbgV195 "Cell 195 voltage.";
+CM_ SG_ 288 BMS_VDbgV255 "Cell 255 voltage.";
+CM_ SG_ 288 BMS_VDbgV066 "Cell 66 voltage.";
+CM_ SG_ 288 BMS_VDbgV086 "Cell 86 voltage.";
+CM_ SG_ 288 BMS_VDbgV109 "Cell 109 voltage.";
+CM_ SG_ 288 BMS_VDbgV142 "Cell 142 voltage.";
+CM_ SG_ 288 BMS_VDbgV146 "Cell 146 voltage.";
+CM_ SG_ 288 BMS_VDbgV242 "Cell 242 voltage.";
+CM_ SG_ 288 BMS_VDbgV061 "Cell 61 voltage.";
+CM_ SG_ 288 BMS_VDbgV080 "Cell 80 voltage.";
+CM_ SG_ 288 BMS_VDbgV108 "Cell 108 voltage.";
+CM_ SG_ 288 BMS_VDbgV127 "Cell 127 voltage.";
+CM_ SG_ 288 BMS_VDbgV023 "Cell 23 voltage.";
+CM_ SG_ 288 BMS_VDbgV215 "Cell 215 voltage.";
+CM_ SG_ 288 BMS_VDbgV170 "Cell 170 voltage.";
+CM_ SG_ 288 BMS_VDbgV175 "Cell 175 voltage.";
+CM_ SG_ 288 BMS_VDbgV011 "Cell 11 voltage.";
+CM_ SG_ 288 BMS_VDbgV031 "Cell 31 voltage.";
+CM_ SG_ 288 BMS_VDbgV057 "Cell 57 voltage.";
+CM_ SG_ 288 BMS_VDbgV093 "Cell 93 voltage.";
+CM_ SG_ 288 BMS_VDbgV124 "Cell 124 voltage.";
+CM_ SG_ 288 BMS_VDbgV010 "Cell 10 voltage.";
+CM_ SG_ 288 BMS_VDbgV129 "Cell 129 voltage.";
+CM_ SG_ 288 BMS_VDbgV214 "Cell 214 voltage.";
+CM_ SG_ 288 BMS_VDbgV039 "Cell 39 voltage.";
+CM_ SG_ 288 BMS_VDbgV136 "Cell 136 voltage.";
+CM_ SG_ 288 BMS_VDbgV209 "Cell 209 voltage.";
+CM_ SG_ 288 BMS_VDbgV100 "Cell 100 voltage.";
+CM_ SG_ 288 BMS_VDbgV160 "Cell 160 voltage.";
+CM_ SG_ 288 BMS_VDbgV238 "Cell 238 voltage.";
+CM_ SG_ 288 BMS_VDbgV058 "Cell 58 voltage.";
+CM_ SG_ 288 BMS_VDbgV126 "Cell 126 voltage.";
+CM_ SG_ 288 BMS_VDbgV159 "Cell 159 voltage.";
+CM_ SG_ 288 BMS_VDbgV232 "Cell 232 voltage.";
+CM_ SG_ 288 BMS_VDbgV008 "Cell 8 voltage.";
+CM_ SG_ 288 BMS_VDbgV143 "Cell 143 voltage.";
+CM_ SG_ 288 BMS_VDbgV167 "Cell 167 voltage.";
+CM_ SG_ 288 BMS_VDbgV190 "Cell 190 voltage.";
+CM_ SG_ 288 BMS_VDbgV212 "Cell 212 voltage.";
+CM_ SG_ 288 BMS_VDbgV164 "Cell 164 voltage.";
+CM_ SG_ 288 BMS_VDbgV007 "Cell 7 voltage.";
+CM_ SG_ 288 BMS_VDbgV018 "Cell 18 voltage.";
+CM_ SG_ 288 BMS_VDbgV042 "Cell 42 voltage.";
+CM_ SG_ 288 BMS_VDbgV110 "Cell 110 voltage.";
+CM_ SG_ 288 BMS_VDbgV145 "Cell 145 voltage.";
+CM_ SG_ 288 BMS_VDbgV178 "Cell 178 voltage.";
+CM_ SG_ 288 BMS_VDbgV226 "Cell 226 voltage.";
+CM_ SG_ 288 BMS_VDbgV014 "Cell 14 voltage.";
+CM_ SG_ 288 BMS_VDbgV035 "Cell 35 voltage.";
+CM_ SG_ 288 BMS_VDbgV119 "Cell 119 voltage.";
+CM_ SG_ 288 BMS_VDbgV148 "Cell 148 voltage.";
+CM_ SG_ 288 BMS_VDbgV163 "Cell 163 voltage.";
+CM_ SG_ 288 BMS_VDbgV022 "Cell 22 voltage.";
+CM_ SG_ 288 BMS_VDbgV033 "Cell 33 voltage.";
+CM_ SG_ 288 BMS_VDbgV222 "Cell 222 voltage.";
+CM_ SG_ 288 BMS_VDbgV090 "Cell 90 voltage.";
+CM_ SG_ 288 BMS_VDbgV128 "Cell 128 voltage.";
+CM_ SG_ 288 BMS_VDbgV176 "Cell 176 voltage.";
+CM_ SG_ 288 BMS_VDbgV001 "Cell 1 voltage.";
+CM_ SG_ 288 BMS_VDbgV003 "Cell 3 voltage.";
+CM_ SG_ 288 BMS_VDbgV006 "Cell 6 voltage.";
+CM_ SG_ 288 BMS_VDbgV034 "Cell 34 voltage.";
+CM_ SG_ 288 BMS_VDbgV088 "Cell 88 voltage.";
+CM_ SG_ 288 BMS_VDbgV191 "Cell 191 voltage.";
+CM_ SG_ 288 BMS_VDbgV187 "Cell 187 voltage.";
+CM_ SG_ 288 BMS_VDbgV230 "Cell 230 voltage.";
+CM_ SG_ 288 BMS_VDbgV059 "Cell 59 voltage.";
+CM_ SG_ 288 BMS_VDbgV131 "Cell 131 voltage.";
+CM_ SG_ 288 BMS_VDbgV156 "Cell 156 voltage.";
+CM_ SG_ 288 BMS_VDbgV162 "Cell 162 voltage.";
+CM_ SG_ 288 BMS_VDbgV169 "Cell 169 voltage.";
+CM_ SG_ 288 BMS_VDbgV064 "Cell 64 voltage.";
+CM_ SG_ 288 BMS_VDbgV118 "Cell 118 voltage.";
+CM_ SG_ 288 BMS_VDbgV137 "Cell 137 voltage.";
+CM_ SG_ 288 BMS_VDbgV079 "Cell 79 voltage.";
+CM_ SG_ 288 BMS_VDbgV204 "Cell 204 voltage.";
+CM_ SG_ 288 BMS_VDbgV217 "Cell 217 voltage.";
+CM_ SG_ 288 BMS_VDbgV149 "Cell 149 voltage.";
+CM_ SG_ 288 BMS_VDbgV203 "Cell 203 voltage.";
+CM_ SG_ 288 BMS_VDbgV208 "Cell 208 voltage.";
+CM_ SG_ 288 BMS_VDbgV071 "Cell 71 voltage.";
+CM_ SG_ 288 BMS_VDbgV077 "Cell 77 voltage.";
+CM_ SG_ 288 BMS_VDbgV095 "Cell 95 voltage.";
+CM_ SG_ 288 BMS_VDbgV099 "Cell 99 voltage.";
+CM_ SG_ 288 BMS_VDbgV121 "Cell 121 voltage.";
+CM_ SG_ 288 BMS_VDbgV139 "Cell 139 voltage.";
+CM_ SG_ 288 BMS_VDbgV004 "Cell 4 voltage.";
+CM_ SG_ 288 BMS_VDbgV005 "Cell 5 voltage.";
+CM_ SG_ 288 BMS_VDbgV037 "Cell 37 voltage.";
+CM_ SG_ 288 BMS_VDbgV096 "Cell 96 voltage.";
+CM_ SG_ 288 BMS_VDbgV130 "Cell 130 voltage.";
+CM_ SG_ 288 BMS_VDbgV083 "Cell 83 voltage.";
+CM_ SG_ 288 BMS_VDbgV213 "Cell 213 voltage.";
+CM_ SG_ 288 BMS_VDbgV229 "Cell 229 voltage.";
+CM_ SG_ 288 BMS_VDbgV065 "Cell 65 voltage.";
+CM_ SG_ 288 BMS_VDbgV220 "Cell 220 voltage.";
+CM_ SG_ 288 BMS_VDbgV154 "Cell 154 voltage.";
+CM_ SG_ 288 BMS_VDbgV180 "Cell 180 voltage.";
+CM_ SG_ 288 BMS_VDbgV183 "Cell 183 voltage.";
+CM_ SG_ 288 BMS_VDbgV199 "Cell 199 voltage.";
+CM_ SG_ 288 BMS_VDbgV210 "Cell 210 voltage.";
+CM_ SG_ 288 BMS_VDbgV206 "Cell 206 voltage.";
+CM_ SG_ 288 BMS_VDbgV084 "Cell 84 voltage.";
+CM_ SG_ 288 BMS_VDbgV113 "Cell 113 voltage.";
+CM_ SG_ 288 BMS_VDbgV114 "Cell 114 voltage.";
+CM_ SG_ 288 BMS_VDbgV125 "Cell 125 voltage.";
+CM_ SG_ 288 BMS_VDbgV179 "Cell 179 voltage.";
+CM_ SG_ 288 BMS_VDbgV043 "Cell 43 voltage.";
+CM_ SG_ 288 BMS_VDbgV048 "Cell 48 voltage.";
+CM_ SG_ 288 BMS_VDbgV200 "Cell 200 voltage.";
+CM_ SG_ 288 BMS_VDbgV243 "Cell 243 voltage.";
+CM_ SG_ 288 BMS_VDbgV017 "Cell 17 voltage.";
+CM_ SG_ 288 BMS_VDbgV102 "Cell 102 voltage.";
+CM_ SG_ 288 BMS_VDbgV223 "Cell 223 voltage.";
+CM_ SG_ 288 BMS_VDbgV247 "Cell 247 voltage.";
+CM_ SG_ 288 BMS_VDbgV168 "Cell 168 voltage.";
+CM_ SG_ 288 BMS_VDbgV207 "Cell 207 voltage.";
+CM_ SG_ 288 BMS_VDbgV219 "Cell 219 voltage.";
+CM_ SG_ 288 BMS_VDbgV224 "Cell 224 voltage.";
+CM_ SG_ 288 BMS_VDbgV236 "Cell 236 voltage.";
+CM_ SG_ 288 BMS_VDbgV047 "Cell 47 voltage.";
+CM_ SG_ 516 HVB_iHvb "Pack Current. Negative is discharging and positive is charging pack. Source is the current sensor.";
+CM_ SG_ 516 HVB_uBus "Battery Pack Voltage. Source is the sum of all cell voltages. ";
+CM_ SG_ 516 HVB_uHvb "Battery Pack Voltage. Source is the sum of all cell voltages. ";
+CM_ SG_ 336 VCU_bAllVTReq "Enables pack all V & T message.";
+CM_ SG_ 336 VCU_bBalReq "Enables pack balancing.";
+CM_ SG_ 336 VCU_bHvbInvReq "requested closing Inverter conductors  by VCU";
+CM_ BO_ 289 "Single thermistor temperature (multiplexed). Sent only if enabled within BMS_00_Req.";
+CM_ SG_ 289 BMS_eDbgTId "Single thermistor ID.";
+CM_ SG_ 289 BMS_TDbgT012 "Thermistor 12 temperature.";
+CM_ SG_ 289 BMS_TDbgT029 "Thermistor 29 temperature.";
+CM_ SG_ 289 BMS_TDbgT031 "Thermistor 31 temperature.";
+CM_ SG_ 289 BMS_TDbgT048 "Thermistor 48 temperature.";
+CM_ SG_ 289 BMS_TDbgT103 "Thermistor 103 temperature.";
+CM_ SG_ 289 BMS_TDbgT000 "Thermistor 0 temperature.";
+CM_ SG_ 289 BMS_TDbgT080 "Thermistor 80 temperature.";
+CM_ SG_ 289 BMS_TDbgT109 "Thermistor 109 temperature.";
+CM_ SG_ 289 BMS_TDbgT119 "Thermistor 119 temperature.";
+CM_ SG_ 289 BMS_TDbgT089 "Thermistor 89 temperature.";
+CM_ SG_ 289 BMS_TDbgT104 "Thermistor 104 temperature.";
+CM_ SG_ 289 BMS_TDbgT003 "Thermistor 3 temperature.";
+CM_ SG_ 289 BMS_TDbgT045 "Thermistor 45 temperature.";
+CM_ SG_ 289 BMS_TDbgT082 "Thermistor 82 temperature.";
+CM_ SG_ 289 BMS_TDbgT090 "Thermistor 90 temperature.";
+CM_ SG_ 289 BMS_TDbgT019 "Thermistor 19 temperature.";
+CM_ SG_ 289 BMS_TDbgT024 "Thermistor 24 temperature.";
+CM_ SG_ 289 BMS_TDbgT038 "Thermistor 38 temperature.";
+CM_ SG_ 289 BMS_TDbgT044 "Thermistor 44 temperature.";
+CM_ SG_ 289 BMS_TDbgT052 "Thermistor 52 temperature.";
+CM_ SG_ 289 BMS_TDbgT058 "Thermistor 58 temperature.";
+CM_ SG_ 289 BMS_TDbgT068 "Thermistor 68 temperature.";
+CM_ SG_ 289 BMS_TDbgT108 "Thermistor 108 temperature.";
+CM_ SG_ 289 BMS_TDbgT118 "Thermistor 118 temperature.";
+CM_ SG_ 289 BMS_TDbgT004 "Thermistor 4 temperature.";
+CM_ SG_ 289 BMS_TDbgT008 "Thermistor 8 temperature.";
+CM_ SG_ 289 BMS_TDbgT047 "Thermistor 47 temperature.";
+CM_ SG_ 289 BMS_TDbgT007 "Thermistor 7 temperature.";
+CM_ SG_ 289 BMS_TDbgT013 "Thermistor 13 temperature.";
+CM_ SG_ 289 BMS_TDbgT014 "Thermistor 14 temperature.";
+CM_ SG_ 289 BMS_TDbgT062 "Thermistor 62 temperature.";
+CM_ SG_ 289 BMS_TDbgT069 "Thermistor 69 temperature.";
+CM_ SG_ 289 BMS_TDbgT094 "Thermistor 94 temperature.";
+CM_ SG_ 289 BMS_TDbgT095 "Thermistor 95 temperature.";
+CM_ SG_ 289 BMS_TDbgT120 "Thermistor 120 temperature.";
+CM_ SG_ 289 BMS_TDbgT002 "Thermistor 2 temperature.";
+CM_ SG_ 289 BMS_TDbgT016 "Thermistor 16 temperature.";
+CM_ SG_ 289 BMS_TDbgT087 "Thermistor 87 temperature.";
+CM_ SG_ 289 BMS_TDbgT098 "Thermistor 98 temperature.";
+CM_ SG_ 289 BMS_TDbgT099 "Thermistor 99 temperature.";
+CM_ SG_ 289 BMS_TDbgT115 "Thermistor 115 temperature.";
+CM_ SG_ 289 BMS_TDbgT009 "Thermistor 9 temperature.";
+CM_ SG_ 289 BMS_TDbgT093 "Thermistor 93 temperature.";
+CM_ SG_ 289 BMS_TDbgT101 "Thermistor 101 temperature.";
+CM_ SG_ 289 BMS_TDbgT111 "Thermistor 111 temperature.";
+CM_ SG_ 289 BMS_TDbgT020 "Thermistor 20 temperature.";
+CM_ SG_ 289 BMS_TDbgT100 "Thermistor 100 temperature.";
+CM_ SG_ 289 BMS_TDbgT057 "Thermistor 57 temperature.";
+CM_ SG_ 289 BMS_TDbgT088 "Thermistor 88 temperature.";
+CM_ SG_ 289 BMS_TDbgT123 "Thermistor 123 temperature.";
+CM_ SG_ 289 BMS_TDbgT022 "Thermistor 22 temperature.";
+CM_ SG_ 289 BMS_TDbgT073 "Thermistor 73 temperature.";
+CM_ SG_ 289 BMS_TDbgT074 "Thermistor 74 temperature.";
+CM_ SG_ 289 BMS_TDbgT084 "Thermistor 84 temperature.";
+CM_ SG_ 289 BMS_TDbgT064 "Thermistor 64 temperature.";
+CM_ SG_ 289 BMS_TDbgT079 "Thermistor 79 temperature.";
+CM_ SG_ 289 BMS_TDbgT021 "Thermistor 21 temperature.";
+CM_ SG_ 289 BMS_TDbgT025 "Thermistor 25 temperature.";
+CM_ SG_ 289 BMS_TDbgT037 "Thermistor 37 temperature.";
+CM_ SG_ 289 BMS_TDbgT077 "Thermistor 77 temperature.";
+CM_ SG_ 289 BMS_TDbgT091 "Thermistor 91 temperature.";
+CM_ SG_ 289 BMS_TDbgT117 "Thermistor 117 temperature.";
+CM_ SG_ 289 BMS_TDbgT015 "Thermistor 15 temperature.";
+CM_ SG_ 289 BMS_TDbgT043 "Thermistor 43 temperature.";
+CM_ SG_ 289 BMS_TDbgT066 "Thermistor 66 temperature.";
+CM_ SG_ 289 BMS_TDbgT106 "Thermistor 106 temperature.";
+CM_ SG_ 289 BMS_TDbgT054 "Thermistor 54 temperature.";
+CM_ SG_ 289 BMS_TDbgT092 "Thermistor 92 temperature.";
+CM_ SG_ 289 BMS_TDbgT126 "Thermistor 126 temperature.";
+CM_ SG_ 289 BMS_TDbgT067 "Thermistor 67 temperature.";
+CM_ SG_ 289 BMS_TDbgT110 "Thermistor 110 temperature.";
+CM_ SG_ 289 BMS_TDbgT028 "Thermistor 28 temperature.";
+CM_ SG_ 289 BMS_TDbgT060 "Thermistor 60 temperature.";
+CM_ SG_ 289 BMS_TDbgT063 "Thermistor 63 temperature.";
+CM_ SG_ 289 BMS_TDbgT076 "Thermistor 76 temperature.";
+CM_ SG_ 289 BMS_TDbgT122 "Thermistor 122 temperature.";
+CM_ SG_ 289 BMS_TDbgT127 "Thermistor 127 temperature.";
+CM_ SG_ 289 BMS_TDbgT049 "Thermistor 49 temperature.";
+CM_ SG_ 289 BMS_TDbgT053 "Thermistor 53 temperature.";
+CM_ SG_ 289 BMS_TDbgT065 "Thermistor 65 temperature.";
+CM_ SG_ 289 BMS_TDbgT107 "Thermistor 107 temperature.";
+CM_ SG_ 289 BMS_TDbgT032 "Thermistor 32 temperature.";
+CM_ SG_ 289 BMS_TDbgT055 "Thermistor 55 temperature.";
+CM_ SG_ 289 BMS_TDbgT070 "Thermistor 70 temperature.";
+CM_ SG_ 289 BMS_TDbgT124 "Thermistor 124 temperature.";
+CM_ SG_ 289 BMS_TDbgT030 "Thermistor 30 temperature.";
+CM_ SG_ 289 BMS_TDbgT042 "Thermistor 42 temperature.";
+CM_ SG_ 289 BMS_TDbgT097 "Thermistor 97 temperature.";
+CM_ SG_ 289 BMS_TDbgT121 "Thermistor 121 temperature.";
+CM_ SG_ 289 BMS_TDbgT036 "Thermistor 36 temperature.";
+CM_ SG_ 289 BMS_TDbgT040 "Thermistor 40 temperature.";
+CM_ SG_ 289 BMS_TDbgT005 "Thermistor 5 temperature.";
+CM_ SG_ 289 BMS_TDbgT006 "Thermistor 6 temperature.";
+CM_ SG_ 289 BMS_TDbgT023 "Thermistor 23 temperature.";
+CM_ SG_ 289 BMS_TDbgT051 "Thermistor 51 temperature.";
+CM_ SG_ 289 BMS_TDbgT061 "Thermistor 61 temperature.";
+CM_ SG_ 289 BMS_TDbgT072 "Thermistor 72 temperature.";
+CM_ SG_ 289 BMS_TDbgT085 "Thermistor 85 temperature.";
+CM_ SG_ 289 BMS_TDbgT112 "Thermistor 112 temperature.";
+CM_ SG_ 289 BMS_TDbgT034 "Thermistor 34 temperature.";
+CM_ SG_ 289 BMS_TDbgT041 "Thermistor 41 temperature.";
+CM_ SG_ 289 BMS_TDbgT046 "Thermistor 46 temperature.";
+CM_ SG_ 289 BMS_TDbgT078 "Thermistor 78 temperature.";
+CM_ SG_ 289 BMS_TDbgT116 "Thermistor 116 temperature.";
+CM_ SG_ 289 BMS_TDbgT026 "Thermistor 26 temperature.";
+CM_ SG_ 289 BMS_TDbgT059 "Thermistor 59 temperature.";
+CM_ SG_ 289 BMS_TDbgT081 "Thermistor 81 temperature.";
+CM_ SG_ 289 BMS_TDbgT083 "Thermistor 83 temperature.";
+CM_ SG_ 289 BMS_TDbgT086 "Thermistor 86 temperature.";
+CM_ SG_ 289 BMS_TDbgT096 "Thermistor 96 temperature.";
+CM_ SG_ 289 BMS_TDbgT114 "Thermistor 114 temperature.";
+CM_ SG_ 289 BMS_TDbgT001 "Thermistor 1 temperature.";
+CM_ SG_ 289 BMS_TDbgT018 "Thermistor 18 temperature.";
+CM_ SG_ 289 BMS_TDbgT035 "Thermistor 35 temperature.";
+CM_ SG_ 289 BMS_TDbgT050 "Thermistor 50 temperature.";
+CM_ SG_ 289 BMS_TDbgT075 "Thermistor 75 temperature.";
+CM_ SG_ 289 BMS_TDbgT102 "Thermistor 102 temperature.";
+CM_ SG_ 289 BMS_TDbgT017 "Thermistor 17 temperature.";
+CM_ SG_ 289 BMS_TDbgT071 "Thermistor 71 temperature.";
+CM_ SG_ 289 BMS_TDbgT113 "Thermistor 113 temperature.";
+CM_ SG_ 289 BMS_TDbgT125 "Thermistor 125 temperature.";
+CM_ SG_ 289 BMS_TDbgT011 "Thermistor 11 temperature.";
+CM_ SG_ 289 BMS_TDbgT039 "Thermistor 39 temperature.";
+CM_ SG_ 289 BMS_TDbgT056 "Thermistor 56 temperature.";
+CM_ SG_ 289 BMS_TDbgT010 "Thermistor 10 temperature.";
+CM_ SG_ 289 BMS_TDbgT027 "Thermistor 27 temperature.";
+CM_ SG_ 289 BMS_TDbgT033 "Thermistor 33 temperature.";
+CM_ SG_ 289 BMS_TDbgT105 "Thermistor 105 temperature.";
+
+BA_DEF_ BU_ "ILUsed" ENUM "No","Yes";
+BA_DEF_ BU_ "Manufacturer" STRING ;
+BA_DEF_ BU_ "NmNode" ENUM "no","yes";
+BA_DEF_ BU_ "NmStationAddress" INT 0 63;
+BA_DEF_ BO_ "GenMsgCycleTime" INT 0 1000;
+BA_DEF_ BO_ "GenMsgCycleTimeFast" INT 0 1000;
+BA_DEF_ BO_ "GenMsgILSupport" ENUM "No","Yes";
+BA_DEF_ BO_ "GenMsgSendType" ENUM "NoMsgSendType","Cyclic","IfActive","cyclicIfActive","NotUsed";
+BA_DEF_ BO_ "Quantisierung" STRING ;
+BA_DEF_ BO_ "GenMsgDelayTime" INT 0 1000;
+BA_DEF_ BO_ "GenMsgNrOfRepetition" INT 0 10;
+BA_DEF_ BO_ "GenMsgStartDelayTime" INT 0 1000;
+BA_DEF_ BO_ "NmMessage" ENUM "no","yes";
+BA_DEF_ SG_ "GenSigSendType" ENUM "NoSigSendType","Cyclic","OnWrite","OnWriteWithRepetition","OnChange","OnChangeWithRepetition","IfActive","IfActiveWithRepetition","NotUsed";
+BA_DEF_ SG_ "GenSigStartValue" FLOAT 0 100000000000;
+BA_DEF_ SG_ "NWM_WakeupAllowed" ENUM "no","yes";
+BA_DEF_ SG_ "AttributSignalTest" INT 1 100;
+BA_DEF_ SG_ "GenSigInactiveValue" INT 0 100000;
+BA_DEF_DEF_ "Manufacturer" "Isabellenhuette";
+BA_DEF_DEF_ "NmNode" "no";
+BA_DEF_DEF_ "NmStationAddress" 0;
+BA_DEF_DEF_ "ILUsed" "Yes";
+BA_DEF_DEF_ "GenMsgILSupport" "Yes";
+BA_DEF_DEF_ "GenMsgSendType" "NoMsgSendType";
+BA_DEF_DEF_ "Quantisierung" "CAN";
+BA_DEF_DEF_ "GenMsgCycleTime" 0;
+BA_DEF_DEF_ "GenMsgCycleTimeFast" 0;
+BA_DEF_DEF_ "GenMsgStartDelayTime" 0;
+BA_DEF_DEF_ "NmMessage" "no";
+BA_DEF_DEF_ "GenMsgDelayTime" 0;
+BA_DEF_DEF_ "GenMsgNrOfRepetition" 0;
+BA_DEF_DEF_ "NWM_WakeupAllowed" "no";
+BA_DEF_DEF_ "AttributSignalTest" 2;
+BA_DEF_DEF_ "GenSigInactiveValue" 0;
+BA_DEF_DEF_ "GenSigSendType" "NoSigSendType";
+BA_DEF_DEF_ "GenSigStartValue" 0;
+BA_ "ILUsed" BU_ IVTMain 1;
+BA_ "Manufacturer" BU_ IVTMain "Isabellenhuette";
+BA_ "Manufacturer" BU_ VCU "Podium";
+BA_ "Manufacturer" BU_ Charger "Podium";
+BA_ "NmNode" BU_ IVTMain 1;
+BA_ "GenMsgSendType" BO_ 520 1;
+BA_ "GenMsgSendType" BO_ 336 1;
+BA_ "GenMsgSendType" BO_ 527 1;
+BA_ "GenMsgSendType" BO_ 1297 4;
+BA_ "GenMsgSendType" BO_ 514 1;
+BA_ "GenMsgSendType" BO_ 521 1;
+BA_ "GenMsgSendType" BO_ 288 3;
+BA_ "GenMsgSendType" BO_ 1317 1;
+BA_ "GenMsgSendType" BO_ 1316 1;
+BA_ "GenMsgSendType" BO_ 1041 2;
+BA_ "GenMsgSendType" BO_ 1314 1;
+BA_ "GenMsgSendType" BO_ 1320 1;
+BA_ "GenMsgSendType" BO_ 1319 1;
+BA_ "GenMsgSendType" BO_ 517 1;
+BA_ "GenMsgSendType" BO_ 1318 1;
+BA_ "GenMsgSendType" BO_ 516 1;
+BA_ "GenMsgSendType" BO_ 1315 1;
+BA_ "GenMsgSendType" BO_ 512 1;
+BA_ "GenMsgSendType" BO_ 519 1;
+BA_ "GenMsgSendType" BO_ 515 1;
+BA_ "GenMsgSendType" BO_ 518 1;
+BA_ "GenMsgSendType" BO_ 1313 1;
+BA_ "GenMsgSendType" BO_ 289 3;
+BA_ "GenMsgCycleTime" BO_ 527 1000;
+BA_ "GenMsgCycleTime" BO_ 1317 100;
+BA_ "GenMsgCycleTime" BO_ 516 20;
+BA_ "GenMsgCycleTime" BO_ 289 10;
+BA_ "GenMsgCycleTime" BO_ 288 5;
+BA_ "GenMsgCycleTime" BO_ 517 20;
+BA_ "GenMsgCycleTime" BO_ 336 100;
+BA_ "GenMsgCycleTime" BO_ 1315 60;
+BA_ "GenMsgCycleTime" BO_ 512 10;
+BA_ "GenMsgCycleTime" BO_ 521 200;
+BA_ "GenMsgCycleTime" BO_ 515 20;
+BA_ "GenMsgCycleTime" BO_ 1319 100;
+BA_ "GenMsgCycleTime" BO_ 514 60;
+BA_ "GenMsgCycleTime" BO_ 1318 60;
+BA_ "GenMsgCycleTime" BO_ 1320 100;
+BA_ "GenMsgCycleTime" BO_ 1316 60;
+BA_ "GenMsgCycleTime" BO_ 1314 60;
+BA_ "GenMsgCycleTime" BO_ 519 100;
+BA_ "GenMsgCycleTime" BO_ 520 100;
+BA_ "GenMsgCycleTime" BO_ 518 100;
+BA_ "GenMsgCycleTime" BO_ 1313 20;
+BA_ "NmMessage" BO_ 1041 1;
+BA_ "GenSigSendType" SG_ 1320 IVTMain_ID_Result_Wh 0;
+BA_ "GenSigSendType" SG_ 1320 IVTMain_Result_Wh 0;
+BA_ "GenSigSendType" SG_ 1319 IVTMain_ID_Result_As 0;
+BA_ "GenSigSendType" SG_ 1315 IVTMain_ID_Result_U2 0;
+BA_ "GenSigSendType" SG_ 1313 IVTMain_ID_Result_I 0;
+BA_ "GenSigSendType" SG_ 1313 IVTMain_Result_I 0;
+BA_ "GenSigSendType" SG_ 1317 IVTMain_ID_Result_T 0;
+BA_ "GenSigSendType" SG_ 1316 IVTMain_ID_Result_U3 0;
+BA_ "GenSigSendType" SG_ 1314 IVTMain_Result_U1 0;
+BA_ "GenSigSendType" SG_ 1314 IVTMain_ID_Result_U1 0;
+BA_ "GenSigSendType" SG_ 1318 IVTMain_ID_Result_W 0;
+BA_ "GenSigStartValue" SG_ 1313 IVTMain_ID_Result_I 0;
+BA_ "GenSigStartValue" SG_ 1313 IVTMain_Result_I 0;
+BA_ "GenSigStartValue" SG_ 1317 IVTMain_Result_T 0;
+BA_ "GenSigStartValue" SG_ 1317 IVTMain_ID_Result_T 4;
+BA_ "GenSigStartValue" SG_ 1316 IVTMain_ID_Result_U3 3;
+BA_ "GenSigStartValue" SG_ 1314 IVTMain_ID_Result_U1 1;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT021 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT053 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT014 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT068 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT102 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT121 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT067 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT057 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT050 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT069 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT070 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT072 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT011 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT060 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT046 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT073 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT034 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT030 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT027 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT077 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT081 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT013 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT032 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT114 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT033 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT126 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT080 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT115 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT094 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT123 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT098 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT016 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT019 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT037 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT078 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT017 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT041 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT020 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT008 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT002 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT122 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT095 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT089 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT086 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT075 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT055 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT061 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT092 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT010 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT006 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT029 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT065 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT104 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT007 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT105 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT108 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT118 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT097 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT042 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT003 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT045 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT063 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT106 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT009 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT024 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT064 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT113 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT015 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT085 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT125 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT038 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT087 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT116 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT066 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT043 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT022 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT083 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT101 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT091 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT059 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT090 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT039 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT117 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT062 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT082 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT079 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT025 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT044 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT074 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT107 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT093 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT099 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT124 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT071 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT119 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT026 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT127 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT112 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT000 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT056 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT111 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT100 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT058 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT005 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT110 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT012 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT120 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT049 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT028 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT001 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT023 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT051 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT048 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT076 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT052 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT036 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT103 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT096 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT040 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT054 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT035 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT031 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT084 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT047 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT088 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT004 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT018 23315;
+BA_ "GenSigStartValue" SG_ 289 BMS_TDbgT109 23315;
+BA_ "GenSigStartValue" SG_ 1320 IVTMain_ID_Result_Wh 7;
+BA_ "GenSigStartValue" SG_ 1320 IVTMain_Result_Wh 0;
+BA_ "GenSigStartValue" SG_ 1319 IVTMain_ID_Result_As 6;
+BA_ "GenSigStartValue" SG_ 1319 IVTMain_Result_As 0;
+BA_ "GenSigStartValue" SG_ 520 HVB_tCellMin 23415;
+BA_ "GenSigStartValue" SG_ 520 HVB_tCellMax 23415;
+BA_ "GenSigStartValue" SG_ 520 HVB_tCellMean 23415;
+BA_ "GenSigStartValue" SG_ 1318 IVTMain_Result_W 0;
+BA_ "GenSigStartValue" SG_ 1318 IVTMain_ID_Result_W 5;
+BA_ "GenSigStartValue" SG_ 1315 IVTMain_ID_Result_U2 2;
+
+VAL_ 521 HVB_stResIsol 4 "INTERNAL" 1 "OK" 3 "SPEEDSTART" 0 "STOPPED" 2 "UNDERVOLTAGE" 6 "UNKNOWN" 0 "5" 0 "ERROR";
+VAL_ 515 HVB_stSys 3 "SHUTDOWN" 1 "STARTUP" 5 "ERROR" 0 "OFF" 2 "ON";
+VAL_ 517 HVB_bInvCntaNegCmd 0 "OPEN" 1 "CLOSED";
+VAL_ 517 HVB_bInvCntaNegSt 1 "CLOSED" 0 "OPEN";
+VAL_ 517 HVB_bInvCntaPosCmd 1 "CLOSED" 0 "OPEN";
+VAL_ 517 HVB_bInvCntaPosSt 1 "CLOSED" 0 "OPEN";
+VAL_ 517 HVB_bInvCntaPreCmd 1 "CLOSED" 0 "OPEN";
+VAL_ 517 HVB_bInvCntaPreSt 0 "OPEN" 1 "CLOSED";
+VAL_ 1317 IVTMain_ID_Result_T 4 "Vt_Result_T";
+VAL_ 1316 IVTMain_ID_Result_U3 3 "Vt_Result_U3";
+VAL_ 1313 IVTMain_ID_Result_I 0 "Vt_Result_I";
+VAL_ 1318 IVTMain_ID_Result_W 5 "Vt_Result_W";
+VAL_ 1314 IVTMain_ID_Result_U1 1 "Vt_Result_U1";
+VAL_ 1320 IVTMain_ID_Result_Wh 7 "Vt_Result_Wh";
+VAL_ 336 VCU_bHvbInvReq 0 "DISABLED" 1 "ENABLED";
+VAL_ 336 VCU_bAllVTReq 0 "DISABLED" 1 "ENABLED";
+VAL_ 336 VCU_bBalReq 0 "DISABLED" 1 "ENABLED";
+VAL_ 1319 IVTMain_ID_Result_As 6 "Vt_Result_As";
+VAL_ 1315 IVTMain_ID_Result_U2 2 "Vt_Result_U2";

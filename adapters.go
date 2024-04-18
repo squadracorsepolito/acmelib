@@ -225,3 +225,244 @@ func (a *dbcAdapter) adaptSignalType(dbcSig *dbc.Signal) (*SignalType, error) {
 
 	return NewIntegerSignalType(fmt.Sprintf("int_type_%s", dbcSig.Name), int(dbcSig.Size), signed)
 }
+
+func WriteDBC(network *Network, basePath string) error {
+	for _, bus := range network.Buses() {
+		adapter := newAdapter()
+		writer := dbc.NewWriter()
+
+		f, err := os.Create(fmt.Sprintf("%s/%s/%s.%s", basePath, network.name, bus.name, dbc.FileExtension))
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		_, err = f.WriteString(writer.Write(adapter.adaptBus(bus)))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+type adapter struct {
+	dbcFile *dbc.File
+
+	currDBCMsg *dbc.Message
+}
+
+func newAdapter() *adapter {
+	return &adapter{
+		dbcFile: new(dbc.File),
+	}
+}
+
+func (a *adapter) addDBCComment(comment *dbc.Comment) {
+	a.dbcFile.Comments = append(a.dbcFile.Comments, comment)
+}
+
+func (a *adapter) adaptBus(bus *Bus) *dbc.File {
+	if bus.desc != "" {
+		a.addDBCComment(&dbc.Comment{
+			Kind: dbc.CommentGeneral,
+			Text: bus.desc,
+		})
+	}
+
+	a.dbcFile.NewSymbols = &dbc.NewSymbols{
+		Symbols: dbc.GetNewSymbols(),
+	}
+
+	a.dbcFile.BitTiming = &dbc.BitTiming{
+		Baudrate: uint32(bus.baudrate),
+	}
+
+	a.adaptNodes(bus.Nodes())
+
+	return a.dbcFile
+}
+
+func (a *adapter) adaptNodes(nodes []*Node) {
+	dbcNodes := new(dbc.Nodes)
+
+	for _, node := range nodes {
+		if node.desc != "" {
+			a.addDBCComment(&dbc.Comment{
+				Kind:     dbc.CommentNode,
+				Text:     node.desc,
+				NodeName: node.name,
+			})
+		}
+
+		dbcNodes.Names = append(dbcNodes.Names, node.name)
+
+		for _, msg := range node.Messages() {
+			a.adaptMessage(msg)
+		}
+	}
+
+	a.dbcFile.Nodes = dbcNodes
+}
+
+func (a *adapter) adaptMessage(msg *Message) {
+	dbcMsg := new(dbc.Message)
+
+	if msg.desc != "" {
+		a.addDBCComment(&dbc.Comment{
+			Kind:      dbc.CommentMessage,
+			Text:      msg.desc,
+			MessageID: uint32(msg.ID()),
+		})
+	}
+
+	dbcMsg.ID = uint32(msg.ID())
+	dbcMsg.Name = msg.name
+	dbcMsg.Size = uint32(msg.sizeByte)
+	dbcMsg.Transmitter = msg.senderNode.name
+
+	a.currDBCMsg = dbcMsg
+
+	receiverNames := []string{}
+	for _, rec := range msg.Receivers() {
+		receiverNames = append(receiverNames, rec.name)
+	}
+	for _, sig := range msg.Signals() {
+		a.adaptSignal(sig, receiverNames...)
+	}
+
+	a.dbcFile.Messages = append(a.dbcFile.Messages, dbcMsg)
+}
+
+func (a *adapter) adaptSignal(sig Signal, receiverNames ...string) {
+	parMsg, err := sig.Parent().ToParentMessage()
+	if err != nil {
+		panic(err)
+	}
+	msgID := parMsg.ID()
+
+	if sig.Desc() != "" {
+		a.addDBCComment(&dbc.Comment{
+			Kind:       dbc.CommentSignal,
+			Text:       sig.Desc(),
+			MessageID:  uint32(msgID),
+			SignalName: sig.Name(),
+		})
+	}
+
+	dbcSig := new(dbc.Signal)
+
+	dbcSig.Name = sig.Name()
+	dbcSig.Size = uint32(sig.GetSize())
+	dbcSig.StartBit = uint32(sig.GetStartBit())
+
+	if len(receiverNames) == 0 {
+		dbcSig.Receivers = []string{dbc.DummyNode}
+	} else {
+		dbcSig.Receivers = receiverNames
+	}
+
+	switch sig.Kind() {
+	case SignalKindStandard:
+		stdSig, err := sig.ToStandard()
+		if err != nil {
+			panic(err)
+		}
+		a.adaptStandardSignal(stdSig, dbcSig)
+		a.currDBCMsg.Signals = append(a.currDBCMsg.Signals, dbcSig)
+
+	case SignalKindEnum:
+		enumSig, err := sig.ToEnum()
+		if err != nil {
+			panic(err)
+		}
+		a.adaptEnumSignal(enumSig, dbcSig)
+
+		dbcValEnc := new(dbc.ValueEncoding)
+		dbcValEnc.Kind = dbc.ValueEncodingSignal
+		dbcValEnc.MessageID = uint32(msgID)
+		dbcValEnc.SignalName = sig.Name()
+
+		for _, val := range enumSig.enum.Values() {
+			dbcValEnc.Values = append(dbcValEnc.Values, &dbc.ValueDescription{
+				ID:   uint32(val.index),
+				Name: val.name,
+			})
+		}
+
+		a.dbcFile.ValueEncodings = append(a.dbcFile.ValueEncodings, dbcValEnc)
+		a.currDBCMsg.Signals = append(a.currDBCMsg.Signals, dbcSig)
+
+	case SignalKindMultiplexer:
+		muxSig, err := sig.ToMultiplexer()
+		if err != nil {
+			panic(err)
+		}
+		a.adaptMultiplexerSignal(muxSig)
+	}
+
+}
+
+func (a *adapter) adaptStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Signal) {
+	switch stdSig.typ.order {
+	case SignalTypeOrderLittleEndian:
+		dbcSig.ByteOrder = dbc.SignalLittleEndian
+	case SignalTypeOrderBigEndian:
+		dbcSig.ByteOrder = dbc.SignalBigEndian
+	}
+
+	if stdSig.typ.signed {
+		dbcSig.ValueType = dbc.SignalSigned
+	} else {
+		dbcSig.ValueType = dbc.SignalUnsigned
+	}
+
+	dbcSig.Min = stdSig.min
+	dbcSig.Max = stdSig.max
+	dbcSig.Offset = stdSig.offset
+	dbcSig.Factor = stdSig.scale
+
+	unit := stdSig.unit
+	if unit != nil {
+		dbcSig.Unit = unit.symbol
+	}
+}
+
+func (a *adapter) adaptEnumSignal(enumSig *EnumSignal, dbcSig *dbc.Signal) {
+	dbcSig.ByteOrder = dbc.SignalLittleEndian
+	dbcSig.ValueType = dbc.SignalUnsigned
+
+	dbcSig.Min = 0
+	dbcSig.Max = float64(enumSig.enum.maxIndex)
+	dbcSig.Offset = 0
+	dbcSig.Factor = 1
+}
+
+func (a *adapter) adaptMultiplexerSignal(muxSig *MultiplexerSignal) {
+	dbcMuxorSig := new(dbc.Signal)
+
+	dbcMuxorSig.Name = muxSig.Name()
+
+	dbcMuxorSig.IsMultiplexor = true
+
+	dbcMuxorSig.Size = uint32(muxSig.GetSize())
+	dbcMuxorSig.StartBit = uint32(muxSig.GetStartBit())
+
+	dbcMuxorSig.ByteOrder = dbc.SignalLittleEndian
+	dbcMuxorSig.ValueType = dbc.SignalUnsigned
+
+	selectValues := 1 << muxSig.SelectSize()
+
+	dbcMuxorSig.Factor = 1
+	dbcMuxorSig.Offset = 0
+	dbcMuxorSig.Min = 0
+	dbcMuxorSig.Max = float64(selectValues)
+
+	a.currDBCMsg.Signals = append(a.currDBCMsg.Signals, dbcMuxorSig)
+
+	for i := 0; i < selectValues; i++ {
+		for _, muxedSig := range muxSig.GetSelectedMuxSignals(i) {
+			a.adaptSignal(muxedSig)
+		}
+	}
+}
