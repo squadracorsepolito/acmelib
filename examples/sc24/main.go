@@ -9,11 +9,18 @@ import (
 var (
 	flagType       = acmelib.NewFlagSignalType("flag")
 	float16Type, _ = acmelib.NewFloatSignalType("float16", 16)
+	unit8Type, _   = acmelib.NewIntegerSignalType("uint8", 8, false)
 )
 
 var (
-	voltageUnit    = acmelib.NewSignalUnit("voltage", acmelib.SignalUnitKindElectrical, "V")
-	celsiusDegUnit = acmelib.NewSignalUnit("celsius_deg", acmelib.SignalUnitKindTemperature, "degC")
+	voltageUnit     = acmelib.NewSignalUnit("voltage", acmelib.SignalUnitKindElectrical, "V")
+	milliAmpereUnit = acmelib.NewSignalUnit("milli_ampere", acmelib.SignalUnitKindElectrical, "mA")
+	celsiusDegUnit  = acmelib.NewSignalUnit("celsius_deg", acmelib.SignalUnitKindTemperature, "degC")
+	kiloWattUnit    = acmelib.NewSignalUnit("kilo_watt", acmelib.SignalUnitKindPower, "kW")
+)
+
+var (
+	genSigStartVal, _ = acmelib.NewFloatAttribute("GenSigStartValue", 0, 0, 100000000000)
 )
 
 func main() {
@@ -57,6 +64,17 @@ func main() {
 	nvbRXDiagnosisMsg := nvbRXDiagnosis()
 	err = hvbNode.AddMessage(nvbRXDiagnosisMsg)
 	panicErr(err)
+
+	hvbRXCurLimMsg := hvbRXCurLim()
+	err = hvbNode.AddMessage(hvbRXCurLimMsg)
+	panicErr(err)
+	hvbRXCurLimMsg.AddReceiver(chargerNode)
+	hvbRXCurLimMsg.AddReceiver(vcuNode)
+
+	hvbRXStatusMsg := hvbRXStatus()
+	panicErr(hvbNode.AddMessage(hvbRXStatusMsg))
+	hvbRXStatusMsg.AddReceiver(chargerNode)
+	hvbRXStatusMsg.AddReceiver(vcuNode)
 }
 
 func panicErr(err error) {
@@ -113,6 +131,8 @@ func info02DbgT() *acmelib.Message {
 		sig.SetPhysicalValues(-40, 105, -273.15, 0.01)
 		sig.SetUnit(celsiusDegUnit)
 		sig.SetDesc(fmt.Sprintf("Thermistor %d temperature.", i))
+
+		sig.AddAttributeValue(genSigStartVal, 23315)
 
 		err = muxSig.AppendMuxSignal(selectValue, sig)
 		panicErr(err)
@@ -185,6 +205,62 @@ func nvbRXDiagnosis() *acmelib.Message {
 		err = msg.InsertSignal(sig, sigStartBits[i])
 		panicErr(err)
 	}
+
+	return msg
+}
+
+func hvbRXCurLim() *acmelib.Message {
+	msg := acmelib.NewMessage("HVB_RX_CurrentLimits", 8)
+	msg.SetID(514)
+
+	chargeCurLim, err := acmelib.NewStandardSignal("HVB_ChargeCurLimits", float16Type)
+	panicErr(err)
+	chargeCurLim.SetUnit(milliAmpereUnit)
+	chargeCurLim.SetPhysicalValues(0, 1310.7, 0, 0.02)
+	chargeCurLim.SetDesc("Maximum potential charging power limit. even in case of a protection this values is shown what might possible if no protection is on")
+	err = msg.InsertSignal(chargeCurLim, 7)
+	panicErr(err)
+
+	dischargeCurLim, err := acmelib.NewStandardSignal("HVB_DischargeCurLimits", float16Type)
+	panicErr(err)
+	dischargeCurLim.SetUnit(milliAmpereUnit)
+	dischargeCurLim.SetPhysicalValues(0, 1310.7, 0, 0.02)
+	dischargeCurLim.SetDesc("Maximum discharging power limit. even in case of a protection this values is shown what might possible if no protection is on")
+	err = msg.InsertSignal(dischargeCurLim, 23)
+	panicErr(err)
+
+	pwrHvb, err := acmelib.NewStandardSignal("HVB_pwrHvb", float16Type)
+	panicErr(err)
+	pwrHvb.SetUnit(kiloWattUnit)
+	pwrHvb.SetPhysicalValues(-1310.72, 1310.68, 0, 0.04)
+	pwrHvb.SetDesc("instantaneous net power (+ for input, - for output)")
+	err = msg.InsertSignal(pwrHvb, 39)
+	panicErr(err)
+
+	return msg
+}
+
+func hvbRXStatus() *acmelib.Message {
+	msg := acmelib.NewMessage("HVB_RX_CurrentLimits", 8)
+	msg.SetID(515)
+
+	stSysEnum := acmelib.NewSignalEnum("HVB_stSys_enum")
+	stSysEnum.SetMinSize(8)
+	panicErr(stSysEnum.AddValue(acmelib.NewSignalEnumValue("OFF", 0)))
+	panicErr(stSysEnum.AddValue(acmelib.NewSignalEnumValue("STARTUP", 1)))
+	panicErr(stSysEnum.AddValue(acmelib.NewSignalEnumValue("ON", 2)))
+	panicErr(stSysEnum.AddValue(acmelib.NewSignalEnumValue("SHUTDOWN", 3)))
+	panicErr(stSysEnum.AddValue(acmelib.NewSignalEnumValue("ERROR", 5)))
+
+	stSysSig, err := acmelib.NewEnumSignal("HVB_stSys", stSysEnum)
+	panicErr(err)
+	stSysSig.SetDesc("present system main state (State Machine)")
+	panicErr(msg.InsertSignal(stSysSig, 7))
+
+	stInv, err := acmelib.NewStandardSignal("HVB_stInv", unit8Type)
+	panicErr(err)
+	stInv.SetDesc("present state for Inverter")
+	panicErr(msg.InsertSignal(stInv, 15))
 
 	return msg
 }

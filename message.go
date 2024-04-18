@@ -46,6 +46,22 @@ const (
 	MessagePriorityLow
 )
 
+// MessageSendType rappresents the transition type of a [Message].
+type MessageSendType string
+
+const (
+	// MessageSendTypeUnset defines an unset transmission type.
+	MessageSendTypeUnset MessageSendType = "unset"
+	// MessageSendTypeCyclic defines a cyclic transmission type.
+	MessageSendTypeCyclic MessageSendType = "cyclic"
+	// MessageSendTypeCyclicIfActive defines a cyclic if active transmission type.
+	MessageSendTypeCyclicIfActive MessageSendType = "cyclicIfActive"
+	// MessageSendTypeCyclicIfTriggered defines a cyclic if triggered transmission type.
+	MessageSendTypeCyclicIfTriggered MessageSendType = "cyclicAndTriggered"
+	// MessageSendTypeCyclicIfActiveAndTriggered defines a cyclic if active and triggered transmission type.
+	MessageSendTypeCyclicIfActiveAndTriggered MessageSendType = "cyclicIfActiveAndTriggered"
+)
+
 // Message is the representation of data sent by a node thought the bus.
 // It holds a list of signals that are contained in the message payload.
 type Message struct {
@@ -65,7 +81,10 @@ type Message struct {
 	idGenFn    MessageIDGeneratorFn
 	priority   MessagePriority
 
-	cycleTime uint
+	cycleTime      int
+	sendType       MessageSendType
+	delayTime      int
+	startDelayTime int
 
 	receivers *set[EntityID, *Node]
 }
@@ -90,7 +109,10 @@ func NewMessage(name string, sizeByte int) *Message {
 		idGenFn:    defMsgIDGenFn,
 		priority:   MessagePriorityVeryHigh,
 
-		cycleTime: 0,
+		cycleTime:      0,
+		sendType:       MessageSendTypeUnset,
+		delayTime:      0,
+		startDelayTime: 0,
 
 		receivers: newSet[EntityID, *Node]("receiver"),
 	}
@@ -417,13 +439,43 @@ func (m *Message) Priority() MessagePriority {
 }
 
 // SetCycleTime sets the message cycle time.
-func (m *Message) SetCycleTime(cycleTime uint) {
+func (m *Message) SetCycleTime(cycleTime int) {
 	m.cycleTime = cycleTime
 }
 
 // CycleTime returns the message cycle time.
-func (m *Message) CycleTime() uint {
+func (m *Message) CycleTime() int {
 	return m.cycleTime
+}
+
+// SetSendType sets the send type of the [Message].
+func (m *Message) SetSendType(sendType MessageSendType) {
+	m.sendType = sendType
+}
+
+// SendType returns the message send type.
+func (m *Message) SendType() MessageSendType {
+	return m.sendType
+}
+
+// SetDelayTime sets the delay time of the [Message].
+func (m *Message) SetDelayTime(delayTime int) {
+	m.delayTime = delayTime
+}
+
+// DelayTime returns the message delay time.
+func (m *Message) DelayTime() int {
+	return m.delayTime
+}
+
+// SetStartDelayTime sets the start delay time of the [Message].
+func (m *Message) SetStartDelayTime(startDelayTime int) {
+	m.startDelayTime = startDelayTime
+}
+
+// StartDelayTime returns the message start delay time.
+func (m *Message) StartDelayTime() int {
+	return m.startDelayTime
 }
 
 // AddReceiver adds a receiver [Node] to the [Message].

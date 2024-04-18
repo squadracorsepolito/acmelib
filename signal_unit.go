@@ -15,6 +15,8 @@ const (
 	SignalUnitKindTemperature SignalUnitKind = "signal_unit-temperature"
 	// SignalUnitKindElectrical defines an electrical unit.
 	SignalUnitKindElectrical SignalUnitKind = "signal_unit-electrical"
+	// SignalUnitKindPower defines a power unit.
+	SignalUnitKindPower SignalUnitKind = "signal_unit-power"
 )
 
 // SignalUnit is an entity that defines the physical unit of a [Signal].
