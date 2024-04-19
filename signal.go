@@ -460,6 +460,10 @@ type MultiplexerSignal struct {
 
 	totalSize  int
 	selectSize int
+
+	groupCount int
+	groupSize  int
+	muxGroups  []*signalPayload
 }
 
 // NewMultiplexerSignal creates a new [MultiplexerSignal] with the given name,
