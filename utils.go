@@ -1,35 +1,34 @@
 package acmelib
 
-import (
-	"fmt"
-)
-
 const maxSize = 64
 
 func calcSizeFromValue(val int) int {
+	if val == 0 {
+		return 1
+	}
+
 	for i := 0; i < maxSize; i++ {
 		if val < 1<<i {
 			return i
 		}
 	}
+
 	return maxSize
 }
 
 type set[K comparable, V any] struct {
-	m         map[K]V
-	errPrefix string
+	m map[K]V
 }
 
-func newSet[K comparable, V any](errPrefix string) *set[K, V] {
+func newSet[K comparable, V any]() *set[K, V] {
 	return &set[K, V]{
-		m:         make(map[K]V),
-		errPrefix: errPrefix,
+		m: make(map[K]V),
 	}
 }
 
-func (s *set[K, V]) verifyKey(key K) error {
+func (s *set[K, V]) verifyKeyUnique(key K) error {
 	if _, ok := s.m[key]; ok {
-		return fmt.Errorf(`%s "%v" is duplicated`, s.errPrefix, key)
+		return ErrIsDuplicated
 	}
 	return nil
 }
@@ -57,7 +56,7 @@ func (s *set[K, V]) getValue(key K) (V, error) {
 	if ok {
 		return val, nil
 	}
-	return val, fmt.Errorf(`%s "%v" not found`, s.errPrefix, key)
+	return val, ErrNotFound
 }
 
 func (s *set[K, V]) getKeys() []K {

@@ -28,9 +28,9 @@ func NewBus(name string) *Bus {
 
 		parentNetwork: nil,
 
-		nodes:     newSet[EntityID, *Node]("node"),
-		nodeNames: newSet[string, EntityID]("node name"),
-		nodeIDs:   newSet[NodeID, EntityID]("node id"),
+		nodes:     newSet[EntityID, *Node](),
+		nodeNames: newSet[string, EntityID](),
+		nodeIDs:   newSet[NodeID, EntityID](),
 
 		baudrate: 0,
 	}
@@ -94,7 +94,7 @@ func (b *Bus) UpdateName(newName string) error {
 	}
 
 	if b.hasParentNetwork() {
-		if err := b.parentNetwork.busNames.verifyKey(newName); err != nil {
+		if err := b.parentNetwork.busNames.verifyKeyUnique(newName); err != nil {
 			return b.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
 		}
 
@@ -115,11 +115,11 @@ func (b *Bus) ParentNetwork() *Network {
 // AddNode adds the given [Node] to the [Bus].
 // It may return an error if the node name or the node id is already used by the bus.
 func (b *Bus) AddNode(node *Node) error {
-	if err := b.nodeNames.verifyKey(node.name); err != nil {
+	if err := b.nodeNames.verifyKeyUnique(node.name); err != nil {
 		return b.errorf(fmt.Errorf(`cannot add node "%s" : %w`, node.name, err))
 	}
 
-	if err := b.nodeIDs.verifyKey(node.id); err != nil {
+	if err := b.nodeIDs.verifyKeyUnique(node.id); err != nil {
 		return b.errorf(fmt.Errorf(`cannot add node "%s" : %w`, node.name, err))
 	}
 

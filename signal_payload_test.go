@@ -80,10 +80,10 @@ func Test_signalPayload_insert(t *testing.T) {
 
 	// should get this payload after inserting sig0, sig1, sig2, and sig3
 	// 3 3 3 3 1 1 1 1 2 2 2 2 0 0 0 0
-	assert.NoError(payload.insert(sig0, 12))
-	assert.NoError(payload.insert(sig1, 4))
-	assert.NoError(payload.insert(sig2, 8))
-	assert.NoError(payload.insert(sig3, 0))
+	assert.NoError(payload.verifyAndInsert(sig0, 12))
+	assert.NoError(payload.verifyAndInsert(sig1, 4))
+	assert.NoError(payload.verifyAndInsert(sig2, 8))
+	assert.NoError(payload.verifyAndInsert(sig3, 0))
 
 	expectedStartBits := []int{0, 4, 8, 12}
 	expectedNames := []string{"sig_3", "sig_1", "sig_2", "sig_0"}
@@ -93,16 +93,16 @@ func Test_signalPayload_insert(t *testing.T) {
 	}
 
 	// should return an error because there should be no space left
-	assert.Error(payload.insert(sig4, 0))
+	assert.Error(payload.verifyAndInsert(sig4, 0))
 
 	payload.removeAll()
 
 	// should get this payload after inserting sig0, sig1, sig2, and sig4
 	// 0 0 0 0 1 1 1 1 2 2 2 2 - - 4 4
-	assert.NoError(payload.insert(sig0, 0))
-	assert.NoError(payload.insert(sig1, 4))
-	assert.NoError(payload.insert(sig2, 8))
-	assert.NoError(payload.insert(sig4, 14))
+	assert.NoError(payload.verifyAndInsert(sig0, 0))
+	assert.NoError(payload.verifyAndInsert(sig1, 4))
+	assert.NoError(payload.verifyAndInsert(sig2, 8))
+	assert.NoError(payload.verifyAndInsert(sig4, 14))
 
 	expectedStartBits = []int{0, 4, 8, 14}
 	expectedNames = []string{"sig_0", "sig_1", "sig_2", "sig_4"}
@@ -112,18 +112,18 @@ func Test_signalPayload_insert(t *testing.T) {
 	}
 
 	// should return error because there should be not enough space left
-	assert.Error(payload.insert(sig3, 12))
+	assert.Error(payload.verifyAndInsert(sig3, 12))
 
 	// should return error because there another signal is already starting at bit 8
-	assert.Error(payload.insert(sig3, 8))
+	assert.Error(payload.verifyAndInsert(sig3, 8))
 
 	payload.removeAll()
 
 	// should return an error because sig0 of size 4 starting at 14 will exceed the payload size of 16
-	assert.Error(payload.insert(sig0, 14))
+	assert.Error(payload.verifyAndInsert(sig0, 14))
 
 	// should return an error because start bit is negative
-	assert.Error(payload.insert(sig0, -10))
+	assert.Error(payload.verifyAndInsert(sig0, -10))
 }
 
 func Test_signalPayload_remove(t *testing.T) {
@@ -145,10 +145,10 @@ func Test_signalPayload_remove(t *testing.T) {
 
 	// starting from this payload
 	// 0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3
-	assert.NoError(payload.insert(sig0, 0))
-	assert.NoError(payload.insert(sig1, 4))
-	assert.NoError(payload.insert(sig2, 8))
-	assert.NoError(payload.insert(sig3, 12))
+	assert.NoError(payload.verifyAndInsert(sig0, 0))
+	assert.NoError(payload.verifyAndInsert(sig1, 4))
+	assert.NoError(payload.verifyAndInsert(sig2, 8))
+	assert.NoError(payload.verifyAndInsert(sig3, 12))
 
 	// should get this after removing sig2
 	// 0 0 0 0 1 1 1 1 - - - - 3 3 3 3
@@ -188,10 +188,10 @@ func Test_signalPayload_compact(t *testing.T) {
 
 	// starting from this payload
 	// - - 0 0 - - 1 1 - - 2 2 - - 3 3
-	assert.NoError(payload.insert(sig0, 2))
-	assert.NoError(payload.insert(sig1, 6))
-	assert.NoError(payload.insert(sig2, 10))
-	assert.NoError(payload.insert(sig3, 14))
+	assert.NoError(payload.verifyAndInsert(sig0, 2))
+	assert.NoError(payload.verifyAndInsert(sig1, 6))
+	assert.NoError(payload.verifyAndInsert(sig2, 10))
+	assert.NoError(payload.verifyAndInsert(sig3, 14))
 
 	// should get this after compacting
 	// 0 0 1 1 2 2 3 3 - - - - - - - -
@@ -208,10 +208,10 @@ func Test_signalPayload_compact(t *testing.T) {
 
 	// starting from this payload
 	// 0 0 - - - - 1 1 - - - 2 2 - 3 3
-	assert.NoError(payload.insert(sig0, 0))
-	assert.NoError(payload.insert(sig1, 6))
-	assert.NoError(payload.insert(sig2, 11))
-	assert.NoError(payload.insert(sig3, 14))
+	assert.NoError(payload.verifyAndInsert(sig0, 0))
+	assert.NoError(payload.verifyAndInsert(sig1, 6))
+	assert.NoError(payload.verifyAndInsert(sig2, 11))
+	assert.NoError(payload.verifyAndInsert(sig3, 14))
 
 	// should get this after compacting
 	// 0 0 1 1 2 2 3 3 - - - - - - - -
@@ -246,10 +246,10 @@ func Test_signalPayload_modifyStartBitsOnShrink(t *testing.T) {
 
 	// starting from this payload
 	// 0 0 - - 1 1 1 1 - 2 2 - 3 3 - -
-	assert.NoError(payload.insert(sig0, 0))
-	assert.NoError(payload.insert(sig1, 4))
-	assert.NoError(payload.insert(sig2, 9))
-	assert.NoError(payload.insert(sig3, 12))
+	assert.NoError(payload.verifyAndInsert(sig0, 0))
+	assert.NoError(payload.verifyAndInsert(sig1, 4))
+	assert.NoError(payload.verifyAndInsert(sig2, 9))
+	assert.NoError(payload.verifyAndInsert(sig3, 12))
 
 	// should get this one after shrinking sig1 by 1
 	// 0 0 - - 1 1 1 - 2 2 - 3 3 - - -
@@ -273,10 +273,10 @@ func Test_signalPayload_modifyStartBitsOnShrink(t *testing.T) {
 
 	// starting from this payload
 	// 0 0 1 1 1 1 2 2 3 3 - - - - - -
-	assert.NoError(payload.insert(sig0, 0))
-	assert.NoError(payload.insert(sig1, 2))
-	assert.NoError(payload.insert(sig2, 6))
-	assert.NoError(payload.insert(sig3, 8))
+	assert.NoError(payload.verifyAndInsert(sig0, 0))
+	assert.NoError(payload.verifyAndInsert(sig1, 2))
+	assert.NoError(payload.verifyAndInsert(sig2, 6))
+	assert.NoError(payload.verifyAndInsert(sig3, 8))
 
 	// should get this one after shrinking sig1 by 2
 	// 0 0 1 1 2 2 3 3 - - - - - - - -
@@ -291,7 +291,7 @@ func Test_signalPayload_modifyStartBitsOnShrink(t *testing.T) {
 
 	// starting from this payload
 	// - - - - - - - - - - 0 0 - - - -
-	assert.NoError(payload.insert(sig0, 10))
+	assert.NoError(payload.verifyAndInsert(sig0, 10))
 
 	// should get this one after shrinking sig0 by 1
 	// - - - - - - - - - - 0 - - - - -
@@ -339,10 +339,10 @@ func Test_signalPayload_modifyStartBitsOnGrow(t *testing.T) {
 
 	// starting from this payload
 	// 0 0 - - 1 1 1 1 - 2 2 - 3 3 - -
-	assert.NoError(payload.insert(sig0, 0))
-	assert.NoError(payload.insert(sig1, 4))
-	assert.NoError(payload.insert(sig2, 9))
-	assert.NoError(payload.insert(sig3, 12))
+	assert.NoError(payload.verifyAndInsert(sig0, 0))
+	assert.NoError(payload.verifyAndInsert(sig1, 4))
+	assert.NoError(payload.verifyAndInsert(sig2, 9))
+	assert.NoError(payload.verifyAndInsert(sig3, 12))
 
 	// should get this one after growing sig0 by 1
 	// 0 0 0 - 1 1 1 1 1 1 1 2 2 3 3 -
@@ -357,10 +357,10 @@ func Test_signalPayload_modifyStartBitsOnGrow(t *testing.T) {
 
 	// starting from this payload
 	// 0 0 - - 1 1 1 1 - 2 2 - 3 3 - -
-	assert.NoError(payload.insert(sig0, 0))
-	assert.NoError(payload.insert(sig1, 4))
-	assert.NoError(payload.insert(sig2, 9))
-	assert.NoError(payload.insert(sig3, 12))
+	assert.NoError(payload.verifyAndInsert(sig0, 0))
+	assert.NoError(payload.verifyAndInsert(sig1, 4))
+	assert.NoError(payload.verifyAndInsert(sig2, 9))
+	assert.NoError(payload.verifyAndInsert(sig3, 12))
 
 	// should get this one after growing sig1 by 3
 	// 0 0 - - 1 1 1 1 1 1 1 2 2 3 3 -
@@ -375,10 +375,10 @@ func Test_signalPayload_modifyStartBitsOnGrow(t *testing.T) {
 
 	// starting from this payload
 	// 0 0 1 1 1 1 2 2 3 3 - - - - - -
-	assert.NoError(payload.insert(sig0, 0))
-	assert.NoError(payload.insert(sig1, 2))
-	assert.NoError(payload.insert(sig2, 6))
-	assert.NoError(payload.insert(sig3, 8))
+	assert.NoError(payload.verifyAndInsert(sig0, 0))
+	assert.NoError(payload.verifyAndInsert(sig1, 2))
+	assert.NoError(payload.verifyAndInsert(sig2, 6))
+	assert.NoError(payload.verifyAndInsert(sig3, 8))
 
 	// should get this one after growing sig0 by 6
 	// 0 0 0 0 0 0 0 0 1 1 1 1 2 2 3 3
@@ -393,10 +393,10 @@ func Test_signalPayload_modifyStartBitsOnGrow(t *testing.T) {
 
 	// starting from this payload
 	// 0 0 1 1 1 1 2 2 3 3 - - - - - -
-	assert.NoError(payload.insert(sig0, 0))
-	assert.NoError(payload.insert(sig1, 2))
-	assert.NoError(payload.insert(sig2, 6))
-	assert.NoError(payload.insert(sig3, 8))
+	assert.NoError(payload.verifyAndInsert(sig0, 0))
+	assert.NoError(payload.verifyAndInsert(sig1, 2))
+	assert.NoError(payload.verifyAndInsert(sig2, 6))
+	assert.NoError(payload.verifyAndInsert(sig3, 8))
 
 	// should get an error after trying to grow sig0 by 8
 	assert.Error(payload.modifyStartBitsOnGrow(sig0, 8))
@@ -411,7 +411,7 @@ func Test_signalPayload_modifyStartBitsOnGrow(t *testing.T) {
 
 	// starting from this payload
 	// 0 0 - - - - - - - - - - - - - -
-	assert.NoError(payload.insert(sig0, 0))
+	assert.NoError(payload.verifyAndInsert(sig0, 0))
 
 	// should get this one after growing sig0 by 6
 	// 0 0 0 0 0 0 - - - - - - - - - -
@@ -439,13 +439,13 @@ func Test_signalPayload_shiftLeft(t *testing.T) {
 
 	// starting from this payload
 	// - - 0 0 0 0 1 1 1 1 - - - - - -
-	assert.NoError(payload.insert(sig0, 2))
-	assert.NoError(payload.insert(sig1, 6))
+	assert.NoError(payload.verifyAndInsert(sig0, 2))
+	assert.NoError(payload.verifyAndInsert(sig1, 6))
 
 	// should get this one after shifting sig0 by 2
 	// 0 0 0 0 - - 1 1 1 1 - - - - - -
 	// and should get 2 as result
-	assert.Equal(2, payload.shiftLeft(sig0, 2))
+	assert.Equal(2, payload.shiftLeft(sig0.EntityID(), 2))
 
 	expectedStartBits := []int{0, 6}
 	for idx, sig := range payload.signals {
@@ -455,7 +455,7 @@ func Test_signalPayload_shiftLeft(t *testing.T) {
 	// should get this one after shifting sig1 by 4
 	// 0 0 0 0 1 1 1 1 - - - - - - - -
 	// and should get 2 as result
-	assert.Equal(2, payload.shiftLeft(sig1, 4))
+	assert.Equal(2, payload.shiftLeft(sig1.EntityID(), 4))
 
 	expectedStartBits = []int{0, 4}
 	for idx, sig := range payload.signals {
@@ -466,13 +466,13 @@ func Test_signalPayload_shiftLeft(t *testing.T) {
 
 	// starting from this payload
 	// - - 0 0 0 0 1 1 1 1 - - - - - -
-	assert.NoError(payload.insert(sig0, 2))
-	assert.NoError(payload.insert(sig1, 6))
+	assert.NoError(payload.verifyAndInsert(sig0, 2))
+	assert.NoError(payload.verifyAndInsert(sig1, 6))
 
 	// should get this one after shifting sig0 by 4
 	// 0 0 0 0 - - 1 1 1 1 - - - - - -
 	// and should get 2 as result
-	assert.Equal(2, payload.shiftLeft(sig0, 4))
+	assert.Equal(2, payload.shiftLeft(sig0.EntityID(), 4))
 
 	expectedStartBits = []int{0, 6}
 	for idx, sig := range payload.signals {
@@ -480,18 +480,18 @@ func Test_signalPayload_shiftLeft(t *testing.T) {
 	}
 
 	// should get 0 as result
-	assert.Equal(0, payload.shiftLeft(sig1, 0))
+	assert.Equal(0, payload.shiftLeft(sig1.EntityID(), 0))
 
 	payload.removeAll()
 
 	// starting from this payload
 	// - - - - - - - - - - - - 0 0 0 0
-	assert.NoError(payload.insert(sig0, 12))
+	assert.NoError(payload.verifyAndInsert(sig0, 12))
 
 	// should get this one after shifting sig0 by 4
 	// - - - - - - - - 0 0 0 0 - - - -
 	// and should get 4 as result
-	assert.Equal(4, payload.shiftLeft(sig0, 4))
+	assert.Equal(4, payload.shiftLeft(sig0.EntityID(), 4))
 
 	assert.Equal(8, payload.signals[0].GetStartBit())
 }
@@ -511,13 +511,13 @@ func Test_signalPayload_shiftRight(t *testing.T) {
 
 	// starting from this payload
 	// - - - - - - 0 0 0 0 1 1 1 1 - -
-	assert.NoError(payload.insert(sig0, 6))
-	assert.NoError(payload.insert(sig1, 10))
+	assert.NoError(payload.verifyAndInsert(sig0, 6))
+	assert.NoError(payload.verifyAndInsert(sig1, 10))
 
 	// should get this one after shifting sig1 by 2
 	// - - - - - - 0 0 0 0 - - 1 1 1 1
 	// and should get 2 as result
-	assert.Equal(2, payload.shiftRight(sig1, 2))
+	assert.Equal(2, payload.shiftRight(sig1.EntityID(), 2))
 
 	expectedStartBits := []int{6, 12}
 	for idx, sig := range payload.signals {
@@ -527,7 +527,7 @@ func Test_signalPayload_shiftRight(t *testing.T) {
 	// should get this one after shifting sig0 by 4
 	// - - - - - - - - 0 0 0 0 1 1 1 1
 	// and should get 2 as result
-	assert.Equal(2, payload.shiftRight(sig0, 4))
+	assert.Equal(2, payload.shiftRight(sig0.EntityID(), 4))
 
 	expectedStartBits = []int{8, 12}
 	for idx, sig := range payload.signals {
@@ -538,13 +538,13 @@ func Test_signalPayload_shiftRight(t *testing.T) {
 
 	// starting from this payload
 	// - - - - - - 0 0 0 0 1 1 1 1 - -
-	assert.NoError(payload.insert(sig0, 6))
-	assert.NoError(payload.insert(sig1, 10))
+	assert.NoError(payload.verifyAndInsert(sig0, 6))
+	assert.NoError(payload.verifyAndInsert(sig1, 10))
 
 	// should get this one after shifting sig1 by 4
 	// - - - - - - 0 0 0 0 - - 1 1 1 1
 	// and should get 2 as result
-	assert.Equal(2, payload.shiftRight(sig1, 4))
+	assert.Equal(2, payload.shiftRight(sig1.EntityID(), 4))
 
 	expectedStartBits = []int{6, 12}
 	for idx, sig := range payload.signals {
@@ -552,18 +552,18 @@ func Test_signalPayload_shiftRight(t *testing.T) {
 	}
 
 	// should get 0 as result
-	assert.Equal(0, payload.shiftRight(sig1, 0))
+	assert.Equal(0, payload.shiftRight(sig1.EntityID(), 0))
 
 	payload.removeAll()
 
 	// starting from this payload
 	// 0 0 0 0 - - - - - - - - - - - -
-	assert.NoError(payload.insert(sig0, 0))
+	assert.NoError(payload.verifyAndInsert(sig0, 0))
 
 	// should get this one after shifting sig0 by 4
 	// - - - - 0 0 0 0 - - - - - - - -
 	// and should get 4 as result
-	assert.Equal(4, payload.shiftRight(sig0, 4))
+	assert.Equal(4, payload.shiftRight(sig0.EntityID(), 4))
 
 	assert.Equal(4, payload.signals[0].GetStartBit())
 }

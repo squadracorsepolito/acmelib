@@ -22,8 +22,8 @@ func NewNetwork(name string) *Network {
 	return &Network{
 		entity: newEntity(name),
 
-		buses:    newSet[EntityID, *Bus]("bus"),
-		busNames: newSet[string, EntityID]("bus name"),
+		buses:    newSet[EntityID, *Bus](),
+		busNames: newSet[string, EntityID](),
 	}
 }
 
@@ -67,7 +67,7 @@ func (n *Network) UpdateName(newName string) {
 // AddBus adds a [Bus] to the [Network].
 // It may return an error if the bus name is already taken.
 func (n *Network) AddBus(bus *Bus) error {
-	if err := n.busNames.verifyKey(bus.name); err != nil {
+	if err := n.busNames.verifyKeyUnique(bus.name); err != nil {
 		return n.errorf(fmt.Errorf(`cannot add bus "%s" : %w`, bus.name, err))
 	}
 

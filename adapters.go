@@ -394,11 +394,11 @@ func (a *adapter) adaptSignal(sig Signal, receiverNames ...string) {
 		a.currDBCMsg.Signals = append(a.currDBCMsg.Signals, dbcSig)
 
 	case SignalKindMultiplexer:
-		muxSig, err := sig.ToMultiplexer()
-		if err != nil {
-			panic(err)
-		}
-		a.adaptMultiplexerSignal(muxSig)
+		// muxSig, err := sig.ToMultiplexer()
+		// if err != nil {
+		// 	panic(err)
+		// }
+		// a.adaptMultiplexerSignal(muxSig)
 	}
 
 }
@@ -438,31 +438,31 @@ func (a *adapter) adaptEnumSignal(enumSig *EnumSignal, dbcSig *dbc.Signal) {
 	dbcSig.Factor = 1
 }
 
-func (a *adapter) adaptMultiplexerSignal(muxSig *MultiplexerSignal) {
-	dbcMuxorSig := new(dbc.Signal)
+// func (a *adapter) adaptMultiplexerSignal(muxSig *MultiplexerSignal1) {
+// 	dbcMuxorSig := new(dbc.Signal)
 
-	dbcMuxorSig.Name = muxSig.Name()
+// 	dbcMuxorSig.Name = muxSig.Name()
 
-	dbcMuxorSig.IsMultiplexor = true
+// 	dbcMuxorSig.IsMultiplexor = true
 
-	dbcMuxorSig.Size = uint32(muxSig.GetSize())
-	dbcMuxorSig.StartBit = uint32(muxSig.GetStartBit())
+// 	dbcMuxorSig.Size = uint32(muxSig.GetSize())
+// 	dbcMuxorSig.StartBit = uint32(muxSig.GetStartBit())
 
-	dbcMuxorSig.ByteOrder = dbc.SignalLittleEndian
-	dbcMuxorSig.ValueType = dbc.SignalUnsigned
+// 	dbcMuxorSig.ByteOrder = dbc.SignalLittleEndian
+// 	dbcMuxorSig.ValueType = dbc.SignalUnsigned
 
-	selectValues := 1 << muxSig.SelectSize()
+// 	selectValues := 1 << muxSig.SelectSize()
 
-	dbcMuxorSig.Factor = 1
-	dbcMuxorSig.Offset = 0
-	dbcMuxorSig.Min = 0
-	dbcMuxorSig.Max = float64(selectValues)
+// 	dbcMuxorSig.Factor = 1
+// 	dbcMuxorSig.Offset = 0
+// 	dbcMuxorSig.Min = 0
+// 	dbcMuxorSig.Max = float64(selectValues)
 
-	a.currDBCMsg.Signals = append(a.currDBCMsg.Signals, dbcMuxorSig)
+// 	a.currDBCMsg.Signals = append(a.currDBCMsg.Signals, dbcMuxorSig)
 
-	for i := 0; i < selectValues; i++ {
-		for _, muxedSig := range muxSig.GetSelectedMuxSignals(i) {
-			a.adaptSignal(muxedSig)
-		}
-	}
-}
+// 	for i := 0; i < selectValues; i++ {
+// 		for _, muxedSig := range muxSig.GetSelectedMuxSignals(i) {
+// 			a.adaptSignal(muxedSig)
+// 		}
+// 	}
+// }

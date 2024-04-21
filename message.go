@@ -97,8 +97,8 @@ func NewMessage(name string, sizeByte int) *Message {
 
 		senderNode: nil,
 
-		signals:     newSet[EntityID, Signal]("signal"),
-		signalNames: newSet[string, EntityID]("signal name"),
+		signals:     newSet[EntityID, Signal](),
+		signalNames: newSet[string, EntityID](),
 
 		signalPayload: newSignalPayload(sizeByte * 8),
 
@@ -114,7 +114,7 @@ func NewMessage(name string, sizeByte int) *Message {
 		delayTime:      0,
 		startDelayTime: 0,
 
-		receivers: newSet[EntityID, *Node]("receiver"),
+		receivers: newSet[EntityID, *Node](),
 	}
 }
 
@@ -143,13 +143,13 @@ func (m *Message) errorf(err error) error {
 }
 
 // GetSignalParentKind always returns [SignalParentKindMessage].
-// It can be used to check if the parent of a signal is a [Message] or a [MultiplexerSignal].
+// It can be used to check if the parent of a signal is a [Message] or a [MultiplexerSignal1].
 func (m *Message) GetSignalParentKind() SignalParentKind {
 	return SignalParentKindMessage
 }
 
 func (m *Message) verifySignalName(_ EntityID, name string) error {
-	return m.signalNames.verifyKey(name)
+	return m.signalNames.verifyKeyUnique(name)
 }
 
 func (m *Message) modifySignalName(sigID EntityID, newName string) error {
@@ -257,7 +257,7 @@ func (m *Message) UpdateName(newName string) error {
 	}
 
 	if m.hasSenderNode() {
-		if err := m.senderNode.messageNames.verifyKey(newName); err != nil {
+		if err := m.senderNode.messageNames.verifyKeyUnique(newName); err != nil {
 			return m.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
 		}
 		m.senderNode.modifyMessageName(m.entityID, newName)
@@ -303,7 +303,7 @@ func (m *Message) InsertSignal(signal Signal, startBit int) error {
 		return m.errorf(fmt.Errorf(`cannot insert signal "%s" : %w`, signal.Name(), err))
 	}
 
-	if err := m.signalPayload.insert(signal, startBit); err != nil {
+	if err := m.signalPayload.verifyAndInsert(signal, startBit); err != nil {
 		return m.errorf(err)
 	}
 
@@ -329,11 +329,9 @@ func (m *Message) RemoveSignal(signalEntityID EntityID) error {
 			panic(err)
 		}
 
-		for _, muxSignals := range muxSig.MuxSignals() {
-			for _, tmpSig := range muxSignals {
-				m.signals.remove(tmpSig.EntityID())
-				m.signalNames.remove(tmpSig.Name())
-			}
+		for _, tmpSig := range muxSig.signals.entries() {
+			m.signals.remove(tmpSig.EntityID())
+			m.signalNames.remove(tmpSig.Name())
 		}
 	}
 
@@ -367,7 +365,7 @@ func (m *Message) ShiftSignalLeft(signalEntityID EntityID, amount int) int {
 		return 0
 	}
 
-	return m.signalPayload.shiftLeft(sig, amount)
+	return m.signalPayload.shiftLeft(sig.EntityID(), amount)
 }
 
 // ShiftSignalRight shifts the signal with the given entity id right by the given amount.
@@ -378,7 +376,7 @@ func (m *Message) ShiftSignalRight(signalEntityID EntityID, amount int) int {
 		return 0
 	}
 
-	return m.signalPayload.shiftRight(sig, amount)
+	return m.signalPayload.shiftRight(sig.EntityID(), amount)
 }
 
 // CompactSignals compacts the [Message] payload.

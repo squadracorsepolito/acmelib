@@ -145,7 +145,7 @@ func newAttribute(name string, kind AttributeKind) *attribute {
 
 		kind: kind,
 
-		references: newSet[EntityID, *AttributeRef]("reference"),
+		references: newSet[EntityID, *AttributeRef](),
 	}
 }
 
@@ -424,7 +424,7 @@ func NewEnumAttribute(name string, values ...string) (*EnumAttribute, error) {
 		return nil, fmt.Errorf("at least 1 value is required")
 	}
 
-	valSet := newSet[string, int]("values")
+	valSet := newSet[string, int]()
 	currIdx := 0
 	for _, val := range values {
 		if valSet.hasKey(val) {

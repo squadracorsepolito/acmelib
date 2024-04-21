@@ -37,12 +37,12 @@ func NewNode(name string, id NodeID) *Node {
 	return &Node{
 		attributeEntity: newAttributeEntity(name, AttributeRefKindNode),
 
-		parentBuses: newSet[EntityID, *Bus]("parent bus"),
+		parentBuses: newSet[EntityID, *Bus](),
 		parErrID:    "",
 
-		messages:     newSet[EntityID, *Message]("message"),
-		messageNames: newSet[string, EntityID]("message name"),
-		messageIDs:   newSet[MessageID, EntityID]("message id"),
+		messages:     newSet[EntityID, *Message](),
+		messageNames: newSet[string, EntityID](),
+		messageIDs:   newSet[MessageID, EntityID](),
 
 		id: id,
 	}
@@ -112,7 +112,7 @@ func (n *Node) UpdateName(newName string) error {
 	}
 
 	for _, tmpBus := range n.parentBuses.entries() {
-		if err := tmpBus.nodeNames.verifyKey(newName); err != nil {
+		if err := tmpBus.nodeNames.verifyKeyUnique(newName); err != nil {
 			n.parErrID = tmpBus.entityID
 			return n.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
 		}
@@ -134,13 +134,13 @@ func (n *Node) ParentBuses() []*Bus {
 // This means that the given message will be sent by the node.
 // It may return an error if the message name or the message id is already used by the node.
 func (n *Node) AddMessage(message *Message) error {
-	if err := n.messageNames.verifyKey(message.name); err != nil {
+	if err := n.messageNames.verifyKeyUnique(message.name); err != nil {
 		return n.errorf(fmt.Errorf(`cannot add message "%s" : %w`, message.name, err))
 	}
 
 	message.generateID(n.messages.size()+1, n.id)
 
-	if err := n.messageIDs.verifyKey(message.id); err != nil {
+	if err := n.messageIDs.verifyKeyUnique(message.id); err != nil {
 		return n.errorf(fmt.Errorf(`cannot add message "%s" : %w`, message.name, err))
 	}
 

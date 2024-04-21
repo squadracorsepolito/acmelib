@@ -148,236 +148,236 @@ func Test_EnumSignal_SetEnum(t *testing.T) {
 	assert.Error(sig0.SetEnum(nil))
 }
 
-func Test_MultiplexerSignal_AppendMuxSignal(t *testing.T) {
-	assert := assert.New(t)
+// func Test_MultiplexerSignal_AppendMuxSignal(t *testing.T) {
+// 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 2)
+// 	msg := NewMessage("msg", 2)
 
-	muxSig0, err := NewMultiplexerSignal("mux_sig_0", 16, 1)
-	assert.NoError(err)
+// 	muxSig0, err := NewMultiplexerSignal1("mux_sig_0", 16, 1)
+// 	assert.NoError(err)
 
-	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
-	assert.NoError(err)
-	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
-	assert.NoError(err)
+// 	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
+// 	assert.NoError(err)
+// 	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
+// 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", size8Type)
-	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", size4Type)
-	assert.NoError(err)
-	sig2, err := NewStandardSignal("sig_2", size4Type)
-	assert.NoError(err)
-	sig3, err := NewStandardSignal("sig_3", size4Type)
-	assert.NoError(err)
-	sig4, err := NewStandardSignal("sig_4", size4Type)
-	assert.NoError(err)
+// 	sig0, err := NewStandardSignal("sig_0", size8Type)
+// 	assert.NoError(err)
+// 	sig1, err := NewStandardSignal("sig_1", size4Type)
+// 	assert.NoError(err)
+// 	sig2, err := NewStandardSignal("sig_2", size4Type)
+// 	assert.NoError(err)
+// 	sig3, err := NewStandardSignal("sig_3", size4Type)
+// 	assert.NoError(err)
+// 	sig4, err := NewStandardSignal("sig_4", size4Type)
+// 	assert.NoError(err)
 
-	// starting with a multiplexer signal that spreads over the entire message payload
-	assert.NoError(msg.AppendSignal(muxSig0))
+// 	// starting with a multiplexer signal that spreads over the entire message payload
+// 	assert.NoError(msg.AppendSignal(muxSig0))
 
-	// multiplexed signals at select value 0
-	// sv0 0 0 0 0 0 0 0 0 - - - - - - -
-	assert.NoError(muxSig0.AppendMuxSignal(0, sig0))
+// 	// multiplexed signals at select value 0
+// 	// sv0 0 0 0 0 0 0 0 0 - - - - - - -
+// 	assert.NoError(muxSig0.AppendMuxSignal(0, sig0))
 
-	expectedStartBits := []int{1}
-	for idx, tmpSig := range muxSig0.GetSelectedMuxSignals(0) {
-		assert.Equal(expectedStartBits[idx], tmpSig.GetStartBit())
-	}
+// 	expectedStartBits := []int{1}
+// 	for idx, tmpSig := range muxSig0.GetSelectedMuxSignals(0) {
+// 		assert.Equal(expectedStartBits[idx], tmpSig.GetStartBit())
+// 	}
 
-	// multiplexed signals at select value 1
-	// sv1 1 1 1 1 2 2 2 2 3 3 3 3 - - -
-	assert.NoError(muxSig0.AppendMuxSignal(1, sig1))
-	assert.NoError(muxSig0.AppendMuxSignal(1, sig2))
-	assert.NoError(muxSig0.AppendMuxSignal(1, sig3))
+// 	// multiplexed signals at select value 1
+// 	// sv1 1 1 1 1 2 2 2 2 3 3 3 3 - - -
+// 	assert.NoError(muxSig0.AppendMuxSignal(1, sig1))
+// 	assert.NoError(muxSig0.AppendMuxSignal(1, sig2))
+// 	assert.NoError(muxSig0.AppendMuxSignal(1, sig3))
 
-	expectedStartBits = []int{1, 5, 9}
-	for idx, tmpSig := range muxSig0.GetSelectedMuxSignals(1) {
-		assert.Equal(expectedStartBits[idx], tmpSig.GetStartBit())
-	}
+// 	expectedStartBits = []int{1, 5, 9}
+// 	for idx, tmpSig := range muxSig0.GetSelectedMuxSignals(1) {
+// 		assert.Equal(expectedStartBits[idx], tmpSig.GetStartBit())
+// 	}
 
-	// should return an error because select value 5 cannot be written in 1 bit
-	assert.Error(muxSig0.AppendMuxSignal(5, sig4))
+// 	// should return an error because select value 5 cannot be written in 1 bit
+// 	assert.Error(muxSig0.AppendMuxSignal(5, sig4))
 
-	// should return an error because sig4 of size 4 cannot fit in the payload at select value 1
-	assert.Error(muxSig0.AppendMuxSignal(1, sig4))
+// 	// should return an error because sig4 of size 4 cannot fit in the payload at select value 1
+// 	assert.Error(muxSig0.AppendMuxSignal(1, sig4))
 
-	muxSig1, err := NewMultiplexerSignal("mux_sig_1", 7, 1)
-	assert.NoError(err)
+// 	muxSig1, err := NewMultiplexerSignal1("mux_sig_1", 7, 1)
+// 	assert.NoError(err)
 
-	// muxSig0 at select value 0 should nest muxSig1 after sig0
-	// muxSig0 : ( sv0 0 0 0 0 0 0 0 0, muxSig1 : ( sl1 - - - - - - ) )
-	assert.NoError(muxSig0.AppendMuxSignal(0, muxSig1))
-	assert.Equal(9, muxSig1.GetStartBit())
+// 	// muxSig0 at select value 0 should nest muxSig1 after sig0
+// 	// muxSig0 : ( sv0 0 0 0 0 0 0 0 0, muxSig1 : ( sl1 - - - - - - ) )
+// 	assert.NoError(muxSig0.AppendMuxSignal(0, muxSig1))
+// 	assert.Equal(9, muxSig1.GetStartBit())
 
-	// should return no error for adding sig4 inside muxSig1 at select value 1
-	// muxSig0 : ( sv0 0 0 0 0 0 0 0 0, muxSig1 : ( sl1 4 4 4 4 - - ) )
-	assert.NoError(muxSig1.AppendMuxSignal(1, sig4))
-	assert.Equal(10, sig4.GetStartBit())
+// 	// should return no error for adding sig4 inside muxSig1 at select value 1
+// 	// muxSig0 : ( sv0 0 0 0 0 0 0 0 0, muxSig1 : ( sl1 4 4 4 4 - - ) )
+// 	assert.NoError(muxSig1.AppendMuxSignal(1, sig4))
+// 	assert.Equal(10, sig4.GetStartBit())
 
-	sig5, err := NewStandardSignal("sig_5", size4Type)
-	assert.NoError(err)
+// 	sig5, err := NewStandardSignal("sig_5", size4Type)
+// 	assert.NoError(err)
 
-	// should return an error because select value is negative
-	assert.Error(muxSig1.AppendMuxSignal(-1, sig5))
+// 	// should return an error because select value is negative
+// 	assert.Error(muxSig1.AppendMuxSignal(-1, sig5))
 
-	// should return an error because signal name sig_4 is duplicated
-	assert.NoError(sig5.UpdateName("sig_4"))
-	assert.Error(muxSig1.AppendMuxSignal(0, sig5))
+// 	// should return an error because signal name sig_4 is duplicated
+// 	assert.NoError(sig5.UpdateName("sig_4"))
+// 	assert.Error(muxSig1.AppendMuxSignal(0, sig5))
 
-	// should return an error because signal name sig_0 is duplicated
-	assert.NoError(sig5.UpdateName("sig_0"))
-	assert.Error(muxSig1.AppendMuxSignal(0, sig5))
+// 	// should return an error because signal name sig_0 is duplicated
+// 	assert.NoError(sig5.UpdateName("sig_0"))
+// 	assert.Error(muxSig1.AppendMuxSignal(0, sig5))
 
-	// should return an error because there is no space left in the payload of muxSig1 at select value 1
-	assert.Error(sig4.SetType(size8Type))
+// 	// should return an error because there is no space left in the payload of muxSig1 at select value 1
+// 	assert.Error(sig4.SetType(size8Type))
 
-	// should be possible to update sig4 name
-	assert.NoError(sig4.UpdateName("sig_44"))
-	tmpSig4, err := msg.GetSignal(sig4.EntityID())
-	assert.NoError(err)
-	assert.Equal("sig_44", tmpSig4.Name())
+// 	// should be possible to update sig4 name
+// 	assert.NoError(sig4.UpdateName("sig_44"))
+// 	tmpSig4, err := msg.GetSignal(sig4.EntityID())
+// 	assert.NoError(err)
+// 	assert.Equal("sig_44", tmpSig4.Name())
 
-	// should not be possible to update sig4 name
-	assert.Error(sig4.UpdateName("sig_0"))
+// 	// should not be possible to update sig4 name
+// 	assert.Error(sig4.UpdateName("sig_0"))
 
-	// should return an error because there is no more space
-	assert.Error(sig4.SetType(size8Type))
+// 	// should return an error because there is no more space
+// 	assert.Error(sig4.SetType(size8Type))
 
-	size2Type, err := NewIntegerSignalType("2_bits", 2, false)
-	assert.NoError(err)
+// 	size2Type, err := NewIntegerSignalType("2_bits", 2, false)
+// 	assert.NoError(err)
 
-	// this time it should be possible because it is shrinking
-	assert.NoError(sig4.SetType(size2Type))
+// 	// this time it should be possible because it is shrinking
+// 	assert.NoError(sig4.SetType(size2Type))
 
-	// also this time because it returns to the original size
-	assert.NoError(sig4.SetType(size4Type))
-}
+// 	// also this time because it returns to the original size
+// 	assert.NoError(sig4.SetType(size4Type))
+// }
 
-func Test_MultiplexerSignal_RemoveMuxSignal(t *testing.T) {
-	assert := assert.New(t)
+// func Test_MultiplexerSignal_RemoveMuxSignal(t *testing.T) {
+// 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 2)
+// 	msg := NewMessage("msg", 2)
 
-	muxSig0, err := NewMultiplexerSignal("mux_sig_0", 16, 1)
-	assert.NoError(err)
-	muxSig1, err := NewMultiplexerSignal("mux_sig_1", 7, 1)
-	assert.NoError(err)
+// 	muxSig0, err := NewMultiplexerSignal1("mux_sig_0", 16, 1)
+// 	assert.NoError(err)
+// 	muxSig1, err := NewMultiplexerSignal1("mux_sig_1", 7, 1)
+// 	assert.NoError(err)
 
-	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
-	assert.NoError(err)
-	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
-	assert.NoError(err)
+// 	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
+// 	assert.NoError(err)
+// 	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
+// 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", size8Type)
-	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", size4Type)
-	assert.NoError(err)
+// 	sig0, err := NewStandardSignal("sig_0", size8Type)
+// 	assert.NoError(err)
+// 	sig1, err := NewStandardSignal("sig_1", size4Type)
+// 	assert.NoError(err)
 
-	// starting with this message payload
-	// muxSig0 : ( sv0 0 0 0 0 0 0 0 0, muxSig1 : ( sl0 1 1 1 1 - - ) )
-	assert.NoError(msg.AppendSignal(muxSig0))
-	assert.NoError(muxSig0.AppendMuxSignal(0, sig0))
-	assert.NoError(muxSig0.AppendMuxSignal(0, muxSig1))
-	assert.NoError(muxSig1.AppendMuxSignal(0, sig1))
+// 	// starting with this message payload
+// 	// muxSig0 : ( sv0 0 0 0 0 0 0 0 0, muxSig1 : ( sl0 1 1 1 1 - - ) )
+// 	assert.NoError(msg.AppendSignal(muxSig0))
+// 	assert.NoError(muxSig0.AppendMuxSignal(0, sig0))
+// 	assert.NoError(muxSig0.AppendMuxSignal(0, muxSig1))
+// 	assert.NoError(muxSig1.AppendMuxSignal(0, sig1))
 
-	// remove sig1, then sig0, then muxSig1
-	assert.NoError(muxSig1.RemoveMuxSignal(sig1.EntityID()))
-	assert.NoError(muxSig0.RemoveMuxSignal(sig0.EntityID()))
-	assert.NoError(muxSig0.RemoveMuxSignal(muxSig1.EntityID()))
+// 	// remove sig1, then sig0, then muxSig1
+// 	assert.NoError(muxSig1.RemoveMuxSignal(sig1.EntityID()))
+// 	assert.NoError(muxSig0.RemoveMuxSignal(sig0.EntityID()))
+// 	assert.NoError(muxSig0.RemoveMuxSignal(muxSig1.EntityID()))
 
-	assert.Equal(1, len(msg.Signals()))
-	assert.Equal(0, len(muxSig0.GetSelectedMuxSignals(0)))
+// 	assert.Equal(1, len(msg.Signals()))
+// 	assert.Equal(0, len(muxSig0.GetSelectedMuxSignals(0)))
 
-}
+// }
 
-func Test_MultiplexerSignal_RemoveAllMuxSignals(t *testing.T) {
-	assert := assert.New(t)
+// func Test_MultiplexerSignal_RemoveAllMuxSignals(t *testing.T) {
+// 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 2)
+// 	msg := NewMessage("msg", 2)
 
-	muxSig0, err := NewMultiplexerSignal("mux_sig_0", 16, 1)
-	assert.NoError(err)
-	muxSig1, err := NewMultiplexerSignal("mux_sig_1", 7, 1)
-	assert.NoError(err)
+// 	muxSig0, err := NewMultiplexerSignal1("mux_sig_0", 16, 1)
+// 	assert.NoError(err)
+// 	muxSig1, err := NewMultiplexerSignal1("mux_sig_1", 7, 1)
+// 	assert.NoError(err)
 
-	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
-	assert.NoError(err)
-	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
-	assert.NoError(err)
+// 	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
+// 	assert.NoError(err)
+// 	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
+// 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", size8Type)
-	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", size4Type)
-	assert.NoError(err)
+// 	sig0, err := NewStandardSignal("sig_0", size8Type)
+// 	assert.NoError(err)
+// 	sig1, err := NewStandardSignal("sig_1", size4Type)
+// 	assert.NoError(err)
 
-	// starting with this message payload
-	// muxSig0 : ( sv0 0 0 0 0 0 0 0 0, muxSig1 : ( sl0 1 1 1 1 - - ) )
-	assert.NoError(msg.AppendSignal(muxSig0))
-	assert.NoError(muxSig0.AppendMuxSignal(0, sig0))
-	assert.NoError(muxSig0.AppendMuxSignal(0, muxSig1))
-	assert.NoError(muxSig1.AppendMuxSignal(0, sig1))
+// 	// starting with this message payload
+// 	// muxSig0 : ( sv0 0 0 0 0 0 0 0 0, muxSig1 : ( sl0 1 1 1 1 - - ) )
+// 	assert.NoError(msg.AppendSignal(muxSig0))
+// 	assert.NoError(muxSig0.AppendMuxSignal(0, sig0))
+// 	assert.NoError(muxSig0.AppendMuxSignal(0, muxSig1))
+// 	assert.NoError(muxSig1.AppendMuxSignal(0, sig1))
 
-	// remove muxSig1 and sig1
-	muxSig0.RemoveAllMuxSignals()
+// 	// remove muxSig1 and sig1
+// 	muxSig0.RemoveAllMuxSignals()
 
-	assert.Equal(1, len(msg.Signals()))
-	assert.Equal(0, len(muxSig0.GetSelectedMuxSignals(0)))
-}
+// 	assert.Equal(1, len(msg.Signals()))
+// 	assert.Equal(0, len(muxSig0.GetSelectedMuxSignals(0)))
+// }
 
-func Test_MultiplexerSignal_AddSelectValueRange(t *testing.T) {
-	assert := assert.New(t)
+// func Test_MultiplexerSignal_AddSelectValueRange(t *testing.T) {
+// 	assert := assert.New(t)
 
-	muxSig, err := NewMultiplexerSignal("mux_sig", 16, 4)
-	assert.NoError(err)
+// 	muxSig, err := NewMultiplexerSignal1("mux_sig", 16, 4)
+// 	assert.NoError(err)
 
-	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
-	assert.NoError(err)
+// 	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
+// 	assert.NoError(err)
 
-	sig0, err := NewStandardSignal("sig_0", size4Type)
-	assert.NoError(err)
-	sig1, err := NewStandardSignal("sig_1", size4Type)
-	assert.NoError(err)
-	sig2, err := NewStandardSignal("sig_2", size4Type)
-	assert.NoError(err)
-	sig4, err := NewStandardSignal("sig_4", size4Type)
-	assert.NoError(err)
-	sig5, err := NewStandardSignal("sig_5", size4Type)
-	assert.NoError(err)
+// 	sig0, err := NewStandardSignal("sig_0", size4Type)
+// 	assert.NoError(err)
+// 	sig1, err := NewStandardSignal("sig_1", size4Type)
+// 	assert.NoError(err)
+// 	sig2, err := NewStandardSignal("sig_2", size4Type)
+// 	assert.NoError(err)
+// 	sig4, err := NewStandardSignal("sig_4", size4Type)
+// 	assert.NoError(err)
+// 	sig5, err := NewStandardSignal("sig_5", size4Type)
+// 	assert.NoError(err)
 
-	// setting a value range between 0 and 4
-	assert.NoError(muxSig.AddSelectValueRange(0, 4))
+// 	// setting a value range between 0 and 4
+// 	assert.NoError(muxSig.AddSelectValueRange(0, 4))
 
-	// appending sig0 and sig1 in the value range created before
-	assert.NoError(muxSig.InsertMuxSignal(2, sig0, 0))
-	assert.NoError(muxSig.InsertMuxSignal(0, sig1, 4))
+// 	// appending sig0 and sig1 in the value range created before
+// 	assert.NoError(muxSig.InsertMuxSignal(2, sig0, 0))
+// 	assert.NoError(muxSig.InsertMuxSignal(0, sig1, 4))
 
-	// should get sig0 and sig1 because 3 is in the range
-	expectedNames := []string{"sig_0", "sig_1"}
-	for idx, tmpSig := range muxSig.GetSelectedMuxSignals(3) {
-		assert.Equal(expectedNames[idx], tmpSig.Name())
-	}
+// 	// should get sig0 and sig1 because 3 is in the range
+// 	expectedNames := []string{"sig_0", "sig_1"}
+// 	for idx, tmpSig := range muxSig.GetSelectedMuxSignals(3) {
+// 		assert.Equal(expectedNames[idx], tmpSig.Name())
+// 	}
 
-	// inserting a signal with select value of 8, and creating a value range between 5 and 10
-	assert.NoError(muxSig.InsertMuxSignal(8, sig2, 0))
-	assert.NoError(muxSig.AddSelectValueRange(5, 10))
-	assert.Equal(1, len(muxSig.GetSelectedMuxSignals(10)))
+// 	// inserting a signal with select value of 8, and creating a value range between 5 and 10
+// 	assert.NoError(muxSig.InsertMuxSignal(8, sig2, 0))
+// 	assert.NoError(muxSig.AddSelectValueRange(5, 10))
+// 	assert.Equal(1, len(muxSig.GetSelectedMuxSignals(10)))
 
-	// should return an error because from is greater then to
-	assert.Error(muxSig.AddSelectValueRange(20, 5))
+// 	// should return an error because from is greater then to
+// 	assert.Error(muxSig.AddSelectValueRange(20, 5))
 
-	// should return an error because from is invalid
-	assert.Error(muxSig.AddSelectValueRange(1024, 1025))
+// 	// should return an error because from is invalid
+// 	assert.Error(muxSig.AddSelectValueRange(1024, 1025))
 
-	// should return an error because to is invalid
-	assert.Error(muxSig.AddSelectValueRange(11, 1024))
+// 	// should return an error because to is invalid
+// 	assert.Error(muxSig.AddSelectValueRange(11, 1024))
 
-	// should return an error because 3 is in another range
-	assert.Error(muxSig.AddSelectValueRange(3, 12))
+// 	// should return an error because 3 is in another range
+// 	assert.Error(muxSig.AddSelectValueRange(3, 12))
 
-	// inserting sig4 and sig5 in different signal values
-	assert.NoError(muxSig.InsertMuxSignal(11, sig4, 0))
-	assert.NoError(muxSig.InsertMuxSignal(12, sig5, 0))
+// 	// inserting sig4 and sig5 in different signal values
+// 	assert.NoError(muxSig.InsertMuxSignal(11, sig4, 0))
+// 	assert.NoError(muxSig.InsertMuxSignal(12, sig5, 0))
 
-	// should return an error because in the range between 11 and 12 there are 2 different payloads
-	assert.Error(muxSig.AddSelectValueRange(11, 12))
-}
+// 	// should return an error because in the range between 11 and 12 there are 2 different payloads
+// 	assert.Error(muxSig.AddSelectValueRange(11, 12))
+// }

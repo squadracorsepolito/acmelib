@@ -103,7 +103,7 @@ func newAttributeEntity(name string, attRefKind AttributeRefKind) *attributeEnti
 	return &attributeEntity{
 		entity: newEntity(name),
 
-		attributeValues: newSet[EntityID, *AttributeValue]("attribute value"),
+		attributeValues: newSet[EntityID, *AttributeValue](),
 		attRefKind:      attRefKind,
 	}
 }

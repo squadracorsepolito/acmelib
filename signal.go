@@ -52,7 +52,7 @@ type SignalParent interface {
 }
 
 // Signal interface specifies all common methods of
-// [StandardSignal], [EnumSignal], and [MultiplexerSignal].
+// [StandardSignal], [EnumSignal], and [MultiplexerSignal1].
 type Signal interface {
 	// EntityID returns the entity id of the signal.
 	EntityID() EntityID
@@ -177,7 +177,7 @@ func (s *signal) GetStartBit() int {
 				panic(err)
 			}
 
-			return muxParent.GetStartBit() + muxParent.SelectSize() + s.relStartBit
+			return muxParent.GetStartBit() + muxParent.GetGroupCountSize() + s.relStartBit
 		}
 	}
 
@@ -251,7 +251,7 @@ func (ss *StandardSignal) ToEnum() (*EnumSignal, error) {
 	return nil, fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindEnum, SignalKindStandard)
 }
 
-// ToMultiplexer always returns an error, because a [StandardSignal] cannot be converted to a [MultiplexerSignal].
+// ToMultiplexer always returns an error, because a [StandardSigna] cannot be converted to a [MultiplexerSignal].
 func (ss *StandardSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 	return nil, fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindMultiplexer, SignalKindStandard)
 }
@@ -442,601 +442,601 @@ func (es *EnumSignal) SetEnum(enum *SignalEnum) error {
 	return nil
 }
 
-// MultiplexerSignal is a signal that holds other signals that are
-// multiplexed by the first n bits specified with the select size attribute.
-// It can multiplex all the kinds of signals (Standard, Enum, Multiplexer),
-// so it is possible to create multiple levels of multiplexing.
-type MultiplexerSignal struct {
-	*signal
-
-	muxSignals     *set[EntityID, Signal]
-	muxSignalNames *set[string, EntityID]
-
-	muxSignalSelValues map[EntityID]int
-
-	signalPayloads map[int]*signalPayload
-
-	selValRanges map[int]int
-
-	totalSize  int
-	selectSize int
-
-	groupCount int
-	groupSize  int
-	muxGroups  []*signalPayload
-}
-
-// NewMultiplexerSignal creates a new [MultiplexerSignal] with the given name,
-// total size, and select size.
-// The select size defines the number bits used for selecting the different groups of signals
-// of the multiplexer (select size = log2(number of groups)).
-// The total size is the sum of the select and the maximum size of groups.
-// Ex. selectSize = 2, totalSize = 10 means that the [MultiplexerSignal] can have
-// 4 groups of 8 bits.
-// It may return an error if the select size is greater then the total size, or if
-// the total and select size are lower or equal to zero.
-func NewMultiplexerSignal(name string, totalSize, selectSize int) (*MultiplexerSignal, error) {
-	if selectSize <= 0 {
-		return nil, fmt.Errorf("the select size cannot be lower or equal to 0")
-	}
-
-	if totalSize <= 0 {
-		return nil, fmt.Errorf("the total size cannot be lower or equal to 0")
-	}
-
-	if selectSize > totalSize {
-		return nil, fmt.Errorf("the select size cannot be greater then the total size")
-	}
-
-	return &MultiplexerSignal{
-		signal: newSignal(name, SignalKindMultiplexer),
-
-		muxSignals:     newSet[EntityID, Signal]("multiplexed signal"),
-		muxSignalNames: newSet[string, EntityID]("multiplexed signal name"),
-
-		muxSignalSelValues: make(map[EntityID]int),
-
-		signalPayloads: make(map[int]*signalPayload),
-
-		selValRanges: make(map[int]int),
-
-		totalSize:  totalSize,
-		selectSize: selectSize,
-	}, nil
-}
-
-func (ms *MultiplexerSignal) addSignalPayload(selVal int) *signalPayload {
-	payload := newSignalPayload(ms.totalSize - ms.selectSize)
-	ms.signalPayloads[selVal] = payload
-	return payload
-}
-
-func (ms *MultiplexerSignal) getSignalPayload(selVal int) (*signalPayload, int) {
-	tmpSelVal := selVal
-
-	if len(ms.selValRanges) > 0 {
-		if rangeSelVal, ok := ms.selValRanges[selVal]; ok {
-			tmpSelVal = rangeSelVal
-		}
-	}
-
-	if payload, ok := ms.signalPayloads[tmpSelVal]; ok {
-		return payload, tmpSelVal
-	}
-
-	return nil, tmpSelVal
-}
-
-func (ms *MultiplexerSignal) addMuxSignalName(sigID EntityID, name string) {
-	ms.muxSignalNames.add(name, sigID)
-
-	if ms.hasParent() {
-		parent := ms.Parent()
-		for parent != nil {
-			switch parent.GetSignalParentKind() {
-			case SignalParentKindMultiplexerSignal:
-				muxParent, err := parent.ToParentMultiplexerSignal()
-				if err != nil {
-					panic(err)
-				}
-				parent = muxParent.Parent()
-
-			case SignalParentKindMessage:
-				msgParent, err := parent.ToParentMessage()
-				if err != nil {
-					panic(err)
-				}
-
-				msgParent.signalNames.add(name, sigID)
-				return
-			}
-		}
-	}
-}
-
-func (ms *MultiplexerSignal) removeMuxSignalName(name string) {
-	ms.muxSignalNames.remove(name)
-
-	if ms.hasParent() {
-		parent := ms.Parent()
-		for parent != nil {
-			switch parent.GetSignalParentKind() {
-			case SignalParentKindMultiplexerSignal:
-				muxParent, err := parent.ToParentMultiplexerSignal()
-				if err != nil {
-					panic(err)
-				}
-				parent = muxParent.Parent()
-
-			case SignalParentKindMessage:
-				msgParent, err := parent.ToParentMessage()
-				if err != nil {
-					panic(err)
-				}
-
-				msgParent.signalNames.remove(name)
-				return
-			}
-		}
-	}
-}
-
-func (ms *MultiplexerSignal) addMuxSignal(selValue int, sig Signal) {
-	id := sig.EntityID()
-
-	ms.muxSignals.add(id, sig)
-	ms.addMuxSignalName(id, sig.Name())
-	ms.muxSignalSelValues[id] = selValue
-
-	if ms.hasParent() {
-		parent := ms.Parent()
-		for parent != nil {
-			switch parent.GetSignalParentKind() {
-			case SignalParentKindMultiplexerSignal:
-				muxParent, err := parent.ToParentMultiplexerSignal()
-				if err != nil {
-					panic(err)
-				}
-				parent = muxParent.Parent()
-
-			case SignalParentKindMessage:
-				msgParent, err := parent.ToParentMessage()
-				if err != nil {
-					panic(err)
-				}
-
-				msgParent.signals.add(id, sig)
-				return
-			}
-		}
-	}
-
-}
-
-func (ms *MultiplexerSignal) removeMuxSignal(sigID EntityID) {
-	delete(ms.muxSignalSelValues, sigID)
-	ms.muxSignals.remove(sigID)
-
-	if ms.hasParent() {
-		parent := ms.Parent()
-		for parent != nil {
-			switch parent.GetSignalParentKind() {
-			case SignalParentKindMultiplexerSignal:
-				muxParent, err := parent.ToParentMultiplexerSignal()
-				if err != nil {
-					panic(err)
-				}
-				parent = muxParent.Parent()
-
-			case SignalParentKindMessage:
-				msgParent, err := parent.ToParentMessage()
-				if err != nil {
-					panic(err)
-				}
-
-				msgParent.signals.remove(sigID)
-				return
-			}
-		}
-	}
-}
-
-func (ms *MultiplexerSignal) getMuxSignalSelValue(sigID EntityID) (int, error) {
-	if selVal, ok := ms.muxSignalSelValues[sigID]; ok {
-		return selVal, nil
-	}
-	return -1, fmt.Errorf(`select value for multiplexed signal with id "%s" not found`, sigID)
-}
-
-func (ms *MultiplexerSignal) verifySelectValue(selVal int) error {
-	if selVal < 0 {
-		return errors.New("select value cannot be negative")
-	}
-
-	if calcSizeFromValue(selVal) > ms.selectSize {
-		return fmt.Errorf(`select value "%d" size exceeds the max select value size ("%d")`, selVal, ms.selectSize)
-	}
-
-	return nil
-}
-
-// GetSignalParentKind always returns [SignalParentKindMultiplexerSignal].
-func (ms *MultiplexerSignal) GetSignalParentKind() SignalParentKind {
-	return SignalParentKindMultiplexerSignal
-}
-
-func (ms *MultiplexerSignal) modifySignalName(sigID EntityID, newName string) error {
-	if ms.hasParent() {
-		parent := ms.Parent()
-
-	loop:
-		for parent != nil {
-			switch parent.GetSignalParentKind() {
-			case SignalParentKindMultiplexerSignal:
-				muxParent, err := parent.ToParentMultiplexerSignal()
-				if err != nil {
-					panic(err)
-				}
-				parent = muxParent.Parent()
-
-			case SignalParentKindMessage:
-				msgParent, err := parent.ToParentMessage()
-				if err != nil {
-					panic(err)
-				}
-
-				if err := msgParent.modifySignalName(sigID, newName); err != nil {
-					return err
-				}
-				break loop
-			}
-		}
-	}
-
-	sig, err := ms.muxSignals.getValue(sigID)
-	if err != nil {
-		return err
-	}
-
-	oldName := sig.Name()
-
-	ms.removeMuxSignalName(oldName)
-	ms.addMuxSignalName(sigID, newName)
-
-	return nil
-}
-
-func (ms *MultiplexerSignal) verifySignalName(sigID EntityID, name string) error {
-	if err := ms.muxSignalNames.verifyKey(name); err != nil {
-		return err
-	}
-
-	if ms.hasParent() {
-		return ms.parent.verifySignalName(sigID, name)
-	}
-
-	return nil
-}
-
-func (ms *MultiplexerSignal) verifySignalSizeAmount(sigID EntityID, amount int) error {
-	if amount == 0 {
-		return nil
-	}
-
-	sig, err := ms.muxSignals.getValue(sigID)
-	if err != nil {
-		return err
-	}
-
-	selVal, err := ms.getMuxSignalSelValue(sigID)
-	if err != nil {
-		return err
-	}
-
-	payload, _ := ms.getSignalPayload(selVal)
-
-	if amount > 0 {
-		return payload.verifyBeforeGrow(sig, amount)
-	}
-
-	return payload.verifyBeforeShrink(sig, -amount)
-}
-
-func (ms *MultiplexerSignal) modifySignalSize(sigID EntityID, amount int) error {
-	if amount == 0 {
-		return nil
-	}
-
-	sig, err := ms.muxSignals.getValue(sigID)
-	if err != nil {
-		return err
-	}
-
-	selVal, err := ms.getMuxSignalSelValue(sigID)
-	if err != nil {
-		return err
-	}
-
-	payload, _ := ms.getSignalPayload(selVal)
-
-	if amount > 0 {
-		return payload.modifyStartBitsOnGrow(sig, amount)
-	}
-
-	return payload.modifyStartBitsOnShrink(sig, -amount)
-}
-
-// ToParentMessage always returns an error, since [MultiplexerSignal] cannot be converted to [Message].
-func (ms *MultiplexerSignal) ToParentMessage() (*Message, error) {
-	return nil, fmt.Errorf(`cannot convert to "%s" signal parent is of kind "%s"`,
-		SignalParentKindMessage, SignalParentKindMultiplexerSignal)
-}
-
-// ToParentMultiplexerSignal returns the [MultiplexerSignal] itself.
-func (ms *MultiplexerSignal) ToParentMultiplexerSignal() (*MultiplexerSignal, error) {
-	return ms, nil
-}
-
-// GetSize returns the total size of the [MultiplexerSignal].
-func (ms *MultiplexerSignal) GetSize() int {
-	return ms.totalSize
-}
-
-// ToStandard always returns an error, since [MultiplexerSignal] cannot be converted to [StandardSignal].
-func (ms *MultiplexerSignal) ToStandard() (*StandardSignal, error) {
-	return nil, ms.errorf(fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindStandard, SignalKindMultiplexer))
-}
-
-// ToEnum always returns an error, since [MultiplexerSignal] cannot be converted to [EnumSignal].
-func (ms *MultiplexerSignal) ToEnum() (*EnumSignal, error) {
-	return nil, ms.errorf(fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindEnum, SignalKindMultiplexer))
-}
-
-// ToMultiplexer always returns the [MultiplexerSignal] itself.
-func (ms *MultiplexerSignal) ToMultiplexer() (*MultiplexerSignal, error) {
-	return ms, nil
-}
-
-func (ms *MultiplexerSignal) stringify(b *strings.Builder, tabs int) {
-	ms.signal.stringify(b, tabs)
-
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("size: %d\n", ms.GetSize()))
-
-	if ms.muxSignals.size() == 0 {
-		return
-	}
-
-	for selVal, muxGroup := range ms.MuxSignals() {
-		b.WriteString(fmt.Sprintf("%sselect value: %d\n", tabStr, selVal))
-
-		b.WriteString(fmt.Sprintf("%smultiplexed signals:\n", tabStr))
-		for _, muxSig := range muxGroup {
-			muxSig.stringify(b, tabs+1)
-			b.WriteRune('\n')
-		}
-	}
-}
-
-func (ms *MultiplexerSignal) String() string {
-	builder := new(strings.Builder)
-	ms.stringify(builder, 0)
-	return builder.String()
-}
-
-// GetSelectedMuxSignals returns a slice of signals which belong to the selected group.
-func (ms *MultiplexerSignal) GetSelectedMuxSignals(selectValue int) []Signal {
-	payload, _ := ms.getSignalPayload(selectValue)
-
-	if payload != nil {
-		return payload.signals
-	}
-
-	return []Signal{}
-}
-
-// MuxSignals returns a map of signal slices, with key the selector value and
-// the corresponding value is a slice of signals which belong to the selected group.
-// Keep in mind that the keys in the map are not sorted, so it is not guaranteed
-// that the first key in the map will corresponde to the smaller select value.
-func (ms *MultiplexerSignal) MuxSignals() map[int][]Signal {
-	res := make(map[int][]Signal)
-
-	for selVal, payload := range ms.signalPayloads {
-		res[selVal] = payload.signals
-	}
-
-	return res
-}
-
-// AppendMuxSignal appends the [Signal] to the group specified by the select value.
-// It may return an error if the signal name is already used by the [MultiplexerSignal]
-// or by the [Message] that owns the [MultiplexerSignal]. Also, it may return an error
-// if the select value is out of bounds, or if the signal cannot fit in the group.
-func (ms *MultiplexerSignal) AppendMuxSignal(selectValue int, signal Signal) error {
-	if err := ms.verifySignalName(signal.EntityID(), signal.Name()); err != nil {
-		return ms.errorf(err)
-	}
-
-	if err := ms.verifySelectValue(selectValue); err != nil {
-		return ms.errorf(err)
-	}
-
-	payload, realSelVal := ms.getSignalPayload(selectValue)
-	if payload == nil {
-		payload = ms.addSignalPayload(realSelVal)
-	}
-
-	if err := payload.append(signal); err != nil {
-		return ms.errorf(err)
-	}
-
-	ms.addMuxSignal(realSelVal, signal)
-
-	signal.setParent(ms)
-
-	return nil
-}
-
-// InsertMuxSignal inserts the [Signal] to the group specified by the select value starting
-// from the specified bit.
-// It may return an error if the signal name is already used by the [MultiplexerSignal]
-// or by the [Message] that owns the [MultiplexerSignal]. Also, it may return an error
-// if the select value is out of bounds, or if the signal cannot fit in the group.
-func (ms *MultiplexerSignal) InsertMuxSignal(selectValue int, signal Signal, startBit int) error {
-	if err := ms.verifySignalName(signal.EntityID(), signal.Name()); err != nil {
-		return ms.errorf(err)
-	}
-
-	if err := ms.verifySelectValue(selectValue); err != nil {
-		return ms.errorf(err)
-	}
-
-	payload, realSelVal := ms.getSignalPayload(selectValue)
-	if payload == nil {
-		payload = ms.addSignalPayload(realSelVal)
-	}
-
-	if err := payload.insert(signal, startBit); err != nil {
-		return ms.errorf(err)
-	}
-
-	ms.addMuxSignal(realSelVal, signal)
-
-	signal.setParent(ms)
-
-	return nil
-}
-
-// ShiftMuxSignalLeft shifts the multiplexed signal with the given entity id left by the given amount.
-// It returns the amount of bits shifted.
-func (ms *MultiplexerSignal) ShiftMuxSignalLeft(muxSignalEntityID EntityID, amount int) int {
-	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
-	if err != nil {
-		return 0
-	}
-
-	sig, err := ms.muxSignals.getValue(muxSignalEntityID)
-	if err != nil {
-		return 0
-	}
-
-	payload, _ := ms.getSignalPayload(selVal)
-	if payload == nil {
-		return 0
-	}
-
-	return payload.shiftLeft(sig, amount)
-}
-
-// ShiftMuxSignalRight shifts the multiplexed signal with the given entity id right by the given amount.
-// It returns the amount of bits shifted.
-func (ms *MultiplexerSignal) ShiftMuxSignalRight(muxSignalEntityID EntityID, amount int) int {
-	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
-	if err != nil {
-		return 0
-	}
-
-	sig, err := ms.muxSignals.getValue(muxSignalEntityID)
-	if err != nil {
-		return 0
-	}
-
-	payload, _ := ms.getSignalPayload(selVal)
-	if payload == nil {
-		return 0
-	}
-
-	return payload.shiftRight(sig, amount)
-}
-
-// RemoveMuxSignal removes the multiplexed signal with the given entity id from the [MultiplexerSignal].
-// It may return an error if the multiplied signal with the given entity id
-// is not found in the [MultiplexerSignal].
-func (ms *MultiplexerSignal) RemoveMuxSignal(muxSignalEntityID EntityID) error {
-	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
-	if err != nil {
-		return ms.errorf(fmt.Errorf(`cannot remove mux signal with id "%s" : %w`, muxSignalEntityID, err))
-	}
-
-	sig, err := ms.muxSignals.getValue(muxSignalEntityID)
-	if err != nil {
-		return ms.errorf(fmt.Errorf(`cannot remove mux signal with id "%s" : %w`, muxSignalEntityID, err))
-	}
-
-	payload, _ := ms.getSignalPayload(selVal)
-	if payload == nil {
-		return nil
-	}
-
-	ms.removeMuxSignal(muxSignalEntityID)
-	ms.removeMuxSignalName(sig.Name())
-
-	payload.remove(muxSignalEntityID)
-
-	sig.setParent(nil)
-
-	return nil
-}
-
-// RemoveAllMuxSignals removes all the multiplexed signals from the [MultiplexerSignal].
-func (ms *MultiplexerSignal) RemoveAllMuxSignals() {
-	for muxSigID, tmpMuxSig := range ms.muxSignals.entries() {
-		tmpMuxSig.setParent(nil)
-		ms.removeMuxSignalName(tmpMuxSig.Name())
-		ms.removeMuxSignal(muxSigID)
-	}
-
-	for _, payload := range ms.signalPayloads {
-		payload.removeAll()
-	}
-}
-
-// SelectSize returns the number of bits of the select value in the [MultiplexerSignal].
-func (ms *MultiplexerSignal) SelectSize() int {
-	return ms.selectSize
-}
-
-// AddSelectValueRange adds a range of select values to the [MultiplexerSignal].
-// It is used when a range of select values is used for selecting one group.
-// Ex. from = 0, to = 2 means that there is only one group for select value 0, 1 and 2.
-// It may return an error if from is greater then to, or if any of the values in the range
-// is already used for selecting more then one group (ex. selVal = 0 -> group0,
-// selVal = 1 -> group1: cannot use the range from 0 to 1).
-func (ms *MultiplexerSignal) AddSelectValueRange(from, to int) error {
-	if from > to {
-		return ms.errorf(fmt.Errorf(`cannot set select value range because from "%d" is greater then to "%d"`, from, to))
-	}
-
-	if err := ms.verifySelectValue(from); err != nil {
-		return ms.errorf(fmt.Errorf(`cannot set select value range : %w`, err))
-	}
-
-	if err := ms.verifySelectValue(to); err != nil {
-		return ms.errorf(fmt.Errorf(`cannot set select value range : %w`, err))
-	}
-
-	foundOne := false
-	foundSelVal := from
-	for i := from; i <= to; i++ {
-		if _, ok := ms.signalPayloads[i]; ok {
-			if foundOne {
-				return ms.errorf(fmt.Errorf(`cannot set select value range because there are more than 1 payloads between "%d" an "%d"`, from, to))
-			}
-
-			foundSelVal = i
-			foundOne = true
-		}
-
-		if _, ok := ms.selValRanges[i]; ok {
-			return ms.errorf(fmt.Errorf(`cannot set select value range because value "%d" is already used in another range`, i))
-		}
-	}
-
-	for i := from; i <= to; i++ {
-		ms.selValRanges[i] = foundSelVal
-	}
-
-	return nil
-}
+// // MultiplexerSignal1 is a signal that holds other signals that are
+// // multiplexed by the first n bits specified with the select size attribute.
+// // It can multiplex all the kinds of signals (Standard, Enum, Multiplexer),
+// // so it is possible to create multiple levels of multiplexing.
+// type MultiplexerSignal1 struct {
+// 	*signal
+
+// 	muxSignals     *set[EntityID, Signal]
+// 	muxSignalNames *set[string, EntityID]
+
+// 	muxSignalSelValues map[EntityID]int
+
+// 	signalPayloads map[int]*signalPayload
+
+// 	selValRanges map[int]int
+
+// 	totalSize  int
+// 	selectSize int
+
+// 	groupCount int
+// 	groupSize  int
+// 	muxGroups  []*signalPayload
+// }
+
+// // NewMultiplexerSignal1 creates a new [MultiplexerSignal1] with the given name,
+// // total size, and select size.
+// // The select size defines the number bits used for selecting the different groups of signals
+// // of the multiplexer (select size = log2(number of groups)).
+// // The total size is the sum of the select and the maximum size of groups.
+// // Ex. selectSize = 2, totalSize = 10 means that the [MultiplexerSignal1] can have
+// // 4 groups of 8 bits.
+// // It may return an error if the select size is greater then the total size, or if
+// // the total and select size are lower or equal to zero.
+// func NewMultiplexerSignal1(name string, totalSize, selectSize int) (*MultiplexerSignal1, error) {
+// 	if selectSize <= 0 {
+// 		return nil, fmt.Errorf("the select size cannot be lower or equal to 0")
+// 	}
+
+// 	if totalSize <= 0 {
+// 		return nil, fmt.Errorf("the total size cannot be lower or equal to 0")
+// 	}
+
+// 	if selectSize > totalSize {
+// 		return nil, fmt.Errorf("the select size cannot be greater then the total size")
+// 	}
+
+// 	return &MultiplexerSignal1{
+// 		signal: newSignal(name, SignalKindMultiplexer),
+
+// 		muxSignals:     newSet[EntityID, Signal]("multiplexed signal"),
+// 		muxSignalNames: newSet[string, EntityID]("multiplexed signal name"),
+
+// 		muxSignalSelValues: make(map[EntityID]int),
+
+// 		signalPayloads: make(map[int]*signalPayload),
+
+// 		selValRanges: make(map[int]int),
+
+// 		totalSize:  totalSize,
+// 		selectSize: selectSize,
+// 	}, nil
+// }
+
+// func (ms *MultiplexerSignal1) addSignalPayload(selVal int) *signalPayload {
+// 	payload := newSignalPayload(ms.totalSize - ms.selectSize)
+// 	ms.signalPayloads[selVal] = payload
+// 	return payload
+// }
+
+// func (ms *MultiplexerSignal1) getSignalPayload(selVal int) (*signalPayload, int) {
+// 	tmpSelVal := selVal
+
+// 	if len(ms.selValRanges) > 0 {
+// 		if rangeSelVal, ok := ms.selValRanges[selVal]; ok {
+// 			tmpSelVal = rangeSelVal
+// 		}
+// 	}
+
+// 	if payload, ok := ms.signalPayloads[tmpSelVal]; ok {
+// 		return payload, tmpSelVal
+// 	}
+
+// 	return nil, tmpSelVal
+// }
+
+// func (ms *MultiplexerSignal1) addMuxSignalName(sigID EntityID, name string) {
+// 	ms.muxSignalNames.add(name, sigID)
+
+// 	if ms.hasParent() {
+// 		parent := ms.Parent()
+// 		for parent != nil {
+// 			switch parent.GetSignalParentKind() {
+// 			case SignalParentKindMultiplexerSignal:
+// 				muxParent, err := parent.ToParentMultiplexerSignal()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+// 				parent = muxParent.Parent()
+
+// 			case SignalParentKindMessage:
+// 				msgParent, err := parent.ToParentMessage()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+
+// 				msgParent.signalNames.add(name, sigID)
+// 				return
+// 			}
+// 		}
+// 	}
+// }
+
+// func (ms *MultiplexerSignal1) removeMuxSignalName(name string) {
+// 	ms.muxSignalNames.remove(name)
+
+// 	if ms.hasParent() {
+// 		parent := ms.Parent()
+// 		for parent != nil {
+// 			switch parent.GetSignalParentKind() {
+// 			case SignalParentKindMultiplexerSignal:
+// 				muxParent, err := parent.ToParentMultiplexerSignal()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+// 				parent = muxParent.Parent()
+
+// 			case SignalParentKindMessage:
+// 				msgParent, err := parent.ToParentMessage()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+
+// 				msgParent.signalNames.remove(name)
+// 				return
+// 			}
+// 		}
+// 	}
+// }
+
+// func (ms *MultiplexerSignal1) addMuxSignal(selValue int, sig Signal) {
+// 	id := sig.EntityID()
+
+// 	ms.muxSignals.add(id, sig)
+// 	ms.addMuxSignalName(id, sig.Name())
+// 	ms.muxSignalSelValues[id] = selValue
+
+// 	if ms.hasParent() {
+// 		parent := ms.Parent()
+// 		for parent != nil {
+// 			switch parent.GetSignalParentKind() {
+// 			case SignalParentKindMultiplexerSignal:
+// 				muxParent, err := parent.ToParentMultiplexerSignal()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+// 				parent = muxParent.Parent()
+
+// 			case SignalParentKindMessage:
+// 				msgParent, err := parent.ToParentMessage()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+
+// 				msgParent.signals.add(id, sig)
+// 				return
+// 			}
+// 		}
+// 	}
+
+// }
+
+// func (ms *MultiplexerSignal1) removeMuxSignal(sigID EntityID) {
+// 	delete(ms.muxSignalSelValues, sigID)
+// 	ms.muxSignals.remove(sigID)
+
+// 	if ms.hasParent() {
+// 		parent := ms.Parent()
+// 		for parent != nil {
+// 			switch parent.GetSignalParentKind() {
+// 			case SignalParentKindMultiplexerSignal:
+// 				muxParent, err := parent.ToParentMultiplexerSignal()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+// 				parent = muxParent.Parent()
+
+// 			case SignalParentKindMessage:
+// 				msgParent, err := parent.ToParentMessage()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+
+// 				msgParent.signals.remove(sigID)
+// 				return
+// 			}
+// 		}
+// 	}
+// }
+
+// func (ms *MultiplexerSignal1) getMuxSignalSelValue(sigID EntityID) (int, error) {
+// 	if selVal, ok := ms.muxSignalSelValues[sigID]; ok {
+// 		return selVal, nil
+// 	}
+// 	return -1, fmt.Errorf(`select value for multiplexed signal with id "%s" not found`, sigID)
+// }
+
+// func (ms *MultiplexerSignal1) verifySelectValue(selVal int) error {
+// 	if selVal < 0 {
+// 		return errors.New("select value cannot be negative")
+// 	}
+
+// 	if calcSizeFromValue(selVal) > ms.selectSize {
+// 		return fmt.Errorf(`select value "%d" size exceeds the max select value size ("%d")`, selVal, ms.selectSize)
+// 	}
+
+// 	return nil
+// }
+
+// // GetSignalParentKind always returns [SignalParentKindMultiplexerSignal].
+// func (ms *MultiplexerSignal1) GetSignalParentKind() SignalParentKind {
+// 	return SignalParentKindMultiplexerSignal
+// }
+
+// func (ms *MultiplexerSignal1) modifySignalName(sigID EntityID, newName string) error {
+// 	if ms.hasParent() {
+// 		parent := ms.Parent()
+
+// 	loop:
+// 		for parent != nil {
+// 			switch parent.GetSignalParentKind() {
+// 			case SignalParentKindMultiplexerSignal:
+// 				muxParent, err := parent.ToParentMultiplexerSignal()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+// 				parent = muxParent.Parent()
+
+// 			case SignalParentKindMessage:
+// 				msgParent, err := parent.ToParentMessage()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+
+// 				if err := msgParent.modifySignalName(sigID, newName); err != nil {
+// 					return err
+// 				}
+// 				break loop
+// 			}
+// 		}
+// 	}
+
+// 	sig, err := ms.muxSignals.getValue(sigID)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	oldName := sig.Name()
+
+// 	ms.removeMuxSignalName(oldName)
+// 	ms.addMuxSignalName(sigID, newName)
+
+// 	return nil
+// }
+
+// func (ms *MultiplexerSignal1) verifySignalName(sigID EntityID, name string) error {
+// 	if err := ms.muxSignalNames.verifyKey(name); err != nil {
+// 		return err
+// 	}
+
+// 	if ms.hasParent() {
+// 		return ms.parent.verifySignalName(sigID, name)
+// 	}
+
+// 	return nil
+// }
+
+// func (ms *MultiplexerSignal1) verifySignalSizeAmount(sigID EntityID, amount int) error {
+// 	if amount == 0 {
+// 		return nil
+// 	}
+
+// 	sig, err := ms.muxSignals.getValue(sigID)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	selVal, err := ms.getMuxSignalSelValue(sigID)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	payload, _ := ms.getSignalPayload(selVal)
+
+// 	if amount > 0 {
+// 		return payload.verifyBeforeGrow(sig, amount)
+// 	}
+
+// 	return payload.verifyBeforeShrink(sig, -amount)
+// }
+
+// func (ms *MultiplexerSignal1) modifySignalSize(sigID EntityID, amount int) error {
+// 	if amount == 0 {
+// 		return nil
+// 	}
+
+// 	sig, err := ms.muxSignals.getValue(sigID)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	selVal, err := ms.getMuxSignalSelValue(sigID)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	payload, _ := ms.getSignalPayload(selVal)
+
+// 	if amount > 0 {
+// 		return payload.modifyStartBitsOnGrow(sig, amount)
+// 	}
+
+// 	return payload.modifyStartBitsOnShrink(sig, -amount)
+// }
+
+// // ToParentMessage always returns an error, since [MultiplexerSignal1] cannot be converted to [Message].
+// func (ms *MultiplexerSignal1) ToParentMessage() (*Message, error) {
+// 	return nil, fmt.Errorf(`cannot convert to "%s" signal parent is of kind "%s"`,
+// 		SignalParentKindMessage, SignalParentKindMultiplexerSignal)
+// }
+
+// // ToParentMultiplexerSignal returns the [MultiplexerSignal1] itself.
+// func (ms *MultiplexerSignal1) ToParentMultiplexerSignal() (*MultiplexerSignal1, error) {
+// 	return ms, nil
+// }
+
+// // GetSize returns the total size of the [MultiplexerSignal1].
+// func (ms *MultiplexerSignal1) GetSize() int {
+// 	return ms.totalSize
+// }
+
+// // ToStandard always returns an error, since [MultiplexerSignal1] cannot be converted to [StandardSignal].
+// func (ms *MultiplexerSignal1) ToStandard() (*StandardSignal, error) {
+// 	return nil, ms.errorf(fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindStandard, SignalKindMultiplexer))
+// }
+
+// // ToEnum always returns an error, since [MultiplexerSignal1] cannot be converted to [EnumSignal].
+// func (ms *MultiplexerSignal1) ToEnum() (*EnumSignal, error) {
+// 	return nil, ms.errorf(fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindEnum, SignalKindMultiplexer))
+// }
+
+// // ToMultiplexer always returns the [MultiplexerSignal1] itself.
+// func (ms *MultiplexerSignal1) ToMultiplexer() (*MultiplexerSignal1, error) {
+// 	return ms, nil
+// }
+
+// func (ms *MultiplexerSignal1) stringify(b *strings.Builder, tabs int) {
+// 	ms.signal.stringify(b, tabs)
+
+// 	tabStr := getTabString(tabs)
+
+// 	b.WriteString(fmt.Sprintf("size: %d\n", ms.GetSize()))
+
+// 	if ms.muxSignals.size() == 0 {
+// 		return
+// 	}
+
+// 	for selVal, muxGroup := range ms.MuxSignals() {
+// 		b.WriteString(fmt.Sprintf("%sselect value: %d\n", tabStr, selVal))
+
+// 		b.WriteString(fmt.Sprintf("%smultiplexed signals:\n", tabStr))
+// 		for _, muxSig := range muxGroup {
+// 			muxSig.stringify(b, tabs+1)
+// 			b.WriteRune('\n')
+// 		}
+// 	}
+// }
+
+// func (ms *MultiplexerSignal1) String() string {
+// 	builder := new(strings.Builder)
+// 	ms.stringify(builder, 0)
+// 	return builder.String()
+// }
+
+// // GetSelectedMuxSignals returns a slice of signals which belong to the selected group.
+// func (ms *MultiplexerSignal1) GetSelectedMuxSignals(selectValue int) []Signal {
+// 	payload, _ := ms.getSignalPayload(selectValue)
+
+// 	if payload != nil {
+// 		return payload.signals
+// 	}
+
+// 	return []Signal{}
+// }
+
+// // MuxSignals returns a map of signal slices, with key the selector value and
+// // the corresponding value is a slice of signals which belong to the selected group.
+// // Keep in mind that the keys in the map are not sorted, so it is not guaranteed
+// // that the first key in the map will corresponde to the smaller select value.
+// func (ms *MultiplexerSignal1) MuxSignals() map[int][]Signal {
+// 	res := make(map[int][]Signal)
+
+// 	for selVal, payload := range ms.signalPayloads {
+// 		res[selVal] = payload.signals
+// 	}
+
+// 	return res
+// }
+
+// // AppendMuxSignal appends the [Signal] to the group specified by the select value.
+// // It may return an error if the signal name is already used by the [MultiplexerSignal1]
+// // or by the [Message] that owns the [MultiplexerSignal1]. Also, it may return an error
+// // if the select value is out of bounds, or if the signal cannot fit in the group.
+// func (ms *MultiplexerSignal1) AppendMuxSignal(selectValue int, signal Signal) error {
+// 	if err := ms.verifySignalName(signal.EntityID(), signal.Name()); err != nil {
+// 		return ms.errorf(err)
+// 	}
+
+// 	if err := ms.verifySelectValue(selectValue); err != nil {
+// 		return ms.errorf(err)
+// 	}
+
+// 	payload, realSelVal := ms.getSignalPayload(selectValue)
+// 	if payload == nil {
+// 		payload = ms.addSignalPayload(realSelVal)
+// 	}
+
+// 	if err := payload.append(signal); err != nil {
+// 		return ms.errorf(err)
+// 	}
+
+// 	ms.addMuxSignal(realSelVal, signal)
+
+// 	signal.setParent(ms)
+
+// 	return nil
+// }
+
+// // InsertMuxSignal inserts the [Signal] to the group specified by the select value starting
+// // from the specified bit.
+// // It may return an error if the signal name is already used by the [MultiplexerSignal1]
+// // or by the [Message] that owns the [MultiplexerSignal1]. Also, it may return an error
+// // if the select value is out of bounds, or if the signal cannot fit in the group.
+// func (ms *MultiplexerSignal1) InsertMuxSignal(selectValue int, signal Signal, startBit int) error {
+// 	if err := ms.verifySignalName(signal.EntityID(), signal.Name()); err != nil {
+// 		return ms.errorf(err)
+// 	}
+
+// 	if err := ms.verifySelectValue(selectValue); err != nil {
+// 		return ms.errorf(err)
+// 	}
+
+// 	payload, realSelVal := ms.getSignalPayload(selectValue)
+// 	if payload == nil {
+// 		payload = ms.addSignalPayload(realSelVal)
+// 	}
+
+// 	if err := payload.verifyAndInsert(signal, startBit); err != nil {
+// 		return ms.errorf(err)
+// 	}
+
+// 	ms.addMuxSignal(realSelVal, signal)
+
+// 	signal.setParent(ms)
+
+// 	return nil
+// }
+
+// // ShiftMuxSignalLeft shifts the multiplexed signal with the given entity id left by the given amount.
+// // It returns the amount of bits shifted.
+// func (ms *MultiplexerSignal1) ShiftMuxSignalLeft(muxSignalEntityID EntityID, amount int) int {
+// 	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
+// 	if err != nil {
+// 		return 0
+// 	}
+
+// 	sig, err := ms.muxSignals.getValue(muxSignalEntityID)
+// 	if err != nil {
+// 		return 0
+// 	}
+
+// 	payload, _ := ms.getSignalPayload(selVal)
+// 	if payload == nil {
+// 		return 0
+// 	}
+
+// 	return payload.shiftLeft(sig.EntityID(), amount)
+// }
+
+// // ShiftMuxSignalRight shifts the multiplexed signal with the given entity id right by the given amount.
+// // It returns the amount of bits shifted.
+// func (ms *MultiplexerSignal1) ShiftMuxSignalRight(muxSignalEntityID EntityID, amount int) int {
+// 	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
+// 	if err != nil {
+// 		return 0
+// 	}
+
+// 	sig, err := ms.muxSignals.getValue(muxSignalEntityID)
+// 	if err != nil {
+// 		return 0
+// 	}
+
+// 	payload, _ := ms.getSignalPayload(selVal)
+// 	if payload == nil {
+// 		return 0
+// 	}
+
+// 	return payload.shiftRight(sig.EntityID(), amount)
+// }
+
+// // RemoveMuxSignal removes the multiplexed signal with the given entity id from the [MultiplexerSignal1].
+// // It may return an error if the multiplied signal with the given entity id
+// // is not found in the [MultiplexerSignal1].
+// func (ms *MultiplexerSignal1) RemoveMuxSignal(muxSignalEntityID EntityID) error {
+// 	selVal, err := ms.getMuxSignalSelValue(muxSignalEntityID)
+// 	if err != nil {
+// 		return ms.errorf(fmt.Errorf(`cannot remove mux signal with id "%s" : %w`, muxSignalEntityID, err))
+// 	}
+
+// 	sig, err := ms.muxSignals.getValue(muxSignalEntityID)
+// 	if err != nil {
+// 		return ms.errorf(fmt.Errorf(`cannot remove mux signal with id "%s" : %w`, muxSignalEntityID, err))
+// 	}
+
+// 	payload, _ := ms.getSignalPayload(selVal)
+// 	if payload == nil {
+// 		return nil
+// 	}
+
+// 	ms.removeMuxSignal(muxSignalEntityID)
+// 	ms.removeMuxSignalName(sig.Name())
+
+// 	payload.remove(muxSignalEntityID)
+
+// 	sig.setParent(nil)
+
+// 	return nil
+// }
+
+// // RemoveAllMuxSignals removes all the multiplexed signals from the [MultiplexerSignal1].
+// func (ms *MultiplexerSignal1) RemoveAllMuxSignals() {
+// 	for muxSigID, tmpMuxSig := range ms.muxSignals.entries() {
+// 		tmpMuxSig.setParent(nil)
+// 		ms.removeMuxSignalName(tmpMuxSig.Name())
+// 		ms.removeMuxSignal(muxSigID)
+// 	}
+
+// 	for _, payload := range ms.signalPayloads {
+// 		payload.removeAll()
+// 	}
+// }
+
+// // SelectSize returns the number of bits of the select value in the [MultiplexerSignal1].
+// func (ms *MultiplexerSignal1) SelectSize() int {
+// 	return ms.selectSize
+// }
+
+// // AddSelectValueRange adds a range of select values to the [MultiplexerSignal1].
+// // It is used when a range of select values is used for selecting one group.
+// // Ex. from = 0, to = 2 means that there is only one group for select value 0, 1 and 2.
+// // It may return an error if from is greater then to, or if any of the values in the range
+// // is already used for selecting more then one group (ex. selVal = 0 -> group0,
+// // selVal = 1 -> group1: cannot use the range from 0 to 1).
+// func (ms *MultiplexerSignal1) AddSelectValueRange(from, to int) error {
+// 	if from > to {
+// 		return ms.errorf(fmt.Errorf(`cannot set select value range because from "%d" is greater then to "%d"`, from, to))
+// 	}
+
+// 	if err := ms.verifySelectValue(from); err != nil {
+// 		return ms.errorf(fmt.Errorf(`cannot set select value range : %w`, err))
+// 	}
+
+// 	if err := ms.verifySelectValue(to); err != nil {
+// 		return ms.errorf(fmt.Errorf(`cannot set select value range : %w`, err))
+// 	}
+
+// 	foundOne := false
+// 	foundSelVal := from
+// 	for i := from; i <= to; i++ {
+// 		if _, ok := ms.signalPayloads[i]; ok {
+// 			if foundOne {
+// 				return ms.errorf(fmt.Errorf(`cannot set select value range because there are more than 1 payloads between "%d" an "%d"`, from, to))
+// 			}
+
+// 			foundSelVal = i
+// 			foundOne = true
+// 		}
+
+// 		if _, ok := ms.selValRanges[i]; ok {
+// 			return ms.errorf(fmt.Errorf(`cannot set select value range because value "%d" is already used in another range`, i))
+// 		}
+// 	}
+
+// 	for i := from; i <= to; i++ {
+// 		ms.selValRanges[i] = foundSelVal
+// 	}
+
+// 	return nil
+// }

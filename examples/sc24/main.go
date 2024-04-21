@@ -87,13 +87,15 @@ func info01DbgV() *acmelib.Message {
 	msg := acmelib.NewMessage("INFO_01_DbgV", 8)
 	msg.SetID(288)
 
-	muxSig, err := acmelib.NewMultiplexerSignal("BMS_eDbgV", 56, 8)
+	muxSig, err := acmelib.NewMultiplexerSignal("BMS_eDbgV", 256, 48)
 	panicErr(err)
 
-	selectValue := -1
+	groupID := -1
 	for i := 0; i < 255; i++ {
-		if i%3 == 0 {
-			selectValue++
+		tmpIdx := i % 3
+
+		if tmpIdx == 0 {
+			groupID++
 		}
 
 		sig, err := acmelib.NewStandardSignal(fmt.Sprintf("BMS_VDbgV%3d", i), float16Type)
@@ -103,7 +105,7 @@ func info01DbgV() *acmelib.Message {
 		sig.SetUnit(voltageUnit)
 		sig.SetDesc(fmt.Sprintf("Cell %d voltage.", i))
 
-		err = muxSig.AppendMuxSignal(selectValue, sig)
+		err = muxSig.InsertSignal(sig, tmpIdx*16, groupID)
 		panicErr(err)
 	}
 
@@ -116,13 +118,15 @@ func info02DbgT() *acmelib.Message {
 	msg := acmelib.NewMessage("INFO_01_DbgV", 8)
 	msg.SetID(289)
 
-	muxSig, err := acmelib.NewMultiplexerSignal("BMS_eDbgT", 55, 7)
+	muxSig, err := acmelib.NewMultiplexerSignal("BMS_eDbgT", 128, 48)
 	panicErr(err)
 
-	selectValue := -1
+	groupID := -1
 	for i := 0; i < 127; i++ {
-		if i%3 == 0 {
-			selectValue++
+		tmpIdx := i % 3
+
+		if tmpIdx == 0 {
+			groupID++
 		}
 
 		sig, err := acmelib.NewStandardSignal(fmt.Sprintf("BMS_TDbgT%3d", i), float16Type)
@@ -134,7 +138,7 @@ func info02DbgT() *acmelib.Message {
 
 		sig.AddAttributeValue(genSigStartVal, 23315)
 
-		err = muxSig.AppendMuxSignal(selectValue, sig)
+		err = muxSig.InsertSignal(sig, tmpIdx*16, groupID)
 		panicErr(err)
 	}
 

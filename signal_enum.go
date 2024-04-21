@@ -27,12 +27,12 @@ func NewSignalEnum(name string) *SignalEnum {
 	return &SignalEnum{
 		entity: newEntity(name),
 
-		parentSignals: newSet[EntityID, *EnumSignal]("parent signal"),
+		parentSignals: newSet[EntityID, *EnumSignal](),
 		parErrID:      "",
 
-		values:       newSet[EntityID, *SignalEnumValue]("value"),
-		valueNames:   newSet[string, EntityID]("value name"),
-		valueIndexes: newSet[int, EntityID]("value index"),
+		values:       newSet[EntityID, *SignalEnumValue](),
+		valueNames:   newSet[string, EntityID](),
+		valueIndexes: newSet[int, EntityID](),
 
 		maxIndex: 0,
 		minSize:  1,
@@ -70,7 +70,7 @@ func (se *SignalEnum) modifyValueName(valEntID EntityID, newName string) {
 }
 
 func (se *SignalEnum) verifyValueIndex(index int) error {
-	if err := se.valueIndexes.verifyKey(index); err != nil {
+	if err := se.valueIndexes.verifyKeyUnique(index); err != nil {
 		return err
 	}
 
@@ -175,7 +175,7 @@ func (se *SignalEnum) AddValue(value *SignalEnumValue) error {
 		return se.errorf(fmt.Errorf(`cannot add value "%s" : %w`, value.name, err))
 	}
 
-	if err := se.valueNames.verifyKey(value.name); err != nil {
+	if err := se.valueNames.verifyKeyUnique(value.name); err != nil {
 		return se.errorf(fmt.Errorf(`cannot add value "%s" : %w`, value.name, err))
 	}
 
@@ -320,7 +320,7 @@ func (sev *SignalEnumValue) UpdateName(newName string) error {
 	}
 
 	if sev.hasParentEnum() {
-		if err := sev.parentEnum.valueNames.verifyKey(newName); err != nil {
+		if err := sev.parentEnum.valueNames.verifyKeyUnique(newName); err != nil {
 			return sev.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
 		}
 

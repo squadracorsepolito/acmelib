@@ -94,16 +94,11 @@ func (sp *signalPayload) verifyBeforeInsert(sig Signal, startBit int) error {
 	return nil
 }
 
-func (sp *signalPayload) insert(sig Signal, startBit int) error {
-	if err := sp.verifyBeforeInsert(sig, startBit); err != nil {
-		return fmt.Errorf(`cannot insert signal "%s" : %w`, sig.Name(), err)
-	}
-
+func (sp *signalPayload) insert(sig Signal, startBit int) {
 	if len(sp.signals) == 0 {
 		sig.setRelStartBit(startBit)
 		sp.signals = append(sp.signals, sig)
-
-		return nil
+		return
 	}
 
 	inserted := false
@@ -122,6 +117,14 @@ func (sp *signalPayload) insert(sig Signal, startBit int) error {
 	}
 
 	sig.setRelStartBit(startBit)
+}
+
+func (sp *signalPayload) verifyAndInsert(sig Signal, startBit int) error {
+	if err := sp.verifyBeforeInsert(sig, startBit); err != nil {
+		return fmt.Errorf(`cannot insert signal "%s" : %w`, sig.Name(), err)
+	}
+
+	sp.insert(sig, startBit)
 
 	return nil
 }
@@ -270,7 +273,7 @@ func (sp *signalPayload) modifyStartBitsOnGrow(sig Signal, amount int) error {
 	return nil
 }
 
-func (sp *signalPayload) shiftLeft(sig Signal, amount int) int {
+func (sp *signalPayload) shiftLeft(sigID EntityID, amount int) int {
 	if amount <= 0 {
 		return 0
 	}
@@ -283,7 +286,7 @@ func (sp *signalPayload) shiftLeft(sig Signal, amount int) int {
 			prevSig = sp.signals[idx-1]
 		}
 
-		if sig.EntityID() == tmpSig.EntityID() {
+		if sigID == tmpSig.EntityID() {
 			tmpStartBit := tmpSig.getRelStartBit()
 			targetStartBit := tmpStartBit - amount
 
@@ -309,7 +312,7 @@ func (sp *signalPayload) shiftLeft(sig Signal, amount int) int {
 	return perfShift
 }
 
-func (sp *signalPayload) shiftRight(sig Signal, amount int) int {
+func (sp *signalPayload) shiftRight(sigID EntityID, amount int) int {
 	if amount <= 0 {
 		return 0
 	}
@@ -324,7 +327,7 @@ func (sp *signalPayload) shiftRight(sig Signal, amount int) int {
 			nextSig = sp.signals[idx+1]
 		}
 
-		if sig.EntityID() == tmpSig.EntityID() {
+		if sigID == tmpSig.EntityID() {
 			tmpStartBit := tmpSig.getRelStartBit()
 			targetStartBit := tmpStartBit + amount
 			targetEndBit := targetStartBit + tmpSig.GetSize()
