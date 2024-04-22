@@ -148,7 +148,7 @@ func (m *Message) GetSignalParentKind() SignalParentKind {
 	return SignalParentKindMessage
 }
 
-func (m *Message) verifySignalName(_ EntityID, name string) error {
+func (m *Message) verifySignalName(name string) error {
 	return m.signalNames.verifyKeyUnique(name)
 }
 
@@ -274,11 +274,59 @@ func (m *Message) SenderNode() *Node {
 	return m.senderNode
 }
 
+func (m *Message) addSignal(sig Signal) {
+	sigID := sig.EntityID()
+
+	m.signals.add(sigID, sig)
+	m.signalNames.add(sig.Name(), sigID)
+
+	sig.setParentMsg(m)
+
+	if sig.Kind() == SignalKindMultiplexer {
+		muxSig, err := sig.ToMultiplexer()
+		if err != nil {
+			panic(err)
+		}
+
+		for tmpSigID, tmpSig := range muxSig.signals.entries() {
+			m.signals.add(tmpSigID, tmpSig)
+		}
+
+		for tmpName, tmpSigID := range muxSig.signalNames.entries() {
+			m.signalNames.add(tmpName, tmpSigID)
+		}
+	}
+}
+
+func (m *Message) removeSignal(sig Signal) {
+	sigID := sig.EntityID()
+
+	m.signals.remove(sigID)
+	m.signalNames.remove(sig.Name())
+
+	sig.setParentMsg(nil)
+
+	if sig.Kind() == SignalKindMultiplexer {
+		muxSig, err := sig.ToMultiplexer()
+		if err != nil {
+			panic(err)
+		}
+
+		for _, tmpSigID := range muxSig.signals.getKeys() {
+			m.signals.remove(tmpSigID)
+		}
+
+		for _, tmpName := range muxSig.signalNames.getKeys() {
+			m.signalNames.remove(tmpName)
+		}
+	}
+}
+
 // AppendSignal appends a [Signal] to the last position of the [Message] payload.
 // It may return an error if the signal name is already used within the message,
 // or if the signal cannot fit in the available space left at the end of the message payload.
 func (m *Message) AppendSignal(signal Signal) error {
-	if err := m.verifySignalName(signal.EntityID(), signal.Name()); err != nil {
+	if err := m.verifySignalName(signal.Name()); err != nil {
 		return m.errorf(fmt.Errorf(`cannot append signal "%s" : %w`, signal.Name(), err))
 	}
 
@@ -286,10 +334,13 @@ func (m *Message) AppendSignal(signal Signal) error {
 		return m.errorf(err)
 	}
 
-	m.signals.add(signal.EntityID(), signal)
-	m.signalNames.add(signal.Name(), signal.EntityID())
+	m.addSignal(signal)
 
-	signal.setParent(m)
+	// m.signals.add(signal.EntityID(), signal)
+	// m.signalNames.add(signal.Name(), signal.EntityID())
+
+	// signal.setParent(m)
+	// signal.setParentMsg(m)
 
 	return nil
 }
@@ -299,7 +350,7 @@ func (m *Message) AppendSignal(signal Signal) error {
 // It may return an error if the signal name is already used within the message,
 // or if the signal cannot fit in the available space left at the start bit.
 func (m *Message) InsertSignal(signal Signal, startBit int) error {
-	if err := m.verifySignalName(signal.EntityID(), signal.Name()); err != nil {
+	if err := m.verifySignalName(signal.Name()); err != nil {
 		return m.errorf(fmt.Errorf(`cannot insert signal "%s" : %w`, signal.Name(), err))
 	}
 
@@ -307,10 +358,13 @@ func (m *Message) InsertSignal(signal Signal, startBit int) error {
 		return m.errorf(err)
 	}
 
-	m.signals.add(signal.EntityID(), signal)
-	m.signalNames.add(signal.Name(), signal.EntityID())
+	m.addSignal(signal)
 
-	signal.setParent(m)
+	// m.signals.add(signal.EntityID(), signal)
+	// m.signalNames.add(signal.Name(), signal.EntityID())
+
+	// signal.setParent(m)
+	// signal.setParentMsg(m)
 
 	return nil
 }
@@ -323,22 +377,25 @@ func (m *Message) RemoveSignal(signalEntityID EntityID) error {
 		return m.errorf(fmt.Errorf(`cannot remove signal with entity id "%s" : %w`, signalEntityID, err))
 	}
 
-	if sig.Kind() == SignalKindMultiplexer {
-		muxSig, err := sig.ToMultiplexer()
-		if err != nil {
-			panic(err)
-		}
+	// if sig.Kind() == SignalKindMultiplexer {
+	// 	muxSig, err := sig.ToMultiplexer()
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
 
-		for _, tmpSig := range muxSig.signals.entries() {
-			m.signals.remove(tmpSig.EntityID())
-			m.signalNames.remove(tmpSig.Name())
-		}
-	}
+	// 	for _, tmpSig := range muxSig.signals.entries() {
+	// 		m.signals.remove(tmpSig.EntityID())
+	// 		m.signalNames.remove(tmpSig.Name())
+	// 	}
+	// }
 
-	sig.setParent(nil)
+	// sig.setParent(nil)
+	// sig.setParentMsg(nil)
 
-	m.signals.remove(signalEntityID)
-	m.signalNames.remove(sig.Name())
+	// m.signals.remove(signalEntityID)
+	// m.signalNames.remove(sig.Name())
+
+	m.removeSignal(sig)
 
 	m.signalPayload.remove(signalEntityID)
 
@@ -348,7 +405,8 @@ func (m *Message) RemoveSignal(signalEntityID EntityID) error {
 // RemoveAllSignals removes all signals from the [Message].
 func (m *Message) RemoveAllSignals() {
 	for _, tmpSig := range m.signals.entries() {
-		tmpSig.setParent(nil)
+		// tmpSig.setParent(nil)
+		tmpSig.setParentMsg(nil)
 	}
 
 	m.signals.clear()

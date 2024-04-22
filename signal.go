@@ -82,7 +82,10 @@ type Signal interface {
 
 	// Parent returns the parent of the signal.
 	Parent() SignalParent
-	setParent(parent SignalParent)
+	// setParent(parent SignalParent)
+
+	setParentMsg(parentMsg *Message)
+	setParentMuxSig(parentMuxSig *MultiplexerSignal)
 
 	// GetStartBit returns the start bit of the signal.
 	GetStartBit() int
@@ -103,7 +106,10 @@ type Signal interface {
 type signal struct {
 	*attributeEntity
 
-	parent SignalParent
+	// parent SignalParent
+
+	parentMsg    *Message
+	parentMuxSig *MultiplexerSignal
 
 	kind        SignalKind
 	relStartBit int
@@ -113,30 +119,54 @@ func newSignal(name string, kind SignalKind) *signal {
 	return &signal{
 		attributeEntity: newAttributeEntity(name, AttributeRefKindSignal),
 
-		parent: nil,
+		// parent: nil,
+		parentMsg:    nil,
+		parentMuxSig: nil,
 
 		kind:        kind,
 		relStartBit: 0,
 	}
 }
 
-func (s *signal) hasParent() bool {
-	return s.parent != nil
+// func (s *signal) hasParent() bool {
+// 	return s.parent != nil
+// }
+
+func (s *signal) hasParentMsg() bool {
+	return s.parentMsg != nil
+}
+
+func (s *signal) hasParentMuxSig() bool {
+	return s.parentMuxSig != nil
 }
 
 func (s *signal) modifySize(amount int) error {
-	if s.hasParent() {
-		return s.parent.modifySignalSize(s.EntityID(), amount)
+	// if s.hasParent() {
+	// 	return s.parent.modifySignalSize(s.EntityID(), amount)
+	// }
+
+	if s.hasParentMuxSig() {
+		return s.parentMuxSig.modifySignalSize(s.EntityID(), amount)
+	}
+
+	if s.hasParentMsg() {
+		return s.parentMsg.modifySignalSize(s.EntityID(), amount)
 	}
 
 	return nil
 }
 
 func (s *signal) errorf(err error) error {
-	sigErr := fmt.Errorf(`signal "%s": %w`, s.name, err)
-	if s.hasParent() {
-		return s.parent.errorf(sigErr)
+	sigErr := &SignalError{
+		EntityID: s.entityID,
+		Name:     s.name,
+		Err:      err,
 	}
+
+	if s.hasParentMsg() {
+		return s.parentMsg.errorf(sigErr)
+	}
+
 	return sigErr
 }
 
@@ -144,12 +174,21 @@ func (s *signal) Kind() SignalKind {
 	return s.kind
 }
 
+// TODO! remove this function
 func (s *signal) Parent() SignalParent {
-	return s.parent
+	return nil
 }
 
-func (s *signal) setParent(parent SignalParent) {
-	s.parent = parent
+// func (s *signal) setParent(parent SignalParent) {
+// 	s.parent = parent
+// }
+
+func (s *signal) setParentMsg(parentMsg *Message) {
+	s.parentMsg = parentMsg
+}
+
+func (s *signal) setParentMuxSig(parentMuxSig *MultiplexerSignal) {
+	s.parentMuxSig = parentMuxSig
 }
 
 func (s *signal) getRelStartBit() int {
@@ -170,16 +209,20 @@ func (s *signal) stringify(b *strings.Builder, tabs int) {
 }
 
 func (s *signal) GetStartBit() int {
-	if s.hasParent() {
-		if s.parent.GetSignalParentKind() == SignalParentKindMultiplexerSignal {
-			muxParent, err := s.parent.ToParentMultiplexerSignal()
-			if err != nil {
-				panic(err)
-			}
-
-			return muxParent.GetStartBit() + muxParent.GetGroupCountSize() + s.relStartBit
-		}
+	if s.hasParentMuxSig() {
+		return s.parentMuxSig.GetStartBit() + s.parentMuxSig.GetGroupCountSize() + s.relStartBit
 	}
+
+	// if s.hasParent() {
+	// 	if s.parent.GetSignalParentKind() == SignalParentKindMultiplexerSignal {
+	// 		muxParent, err := s.parent.ToParentMultiplexerSignal()
+	// 		if err != nil {
+	// 			panic(err)
+	// 		}
+
+	// 		return muxParent.GetStartBit() + muxParent.GetGroupCountSize() + s.relStartBit
+	// 	}
+	// }
 
 	return s.relStartBit
 }
@@ -189,15 +232,46 @@ func (s *signal) UpdateName(newName string) error {
 		return nil
 	}
 
-	if s.hasParent() {
-		if err := s.parent.verifySignalName(s.entityID, newName); err != nil {
-			return s.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
+	if s.hasParentMuxSig() {
+		if err := s.parentMuxSig.verifySignalName(s.entityID, newName); err != nil {
+			return &UpdateNameError{Err: err}
 		}
 
-		if err := s.parent.modifySignalName(s.entityID, newName); err != nil {
-			return s.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
+		if s.hasParentMsg() {
+			if err := s.parentMsg.verifySignalName(newName); err != nil {
+				return &UpdateNameError{Err: err}
+			}
+
+			s.parentMsg.signalNames.remove(s.name)
+			s.parentMsg.signalNames.add(newName, s.entityID)
 		}
+
+		s.parentMuxSig.signalNames.remove(s.name)
+		s.parentMuxSig.signalNames.add(newName, s.entityID)
+
+		s.name = newName
+
+		return nil
 	}
+
+	if s.hasParentMsg() {
+		if err := s.parentMsg.verifySignalName(newName); err != nil {
+			return &UpdateNameError{Err: err}
+		}
+
+		s.parentMsg.signalNames.remove(s.name)
+		s.parentMsg.signalNames.add(newName, s.entityID)
+	}
+
+	// if s.hasParent() {
+	// 	if err := s.parent.verifySignalName(s.entityID, newName); err != nil {
+	// 		return s.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
+	// 	}
+
+	// 	if err := s.parent.modifySignalName(s.entityID, newName); err != nil {
+	// 		return s.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
+	// 	}
+	// }
 
 	s.name = newName
 

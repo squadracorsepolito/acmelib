@@ -79,13 +79,27 @@ func (se *SignalEnum) verifyValueIndex(index int) error {
 		newSize := calcSizeFromValue(index)
 
 		for _, tmpSig := range se.parentSignals.entries() {
-			if !tmpSig.hasParent() {
-				continue
+			// if !tmpSig.hasParent() {
+			// 	continue
+			// }
+
+			// if err := tmpSig.parent.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
+			// 	se.parErrID = tmpSig.entityID
+			// 	return err
+			// }
+
+			if tmpSig.hasParentMsg() {
+				if err := tmpSig.parentMsg.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
+					se.parErrID = tmpSig.entityID
+					return err
+				}
 			}
 
-			if err := tmpSig.parent.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
-				se.parErrID = tmpSig.entityID
-				return err
+			if tmpSig.hasParentMuxSig() {
+				if err := tmpSig.parentMuxSig.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
+					se.parErrID = tmpSig.entityID
+					return err
+				}
 			}
 		}
 	}

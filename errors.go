@@ -19,7 +19,7 @@ type ArgumentError struct {
 }
 
 func (e *ArgumentError) Error() string {
-	return fmt.Sprintf("argument; name:%q : %v", e.Name, e.Err)
+	return fmt.Sprintf("argument error; name:%q : %v", e.Name, e.Err)
 }
 
 func (e *ArgumentError) Unwrap() error { return e.Err }
@@ -31,23 +31,33 @@ type SignalError struct {
 }
 
 func (e *SignalError) Error() string {
-	return fmt.Sprintf("multiplexer signal; entity_id:%q, name:%q : %v", e.EntityID.String(), e.Name, e.Err)
+	return fmt.Sprintf("multiplexer signal error; entity_id:%q, name:%q : %v", e.EntityID.String(), e.Name, e.Err)
 }
 
 func (e *SignalError) Unwrap() error { return e.Err }
 
-type SignalNameError struct {
+type NameError struct {
 	Name string
 	Err  error
 }
 
-func (e *SignalNameError) Error() string {
-	return fmt.Sprintf("signal name %q : %v", e.Name, e.Err)
+func (e *NameError) Error() string {
+	return fmt.Sprintf("name error; name:%q : %v", e.Name, e.Err)
 }
 
-func (e *SignalNameError) Unwrap() error {
+func (e *NameError) Unwrap() error {
 	return e.Err
 }
+
+type UpdateNameError struct {
+	Err error
+}
+
+func (e *UpdateNameError) Error() string {
+	return fmt.Sprintf("update name error : %v", e.Err)
+}
+
+func (e *UpdateNameError) Unwrap() error { return e.Err }
 
 type GroupIDError struct {
 	GroupID int
@@ -55,7 +65,7 @@ type GroupIDError struct {
 }
 
 func (e *GroupIDError) Error() string {
-	return fmt.Sprintf("group id %d : %v", e.GroupID, e.Err)
+	return fmt.Sprintf("group id error; group_id:%d : %v", e.GroupID, e.Err)
 }
 
 func (e *GroupIDError) Unwrap() error { return e.Err }
@@ -68,7 +78,7 @@ type InsertSignalError struct {
 }
 
 func (e *InsertSignalError) Error() string {
-	return fmt.Sprintf("insert signal; entity_id:%q, name:%q, start_bit:%d : %v", e.EntityID.String(), e.Name, e.StartBit, e.Err)
+	return fmt.Sprintf("insert signal error; entity_id:%q, name:%q, start_bit:%d : %v", e.EntityID.String(), e.Name, e.StartBit, e.Err)
 }
 
 func (e *InsertSignalError) Unwrap() error { return e.Err }
@@ -79,7 +89,7 @@ type RemoveSignalError struct {
 }
 
 func (e *RemoveSignalError) Error() string {
-	return fmt.Sprintf("remove signal; entity_id:%q : %v", e.EntityID.String(), e.Err)
+	return fmt.Sprintf("remove signal error; entity_id:%q : %v", e.EntityID.String(), e.Err)
 }
 
 func (e *RemoveSignalError) Unwrap() error { return e.Err }
@@ -89,7 +99,7 @@ type ClearSignalGroupError struct {
 }
 
 func (e *ClearSignalGroupError) Error() string {
-	return fmt.Sprintf("clear signal group : %v", e.Err)
+	return fmt.Sprintf("clear signal group error : %v", e.Err)
 }
 
 func (e *ClearSignalGroupError) Unwrap() error { return e.Err }

@@ -1,6 +1,6 @@
 module github.com/FerroO2000/acmelib
 
-go 1.21.4
+go 1.22
 
 require (
 	github.com/jaevor/go-nanoid v1.3.0

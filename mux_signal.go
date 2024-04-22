@@ -69,14 +69,6 @@ func NewMultiplexerSignal(name string, groupCount, groupSize int) (*MultiplexerS
 	}, nil
 }
 
-func (ms *MultiplexerSignal) errorf(err error) error {
-	return &SignalError{
-		EntityID: ms.entityID,
-		Name:     ms.name,
-		Err:      err,
-	}
-}
-
 func (ms *MultiplexerSignal) addSignal(sig Signal) {
 	id := sig.EntityID()
 	name := sig.Name()
@@ -84,48 +76,71 @@ func (ms *MultiplexerSignal) addSignal(sig Signal) {
 	ms.signals.add(id, sig)
 	ms.signalNames.add(name, id)
 
-	sig.setParent(ms)
+	// sig.setParent(ms)
+	sig.setParentMuxSig(ms)
 
-	if ms.hasParent() {
-		parent := ms.Parent()
-		for parent != nil {
-			switch parent.GetSignalParentKind() {
-			case SignalParentKindMultiplexerSignal:
-				muxParent, err := parent.ToParentMultiplexerSignal()
-				if err != nil {
-					panic(err)
-				}
-				parent = muxParent.Parent()
+	if ms.hasParentMsg() {
+		if sig.Kind() == SignalKindMultiplexer {
+			muxSig, err := sig.ToMultiplexer()
+			if err != nil {
+				panic(err)
+			}
 
-			case SignalParentKindMessage:
-				msgParent, err := parent.ToParentMessage()
-				if err != nil {
-					panic(err)
-				}
+			for tmpSigID, tmpSig := range muxSig.signals.entries() {
+				ms.parentMsg.signals.add(tmpSigID, tmpSig)
+			}
 
-				if sig.Kind() == SignalKindMultiplexer {
-					muxSig, err := sig.ToMultiplexer()
-					if err != nil {
-						panic(err)
-					}
-
-					for tmpSigID, tmpSig := range muxSig.signals.entries() {
-						msgParent.signals.add(tmpSigID, tmpSig)
-					}
-
-					for tmpName, tmpSigID := range muxSig.signalNames.entries() {
-						msgParent.signalNames.add(tmpName, tmpSigID)
-					}
-
-				}
-
-				msgParent.signals.add(id, sig)
-				msgParent.signalNames.add(name, id)
-
-				return
+			for tmpName, tmpSigID := range muxSig.signalNames.entries() {
+				ms.parentMsg.signalNames.add(tmpName, tmpSigID)
 			}
 		}
+
+		ms.parentMsg.signals.add(id, sig)
+		ms.parentMsg.signalNames.add(name, id)
+
+		sig.setParentMsg(ms.parentMsg)
 	}
+
+	// if ms.hasParent() {
+	// 	parent := ms.Parent()
+	// 	for parent != nil {
+	// 		switch parent.GetSignalParentKind() {
+	// 		case SignalParentKindMultiplexerSignal:
+	// 			muxParent, err := parent.ToParentMultiplexerSignal()
+	// 			if err != nil {
+	// 				panic(err)
+	// 			}
+	// 			parent = muxParent.Parent()
+
+	// 		case SignalParentKindMessage:
+	// 			msgParent, err := parent.ToParentMessage()
+	// 			if err != nil {
+	// 				panic(err)
+	// 			}
+
+	// 			if sig.Kind() == SignalKindMultiplexer {
+	// 				muxSig, err := sig.ToMultiplexer()
+	// 				if err != nil {
+	// 					panic(err)
+	// 				}
+
+	// 				for tmpSigID, tmpSig := range muxSig.signals.entries() {
+	// 					msgParent.signals.add(tmpSigID, tmpSig)
+	// 				}
+
+	// 				for tmpName, tmpSigID := range muxSig.signalNames.entries() {
+	// 					msgParent.signalNames.add(tmpName, tmpSigID)
+	// 				}
+
+	// 			}
+
+	// 			msgParent.signals.add(id, sig)
+	// 			msgParent.signalNames.add(name, id)
+
+	// 			return
+	// 		}
+	// 	}
+	// }
 }
 
 func (ms *MultiplexerSignal) removeSignal(sig Signal) {
@@ -135,91 +150,119 @@ func (ms *MultiplexerSignal) removeSignal(sig Signal) {
 	ms.signals.remove(id)
 	ms.signalNames.remove(name)
 
-	sig.setParent(nil)
+	// sig.setParent(nil)
+	sig.setParentMuxSig(nil)
 
-	if ms.hasParent() {
-		parent := ms.Parent()
-		for parent != nil {
-			switch parent.GetSignalParentKind() {
-			case SignalParentKindMultiplexerSignal:
-				muxParent, err := parent.ToParentMultiplexerSignal()
-				if err != nil {
-					panic(err)
-				}
-				parent = muxParent.Parent()
+	if ms.hasParentMsg() {
+		if sig.Kind() == SignalKindMultiplexer {
+			muxSig, err := sig.ToMultiplexer()
+			if err != nil {
+				panic(err)
+			}
 
-			case SignalParentKindMessage:
-				msgParent, err := parent.ToParentMessage()
-				if err != nil {
-					panic(err)
-				}
+			for _, tmpSigID := range muxSig.signals.getKeys() {
+				ms.parentMsg.signals.remove(tmpSigID)
+			}
 
-				if sig.Kind() == SignalKindMultiplexer {
-					muxSig, err := sig.ToMultiplexer()
-					if err != nil {
-						panic(err)
-					}
-
-					for tmpSigID := range muxSig.signals.entries() {
-						msgParent.signals.remove(tmpSigID)
-					}
-
-					for tmpName := range muxSig.signalNames.entries() {
-						msgParent.signalNames.remove(tmpName)
-					}
-
-				}
-
-				msgParent.signals.remove(id)
-				msgParent.signalNames.remove(name)
-				return
+			for _, tmpName := range muxSig.signalNames.getKeys() {
+				ms.parentMsg.signalNames.remove(tmpName)
 			}
 		}
+
+		ms.parentMsg.signals.remove(id)
+		ms.parentMsg.signalNames.remove(name)
+
+		sig.setParentMsg(nil)
 	}
+
+	// if ms.hasParent() {
+	// 	parent := ms.Parent()
+	// 	for parent != nil {
+	// 		switch parent.GetSignalParentKind() {
+	// 		case SignalParentKindMultiplexerSignal:
+	// 			muxParent, err := parent.ToParentMultiplexerSignal()
+	// 			if err != nil {
+	// 				panic(err)
+	// 			}
+	// 			parent = muxParent.Parent()
+
+	// 		case SignalParentKindMessage:
+	// 			msgParent, err := parent.ToParentMessage()
+	// 			if err != nil {
+	// 				panic(err)
+	// 			}
+
+	// 			if sig.Kind() == SignalKindMultiplexer {
+	// 				muxSig, err := sig.ToMultiplexer()
+	// 				if err != nil {
+	// 					panic(err)
+	// 				}
+
+	// 				for tmpSigID := range muxSig.signals.entries() {
+	// 					msgParent.signals.remove(tmpSigID)
+	// 				}
+
+	// 				for tmpName := range muxSig.signalNames.entries() {
+	// 					msgParent.signalNames.remove(tmpName)
+	// 				}
+
+	// 			}
+
+	// 			msgParent.signals.remove(id)
+	// 			msgParent.signalNames.remove(name)
+	// 			return
+	// 		}
+	// 	}
+	// }
 }
 
-func (ms *MultiplexerSignal) modifySignalName(sigID EntityID, newName string) error {
-	if ms.hasParent() {
-		parent := ms.Parent()
+// func (ms *MultiplexerSignal) modifySignalName(sigID EntityID, newName string) error {
+// 	if ms.hasParent() {
+// 		parent := ms.Parent()
 
-	loop:
-		for parent != nil {
-			switch parent.GetSignalParentKind() {
-			case SignalParentKindMultiplexerSignal:
-				muxParent, err := parent.ToParentMultiplexerSignal()
-				if err != nil {
-					panic(err)
-				}
-				parent = muxParent.Parent()
+// 	loop:
+// 		for parent != nil {
+// 			switch parent.GetSignalParentKind() {
+// 			case SignalParentKindMultiplexerSignal:
+// 				muxParent, err := parent.ToParentMultiplexerSignal()
+// 				if err != nil {
+// 					panic(err)
+// 				}
+// 				parent = muxParent.Parent()
 
-			case SignalParentKindMessage:
-				msgParent, err := parent.ToParentMessage()
-				if err != nil {
-					panic(err)
-				}
+// 			case SignalParentKindMessage:
+// 				msgParent, err := parent.ToParentMessage()
+// 				if err != nil {
+// 					panic(err)
+// 				}
 
-				if err := msgParent.modifySignalName(sigID, newName); err != nil {
-					return err
-				}
-				break loop
-			}
-		}
-	}
+// 				if err := msgParent.modifySignalName(sigID, newName); err != nil {
+// 					return err
+// 				}
+// 				break loop
+// 			}
+// 		}
+// 	}
 
-	sig, err := ms.signals.getValue(sigID)
-	if err != nil {
-		return err
-	}
+// 	sig, err := ms.signals.getValue(sigID)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	oldName := sig.Name()
+// 	oldName := sig.Name()
 
-	ms.signalNames.remove(oldName)
-	ms.signalNames.add(newName, sigID)
+// 	ms.signalNames.remove(oldName)
+// 	ms.signalNames.add(newName, sigID)
 
-	return nil
-}
+// 	return nil
+// }
 
 func (ms *MultiplexerSignal) verifySignalName(sigID EntityID, name string) error {
+
+	// if ms.hasParent() {
+	// 	return ms.parent.verifySignalName(sigID, name)
+	// }
+
 	if ms.signalNames.hasKey(name) {
 		tmpSigID, err := ms.signalNames.getValue(name)
 		if err != nil {
@@ -227,7 +270,7 @@ func (ms *MultiplexerSignal) verifySignalName(sigID EntityID, name string) error
 		}
 
 		if sigID != tmpSigID {
-			return &SignalNameError{
+			return &NameError{
 				Name: name,
 				Err:  ErrIsDuplicated,
 			}
@@ -236,8 +279,13 @@ func (ms *MultiplexerSignal) verifySignalName(sigID EntityID, name string) error
 		return nil
 	}
 
-	if ms.hasParent() {
-		return ms.parent.verifySignalName(sigID, name)
+	if ms.hasParentMsg() {
+		if err := ms.parentMsg.verifySignalName(name); err != nil {
+			return &NameError{
+				Name: name,
+				Err:  err,
+			}
+		}
 	}
 
 	return nil

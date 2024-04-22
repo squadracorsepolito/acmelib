@@ -9,6 +9,10 @@ The package documentation can be found [here](https://pkg.go.dev/github.com/Ferr
 
 ## Getting started
 
+### Prerequisites
+
+[Golang](https://go.dev/) 1.22
+
 ### Installation
 
 Run the following Go command to install the `acmelib` package:
