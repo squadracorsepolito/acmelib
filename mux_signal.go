@@ -76,7 +76,6 @@ func (ms *MultiplexerSignal) addSignal(sig Signal) {
 	ms.signals.add(id, sig)
 	ms.signalNames.add(name, id)
 
-	// sig.setParent(ms)
 	sig.setParentMuxSig(ms)
 
 	if ms.hasParentMsg() {
@@ -100,47 +99,6 @@ func (ms *MultiplexerSignal) addSignal(sig Signal) {
 
 		sig.setParentMsg(ms.parentMsg)
 	}
-
-	// if ms.hasParent() {
-	// 	parent := ms.Parent()
-	// 	for parent != nil {
-	// 		switch parent.GetSignalParentKind() {
-	// 		case SignalParentKindMultiplexerSignal:
-	// 			muxParent, err := parent.ToParentMultiplexerSignal()
-	// 			if err != nil {
-	// 				panic(err)
-	// 			}
-	// 			parent = muxParent.Parent()
-
-	// 		case SignalParentKindMessage:
-	// 			msgParent, err := parent.ToParentMessage()
-	// 			if err != nil {
-	// 				panic(err)
-	// 			}
-
-	// 			if sig.Kind() == SignalKindMultiplexer {
-	// 				muxSig, err := sig.ToMultiplexer()
-	// 				if err != nil {
-	// 					panic(err)
-	// 				}
-
-	// 				for tmpSigID, tmpSig := range muxSig.signals.entries() {
-	// 					msgParent.signals.add(tmpSigID, tmpSig)
-	// 				}
-
-	// 				for tmpName, tmpSigID := range muxSig.signalNames.entries() {
-	// 					msgParent.signalNames.add(tmpName, tmpSigID)
-	// 				}
-
-	// 			}
-
-	// 			msgParent.signals.add(id, sig)
-	// 			msgParent.signalNames.add(name, id)
-
-	// 			return
-	// 		}
-	// 	}
-	// }
 }
 
 func (ms *MultiplexerSignal) removeSignal(sig Signal) {
@@ -150,7 +108,6 @@ func (ms *MultiplexerSignal) removeSignal(sig Signal) {
 	ms.signals.remove(id)
 	ms.signalNames.remove(name)
 
-	// sig.setParent(nil)
 	sig.setParentMuxSig(nil)
 
 	if ms.hasParentMsg() {
@@ -174,95 +131,9 @@ func (ms *MultiplexerSignal) removeSignal(sig Signal) {
 
 		sig.setParentMsg(nil)
 	}
-
-	// if ms.hasParent() {
-	// 	parent := ms.Parent()
-	// 	for parent != nil {
-	// 		switch parent.GetSignalParentKind() {
-	// 		case SignalParentKindMultiplexerSignal:
-	// 			muxParent, err := parent.ToParentMultiplexerSignal()
-	// 			if err != nil {
-	// 				panic(err)
-	// 			}
-	// 			parent = muxParent.Parent()
-
-	// 		case SignalParentKindMessage:
-	// 			msgParent, err := parent.ToParentMessage()
-	// 			if err != nil {
-	// 				panic(err)
-	// 			}
-
-	// 			if sig.Kind() == SignalKindMultiplexer {
-	// 				muxSig, err := sig.ToMultiplexer()
-	// 				if err != nil {
-	// 					panic(err)
-	// 				}
-
-	// 				for tmpSigID := range muxSig.signals.entries() {
-	// 					msgParent.signals.remove(tmpSigID)
-	// 				}
-
-	// 				for tmpName := range muxSig.signalNames.entries() {
-	// 					msgParent.signalNames.remove(tmpName)
-	// 				}
-
-	// 			}
-
-	// 			msgParent.signals.remove(id)
-	// 			msgParent.signalNames.remove(name)
-	// 			return
-	// 		}
-	// 	}
-	// }
 }
 
-// func (ms *MultiplexerSignal) modifySignalName(sigID EntityID, newName string) error {
-// 	if ms.hasParent() {
-// 		parent := ms.Parent()
-
-// 	loop:
-// 		for parent != nil {
-// 			switch parent.GetSignalParentKind() {
-// 			case SignalParentKindMultiplexerSignal:
-// 				muxParent, err := parent.ToParentMultiplexerSignal()
-// 				if err != nil {
-// 					panic(err)
-// 				}
-// 				parent = muxParent.Parent()
-
-// 			case SignalParentKindMessage:
-// 				msgParent, err := parent.ToParentMessage()
-// 				if err != nil {
-// 					panic(err)
-// 				}
-
-// 				if err := msgParent.modifySignalName(sigID, newName); err != nil {
-// 					return err
-// 				}
-// 				break loop
-// 			}
-// 		}
-// 	}
-
-// 	sig, err := ms.signals.getValue(sigID)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	oldName := sig.Name()
-
-// 	ms.signalNames.remove(oldName)
-// 	ms.signalNames.add(newName, sigID)
-
-// 	return nil
-// }
-
 func (ms *MultiplexerSignal) verifySignalName(sigID EntityID, name string) error {
-
-	// if ms.hasParent() {
-	// 	return ms.parent.verifySignalName(sigID, name)
-	// }
-
 	if ms.signalNames.hasKey(name) {
 		tmpSigID, err := ms.signalNames.getValue(name)
 		if err != nil {
@@ -317,14 +188,20 @@ func (ms *MultiplexerSignal) verifySignalSizeAmount(sigID EntityID, amount int) 
 	for _, groupID := range groupIDs {
 		if amount > 0 {
 			if err := ms.groups[groupID].verifyBeforeGrow(sig, amount); err != nil {
-				return err
+				return &SignalSizeError{
+					Size: sig.GetSize() + amount,
+					Err:  err,
+				}
 			}
 
 			continue
 		}
 
 		if err := ms.groups[groupID].verifyBeforeShrink(sig, -amount); err != nil {
-			return err
+			return &SignalSizeError{
+				Size: sig.GetSize() + amount,
+				Err:  err,
+			}
 		}
 	}
 
@@ -338,7 +215,7 @@ func (ms *MultiplexerSignal) modifySignalSize(sigID EntityID, amount int) error 
 
 	sig, err := ms.signals.getValue(sigID)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	groupIDs := []int{}
@@ -417,34 +294,24 @@ func (ms *MultiplexerSignal) String() string {
 	return builder.String()
 }
 
-// GetSignalParentKind always returns [SignalParentKindMultiplexerSignal].
-func (ms *MultiplexerSignal) GetSignalParentKind() SignalParentKind {
-	return SignalParentKindMultiplexerSignal
-}
-
-// ToParentMessage always returns an error, since [MultiplexerSignal1] cannot be converted to [Message].
-func (ms *MultiplexerSignal) ToParentMessage() (*Message, error) {
-	return nil, fmt.Errorf(`cannot convert to "%s" signal parent is of kind "%s"`,
-		SignalParentKindMessage, SignalParentKindMultiplexerSignal)
-}
-
-// ToParentMultiplexerSignal returns the [MultiplexerSignal] itself.
-func (ms *MultiplexerSignal) ToParentMultiplexerSignal() (*MultiplexerSignal, error) {
-	return ms, nil
-}
-
 func (ms *MultiplexerSignal) GetSize() int {
 	return ms.groupSize + ms.GetGroupCountSize()
 }
 
 // ToStandard always returns an error, since [MultiplexerSignal1] cannot be converted to [StandardSignal].
 func (ms *MultiplexerSignal) ToStandard() (*StandardSignal, error) {
-	return nil, ms.errorf(fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindStandard, SignalKindMultiplexer))
+	return nil, ms.errorf(&ConvertionError{
+		From: string(SignalKindMultiplexer),
+		To:   string(SignalKindStandard),
+	})
 }
 
 // ToEnum always returns an error, since [MultiplexerSignal1] cannot be converted to [EnumSignal].
 func (ms *MultiplexerSignal) ToEnum() (*EnumSignal, error) {
-	return nil, ms.errorf(fmt.Errorf(`cannot covert to "%s", the signal is of kind "%s"`, SignalKindEnum, SignalKindMultiplexer))
+	return nil, ms.errorf(&ConvertionError{
+		From: string(SignalKindMultiplexer),
+		To:   string(SignalKindEnum),
+	})
 }
 
 // ToMultiplexer always returns the [MultiplexerSignal] itself.
@@ -528,7 +395,7 @@ func (ms *MultiplexerSignal) InsertSignal(signal Signal, startBit int, groupIDs 
 func (ms *MultiplexerSignal) RemoveSignal(signalEntityID EntityID) error {
 	sig, err := ms.signals.getValue(signalEntityID)
 	if err != nil {
-		return ms.errorf(&RemoveSignalError{
+		return ms.errorf(&RemoveEntityError{
 			EntityID: signalEntityID,
 			Err:      err,
 		})

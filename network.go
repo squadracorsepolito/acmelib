@@ -1,7 +1,6 @@
 package acmelib
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 )
@@ -28,17 +27,22 @@ func NewNetwork(name string) *Network {
 }
 
 func (n *Network) errorf(err error) error {
-	return fmt.Errorf(`project "%s" : %w`, n.name, err)
+	return &NetworkError{
+		EntityID: n.entityID,
+		Name:     n.name,
+		Err:      err,
+	}
 }
 
-func (n *Network) modifyBusName(busEntID EntityID, newName string) {
-	bus, err := n.buses.getValue(busEntID)
+func (n *Network) verifyBusName(name string) error {
+	err := n.busNames.verifyKeyUnique(name)
 	if err != nil {
-		panic(err)
+		return &NameError{
+			Name: name,
+			Err:  err,
+		}
 	}
-
-	oldName := bus.name
-	n.busNames.modifyKey(oldName, newName, busEntID)
+	return nil
 }
 
 func (n *Network) String() string {
@@ -67,8 +71,12 @@ func (n *Network) UpdateName(newName string) {
 // AddBus adds a [Bus] to the [Network].
 // It may return an error if the bus name is already taken.
 func (n *Network) AddBus(bus *Bus) error {
-	if err := n.busNames.verifyKeyUnique(bus.name); err != nil {
-		return n.errorf(fmt.Errorf(`cannot add bus "%s" : %w`, bus.name, err))
+	if err := n.verifyBusName(bus.name); err != nil {
+		return n.errorf(&AddEntityError{
+			EntityID: bus.entityID,
+			Name:     bus.name,
+			Err:      err,
+		})
 	}
 
 	n.buses.add(bus.entityID, bus)
@@ -84,7 +92,10 @@ func (n *Network) AddBus(bus *Bus) error {
 func (n *Network) RemoveBus(busEntityID EntityID) error {
 	bus, err := n.buses.getValue(busEntityID)
 	if err != nil {
-		return n.errorf(fmt.Errorf(`cannot remove bus with entity id "%s" : %w`, busEntityID, err))
+		return n.errorf(&RemoveEntityError{
+			EntityID: busEntityID,
+			Err:      err,
+		})
 	}
 
 	bus.setParentNetwork(nil)

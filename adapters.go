@@ -335,10 +335,7 @@ func (a *adapter) adaptMessage(msg *Message) {
 }
 
 func (a *adapter) adaptSignal(sig Signal, receiverNames ...string) {
-	parMsg, err := sig.Parent().ToParentMessage()
-	if err != nil {
-		panic(err)
-	}
+	parMsg := sig.ParentMessage()
 	msgID := parMsg.ID()
 
 	if sig.Desc() != "" {

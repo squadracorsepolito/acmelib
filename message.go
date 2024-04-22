@@ -135,32 +135,25 @@ func (m *Message) hasSenderNode() bool {
 }
 
 func (m *Message) errorf(err error) error {
-	msgErr := fmt.Errorf(`message "%s": %w`, m.name, err)
+	msgErr := &MessageError{
+		EntityID: m.entityID,
+		Name:     m.name,
+		Err:      err,
+	}
 	if m.hasSenderNode() {
 		return m.senderNode.errorf(msgErr)
 	}
 	return msgErr
 }
 
-// GetSignalParentKind always returns [SignalParentKindMessage].
-// It can be used to check if the parent of a signal is a [Message] or a [MultiplexerSignal1].
-func (m *Message) GetSignalParentKind() SignalParentKind {
-	return SignalParentKindMessage
-}
-
 func (m *Message) verifySignalName(name string) error {
-	return m.signalNames.verifyKeyUnique(name)
-}
-
-func (m *Message) modifySignalName(sigID EntityID, newName string) error {
-	sig, err := m.signals.getValue(sigID)
+	err := m.signalNames.verifyKeyUnique(name)
 	if err != nil {
-		return err
+		return &NameError{
+			Name: name,
+			Err:  err,
+		}
 	}
-
-	oldName := sig.Name()
-	m.signalNames.modifyKey(oldName, newName, sigID)
-
 	return nil
 }
 
@@ -175,10 +168,24 @@ func (m *Message) verifySignalSizeAmount(sigID EntityID, amount int) error {
 	}
 
 	if amount > 0 {
-		return m.signalPayload.verifyBeforeGrow(sig, amount)
+		if err := m.signalPayload.verifyBeforeGrow(sig, amount); err != nil {
+			return &SignalSizeError{
+				Size: sig.GetSize() + amount,
+				Err:  err,
+			}
+		}
+
+		return nil
 	}
 
-	return m.signalPayload.verifyBeforeShrink(sig, -amount)
+	if err := m.signalPayload.verifyBeforeShrink(sig, -amount); err != nil {
+		return &SignalSizeError{
+			Size: sig.GetSize() + amount,
+			Err:  err,
+		}
+	}
+
+	return nil
 }
 
 func (m *Message) modifySignalSize(sigID EntityID, amount int) error {
@@ -196,17 +203,6 @@ func (m *Message) modifySignalSize(sigID EntityID, amount int) error {
 	}
 
 	return m.signalPayload.modifyStartBitsOnShrink(sig, -amount)
-}
-
-// ToParentMessage returns the [Message] itself.
-func (m *Message) ToParentMessage() (*Message, error) {
-	return m, nil
-}
-
-// ToParentMultiplexerSignal always returns an error.
-func (m *Message) ToParentMultiplexerSignal() (*MultiplexerSignal, error) {
-	return nil, fmt.Errorf(`cannot convert to "%s" signal parent is of kind "%s"`,
-		SignalParentKindMultiplexerSignal, SignalParentKindMessage)
 }
 
 func (m *Message) stringify(b *strings.Builder, tabs int) {
@@ -258,9 +254,15 @@ func (m *Message) UpdateName(newName string) error {
 
 	if m.hasSenderNode() {
 		if err := m.senderNode.messageNames.verifyKeyUnique(newName); err != nil {
-			return m.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
+			return m.errorf(&UpdateNameError{
+				Err: &NameError{
+					Name: newName,
+					Err:  err,
+				},
+			})
 		}
-		m.senderNode.modifyMessageName(m.entityID, newName)
+
+		m.senderNode.messageNames.modifyKey(m.name, newName, m.entityID)
 	}
 
 	m.name = newName
@@ -327,7 +329,11 @@ func (m *Message) removeSignal(sig Signal) {
 // or if the signal cannot fit in the available space left at the end of the message payload.
 func (m *Message) AppendSignal(signal Signal) error {
 	if err := m.verifySignalName(signal.Name()); err != nil {
-		return m.errorf(fmt.Errorf(`cannot append signal "%s" : %w`, signal.Name(), err))
+		return m.errorf(&AppendSignalError{
+			EntityID: signal.EntityID(),
+			Name:     signal.Name(),
+			Err:      err,
+		})
 	}
 
 	if err := m.signalPayload.append(signal); err != nil {
@@ -335,12 +341,6 @@ func (m *Message) AppendSignal(signal Signal) error {
 	}
 
 	m.addSignal(signal)
-
-	// m.signals.add(signal.EntityID(), signal)
-	// m.signalNames.add(signal.Name(), signal.EntityID())
-
-	// signal.setParent(m)
-	// signal.setParentMsg(m)
 
 	return nil
 }
@@ -351,7 +351,12 @@ func (m *Message) AppendSignal(signal Signal) error {
 // or if the signal cannot fit in the available space left at the start bit.
 func (m *Message) InsertSignal(signal Signal, startBit int) error {
 	if err := m.verifySignalName(signal.Name()); err != nil {
-		return m.errorf(fmt.Errorf(`cannot insert signal "%s" : %w`, signal.Name(), err))
+		return m.errorf(&InsertSignalError{
+			EntityID: signal.EntityID(),
+			Name:     signal.Name(),
+			StartBit: startBit,
+			Err:      err,
+		})
 	}
 
 	if err := m.signalPayload.verifyAndInsert(signal, startBit); err != nil {
@@ -359,12 +364,6 @@ func (m *Message) InsertSignal(signal Signal, startBit int) error {
 	}
 
 	m.addSignal(signal)
-
-	// m.signals.add(signal.EntityID(), signal)
-	// m.signalNames.add(signal.Name(), signal.EntityID())
-
-	// signal.setParent(m)
-	// signal.setParentMsg(m)
 
 	return nil
 }
@@ -374,26 +373,11 @@ func (m *Message) InsertSignal(signal Signal, startBit int) error {
 func (m *Message) RemoveSignal(signalEntityID EntityID) error {
 	sig, err := m.signals.getValue(signalEntityID)
 	if err != nil {
-		return m.errorf(fmt.Errorf(`cannot remove signal with entity id "%s" : %w`, signalEntityID, err))
+		return m.errorf(&RemoveEntityError{
+			EntityID: signalEntityID,
+			Err:      err,
+		})
 	}
-
-	// if sig.Kind() == SignalKindMultiplexer {
-	// 	muxSig, err := sig.ToMultiplexer()
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-
-	// 	for _, tmpSig := range muxSig.signals.entries() {
-	// 		m.signals.remove(tmpSig.EntityID())
-	// 		m.signalNames.remove(tmpSig.Name())
-	// 	}
-	// }
-
-	// sig.setParent(nil)
-	// sig.setParentMsg(nil)
-
-	// m.signals.remove(signalEntityID)
-	// m.signalNames.remove(sig.Name())
 
 	m.removeSignal(sig)
 
@@ -405,7 +389,6 @@ func (m *Message) RemoveSignal(signalEntityID EntityID) error {
 // RemoveAllSignals removes all signals from the [Message].
 func (m *Message) RemoveAllSignals() {
 	for _, tmpSig := range m.signals.entries() {
-		// tmpSig.setParent(nil)
 		tmpSig.setParentMsg(nil)
 	}
 
@@ -451,7 +434,10 @@ func (m *Message) Signals() []Signal {
 func (m *Message) GetSignal(signalEntityID EntityID) (Signal, error) {
 	sig, err := m.signals.getValue(signalEntityID)
 	if err != nil {
-		return nil, m.errorf(fmt.Errorf(`cannot get signal with entity id "%s" : %w`, signalEntityID, err))
+		return nil, m.errorf(&GetEntityError{
+			EntityID: signalEntityID,
+			Err:      err,
+		})
 	}
 	return sig, nil
 }

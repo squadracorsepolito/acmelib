@@ -42,8 +42,18 @@ type SignalType struct {
 }
 
 func newSignalType(name string, kind SignalTypeKind, size int, signed bool, oredr SignalTypeOrder, min, max float64) (*SignalType, error) {
-	if size <= 0 {
-		return nil, fmt.Errorf("signal type size cannot be negative")
+	if size < 0 {
+		return nil, &ArgumentError{
+			Name: "size",
+			Err:  ErrIsNegative,
+		}
+	}
+
+	if size == 0 {
+		return nil, &ArgumentError{
+			Name: "size",
+			Err:  ErrIsZero,
+		}
 	}
 
 	return &SignalType{

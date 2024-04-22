@@ -45,21 +45,39 @@ func (b *Bus) setParentNetwork(net *Network) {
 }
 
 func (b *Bus) errorf(err error) error {
-	busErr := fmt.Errorf(`bus "%s": %w`, b.name, err)
+	busErr := &BusError{
+		EntityID: b.entityID,
+		Name:     b.name,
+		Err:      err,
+	}
+
 	if b.hasParentNetwork() {
 		return b.parentNetwork.errorf(busErr)
 	}
+
 	return busErr
 }
 
-func (b *Bus) modifyNodeName(nodeEntID EntityID, newName string) {
-	node, err := b.nodes.getValue(nodeEntID)
+func (b *Bus) verifyNodeName(name string) error {
+	err := b.nodeNames.verifyKeyUnique(name)
 	if err != nil {
-		panic(err)
+		return &NameError{
+			Name: name,
+			Err:  err,
+		}
 	}
+	return nil
+}
 
-	oldName := node.name
-	b.nodeNames.modifyKey(oldName, newName, nodeEntID)
+func (b *Bus) verifyNodeID(nodeID NodeID) error {
+	err := b.nodeIDs.verifyKeyUnique(nodeID)
+	if err != nil {
+		return &NodeIDError{
+			NodeID: nodeID,
+			Err:    err,
+		}
+	}
+	return nil
 }
 
 func (b *Bus) stringify(builder *strings.Builder, tabs int) {
@@ -95,10 +113,10 @@ func (b *Bus) UpdateName(newName string) error {
 
 	if b.hasParentNetwork() {
 		if err := b.parentNetwork.busNames.verifyKeyUnique(newName); err != nil {
-			return b.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
+			return b.errorf(&UpdateNameError{Err: err})
 		}
 
-		b.parentNetwork.modifyBusName(b.entityID, newName)
+		b.parentNetwork.busNames.modifyKey(b.name, newName, b.entityID)
 	}
 
 	b.name = newName
@@ -115,12 +133,19 @@ func (b *Bus) ParentNetwork() *Network {
 // AddNode adds the given [Node] to the [Bus].
 // It may return an error if the node name or the node id is already used by the bus.
 func (b *Bus) AddNode(node *Node) error {
-	if err := b.nodeNames.verifyKeyUnique(node.name); err != nil {
-		return b.errorf(fmt.Errorf(`cannot add node "%s" : %w`, node.name, err))
+	addNodeErr := &AddEntityError{
+		EntityID: node.entityID,
+		Name:     node.name,
 	}
 
-	if err := b.nodeIDs.verifyKeyUnique(node.id); err != nil {
-		return b.errorf(fmt.Errorf(`cannot add node "%s" : %w`, node.name, err))
+	if err := b.verifyNodeName(node.name); err != nil {
+		addNodeErr.Err = err
+		return b.errorf(addNodeErr)
+	}
+
+	if err := b.verifyNodeID(node.id); err != nil {
+		addNodeErr.Err = err
+		return b.errorf(addNodeErr)
 	}
 
 	node.parentBuses.add(b.entityID, b)
@@ -137,7 +162,10 @@ func (b *Bus) AddNode(node *Node) error {
 func (b *Bus) RemoveNode(nodeEntityID EntityID) error {
 	node, err := b.nodes.getValue(nodeEntityID)
 	if err != nil {
-		return b.errorf(fmt.Errorf(`cannot remove node with entity id "%s" : %w`, nodeEntityID, err))
+		return b.errorf(&RemoveEntityError{
+			EntityID: nodeEntityID,
+			Err:      err,
+		})
 	}
 
 	node.parentBuses.remove(b.entityID)
@@ -172,12 +200,17 @@ func (b *Bus) Nodes() []*Node {
 func (b *Bus) GetNodeByName(nodeName string) (*Node, error) {
 	id, err := b.nodeNames.getValue(nodeName)
 	if err != nil {
-		return nil, b.errorf(fmt.Errorf(`cannot get node with name "%s" : %w`, nodeName, err))
+		return nil, b.errorf(&GetEntityError{
+			Err: &NameError{Err: err},
+		})
 	}
 
 	node, err := b.nodes.getValue(id)
 	if err != nil {
-		return nil, b.errorf(fmt.Errorf(`cannot get node with name "%s" : %w`, nodeName, err))
+		return nil, b.errorf(&GetEntityError{
+			EntityID: id,
+			Err:      err,
+		})
 	}
 
 	return node, nil

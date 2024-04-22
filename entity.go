@@ -130,26 +130,38 @@ func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) err
 	switch v := value.(type) {
 	case int:
 		if attribute.Kind() != AttributeKindInteger {
-			return fmt.Errorf(`cannot assign an int value to attribute "%s" of type "%s"`, attribute.Name(), attribute.Kind())
+			return &ArgumentError{
+				Name: "value",
+				Err:  ErrInvalidType,
+			}
 		}
 		intAtt, err := attribute.ToInteger()
 		if err != nil {
-			return fmt.Errorf(`cannot assign value "%d" : %w`, v, err)
+			panic(err)
 		}
 		if v < intAtt.min || v > intAtt.max {
-			return fmt.Errorf(`cannot assign value "%d" because it is out of min/max range ("%d" - "%d")`, v, intAtt.min, intAtt.max)
+			return &ArgumentError{
+				Name: "value",
+				Err:  ErrOutOfBounds,
+			}
 		}
 
 	case float64:
 		if attribute.Kind() != AttributeKindFloat {
-			return fmt.Errorf(`cannot assign a float64 value to attribute "%s" of type "%s"`, attribute.Name(), attribute.Kind())
+			return &ArgumentError{
+				Name: "value",
+				Err:  ErrInvalidType,
+			}
 		}
 		floatAtt, err := attribute.ToFloat()
 		if err != nil {
-			return fmt.Errorf(`cannot assign value "%f" : %w`, v, err)
+			panic(err)
 		}
 		if v < floatAtt.min || v > floatAtt.max {
-			return fmt.Errorf(`cannot assign value "%f" because it is out of min/max range ("%f" - "%f")`, v, floatAtt.min, floatAtt.max)
+			return &ArgumentError{
+				Name: "value",
+				Err:  ErrOutOfBounds,
+			}
 		}
 
 	case string:
@@ -158,14 +170,26 @@ func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) err
 		case AttributeKindEnum:
 			enumAtt, err := attribute.ToEnum()
 			if err != nil {
-				return fmt.Errorf(`cannot assign value "%s" : %w`, v, err)
+				panic(err)
 			}
 			if !enumAtt.values.hasKey(v) {
-				return fmt.Errorf(`cannot assign value "%s" becacuse it is not present in the enum`, v)
+				return &ArgumentError{
+					Name: "value",
+					Err:  ErrNotFound,
+				}
 			}
 
 		default:
-			return fmt.Errorf(`cannot assign a string value to attribute "%s" of type "%s"`, attribute.Name(), attribute.Kind())
+			return &ArgumentError{
+				Name: "value",
+				Err:  ErrInvalidType,
+			}
+		}
+
+	default:
+		return &ArgumentError{
+			Name: "value",
+			Err:  ErrInvalidType,
 		}
 	}
 
@@ -182,7 +206,10 @@ func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) err
 func (ae *attributeEntity) RemoveAttributeValue(attributeEntityID EntityID) error {
 	att, err := ae.attributeValues.getValue(attributeEntityID)
 	if err != nil {
-		return fmt.Errorf(`cannot remove attribute with entity id "%s" : %w`, attributeEntityID, err)
+		return &RemoveEntityError{
+			EntityID: attributeEntityID,
+			Err:      err,
+		}
 	}
 
 	ae.attributeValues.remove(attributeEntityID)
@@ -215,7 +242,10 @@ func (ae *attributeEntity) AttributeValues() []*AttributeValue {
 func (ae *attributeEntity) GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error) {
 	attVal, err := ae.attributeValues.getValue(attributeEntityID)
 	if err != nil {
-		return nil, fmt.Errorf(`cannot get attribute with entity id "%s" : %w`, attributeEntityID, err)
+		return nil, &GetEntityError{
+			EntityID: attributeEntityID,
+			Err:      err,
+		}
 	}
 	return attVal, nil
 }

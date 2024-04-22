@@ -48,20 +48,12 @@ func NewNode(name string, id NodeID) *Node {
 	}
 }
 
-func (n *Node) modifyMessageName(msgEntID EntityID, newName string) error {
-	msg, err := n.messages.getValue(msgEntID)
-	if err != nil {
-		return err
-	}
-
-	oldName := msg.name
-	n.messageNames.modifyKey(oldName, newName, msgEntID)
-
-	return nil
-}
-
 func (n *Node) errorf(err error) error {
-	nodeErr := fmt.Errorf(`node "%s" : %w`, n.name, err)
+	nodeErr := &NodeError{
+		EntityID: n.entityID,
+		Name:     n.name,
+		Err:      err,
+	}
 
 	if n.parentBuses.size() > 0 {
 		if n.parErrID != "" {
@@ -78,6 +70,28 @@ func (n *Node) errorf(err error) error {
 	}
 
 	return nodeErr
+}
+
+func (n *Node) verifyMessageName(name string) error {
+	err := n.messageNames.verifyKeyUnique(name)
+	if err != nil {
+		return &NameError{
+			Name: name,
+			Err:  err,
+		}
+	}
+	return nil
+}
+
+func (n *Node) verifyMessageID(msgID MessageID) error {
+	err := n.messageIDs.verifyKeyUnique(msgID)
+	if err != nil {
+		return &MessageIDError{
+			MessageID: msgID,
+			Err:       err,
+		}
+	}
+	return nil
 }
 
 func (n *Node) stringify(b *strings.Builder, tabs int) {
@@ -111,13 +125,17 @@ func (n *Node) UpdateName(newName string) error {
 		return nil
 	}
 
+	buses := []*Bus{}
 	for _, tmpBus := range n.parentBuses.entries() {
-		if err := tmpBus.nodeNames.verifyKeyUnique(newName); err != nil {
-			n.parErrID = tmpBus.entityID
-			return n.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
+		if err := tmpBus.verifyNodeName(newName); err != nil {
+			return n.errorf(&UpdateNameError{Err: err})
 		}
 
-		tmpBus.modifyNodeName(n.entityID, newName)
+		buses = append(buses, tmpBus)
+	}
+
+	for _, tmpBus := range buses {
+		tmpBus.nodeNames.modifyKey(n.name, newName, n.entityID)
 	}
 
 	n.name = newName
@@ -134,14 +152,21 @@ func (n *Node) ParentBuses() []*Bus {
 // This means that the given message will be sent by the node.
 // It may return an error if the message name or the message id is already used by the node.
 func (n *Node) AddMessage(message *Message) error {
-	if err := n.messageNames.verifyKeyUnique(message.name); err != nil {
-		return n.errorf(fmt.Errorf(`cannot add message "%s" : %w`, message.name, err))
+	addMsgErr := &AddEntityError{
+		EntityID: message.entityID,
+		Name:     message.name,
+	}
+
+	if err := n.verifyMessageName(message.name); err != nil {
+		addMsgErr.Err = err
+		return n.errorf(addMsgErr)
 	}
 
 	message.generateID(n.messages.size()+1, n.id)
 
-	if err := n.messageIDs.verifyKeyUnique(message.id); err != nil {
-		return n.errorf(fmt.Errorf(`cannot add message "%s" : %w`, message.name, err))
+	if err := n.verifyMessageID(message.id); err != nil {
+		addMsgErr.Err = err
+		return n.errorf(addMsgErr)
 	}
 
 	n.messages.add(message.entityID, message)
@@ -158,7 +183,10 @@ func (n *Node) AddMessage(message *Message) error {
 func (n *Node) RemoveMessage(messageEntityID EntityID) error {
 	msg, err := n.messages.getValue(messageEntityID)
 	if err != nil {
-		return n.errorf(fmt.Errorf(`cannot remove message with entity id "%s" : %w`, messageEntityID, err))
+		return n.errorf(&RemoveEntityError{
+			EntityID: messageEntityID,
+			Err:      err,
+		})
 	}
 
 	msg.senderNode = nil

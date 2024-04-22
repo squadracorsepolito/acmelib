@@ -1,9 +1,6 @@
 package acmelib
 
 import (
-	"errors"
-	"fmt"
-
 	"golang.org/x/exp/slices"
 )
 
@@ -24,7 +21,10 @@ func (sp *signalPayload) verifyBeforeAppend(sig Signal) error {
 	sigCount := len(sp.signals)
 	if sigCount == 0 {
 		if sigSize > sp.size {
-			return fmt.Errorf(`signal of size "%d" exceeds the max payload size ("%d")`, sigSize, sp.size)
+			return &SignalSizeError{
+				Size: sigSize,
+				Err:  ErrOutOfBounds,
+			}
 		}
 
 		return nil
@@ -34,7 +34,10 @@ func (sp *signalPayload) verifyBeforeAppend(sig Signal) error {
 	trailingSpace := sp.size - (lastSig.getRelStartBit() + lastSig.GetSize())
 
 	if sigSize > trailingSpace {
-		return fmt.Errorf(`signal of size "%d" exceeds the available space ("%d") at the end of the payload`, sigSize, trailingSpace)
+		return &SignalSizeError{
+			Size: sigSize,
+			Err:  ErrNoSpaceLeft,
+		}
 	}
 
 	return nil
@@ -42,7 +45,11 @@ func (sp *signalPayload) verifyBeforeAppend(sig Signal) error {
 
 func (sp *signalPayload) append(sig Signal) error {
 	if err := sp.verifyBeforeAppend(sig); err != nil {
-		return fmt.Errorf(`cannot append signal "%s" : %w`, sig.Name(), err)
+		return &AppendSignalError{
+			EntityID: sig.EntityID(),
+			Name:     sig.Name(),
+			Err:      err,
+		}
 	}
 
 	if len(sp.signals) == 0 {
@@ -59,18 +66,27 @@ func (sp *signalPayload) append(sig Signal) error {
 
 func (sp *signalPayload) verifyBeforeInsert(sig Signal, startBit int) error {
 	if startBit < 0 {
-		return errors.New("start bit cannot be negative")
+		return &SignalStartBitError{
+			StartBit: startBit,
+			Err:      ErrIsNegative,
+		}
 	}
 
 	sigSize := sig.GetSize()
 	endBit := startBit + sigSize
 
 	if sigSize > sp.size {
-		return fmt.Errorf(`signal of size "%d" exceeds the max payload size of "%d"`, sigSize, sp.size)
+		return &SignalSizeError{
+			Size: sigSize,
+			Err:  ErrOutOfBounds,
+		}
 	}
 
 	if endBit > sp.size {
-		return fmt.Errorf(`signal of size "%d" starting at "%d" exceeds the max payload size ("%d")`, sigSize, startBit, sp.size)
+		return &SignalSizeError{
+			Size: sigSize,
+			Err:  ErrNoSpaceLeft,
+		}
 	}
 
 	for _, tmpSig := range sp.signals {
@@ -86,8 +102,10 @@ func (sp *signalPayload) verifyBeforeInsert(sig Signal, startBit int) error {
 		}
 
 		if startBit >= tmpStartBit || endBit > tmpStartBit {
-			return fmt.Errorf(`signal of size "%d" starting at "%d" intersects signal "%s" (start bit "%d", size "%d")`,
-				sigSize, startBit, tmpSig.Name(), tmpStartBit, tmpSig.GetSize())
+			return &SignalStartBitError{
+				StartBit: startBit,
+				Err:      ErrIntersect,
+			}
 		}
 	}
 
@@ -121,7 +139,12 @@ func (sp *signalPayload) insert(sig Signal, startBit int) {
 
 func (sp *signalPayload) verifyAndInsert(sig Signal, startBit int) error {
 	if err := sp.verifyBeforeInsert(sig, startBit); err != nil {
-		return fmt.Errorf(`cannot insert signal "%s" : %w`, sig.Name(), err)
+		return &InsertSignalError{
+			EntityID: sig.EntityID(),
+			Name:     sig.Name(),
+			StartBit: startBit,
+			Err:      err,
+		}
 	}
 
 	sp.insert(sig, startBit)
@@ -156,11 +179,16 @@ func (sp *signalPayload) compact() {
 
 func (sp *signalPayload) verifyBeforeShrink(sig Signal, amount int) error {
 	if amount < 0 {
-		return errors.New("amount cannot be negative")
+		return ErrIsNegative
 	}
 
-	if sig.GetSize()-amount <= 0 {
-		return fmt.Errorf(`amount "%d" makes the signal size ("%d") less or equal to 0`, amount, sig.GetSize())
+	sizeDiff := sig.GetSize() - amount
+	if sizeDiff < 0 {
+		return ErrIsNegative
+	}
+
+	if sizeDiff == 0 {
+		return ErrIsZero
 	}
 
 	return nil
@@ -172,7 +200,10 @@ func (sp *signalPayload) modifyStartBitsOnShrink(sig Signal, amount int) error {
 	}
 
 	if err := sp.verifyBeforeShrink(sig, amount); err != nil {
-		return fmt.Errorf(`cannot shrink signal "%s" : %w`, sig.Name(), err)
+		return &SignalSizeError{
+			Size: sig.GetSize() - amount,
+			Err:  err,
+		}
 	}
 
 	found := false
@@ -192,7 +223,7 @@ func (sp *signalPayload) modifyStartBitsOnShrink(sig Signal, amount int) error {
 
 func (sp *signalPayload) verifyBeforeGrow(sig Signal, amount int) error {
 	if amount < 0 {
-		return errors.New("amount cannot be negative")
+		return ErrIsNegative
 	}
 
 	availableSpace := 0
@@ -214,7 +245,7 @@ func (sp *signalPayload) verifyBeforeGrow(sig Signal, amount int) error {
 	availableSpace += sp.size - prevEndBit
 
 	if amount > availableSpace {
-		return fmt.Errorf(`amount "%d" exceeds the available space left at the right of the signal ("%d")`, amount, availableSpace)
+		return ErrNoSpaceLeft
 	}
 
 	return nil
@@ -226,7 +257,10 @@ func (sp *signalPayload) modifyStartBitsOnGrow(sig Signal, amount int) error {
 	}
 
 	if err := sp.verifyBeforeGrow(sig, amount); err != nil {
-		return fmt.Errorf(`cannot grow signal "%s" : %w`, sig.Name(), err)
+		return &SignalSizeError{
+			Size: sig.GetSize() + amount,
+			Err:  err,
+		}
 	}
 
 	prevEndBit := 0

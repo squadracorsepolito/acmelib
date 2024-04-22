@@ -40,7 +40,11 @@ func NewSignalEnum(name string) *SignalEnum {
 }
 
 func (se *SignalEnum) errorf(err error) error {
-	enumErr := fmt.Errorf(`signal enum "%s": %w`, se.Name(), err)
+	enumErr := &SignalEnumError{
+		EntityID: se.entityID,
+		Name:     se.name,
+		Err:      err,
+	}
 
 	if se.parentSignals.size() > 0 {
 		if se.parErrID != "" {
@@ -59,14 +63,15 @@ func (se *SignalEnum) errorf(err error) error {
 	return enumErr
 }
 
-func (se *SignalEnum) modifyValueName(valEntID EntityID, newName string) {
-	val, err := se.values.getValue(valEntID)
+func (se *SignalEnum) verifyValueName(name string) error {
+	err := se.valueNames.verifyKeyUnique(name)
 	if err != nil {
-		panic(err)
+		return &NameError{
+			Name: name,
+			Err:  err,
+		}
 	}
-
-	oldName := val.name
-	se.valueNames.modifyKey(oldName, newName, valEntID)
+	return nil
 }
 
 func (se *SignalEnum) verifyValueIndex(index int) error {
@@ -79,26 +84,23 @@ func (se *SignalEnum) verifyValueIndex(index int) error {
 		newSize := calcSizeFromValue(index)
 
 		for _, tmpSig := range se.parentSignals.entries() {
-			// if !tmpSig.hasParent() {
-			// 	continue
-			// }
-
-			// if err := tmpSig.parent.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
-			// 	se.parErrID = tmpSig.entityID
-			// 	return err
-			// }
-
 			if tmpSig.hasParentMsg() {
 				if err := tmpSig.parentMsg.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
 					se.parErrID = tmpSig.entityID
-					return err
+					return &ValueIndexError{
+						Index: index,
+						Err:   err,
+					}
 				}
 			}
 
 			if tmpSig.hasParentMuxSig() {
 				if err := tmpSig.parentMuxSig.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
 					se.parErrID = tmpSig.entityID
-					return err
+					return &ValueIndexError{
+						Index: index,
+						Err:   err,
+					}
 				}
 			}
 		}
@@ -185,12 +187,19 @@ func (se *SignalEnum) String() string {
 // It may return an error if the value name is already in use within
 // the signal enum, or if it has an invalid index.
 func (se *SignalEnum) AddValue(value *SignalEnumValue) error {
-	if err := se.verifyValueIndex(value.index); err != nil {
-		return se.errorf(fmt.Errorf(`cannot add value "%s" : %w`, value.name, err))
+	addValErr := &AddEntityError{
+		EntityID: value.entityID,
+		Name:     value.name,
 	}
 
-	if err := se.valueNames.verifyKeyUnique(value.name); err != nil {
-		return se.errorf(fmt.Errorf(`cannot add value "%s" : %w`, value.name, err))
+	if err := se.verifyValueIndex(value.index); err != nil {
+		addValErr.Err = err
+		return se.errorf(addValErr)
+	}
+
+	if err := se.verifyValueName(value.name); err != nil {
+		addValErr.Err = err
+		return se.errorf(addValErr)
 	}
 
 	index := value.index
@@ -212,7 +221,10 @@ func (se *SignalEnum) AddValue(value *SignalEnumValue) error {
 func (se *SignalEnum) RemoveValue(valueEntityID EntityID) error {
 	val, err := se.values.getValue(valueEntityID)
 	if err != nil {
-		return se.errorf(fmt.Errorf(`cannot remove value with entity id "%s" : %w`, valueEntityID, err))
+		return se.errorf(&RemoveEntityError{
+			EntityID: valueEntityID,
+			Err:      err,
+		})
 	}
 
 	valIdx := val.index
@@ -307,10 +319,16 @@ func (sev *SignalEnumValue) setParentEnum(enum *SignalEnum) {
 }
 
 func (sev *SignalEnumValue) errorf(err error) error {
-	enumValErr := fmt.Errorf(`signal enum value "%s": %w`, sev.Name(), err)
+	enumValErr := &SignalEnumValueError{
+		EntityID: sev.entityID,
+		Name:     sev.name,
+		Err:      err,
+	}
+
 	if sev.hasParentEnum() {
 		return sev.parentEnum.errorf(enumValErr)
 	}
+
 	return enumValErr
 }
 
@@ -334,11 +352,11 @@ func (sev *SignalEnumValue) UpdateName(newName string) error {
 	}
 
 	if sev.hasParentEnum() {
-		if err := sev.parentEnum.valueNames.verifyKeyUnique(newName); err != nil {
-			return sev.errorf(fmt.Errorf(`cannot update name to "%s" : %w`, newName, err))
+		if err := sev.parentEnum.verifyValueName(newName); err != nil {
+			return sev.errorf(&UpdateNameError{Err: err})
 		}
 
-		sev.parentEnum.modifyValueName(sev.entityID, newName)
+		sev.parentEnum.valueNames.modifyKey(sev.name, newName, sev.entityID)
 	}
 
 	sev.name = newName
@@ -361,7 +379,7 @@ func (sev *SignalEnumValue) UpdateIndex(newIndex int) error {
 
 	if sev.hasParentEnum() {
 		if err := sev.parentEnum.verifyValueIndex(newIndex); err != nil {
-			return sev.errorf(fmt.Errorf(`cannot update index to "%d" : %w`, newIndex, err))
+			return sev.errorf(&UpdateIndexError{Err: err})
 		}
 
 		sev.parentEnum.modifyValueIndex(sev, newIndex)

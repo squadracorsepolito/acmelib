@@ -149,6 +149,14 @@ func newAttribute(name string, kind AttributeKind) *attribute {
 	}
 }
 
+func (a *attribute) errorf(err error) error {
+	return &AttributeError{
+		EntityID: a.entityID,
+		Name:     a.name,
+		Err:      err,
+	}
+}
+
 func (a *attribute) stringify(b *strings.Builder, tabs int) {
 	a.entity.stringify(b, tabs)
 
@@ -221,17 +229,26 @@ func (sa *StringAttribute) ToString() (*StringAttribute, error) {
 
 // ToInteger always returns an error.
 func (sa *StringAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindInteger, AttributeKindString)
+	return nil, sa.errorf(&ConvertionError{
+		From: string(AttributeKindString),
+		To:   string(AttributeKindInteger),
+	})
 }
 
 // ToFloat always returns an error.
 func (sa *StringAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindFloat, AttributeKindString)
+	return nil, sa.errorf(&ConvertionError{
+		From: string(AttributeKindString),
+		To:   string(AttributeKindFloat),
+	})
 }
 
 // ToEnum always returns an error.
 func (sa *StringAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindEnum, AttributeKindString)
+	return nil, sa.errorf(&ConvertionError{
+		From: string(AttributeKindString),
+		To:   string(AttributeKindEnum),
+	})
 }
 
 // IntegerAttribute is an [Attribute] that holds an integer value.
@@ -251,11 +268,24 @@ type IntegerAttribute struct {
 // or if the min value is greater then the max value.
 func NewIntegerAttribute(name string, defValue, min, max int) (*IntegerAttribute, error) {
 	if min > max {
-		return nil, fmt.Errorf("min value cannot be greater then max value")
+		return nil, &ArgumentError{
+			Name: "min",
+			Err:  &ErrGraterThen{Target: "max"},
+		}
 	}
 
-	if defValue < min || defValue > max {
-		return nil, fmt.Errorf(`default value "%d" is out of min/max range ("%d" - "%d")`, defValue, min, max)
+	if defValue > max {
+		return nil, &ArgumentError{
+			Name: "defValue",
+			Err:  &ErrGraterThen{Target: "max"},
+		}
+	}
+
+	if defValue < min {
+		return nil, &ArgumentError{
+			Name: "defValue",
+			Err:  &ErrLowerThen{Target: "min"},
+		}
 	}
 
 	return &IntegerAttribute{
@@ -310,7 +340,10 @@ func (ia *IntegerAttribute) IsHexFormat() bool {
 
 // ToString always returns an error.
 func (ia *IntegerAttribute) ToString() (*StringAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindString, AttributeKindInteger)
+	return nil, ia.errorf(&ConvertionError{
+		From: string(AttributeKindInteger),
+		To:   string(AttributeKindString),
+	})
 }
 
 // ToInteger returns the [IntegerAttribute] itself.
@@ -320,12 +353,18 @@ func (ia *IntegerAttribute) ToInteger() (*IntegerAttribute, error) {
 
 // ToFloat always returns an error.
 func (ia *IntegerAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindFloat, AttributeKindInteger)
+	return nil, ia.errorf(&ConvertionError{
+		From: string(AttributeKindInteger),
+		To:   string(AttributeKindFloat),
+	})
 }
 
 // ToEnum always returns an error.
 func (ia *IntegerAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindEnum, AttributeKindInteger)
+	return nil, ia.errorf(&ConvertionError{
+		From: string(AttributeKindInteger),
+		To:   string(AttributeKindEnum),
+	})
 }
 
 // FloatAttribute is an [Attribute] that holds a float value.
@@ -343,11 +382,24 @@ type FloatAttribute struct {
 // or if the min value is greater then the max value.
 func NewFloatAttribute(name string, defValue, min, max float64) (*FloatAttribute, error) {
 	if min > max {
-		return nil, fmt.Errorf("min value cannot be greater then max value")
+		return nil, &ArgumentError{
+			Name: "min",
+			Err:  &ErrGraterThen{Target: "max"},
+		}
 	}
 
-	if defValue < min || defValue > max {
-		return nil, fmt.Errorf(`default value "%f" is out of min/max range ("%f" - "%f")`, defValue, min, max)
+	if defValue > max {
+		return nil, &ArgumentError{
+			Name: "defValue",
+			Err:  &ErrGraterThen{Target: "max"},
+		}
+	}
+
+	if defValue < min {
+		return nil, &ArgumentError{
+			Name: "defValue",
+			Err:  &ErrLowerThen{Target: "min"},
+		}
 	}
 
 	return &FloatAttribute{
@@ -390,12 +442,18 @@ func (fa *FloatAttribute) Max() float64 {
 
 // ToString always returns an error.
 func (fa *FloatAttribute) ToString() (*StringAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindString, AttributeKindFloat)
+	return nil, fa.errorf(&ConvertionError{
+		From: string(AttributeKindFloat),
+		To:   string(AttributeKindString),
+	})
 }
 
 // ToInteger always returns an error.
 func (fa *FloatAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindInteger, AttributeKindFloat)
+	return nil, fa.errorf(&ConvertionError{
+		From: string(AttributeKindFloat),
+		To:   string(AttributeKindInteger),
+	})
 }
 
 // ToFloat returns the [FloatAttribute] itself.
@@ -405,7 +463,10 @@ func (fa *FloatAttribute) ToFloat() (*FloatAttribute, error) {
 
 // ToEnum always returns an error.
 func (fa *FloatAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindEnum, AttributeKindFloat)
+	return nil, fa.errorf(&ConvertionError{
+		From: string(AttributeKindFloat),
+		To:   string(AttributeKindEnum),
+	})
 }
 
 // EnumAttribute is an [Attribute] that holds an enum as value.
@@ -421,7 +482,10 @@ type EnumAttribute struct {
 // It may return an error if no values are passed.
 func NewEnumAttribute(name string, values ...string) (*EnumAttribute, error) {
 	if len(values) == 0 {
-		return nil, fmt.Errorf("at least 1 value is required")
+		return nil, &ArgumentError{
+			Name: "values",
+			Err:  ErrIsNil,
+		}
 	}
 
 	valSet := newSet[string, int]()
@@ -480,11 +544,21 @@ func (ea *EnumAttribute) Values() []string {
 // It may return an error if the index is out of range.
 func (ea *EnumAttribute) GetValueAtIndex(valueIndex int) (string, error) {
 	if valueIndex < 0 {
-		return "", fmt.Errorf("value index cannot be negative")
+		return "", ea.errorf(&GetEntityError{
+			Err: &ValueIndexError{
+				Index: valueIndex,
+				Err:   ErrIsNegative,
+			},
+		})
 	}
 
 	if valueIndex >= ea.values.size() {
-		return "", fmt.Errorf(`value index "%d" is out of range ("0" - "%d")`, valueIndex, ea.references.size()-1)
+		return "", ea.errorf(&GetEntityError{
+			Err: &ValueIndexError{
+				Index: valueIndex,
+				Err:   ErrOutOfBounds,
+			},
+		})
 	}
 
 	return ea.Values()[valueIndex], nil
@@ -492,17 +566,26 @@ func (ea *EnumAttribute) GetValueAtIndex(valueIndex int) (string, error) {
 
 // ToString always returns an error.
 func (ea *EnumAttribute) ToString() (*StringAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindString, AttributeKindEnum)
+	return nil, ea.errorf(&ConvertionError{
+		From: string(AttributeKindEnum),
+		To:   string(AttributeKindString),
+	})
 }
 
 // ToInteger always returns an error.
 func (ea *EnumAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindInteger, AttributeKindEnum)
+	return nil, ea.errorf(&ConvertionError{
+		From: string(AttributeKindEnum),
+		To:   string(AttributeKindInteger),
+	})
 }
 
 // ToFloat always returns an error.
 func (ea *EnumAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, fmt.Errorf(`cannot covert to "%s", the attribute is of kind "%s"`, AttributeKindFloat, AttributeKindEnum)
+	return nil, ea.errorf(&ConvertionError{
+		From: string(AttributeKindEnum),
+		To:   string(AttributeKindFloat),
+	})
 }
 
 // ToEnum returns the [EnumAttribute] itself.
