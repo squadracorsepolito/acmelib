@@ -40,7 +40,8 @@ func NewSignalEnum(name string) *SignalEnum {
 }
 
 func (se *SignalEnum) errorf(err error) error {
-	enumErr := &SignalEnumError{
+	enumErr := &EntityError{
+		Kind:     EntityKindSignalEnum,
 		EntityID: se.entityID,
 		Name:     se.name,
 		Err:      err,
@@ -319,7 +320,8 @@ func (sev *SignalEnumValue) setParentEnum(enum *SignalEnum) {
 }
 
 func (sev *SignalEnumValue) errorf(err error) error {
-	enumValErr := &SignalEnumValueError{
+	enumValErr := &EntityError{
+		Kind:     EntityKindSignalEnumValue,
 		EntityID: sev.entityID,
 		Name:     sev.name,
 		Err:      err,

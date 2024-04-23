@@ -9,6 +9,36 @@ import (
 	"github.com/jaevor/go-nanoid"
 )
 
+// EntityKind is the kind of an entity.
+type EntityKind string
+
+const (
+	// EntityKindNetwork represents a [Network] entity.
+	EntityKindNetwork EntityKind = "network"
+	// EntityKindBus represents a [Bus] entity.
+	EntityKindBus EntityKind = "bus"
+	// EntityKindNode represents a [Node] entity.
+	EntityKindNode EntityKind = "node"
+	// EntityKindMessage represents a [Message] entity.
+	EntityKindMessage EntityKind = "message"
+	// EntityKindSignal represents a [Signal] entity.
+	EntityKindSignal EntityKind = "signal"
+	// EntityKindSignalType represents a [SignalType] entity.
+	EntityKindSignalType EntityKind = "signal_type"
+	// EntityKindSignalEnum represents a [SignalEnum] entity.
+	EntityKindSignalEnum EntityKind = "signal_enum"
+	// EntityKindSignalEnumValue represents a [SignalEnumValue] entity.
+	EntityKindSignalEnumValue EntityKind = "signal_enum_value"
+	// EntityKindSignalUnit represents a [SignalUnit] entity.
+	EntityKindSignalUnit EntityKind = "signal_unit"
+	// EntityKindAttribute represents a [Attribute] entity.
+	EntityKindAttribute EntityKind = "attribute"
+)
+
+func (k EntityKind) String() string {
+	return string(k)
+}
+
 // EntityID is the unique identifier of an entity.
 // Entities are:
 //   - networks
@@ -127,41 +157,65 @@ func (ae *attributeEntity) stringify(b *strings.Builder, tabs int) {
 // It may return an error if the given value is not valid for the given
 // [Attribute].
 func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) error {
+	var entKind EntityKind
+	switch ae.attRefKind {
+	case AttributeRefKindBus:
+		entKind = EntityKindBus
+	case AttributeRefKindNode:
+		entKind = EntityKindNode
+	case AttributeRefKindMessage:
+		entKind = EntityKindMessage
+	case AttributeRefKindSignal:
+		entKind = EntityKindSignal
+	}
+
+	entErr := &EntityError{
+		Kind:     entKind,
+		EntityID: ae.entityID,
+		Name:     ae.name,
+	}
+
 	switch v := value.(type) {
 	case int:
 		if attribute.Kind() != AttributeKindInteger {
-			return &ArgumentError{
+			entErr.Err = &ArgumentError{
 				Name: "value",
 				Err:  ErrInvalidType,
 			}
+			return entErr
 		}
+
 		intAtt, err := attribute.ToInteger()
 		if err != nil {
 			panic(err)
 		}
 		if v < intAtt.min || v > intAtt.max {
-			return &ArgumentError{
+			entErr.Err = &ArgumentError{
 				Name: "value",
 				Err:  ErrOutOfBounds,
 			}
+			return entErr
 		}
 
 	case float64:
 		if attribute.Kind() != AttributeKindFloat {
-			return &ArgumentError{
+			entErr.Err = &ArgumentError{
 				Name: "value",
 				Err:  ErrInvalidType,
 			}
+			return entErr
 		}
+
 		floatAtt, err := attribute.ToFloat()
 		if err != nil {
 			panic(err)
 		}
 		if v < floatAtt.min || v > floatAtt.max {
-			return &ArgumentError{
+			entErr.Err = &ArgumentError{
 				Name: "value",
 				Err:  ErrOutOfBounds,
 			}
+			return entErr
 		}
 
 	case string:
@@ -173,24 +227,27 @@ func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) err
 				panic(err)
 			}
 			if !enumAtt.values.hasKey(v) {
-				return &ArgumentError{
+				entErr.Err = &ArgumentError{
 					Name: "value",
 					Err:  ErrNotFound,
 				}
+				return entErr
 			}
 
 		default:
-			return &ArgumentError{
+			entErr.Err = &ArgumentError{
 				Name: "value",
 				Err:  ErrInvalidType,
 			}
+			return entErr
 		}
 
 	default:
-		return &ArgumentError{
+		entErr.Err = &ArgumentError{
 			Name: "value",
 			Err:  ErrInvalidType,
 		}
+		return entErr
 	}
 
 	ae.attributeValues.add(attribute.EntityID(), newAttributeValue(attribute, value))

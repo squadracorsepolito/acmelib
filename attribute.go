@@ -150,7 +150,8 @@ func newAttribute(name string, kind AttributeKind) *attribute {
 }
 
 func (a *attribute) errorf(err error) error {
-	return &AttributeError{
+	return &EntityError{
+		Kind:     EntityKindAttribute,
 		EntityID: a.entityID,
 		Name:     a.name,
 		Err:      err,
@@ -270,14 +271,14 @@ func NewIntegerAttribute(name string, defValue, min, max int) (*IntegerAttribute
 	if min > max {
 		return nil, &ArgumentError{
 			Name: "min",
-			Err:  &ErrGraterThen{Target: "max"},
+			Err:  &ErrGreaterThen{Target: "max"},
 		}
 	}
 
 	if defValue > max {
 		return nil, &ArgumentError{
 			Name: "defValue",
-			Err:  &ErrGraterThen{Target: "max"},
+			Err:  &ErrGreaterThen{Target: "max"},
 		}
 	}
 
@@ -384,14 +385,14 @@ func NewFloatAttribute(name string, defValue, min, max float64) (*FloatAttribute
 	if min > max {
 		return nil, &ArgumentError{
 			Name: "min",
-			Err:  &ErrGraterThen{Target: "max"},
+			Err:  &ErrGreaterThen{Target: "max"},
 		}
 	}
 
 	if defValue > max {
 		return nil, &ArgumentError{
 			Name: "defValue",
-			Err:  &ErrGraterThen{Target: "max"},
+			Err:  &ErrGreaterThen{Target: "max"},
 		}
 	}
 

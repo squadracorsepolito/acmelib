@@ -27,7 +27,8 @@ func NewNetwork(name string) *Network {
 }
 
 func (n *Network) errorf(err error) error {
-	return &NetworkError{
+	return &EntityError{
+		Kind:     EntityKindNetwork,
 		EntityID: n.entityID,
 		Name:     n.name,
 		Err:      err,

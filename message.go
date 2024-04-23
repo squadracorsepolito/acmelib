@@ -135,7 +135,8 @@ func (m *Message) hasSenderNode() bool {
 }
 
 func (m *Message) errorf(err error) error {
-	msgErr := &MessageError{
+	msgErr := &EntityError{
+		Kind:     EntityKindMessage,
 		EntityID: m.entityID,
 		Name:     m.name,
 		Err:      err,

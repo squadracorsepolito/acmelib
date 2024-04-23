@@ -116,7 +116,8 @@ func (s *signal) modifySize(amount int) error {
 }
 
 func (s *signal) errorf(err error) error {
-	sigErr := &SignalError{
+	sigErr := &EntityError{
+		Kind:     EntityKindSignal,
 		EntityID: s.entityID,
 		Name:     s.name,
 		Err:      err,

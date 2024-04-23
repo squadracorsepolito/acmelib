@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+// MultiplexerSignal is a signal that holds groups of other signals
+// that are selected/multiplexed by the value of the group id.
+// It can multiplex all the kinds of signals ([StandardSignal], [EnumSignal],
+// [MultiplexerSignal]), so it is possible to create multiple levels of multiplexing.
 type MultiplexerSignal struct {
 	*signal
 
@@ -20,6 +24,12 @@ type MultiplexerSignal struct {
 	groups     []*signalPayload
 }
 
+// NewMultiplexerSignal creates a new [MultiplexerSignal] with the given name,
+// group count and group size.
+// The group count defines the number of groups that the signal will hold
+// and the group size defines the dimension in bits of each group.
+//
+// It will return an [ArgumentError] if group count or group size is invalid.
 func NewMultiplexerSignal(name string, groupCount, groupSize int) (*MultiplexerSignal, error) {
 	if groupCount <= 0 {
 		err := &ArgumentError{
@@ -294,11 +304,16 @@ func (ms *MultiplexerSignal) String() string {
 	return builder.String()
 }
 
+// GetSize returns the total size of the [MultiplexerSignal].
+// The returned value is the sum of the size of the groups and
+// the number of bits needed to select the right group.
+// e.g. with group count = 8 and group size = 16, the total size
+// will be 3 + 16 = 19 bits, since 8 groups can be selected by 3 bits.
 func (ms *MultiplexerSignal) GetSize() int {
 	return ms.groupSize + ms.GetGroupCountSize()
 }
 
-// ToStandard always returns an error, since [MultiplexerSignal1] cannot be converted to [StandardSignal].
+// ToStandard always returns a [ConvertionError], since [MultiplexerSignal] cannot be converted to [StandardSignal].
 func (ms *MultiplexerSignal) ToStandard() (*StandardSignal, error) {
 	return nil, ms.errorf(&ConvertionError{
 		From: string(SignalKindMultiplexer),
@@ -306,7 +321,7 @@ func (ms *MultiplexerSignal) ToStandard() (*StandardSignal, error) {
 	})
 }
 
-// ToEnum always returns an error, since [MultiplexerSignal1] cannot be converted to [EnumSignal].
+// ToEnum always returns a [ConvertionError], since [MultiplexerSignal] cannot be converted to [EnumSignal].
 func (ms *MultiplexerSignal) ToEnum() (*EnumSignal, error) {
 	return nil, ms.errorf(&ConvertionError{
 		From: string(SignalKindMultiplexer),
@@ -319,6 +334,16 @@ func (ms *MultiplexerSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 	return ms, nil
 }
 
+// InsertSignal inserts a [Signal] at the given start bit.
+// If no group IDs are given, the signal will be considered as fixed
+// and it will be inserted into all groups.
+// If group IDs are given, the signal will be inserted into the given groups.
+//
+// It will return an [InsertSignalError] if the signal cannot be inserted
+// at the given start bit into the given group. This error can wrap:
+//   - [NameError] in case of an invalid signal name
+//   - [StartBitError] in case of an invalid start bit
+//   - [GroupIDError] in case of an invalid group ID
 func (ms *MultiplexerSignal) InsertSignal(signal Signal, startBit int, groupIDs ...int) error {
 	insErr := &InsertSignalError{
 		EntityID: signal.EntityID(),
@@ -392,6 +417,9 @@ func (ms *MultiplexerSignal) InsertSignal(signal Signal, startBit int, groupIDs 
 	return nil
 }
 
+// RemoveSignal removes the [Signal] with the given entity ID.
+//
+// It will return an [RemoveEntityError] if the signal cannot be removed.
 func (ms *MultiplexerSignal) RemoveSignal(signalEntityID EntityID) error {
 	sig, err := ms.signals.getValue(signalEntityID)
 	if err != nil {
@@ -427,11 +455,12 @@ func (ms *MultiplexerSignal) RemoveSignal(signalEntityID EntityID) error {
 	return nil
 }
 
+// ClearSignalGroup removes all signals from a group with the given group ID.
+//
+// It will return a [GroupIDError] if the given group ID is invalid.
 func (ms *MultiplexerSignal) ClearSignalGroup(groupID int) error {
 	if err := ms.verifyGroupID(groupID); err != nil {
-		return ms.errorf(&ClearSignalGroupError{
-			Err: err,
-		})
+		return ms.errorf(err)
 	}
 
 	group := ms.groups[groupID]
@@ -465,6 +494,7 @@ func (ms *MultiplexerSignal) ClearSignalGroup(groupID int) error {
 	return nil
 }
 
+// ClearAllSignalGroups removes all signals from all groups.
 func (ms *MultiplexerSignal) ClearAllSignalGroups() {
 	for _, sig := range ms.signals.getValues() {
 		ms.removeSignal(sig)
@@ -478,6 +508,9 @@ func (ms *MultiplexerSignal) ClearAllSignalGroups() {
 	ms.fixedSignals.clear()
 }
 
+// ShiftSignalLeft shifts the [Signal] with the given entity ID left by the given amount
+// and it returns the number of bits shifted.
+// It will not shift signals that are fixed or assigned to more then one group.
 func (ms *MultiplexerSignal) ShiftSignalLeft(signalEntityID EntityID, amount int) int {
 	groupIDs, err := ms.signalGroupIDs.getValue(signalEntityID)
 	if err != nil || len(groupIDs) > 1 {
@@ -487,6 +520,9 @@ func (ms *MultiplexerSignal) ShiftSignalLeft(signalEntityID EntityID, amount int
 	return ms.groups[groupIDs[0]].shiftLeft(signalEntityID, amount)
 }
 
+// ShiftSignalRight shifts the [Signal] with the given entity ID right by the given amount
+// and it returns the number of bits shifted.
+// It will not shift signals that are fixed or assigned to more then one group.
 func (ms *MultiplexerSignal) ShiftSignalRight(signalEntityID EntityID, amount int) int {
 	groupIDs, err := ms.signalGroupIDs.getValue(signalEntityID)
 	if err != nil || len(groupIDs) > 1 {
@@ -496,6 +532,9 @@ func (ms *MultiplexerSignal) ShiftSignalRight(signalEntityID EntityID, amount in
 	return ms.groups[groupIDs[0]].shiftRight(signalEntityID, amount)
 }
 
+// GetSignalGroup returns a slice of signals present in the group
+// selected by the given group ID.
+// The signals are sorted by their start bit.
 func (ms *MultiplexerSignal) GetSignalGroup(groupID int) []Signal {
 	if err := ms.verifyGroupID(groupID); err != nil {
 		return []Signal{}
@@ -503,6 +542,8 @@ func (ms *MultiplexerSignal) GetSignalGroup(groupID int) []Signal {
 	return ms.groups[groupID].signals
 }
 
+// GetSignalGroups returns a slice of groups sorted by their group ID.
+// Each group contains a slice of signals sorted by their start bit.
 func (ms *MultiplexerSignal) GetSignalGroups() [][]Signal {
 	res := make([][]Signal, ms.groupCount)
 
@@ -513,14 +554,18 @@ func (ms *MultiplexerSignal) GetSignalGroups() [][]Signal {
 	return res
 }
 
+// GroupCount returns the number of groups.
 func (ms *MultiplexerSignal) GroupCount() int {
 	return ms.groupCount
 }
 
+// GetGroupCountSize returns the number of bits needed to select
+// the right group.
 func (ms *MultiplexerSignal) GetGroupCountSize() int {
 	return calcSizeFromValue(ms.groupCount - 1)
 }
 
+// GroupSize returns the size of a group.
 func (ms *MultiplexerSignal) GroupSize() int {
 	return ms.groupSize
 }

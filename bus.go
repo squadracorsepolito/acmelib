@@ -45,7 +45,8 @@ func (b *Bus) setParentNetwork(net *Network) {
 }
 
 func (b *Bus) errorf(err error) error {
-	busErr := &BusError{
+	busErr := &EntityError{
+		Kind:     "bus",
 		EntityID: b.entityID,
 		Name:     b.name,
 		Err:      err,

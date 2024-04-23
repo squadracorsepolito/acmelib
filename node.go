@@ -49,7 +49,8 @@ func NewNode(name string, id NodeID) *Node {
 }
 
 func (n *Node) errorf(err error) error {
-	nodeErr := &NodeError{
+	nodeErr := &EntityError{
+		Kind:     EntityKindNode,
 		EntityID: n.entityID,
 		Name:     n.name,
 		Err:      err,

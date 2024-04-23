@@ -66,7 +66,7 @@ func (sp *signalPayload) append(sig Signal) error {
 
 func (sp *signalPayload) verifyBeforeInsert(sig Signal, startBit int) error {
 	if startBit < 0 {
-		return &SignalStartBitError{
+		return &StartBitError{
 			StartBit: startBit,
 			Err:      ErrIsNegative,
 		}
@@ -102,7 +102,7 @@ func (sp *signalPayload) verifyBeforeInsert(sig Signal, startBit int) error {
 		}
 
 		if startBit >= tmpStartBit || endBit > tmpStartBit {
-			return &SignalStartBitError{
+			return &StartBitError{
 				StartBit: startBit,
 				Err:      ErrIntersect,
 			}
