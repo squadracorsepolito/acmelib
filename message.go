@@ -51,15 +51,15 @@ type MessageSendType string
 
 const (
 	// MessageSendTypeUnset defines an unset transmission type.
-	MessageSendTypeUnset MessageSendType = "unset"
+	MessageSendTypeUnset MessageSendType = "NoMsgSendType"
 	// MessageSendTypeCyclic defines a cyclic transmission type.
-	MessageSendTypeCyclic MessageSendType = "cyclic"
+	MessageSendTypeCyclic MessageSendType = "Cyclic"
 	// MessageSendTypeCyclicIfActive defines a cyclic if active transmission type.
-	MessageSendTypeCyclicIfActive MessageSendType = "cyclicIfActive"
+	MessageSendTypeCyclicIfActive MessageSendType = "CyclicIfActive"
 	// MessageSendTypeCyclicIfTriggered defines a cyclic if triggered transmission type.
-	MessageSendTypeCyclicIfTriggered MessageSendType = "cyclicAndTriggered"
+	MessageSendTypeCyclicIfTriggered MessageSendType = "CyclicAndTriggered"
 	// MessageSendTypeCyclicIfActiveAndTriggered defines a cyclic if active and triggered transmission type.
-	MessageSendTypeCyclicIfActiveAndTriggered MessageSendType = "cyclicIfActiveAndTriggered"
+	MessageSendTypeCyclicIfActiveAndTriggered MessageSendType = "CyclicIfActiveAndTriggered"
 )
 
 // Message is the representation of data sent by a node thought the bus.

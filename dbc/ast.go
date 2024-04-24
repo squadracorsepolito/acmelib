@@ -8,11 +8,6 @@ const FileExtension = ".dbc"
 // DummyNode is the default name of a dummy node used in the DBC file.
 const DummyNode = "Vector__XXX"
 
-// GetNewSymbols returns a list of all the new symbols.
-func GetNewSymbols() []string {
-	return newSymbolsValues
-}
-
 // Location is the position in the DBC file of an AST entity.
 type Location struct {
 	Filename string

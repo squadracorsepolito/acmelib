@@ -8,6 +8,22 @@ import (
 	"github.com/FerroO2000/acmelib/dbc"
 )
 
+var (
+	msgCycleTimeAtt, _      = NewIntegerAttribute("GenMsgCycleTime", 0, 0, 1000)
+	msgDelayTimeAtt, _      = NewIntegerAttribute("GenMsgDelayTime", 0, 0, 1000)
+	msgStartDelayTimeAtt, _ = NewIntegerAttribute("GenMsgStartDelayTime", 0, 0, 1000)
+)
+
+var msgSendTypeAtt, _ = NewEnumAttribute("GenMsgSendType",
+	string(MessageSendTypeUnset), string(MessageSendTypeCyclic), string(MessageSendTypeCyclicIfActive),
+	string(MessageSendTypeCyclicIfTriggered), string(MessageSendTypeCyclicIfActiveAndTriggered),
+)
+
+var sigSendTypeAtt, _ = NewEnumAttribute("GenSigSendType", string(SignalSendTypeUnset), string(SignalSendTypeCyclic),
+	string(SignalSendTypeOnWrite), string(SignalSendTypeOnWriteWithRepetition), string(SignalSendTypeOnChange),
+	string(SignalSendTypeOnChangeWithRepetition), string(SignalSendTypeIfActive), string(SignalSendTypeIfActiveWithRepetition),
+)
+
 func LoadDBC(networkName string, dbcFilenames ...string) (*Network, error) {
 	net := NewNetwork(networkName)
 
@@ -231,7 +247,14 @@ func WriteDBC(network *Network, basePath string) error {
 		adapter := newAdapter()
 		writer := dbc.NewWriter()
 
-		f, err := os.Create(fmt.Sprintf("%s/%s/%s.%s", basePath, network.name, bus.name, dbc.FileExtension))
+		filename := ""
+		if len(basePath) > 0 {
+			filename = fmt.Sprintf("%s/%s/%s%s", basePath, network.name, bus.name, dbc.FileExtension)
+		} else {
+			filename = fmt.Sprintf("%s/%s%s", network.name, bus.name, dbc.FileExtension)
+		}
+
+		f, err := os.Create(filename)
 		if err != nil {
 			return err
 		}
@@ -246,23 +269,192 @@ func WriteDBC(network *Network, basePath string) error {
 	return nil
 }
 
-type adapter struct {
+type netToDBCAdapter struct {
 	dbcFile *dbc.File
 
 	currDBCMsg *dbc.Message
+
+	attNames     map[string]bool
+	nodeAttNames map[string]bool
+	msgAttNames  map[string]bool
+	sigAttNames  map[string]bool
 }
 
-func newAdapter() *adapter {
-	return &adapter{
+func newAdapter() *netToDBCAdapter {
+	return &netToDBCAdapter{
 		dbcFile: new(dbc.File),
+
+		currDBCMsg: nil,
+
+		attNames:     make(map[string]bool),
+		nodeAttNames: make(map[string]bool),
+		msgAttNames:  make(map[string]bool),
+		sigAttNames:  make(map[string]bool),
 	}
 }
 
-func (a *adapter) addDBCComment(comment *dbc.Comment) {
+func (a *netToDBCAdapter) addDBCComment(comment *dbc.Comment) {
 	a.dbcFile.Comments = append(a.dbcFile.Comments, comment)
 }
 
-func (a *adapter) adaptBus(bus *Bus) *dbc.File {
+func (a *netToDBCAdapter) adaptAttributeValue(attVal *AttributeValue, dbcAttKind dbc.AttributeKind, dbcAttVal *dbc.AttributeValue) {
+	att := attVal.attribute
+	attName := att.Name()
+
+	dbcAttVal.AttributeName = attName
+
+	hasAtt := false
+	switch dbcAttKind {
+	case dbc.AttributeGeneral:
+		if _, ok := a.attNames[attName]; ok {
+			hasAtt = true
+		} else {
+			a.attNames[attName] = true
+		}
+		dbcAttVal.AttributeKind = dbc.AttributeGeneral
+
+	case dbc.AttributeNode:
+		if _, ok := a.nodeAttNames[attName]; ok {
+			hasAtt = true
+		} else {
+			a.nodeAttNames[attName] = true
+		}
+		dbcAttVal.AttributeKind = dbc.AttributeNode
+
+	case dbc.AttributeMessage:
+		if _, ok := a.msgAttNames[attName]; ok {
+			hasAtt = true
+		} else {
+			a.msgAttNames[attName] = true
+		}
+		dbcAttVal.AttributeKind = dbc.AttributeMessage
+
+	case dbc.AttributeSignal:
+		if _, ok := a.sigAttNames[attName]; ok {
+			hasAtt = true
+		} else {
+			a.sigAttNames[attName] = true
+		}
+		dbcAttVal.AttributeKind = dbc.AttributeSignal
+	}
+
+	if !hasAtt {
+		dbcAtt := new(dbc.Attribute)
+		dbcAtt.Kind = dbcAttKind
+		a.adaptAttribute(att, dbcAtt)
+	}
+
+	switch att.Kind() {
+	case AttributeKindString:
+		dbcAttVal.Type = dbc.AttributeValueString
+		dbcAttVal.ValueString = attVal.value.(string)
+
+	case AttributeKindInteger:
+		intAtt, err := att.ToInteger()
+		if err != nil {
+			panic(err)
+		}
+		if intAtt.isHexFormat {
+			dbcAttVal.Type = dbc.AttributeValueHex
+			dbcAttVal.ValueHex = attVal.value.(int)
+		} else {
+
+			dbcAttVal.Type = dbc.AttributeValueInt
+			dbcAttVal.ValueInt = attVal.value.(int)
+		}
+
+	case AttributeKindFloat:
+		dbcAttVal.Type = dbc.AttributeValueFloat
+		dbcAttVal.ValueFloat = attVal.value.(float64)
+
+	case AttributeKindEnum:
+		enumAtt, err := att.ToEnum()
+		if err != nil {
+			panic(err)
+		}
+		dbcAttVal.Type = dbc.AttributeValueInt
+
+		valIdx := 0
+		strVal := attVal.value.(string)
+		for idx, val := range enumAtt.Values() {
+			if strVal == val {
+				valIdx = idx
+				break
+			}
+		}
+		dbcAttVal.ValueInt = valIdx
+	}
+}
+
+func (a *netToDBCAdapter) adaptAttribute(att Attribute, dbcAtt *dbc.Attribute) {
+	attName := att.Name()
+	dbcAtt.Name = attName
+
+	dbcAttDef := new(dbc.AttributeDefault)
+	dbcAttDef.AttributeName = attName
+
+	switch att.Kind() {
+	case AttributeKindString:
+		strAtt, err := att.ToString()
+		if err != nil {
+			panic(err)
+		}
+		dbcAtt.Type = dbc.AttributeString
+
+		dbcAttDef.Type = dbc.AttributeDefaultString
+		dbcAttDef.ValueString = strAtt.defValue
+
+	case AttributeKindInteger:
+		intAtt, err := att.ToInteger()
+		if err != nil {
+			panic(err)
+		}
+
+		if intAtt.isHexFormat {
+			dbcAtt.Type = dbc.AttributeHex
+			dbcAtt.MinHex = intAtt.min
+			dbcAtt.MaxHex = intAtt.max
+
+			dbcAttDef.Type = dbc.AttributeDefaultHex
+			dbcAttDef.ValueHex = intAtt.defValue
+		} else {
+			dbcAtt.Type = dbc.AttributeInt
+			dbcAtt.MinInt = intAtt.min
+			dbcAtt.MaxInt = intAtt.max
+
+			dbcAttDef.Type = dbc.AttributeDefaultInt
+			dbcAttDef.ValueInt = intAtt.defValue
+		}
+
+	case AttributeKindFloat:
+		floatAtt, err := att.ToFloat()
+		if err != nil {
+			panic(err)
+		}
+		dbcAtt.Type = dbc.AttributeFloat
+		dbcAtt.MinFloat = floatAtt.min
+		dbcAtt.MaxFloat = floatAtt.max
+
+		dbcAttDef.Type = dbc.AttributeDefaultString
+		dbcAttDef.ValueFloat = floatAtt.defValue
+
+	case AttributeKindEnum:
+		enumAtt, err := att.ToEnum()
+		if err != nil {
+			panic(err)
+		}
+		dbcAtt.Type = dbc.AttributeEnum
+		dbcAtt.EnumValues = enumAtt.Values()
+
+		dbcAttDef.Type = dbc.AttributeDefaultString
+		dbcAttDef.ValueString = enumAtt.defValue
+	}
+
+	a.dbcFile.Attributes = append(a.dbcFile.Attributes, dbcAtt)
+	a.dbcFile.AttributeDefaults = append(a.dbcFile.AttributeDefaults, dbcAttDef)
+}
+
+func (a *netToDBCAdapter) adaptBus(bus *Bus) *dbc.File {
 	if bus.desc != "" {
 		a.addDBCComment(&dbc.Comment{
 			Kind: dbc.CommentGeneral,
@@ -270,8 +462,10 @@ func (a *adapter) adaptBus(bus *Bus) *dbc.File {
 		})
 	}
 
-	a.dbcFile.NewSymbols = &dbc.NewSymbols{
-		Symbols: dbc.GetNewSymbols(),
+	for _, attVal := range bus.AttributeValues() {
+		dbcAttVal := new(dbc.AttributeValue)
+		a.adaptAttributeValue(attVal, dbc.AttributeGeneral, dbcAttVal)
+		a.dbcFile.AttributeValues = append(a.dbcFile.AttributeValues, dbcAttVal)
 	}
 
 	a.dbcFile.BitTiming = &dbc.BitTiming{
@@ -283,7 +477,7 @@ func (a *adapter) adaptBus(bus *Bus) *dbc.File {
 	return a.dbcFile
 }
 
-func (a *adapter) adaptNodes(nodes []*Node) {
+func (a *netToDBCAdapter) adaptNodes(nodes []*Node) {
 	dbcNodes := new(dbc.Nodes)
 
 	for _, node := range nodes {
@@ -293,6 +487,13 @@ func (a *adapter) adaptNodes(nodes []*Node) {
 				Text:     node.desc,
 				NodeName: node.name,
 			})
+		}
+
+		for _, attVal := range node.AttributeValues() {
+			dbcAttVal := new(dbc.AttributeValue)
+			dbcAttVal.NodeName = node.name
+			a.adaptAttributeValue(attVal, dbc.AttributeNode, dbcAttVal)
+			a.dbcFile.AttributeValues = append(a.dbcFile.AttributeValues, dbcAttVal)
 		}
 
 		dbcNodes.Names = append(dbcNodes.Names, node.name)
@@ -305,7 +506,7 @@ func (a *adapter) adaptNodes(nodes []*Node) {
 	a.dbcFile.Nodes = dbcNodes
 }
 
-func (a *adapter) adaptMessage(msg *Message) {
+func (a *netToDBCAdapter) adaptMessage(msg *Message) {
 	dbcMsg := new(dbc.Message)
 
 	if msg.desc != "" {
@@ -317,24 +518,41 @@ func (a *adapter) adaptMessage(msg *Message) {
 	}
 
 	dbcMsg.ID = uint32(msg.CANID())
+
+	attValues := msg.AttributeValues()
+	if msg.cycleTime != 0 {
+		attValues = append(attValues, newAttributeValue(msgCycleTimeAtt, msg.cycleTime))
+	}
+	if msg.delayTime != 0 {
+		attValues = append(attValues, newAttributeValue(msgDelayTimeAtt, msg.delayTime))
+	}
+	if msg.startDelayTime != 0 {
+		attValues = append(attValues, newAttributeValue(msgStartDelayTimeAtt, msg.startDelayTime))
+	}
+	if msg.sendType != MessageSendTypeUnset {
+		attValues = append(attValues, newAttributeValue(msgSendTypeAtt, string(msg.sendType)))
+	}
+	for _, attVal := range attValues {
+		dbcAttVal := new(dbc.AttributeValue)
+		dbcAttVal.MessageID = dbcMsg.ID
+		a.adaptAttributeValue(attVal, dbc.AttributeMessage, dbcAttVal)
+		a.dbcFile.AttributeValues = append(a.dbcFile.AttributeValues, dbcAttVal)
+	}
+
 	dbcMsg.Name = msg.name
 	dbcMsg.Size = uint32(msg.sizeByte)
 	dbcMsg.Transmitter = msg.senderNode.name
 
 	a.currDBCMsg = dbcMsg
 
-	receiverNames := []string{}
-	for _, rec := range msg.Receivers() {
-		receiverNames = append(receiverNames, rec.name)
-	}
 	for _, sig := range msg.Signals() {
-		a.adaptSignal(sig, receiverNames...)
+		a.adaptSignal(sig)
 	}
 
 	a.dbcFile.Messages = append(a.dbcFile.Messages, dbcMsg)
 }
 
-func (a *adapter) adaptSignal(sig Signal, receiverNames ...string) {
+func (a *netToDBCAdapter) adaptSignal(sig Signal) {
 	parMsg := sig.ParentMessage()
 	msgID := parMsg.CANID()
 
@@ -347,16 +565,33 @@ func (a *adapter) adaptSignal(sig Signal, receiverNames ...string) {
 		})
 	}
 
+	attValues := sig.AttributeValues()
+	if sig.SendType() != SignalSendTypeUnset {
+		attValues = append(attValues, newAttributeValue(sigSendTypeAtt, string(sig.SendType())))
+	}
+	for _, attVal := range attValues {
+		dbcAttVal := new(dbc.AttributeValue)
+		dbcAttVal.MessageID = uint32(msgID)
+		dbcAttVal.SignalName = sig.Name()
+		a.adaptAttributeValue(attVal, dbc.AttributeSignal, dbcAttVal)
+		a.dbcFile.AttributeValues = append(a.dbcFile.AttributeValues, dbcAttVal)
+	}
+
 	dbcSig := new(dbc.Signal)
-
 	dbcSig.Name = sig.Name()
-	dbcSig.Size = uint32(sig.GetSize())
-	dbcSig.StartBit = uint32(sig.GetStartBit())
 
-	if len(receiverNames) == 0 {
+	if len(parMsg.Receivers()) == 0 {
 		dbcSig.Receivers = []string{dbc.DummyNode}
 	} else {
+		receiverNames := []string{}
+		for _, rec := range parMsg.Receivers() {
+			receiverNames = append(receiverNames, rec.name)
+		}
 		dbcSig.Receivers = receiverNames
+	}
+
+	if sig.ParentMultiplexerSignal() != nil {
+		dbcSig.IsMultiplexed = true
 	}
 
 	switch sig.Kind() {
@@ -374,39 +609,29 @@ func (a *adapter) adaptSignal(sig Signal, receiverNames ...string) {
 			panic(err)
 		}
 		a.adaptEnumSignal(enumSig, dbcSig)
-
-		dbcValEnc := new(dbc.ValueEncoding)
-		dbcValEnc.Kind = dbc.ValueEncodingSignal
-		dbcValEnc.MessageID = uint32(msgID)
-		dbcValEnc.SignalName = sig.Name()
-
-		for _, val := range enumSig.enum.Values() {
-			dbcValEnc.Values = append(dbcValEnc.Values, &dbc.ValueDescription{
-				ID:   uint32(val.index),
-				Name: val.name,
-			})
-		}
-
-		a.dbcFile.ValueEncodings = append(a.dbcFile.ValueEncodings, dbcValEnc)
 		a.currDBCMsg.Signals = append(a.currDBCMsg.Signals, dbcSig)
 
 	case SignalKindMultiplexer:
-		// muxSig, err := sig.ToMultiplexer()
-		// if err != nil {
-		// 	panic(err)
-		// }
-		// a.adaptMultiplexerSignal(muxSig)
+		muxSig, err := sig.ToMultiplexer()
+		if err != nil {
+			panic(err)
+		}
+		a.adaptMultiplexerSignal(muxSig, dbcSig)
 	}
-
 }
 
-func (a *adapter) adaptStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Signal) {
-	// switch stdSig.typ.order {
-	// case SignalTypeOrderLittleEndian:
-	// 	dbcSig.ByteOrder = dbc.SignalLittleEndian
-	// case SignalTypeOrderBigEndian:
-	// 	dbcSig.ByteOrder = dbc.SignalBigEndian
-	// }
+func (a *netToDBCAdapter) adaptStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Signal) {
+	dbcSig.Size = uint32(stdSig.GetSize())
+
+	switch stdSig.byteOrder {
+	case SignalByteOrderLittleEndian:
+		dbcSig.ByteOrder = dbc.SignalLittleEndian
+		dbcSig.StartBit = uint32(stdSig.GetStartBit())
+
+	case SignalByteOrderBigEndian:
+		dbcSig.ByteOrder = dbc.SignalBigEndian
+		dbcSig.StartBit = uint32(stdSig.GetStartBit()) + dbcSig.Size - 1
+	}
 
 	if stdSig.typ.signed {
 		dbcSig.ValueType = dbc.SignalSigned
@@ -425,41 +650,133 @@ func (a *adapter) adaptStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Signal
 	}
 }
 
-func (a *adapter) adaptEnumSignal(enumSig *EnumSignal, dbcSig *dbc.Signal) {
-	dbcSig.ByteOrder = dbc.SignalLittleEndian
+func (a *netToDBCAdapter) adaptEnumSignal(enumSig *EnumSignal, dbcSig *dbc.Signal) {
+	dbcSig.Size = uint32(enumSig.GetSize())
+
+	switch enumSig.byteOrder {
+	case SignalByteOrderLittleEndian:
+		dbcSig.ByteOrder = dbc.SignalLittleEndian
+		dbcSig.StartBit = uint32(enumSig.GetStartBit())
+
+	case SignalByteOrderBigEndian:
+		dbcSig.ByteOrder = dbc.SignalBigEndian
+		dbcSig.StartBit = uint32(enumSig.GetStartBit()) + dbcSig.Size - 1
+	}
+
 	dbcSig.ValueType = dbc.SignalUnsigned
 
 	dbcSig.Min = 0
 	dbcSig.Max = float64(enumSig.enum.maxIndex)
 	dbcSig.Offset = 0
 	dbcSig.Factor = 1
+
+	dbcValEnc := new(dbc.ValueEncoding)
+	dbcValEnc.Kind = dbc.ValueEncodingSignal
+	dbcValEnc.MessageID = uint32(enumSig.parentMsg.id)
+	dbcValEnc.SignalName = enumSig.Name()
+
+	for _, val := range enumSig.enum.Values() {
+		dbcValEnc.Values = append(dbcValEnc.Values, &dbc.ValueDescription{
+			ID:   uint32(val.index),
+			Name: val.name,
+		})
+	}
+
+	a.dbcFile.ValueEncodings = append(a.dbcFile.ValueEncodings, dbcValEnc)
 }
 
-// func (a *adapter) adaptMultiplexerSignal(muxSig *MultiplexerSignal1) {
-// 	dbcMuxorSig := new(dbc.Signal)
+func (a *netToDBCAdapter) adaptMultiplexerSignal(muxSig *MultiplexerSignal, dbcSig *dbc.Signal) {
+	dbcSig.Size = uint32(muxSig.GetGroupCountSize())
 
-// 	dbcMuxorSig.Name = muxSig.Name()
+	switch muxSig.byteOrder {
+	case SignalByteOrderLittleEndian:
+		dbcSig.ByteOrder = dbc.SignalLittleEndian
+		dbcSig.StartBit = uint32(muxSig.GetStartBit())
 
-// 	dbcMuxorSig.IsMultiplexor = true
+	case SignalByteOrderBigEndian:
+		dbcSig.ByteOrder = dbc.SignalBigEndian
+		dbcSig.StartBit = uint32(muxSig.GetStartBit()) + dbcSig.Size - 1
+	}
 
-// 	dbcMuxorSig.Size = uint32(muxSig.GetSize())
-// 	dbcMuxorSig.StartBit = uint32(muxSig.GetStartBit())
+	dbcSig.IsMultiplexor = true
 
-// 	dbcMuxorSig.ByteOrder = dbc.SignalLittleEndian
-// 	dbcMuxorSig.ValueType = dbc.SignalUnsigned
+	dbcSig.ValueType = dbc.SignalUnsigned
 
-// 	selectValues := 1 << muxSig.SelectSize()
+	dbcSig.Min = 0
+	dbcSig.Max = float64(muxSig.groupCount - 1)
+	dbcSig.Offset = 0
+	dbcSig.Factor = 1
 
-// 	dbcMuxorSig.Factor = 1
-// 	dbcMuxorSig.Offset = 0
-// 	dbcMuxorSig.Min = 0
-// 	dbcMuxorSig.Max = float64(selectValues)
+	a.currDBCMsg.Signals = append(a.currDBCMsg.Signals, dbcSig)
 
-// 	a.currDBCMsg.Signals = append(a.currDBCMsg.Signals, dbcMuxorSig)
+	isExtended := false
+	nestedMux := dbcSig.IsMultiplexed
 
-// 	for i := 0; i < selectValues; i++ {
-// 		for _, muxedSig := range muxSig.GetSelectedMuxSignals(i) {
-// 			a.adaptSignal(muxedSig)
-// 		}
-// 	}
-// }
+	sigNames := []string{}
+	sigGroupIDs := make(map[string][]int)
+	for id, group := range muxSig.GetSignalGroups() {
+		for _, tmpSig := range group {
+			tmpSigName := tmpSig.Name()
+			groupIDs, ok := sigGroupIDs[tmpSigName]
+			if !ok {
+				sigGroupIDs[tmpSigName] = []int{id}
+			}
+
+			if tmpSig.Kind() == SignalKindMultiplexer {
+				nestedMux = true
+			}
+
+			if len(groupIDs) == 0 {
+				sigNames = append(sigNames, tmpSigName)
+				a.adaptSignal(tmpSig)
+				a.currDBCMsg.Signals[len(a.currDBCMsg.Signals)-1].MuxSwitchValue = uint32(id)
+				continue
+			}
+
+			sigGroupIDs[tmpSigName] = append(sigGroupIDs[tmpSigName], id)
+			isExtended = true
+		}
+	}
+
+	if !isExtended && !nestedMux {
+		return
+	}
+
+	for _, tmpSigName := range sigNames {
+		groupIDs := sigGroupIDs[tmpSigName]
+
+		if !nestedMux && len(groupIDs) == 1 {
+			continue
+		}
+
+		dbcExtMux := new(dbc.ExtendedMux)
+		dbcExtMux.MessageID = uint32(muxSig.parentMsg.id)
+		dbcExtMux.MultiplexorName = muxSig.name
+		dbcExtMux.MultiplexedName = tmpSigName
+
+		from := groupIDs[0]
+		next := from
+		for i := 0; i < len(groupIDs)-1; i++ {
+			curr := groupIDs[i]
+			next = groupIDs[i+1]
+
+			if next == curr+1 {
+				continue
+			}
+
+			dbcExtMux.Ranges = append(dbcExtMux.Ranges, &dbc.ExtendedMuxRange{
+				From: uint32(from),
+				To:   uint32(curr),
+			})
+
+			from = next
+		}
+
+		dbcExtMux.Ranges = append(dbcExtMux.Ranges, &dbc.ExtendedMuxRange{
+			From: uint32(from),
+			To:   uint32(next),
+		})
+
+		a.dbcFile.ExtendedMuxes = append(a.dbcFile.ExtendedMuxes, dbcExtMux)
+	}
+}

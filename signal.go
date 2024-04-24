@@ -29,6 +29,28 @@ const (
 	SignalByteOrderBigEndian SignalByteOrder = "signal_byte_order-big_endian"
 )
 
+// SignalSendType rappresents the send type of a [Signal].
+type SignalSendType string
+
+const (
+	// SignalSendTypeUnset defines an unset transmission type.
+	SignalSendTypeUnset SignalSendType = "NoSigSendType"
+	// SignalSendTypeCyclic defines a cyclic transmission type.
+	SignalSendTypeCyclic SignalSendType = "Cyclic"
+	// SignalSendTypeOnWrite defines an on write transmission type.
+	SignalSendTypeOnWrite SignalSendType = "OnWrite"
+	// SignalSendTypeOnWriteWithRepetition defines an on write with repetition transmission type.
+	SignalSendTypeOnWriteWithRepetition SignalSendType = "OnWriteWithRepetition"
+	// SignalSendTypeOnChange defines an on change transmission type.
+	SignalSendTypeOnChange SignalSendType = "OnChange"
+	// SignalSendTypeOnChangeWithRepetition defines an on change with repetition transmission type.
+	SignalSendTypeOnChangeWithRepetition SignalSendType = "OnChangeWithRepetition"
+	// SignalSendTypeIfActive defines an if active transmission type.
+	SignalSendTypeIfActive SignalSendType = "IfActive"
+	// SignalSendTypeIfActiveWithRepetition defines an if active with repetition transmission type.
+	SignalSendTypeIfActiveWithRepetition SignalSendType = "IfActiveWithRepetition"
+)
+
 // Signal interface specifies all common methods of
 // [StandardSignal], [EnumSignal], and [MultiplexerSignal1].
 type Signal interface {
@@ -73,6 +95,11 @@ type Signal interface {
 	// ByteOrder returns the byte order of the signal.
 	ByteOrder() SignalByteOrder
 
+	// SetSendType sets the send type of the signal.
+	SetSendType(sendType SignalSendType)
+	// SendType returns the send type of the signal.
+	SendType() SignalSendType
+
 	// GetStartBit returns the start bit of the signal.
 	GetStartBit() int
 	getRelStartBit() int
@@ -95,8 +122,11 @@ type signal struct {
 	parentMsg    *Message
 	parentMuxSig *MultiplexerSignal
 
-	kind        SignalKind
-	byteOrder   SignalByteOrder
+	kind SignalKind
+
+	byteOrder SignalByteOrder
+	sendType  SignalSendType
+
 	relStartBit int
 }
 
@@ -107,8 +137,11 @@ func newSignal(name string, kind SignalKind) *signal {
 		parentMsg:    nil,
 		parentMuxSig: nil,
 
-		kind:        kind,
-		byteOrder:   SignalByteOrderLittleEndian,
+		kind: kind,
+
+		byteOrder: SignalByteOrderLittleEndian,
+		sendType:  SignalSendTypeUnset,
+
 		relStartBit: 0,
 	}
 }
@@ -191,6 +224,14 @@ func (s *signal) SetByteOrder(byteOrder SignalByteOrder) {
 
 func (s *signal) ByteOrder() SignalByteOrder {
 	return s.byteOrder
+}
+
+func (s *signal) SetSendType(sendType SignalSendType) {
+	s.sendType = sendType
+}
+
+func (s *signal) SendType() SignalSendType {
+	return s.sendType
 }
 
 func (s *signal) GetStartBit() int {

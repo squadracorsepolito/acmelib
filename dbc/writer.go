@@ -60,12 +60,16 @@ func (w *Writer) formatUint(val uint32) string {
 }
 
 func (w *Writer) Write(ast *File) string {
+	versionStr := "_"
 	if ast.Version != "" {
-		w.writeVersion(ast.Version)
+		versionStr = ast.Version
 	}
+	w.writeVersion(versionStr)
 
 	if ast.NewSymbols != nil {
 		w.writeNewSymbols(ast.NewSymbols)
+	} else {
+		w.writeNewSymbols(&NewSymbols{Symbols: newSymbolsValues})
 	}
 
 	if ast.BitTiming != nil {
@@ -345,7 +349,7 @@ func (w *Writer) writeAttributeDefault(attDef *AttributeDefault) {
 }
 
 func (w *Writer) writeAttributeValue(attVal *AttributeValue) {
-	w.print(`%s "%s "`, getKeyword(keywordAttributeValue), attVal.AttributeName)
+	w.print(`%s "%s" `, getKeyword(keywordAttributeValue), attVal.AttributeName)
 
 	switch attVal.AttributeKind {
 	case AttributeNode:
