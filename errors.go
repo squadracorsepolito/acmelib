@@ -159,10 +159,10 @@ func (e *NodeIDError) Error() string {
 
 func (e *NodeIDError) Unwrap() error { return e.Err }
 
-// MessageIDError is returned when a [MessageID] is invalid.
+// MessageIDError is returned when a [MessageCANID] is invalid.
 // The MessageID field is the message ID and the Err field is the cause.
 type MessageIDError struct {
-	MessageID MessageID
+	MessageID MessageCANID
 	Err       error
 }
 

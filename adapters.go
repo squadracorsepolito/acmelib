@@ -158,7 +158,7 @@ func (a *dbcAdapter) adaptNodes(dbcNodes *dbc.Nodes) []*Node {
 
 func (a *dbcAdapter) adaptMessage(dbcMsg *dbc.Message) (*Message, error) {
 	msg := NewMessage(dbcMsg.Name, int(dbcMsg.Size))
-	msg.SetID(MessageID(dbcMsg.ID))
+	msg.SetCANID(MessageCANID(dbcMsg.ID))
 	if comment, ok := a.msgComments[dbcMsg.ID]; ok {
 		msg.SetDesc(comment)
 	}
@@ -220,7 +220,7 @@ func (a *dbcAdapter) adaptSignalType(dbcSig *dbc.Signal) (*SignalType, error) {
 	switch dbcSig.ByteOrder {
 	case dbc.SignalBigEndian:
 		return NewCustomSignalType(fmt.Sprintf("custom_type_%s", dbcSig.Name),
-			int(dbcSig.Size), signed, SignalTypeOrderBigEndian, dbcSig.Min, dbcSig.Max)
+			int(dbcSig.Size), signed, dbcSig.Min, dbcSig.Max)
 	}
 
 	return NewIntegerSignalType(fmt.Sprintf("int_type_%s", dbcSig.Name), int(dbcSig.Size), signed)
@@ -312,11 +312,11 @@ func (a *adapter) adaptMessage(msg *Message) {
 		a.addDBCComment(&dbc.Comment{
 			Kind:      dbc.CommentMessage,
 			Text:      msg.desc,
-			MessageID: uint32(msg.ID()),
+			MessageID: uint32(msg.CANID()),
 		})
 	}
 
-	dbcMsg.ID = uint32(msg.ID())
+	dbcMsg.ID = uint32(msg.CANID())
 	dbcMsg.Name = msg.name
 	dbcMsg.Size = uint32(msg.sizeByte)
 	dbcMsg.Transmitter = msg.senderNode.name
@@ -336,7 +336,7 @@ func (a *adapter) adaptMessage(msg *Message) {
 
 func (a *adapter) adaptSignal(sig Signal, receiverNames ...string) {
 	parMsg := sig.ParentMessage()
-	msgID := parMsg.ID()
+	msgID := parMsg.CANID()
 
 	if sig.Desc() != "" {
 		a.addDBCComment(&dbc.Comment{
@@ -401,12 +401,12 @@ func (a *adapter) adaptSignal(sig Signal, receiverNames ...string) {
 }
 
 func (a *adapter) adaptStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Signal) {
-	switch stdSig.typ.order {
-	case SignalTypeOrderLittleEndian:
-		dbcSig.ByteOrder = dbc.SignalLittleEndian
-	case SignalTypeOrderBigEndian:
-		dbcSig.ByteOrder = dbc.SignalBigEndian
-	}
+	// switch stdSig.typ.order {
+	// case SignalTypeOrderLittleEndian:
+	// 	dbcSig.ByteOrder = dbc.SignalLittleEndian
+	// case SignalTypeOrderBigEndian:
+	// 	dbcSig.ByteOrder = dbc.SignalBigEndian
+	// }
 
 	if stdSig.typ.signed {
 		dbcSig.ValueType = dbc.SignalSigned

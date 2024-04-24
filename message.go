@@ -5,29 +5,29 @@ import (
 	"strings"
 )
 
-// MessageID is the bus unique identifier of a [Message].
-// By default 11 bit message ids are used.
-type MessageID uint32
+// MessageCANID is the bus unique identifier of a [Message].
+// By default 11 bits ids are used.
+type MessageCANID uint32
 
-func (mid MessageID) String() string {
-	return fmt.Sprintf("%d", mid)
+func (id MessageCANID) String() string {
+	return fmt.Sprintf("%d", id)
 }
 
-// MessageIDGeneratorFn is callback used for generating automatically
-// the [MessageID] of a [Message]. It is triggered when a [Message] is added to
+// MessageCANIDGeneratorFn is callback used for generating automatically
+// the [MessageCANID] of a [Message]. It is triggered when a [Message] is added to
 // a [Node] or when the former is removed. It takes as prameters the priority
 // of the message, the number of messages sended by the node, and the node id,
 // then it returns the computed message id.
 // By default the messages calculate their 11 bit ids by putting the node id
-// in the 4 lsb, the message count (number of messages sended by the node) from
+// in the 4 lsb, the message id (the nth message sent by the node) from
 // bit 4 to 9, and the priority in the 2 msb.
-type MessageIDGeneratorFn func(priority MessagePriority, messageCount int, nodeID NodeID) (messageID MessageID)
+type MessageCANIDGeneratorFn func(priority MessagePriority, messageID int, nodeID NodeID) (messageCANID MessageCANID)
 
-var defMsgIDGenFn = func(priority MessagePriority, messageCount int, nodeID NodeID) (messageID MessageID) {
-	messageID = (MessageID(messageCount) & 0b11111) << 4
-	messageID |= MessageID(priority) << 9
-	messageID |= MessageID(nodeID) & 0b1111
-	return messageID
+var defMsgIDGenFn = func(priority MessagePriority, messageID int, nodeID NodeID) (messageCANID MessageCANID) {
+	messageCANID = (MessageCANID(messageID) & 0b11111) << 4
+	messageCANID |= MessageCANID(priority) << 9
+	messageCANID |= MessageCANID(nodeID) & 0b1111
+	return messageCANID
 }
 
 // MessagePriority rappresents the priority of a [Message].
@@ -76,9 +76,9 @@ type Message struct {
 
 	sizeByte int
 
-	id         MessageID
+	id         MessageCANID
 	isStaticID bool
-	idGenFn    MessageIDGeneratorFn
+	idGenFn    MessageCANIDGeneratorFn
 	priority   MessagePriority
 
 	cycleTime      int
@@ -453,22 +453,22 @@ func (m *Message) SizeByte() int {
 	return m.sizeByte
 }
 
-// ID returns the message id.
-func (m *Message) ID() MessageID {
+// CANID returns the message CAN id.
+func (m *Message) CANID() MessageCANID {
 	return m.id
 }
 
-// SetIDGeneratorFn sets the message id generator function.
-func (m *Message) SetIDGeneratorFn(idGeneratorFn MessageIDGeneratorFn) {
+// SetCANIDGeneratorFn sets the message CAN id generator function.
+func (m *Message) SetCANIDGeneratorFn(canIDGeneratorFn MessageCANIDGeneratorFn) {
 	m.isStaticID = false
-	m.idGenFn = idGeneratorFn
+	m.idGenFn = canIDGeneratorFn
 }
 
-// SetID sets the message id.
-// When the message id is set in this way, the message id generator function is not used anymore.
-func (m *Message) SetID(messageID MessageID) {
+// SetCANID sets the message CAN id.
+// When the id is set in this way, the id generator function is not used anymore.
+func (m *Message) SetCANID(messageCANID MessageCANID) {
 	m.isStaticID = true
-	m.id = messageID
+	m.id = messageCANID
 }
 
 // SetPriority sets the message priority.

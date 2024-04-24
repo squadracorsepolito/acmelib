@@ -19,8 +19,8 @@ func Test_Message_AppendSignal(t *testing.T) {
 
 	msg := NewMessage("msg_0", 8)
 
-	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, SignalTypeOrderLittleEndian, -128, 127)
-	sigTypInt32, _ := newSignalType("int32", SignalTypeKindInteger, 32, true, SignalTypeOrderLittleEndian, -128, 127)
+	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, -128, 127)
+	sigTypInt32, _ := newSignalType("int32", SignalTypeKindInteger, 32, true, -128, 127)
 
 	sigNames := []string{"sig_0", "sig_1", "sig_2", "sig_3", "sig_4"}
 
@@ -41,7 +41,7 @@ func Test_Message_AppendSignal(t *testing.T) {
 
 	assert.NoError(msg.AppendSignal(sig4))
 
-	sigTypMassive, _ := newSignalType("massive", SignalTypeKindInteger, 128, true, SignalTypeOrderLittleEndian, -128, 127)
+	sigTypMassive, _ := newSignalType("massive", SignalTypeKindInteger, 128, true, -128, 127)
 	massiveSig, _ := NewStandardSignal("massive_sig", sigTypMassive)
 	assert.Error(msg.AppendSignal(massiveSig))
 
@@ -60,8 +60,8 @@ func Test_Message_InsertSignal(t *testing.T) {
 
 	msg := NewMessage("msg_0", 8)
 
-	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, SignalTypeOrderLittleEndian, -128, 127)
-	sigTypInt32, _ := newSignalType("int32", SignalTypeKindInteger, 32, true, SignalTypeOrderLittleEndian, -128, 127)
+	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, -128, 127)
+	sigTypInt32, _ := newSignalType("int32", SignalTypeKindInteger, 32, true, -128, 127)
 
 	sigNames := []string{"sig_0", "sig_1", "sig_2", "sig_3", "sig_4"}
 
@@ -87,7 +87,7 @@ func Test_Message_InsertSignal(t *testing.T) {
 	assert.NoError(msg.InsertSignal(sig3, 8))
 	assert.NoError(msg.InsertSignal(sig4, 32))
 
-	sigTypMassive, _ := newSignalType("massive", SignalTypeKindInteger, 128, true, SignalTypeOrderLittleEndian, -128, 127)
+	sigTypMassive, _ := newSignalType("massive", SignalTypeKindInteger, 128, true, -128, 127)
 	massiveSig, _ := NewStandardSignal("massive_sig", sigTypMassive)
 	assert.Error(msg.InsertSignal(massiveSig, 0))
 
@@ -110,8 +110,8 @@ func Test_Message_RemoveSignal(t *testing.T) {
 
 	msg := NewMessage("msg_0", 8)
 
-	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, SignalTypeOrderLittleEndian, -128, 127)
-	sigTypInt32, _ := newSignalType("int32", SignalTypeKindInteger, 32, true, SignalTypeOrderLittleEndian, -128, 127)
+	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, -128, 127)
+	sigTypInt32, _ := newSignalType("int32", SignalTypeKindInteger, 32, true, -128, 127)
 
 	sigNames := []string{"sig_0", "sig_1", "sig_2", "sig_3", "sig_4"}
 
@@ -145,7 +145,7 @@ func Test_Message_CompactSignals(t *testing.T) {
 
 	msg := NewMessage("msg_0", 8)
 
-	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, SignalTypeOrderLittleEndian, -128, 127)
+	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, -128, 127)
 
 	sig0, _ := NewStandardSignal("sig_0", sigTypInt8)
 	sig1, _ := NewStandardSignal("sig_1", sigTypInt8)
@@ -170,7 +170,7 @@ func Test_Message_ShiftSignalLeft(t *testing.T) {
 
 	msg := NewMessage("message", 2)
 
-	sigTypeInt4, err := newSignalType("int4", SignalTypeKindInteger, 4, true, SignalTypeOrderLittleEndian, -8, 7)
+	sigTypeInt4, err := newSignalType("int4", SignalTypeKindInteger, 4, true, -8, 7)
 	assert.NoError(err)
 
 	sig0, err := NewStandardSignal("signal_0", sigTypeInt4)
@@ -206,7 +206,7 @@ func Test_Message_ShiftSignalRight(t *testing.T) {
 
 	msg := NewMessage("message", 2)
 
-	sigTypeInt4, _ := newSignalType("int4", SignalTypeKindInteger, 4, true, SignalTypeOrderLittleEndian, -8, 7)
+	sigTypeInt4, _ := newSignalType("int4", SignalTypeKindInteger, 4, true, -8, 7)
 
 	sig0, err := NewStandardSignal("signal_0", sigTypeInt4)
 	assert.NoError(err)

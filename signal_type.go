@@ -19,16 +19,6 @@ const (
 	SignalTypeKindFloat SignalTypeKind = "signal_type-float"
 )
 
-// SignalTypeOrder represents the bit order of a [SignalType].
-type SignalTypeOrder string
-
-const (
-	// SignalTypeOrderLittleEndian defines a little endian signal type.
-	SignalTypeOrderLittleEndian SignalTypeOrder = "signal_type_order-little_endian"
-	// SignalTypeOrderBigEndian defines a big endian signal type.
-	SignalTypeOrderBigEndian SignalTypeOrder = "signal_type_order-big_endian"
-)
-
 // SignalType is the representation of a signal type.
 type SignalType struct {
 	*entity
@@ -36,12 +26,11 @@ type SignalType struct {
 	kind   SignalTypeKind
 	size   int
 	signed bool
-	order  SignalTypeOrder
 	min    float64
 	max    float64
 }
 
-func newSignalType(name string, kind SignalTypeKind, size int, signed bool, oredr SignalTypeOrder, min, max float64) (*SignalType, error) {
+func newSignalType(name string, kind SignalTypeKind, size int, signed bool, min, max float64) (*SignalType, error) {
 	if size < 0 {
 		return nil, &ArgumentError{
 			Name: "size",
@@ -62,7 +51,6 @@ func newSignalType(name string, kind SignalTypeKind, size int, signed bool, ored
 		kind:   kind,
 		size:   size,
 		signed: signed,
-		order:  oredr,
 		min:    min,
 		max:    max,
 	}, nil
@@ -71,14 +59,14 @@ func newSignalType(name string, kind SignalTypeKind, size int, signed bool, ored
 // NewCustomSignalType creates a new [SignalType] of kind [SignalTypeKindCustom]
 // with the given name, size, signed, order, and min/max values.
 // It may return an error if the size is negative.
-func NewCustomSignalType(name string, size int, signed bool, order SignalTypeOrder, min, max float64) (*SignalType, error) {
-	return newSignalType(name, SignalTypeKindCustom, size, signed, order, min, max)
+func NewCustomSignalType(name string, size int, signed bool, min, max float64) (*SignalType, error) {
+	return newSignalType(name, SignalTypeKindCustom, size, signed, min, max)
 }
 
 // NewFlagSignalType creates a new [SignalType] of kind [SignalTypeKindFlag]
 // with the given name. The order is set to little endian.
 func NewFlagSignalType(name string) *SignalType {
-	sig, err := newSignalType(name, SignalTypeKindFlag, 1, false, SignalTypeOrderLittleEndian, 0, 1)
+	sig, err := newSignalType(name, SignalTypeKindFlag, 1, false, 0, 1)
 	if err != nil {
 		panic(err)
 	}
@@ -103,7 +91,7 @@ func NewIntegerSignalType(name string, size int, signed bool) (*SignalType, erro
 		max = float64(tmp)
 	}
 
-	return newSignalType(name, SignalTypeKindInteger, size, signed, SignalTypeOrderLittleEndian, min, max)
+	return newSignalType(name, SignalTypeKindInteger, size, signed, min, max)
 }
 
 // NewFloatSignalType creates a new [SignalType] of kind [SignalTypeKindFloat]
@@ -112,7 +100,7 @@ func NewIntegerSignalType(name string, size int, signed bool) (*SignalType, erro
 func NewFloatSignalType(name string, size int) (*SignalType, error) {
 	min := (1<<size - 1) - 1
 	max := -(1<<size - 1)
-	return newSignalType(name, SignalTypeKindFloat, size, true, SignalTypeOrderLittleEndian, float64(min), float64(max))
+	return newSignalType(name, SignalTypeKindFloat, size, true, float64(min), float64(max))
 }
 
 func (st *SignalType) stringify(b *strings.Builder, tabs int) {
@@ -143,11 +131,6 @@ func (st *SignalType) Size() int {
 // Signed returns whether the [SignalType] is signed.
 func (st *SignalType) Signed() bool {
 	return st.signed
-}
-
-// Order returns the [SignalTypeOrder] of the [SignalType].
-func (st *SignalType) Order() SignalTypeOrder {
-	return st.order
 }
 
 // Min returns the minimum value of the [SignalType].

@@ -85,7 +85,7 @@ func panicErr(err error) {
 
 func info01DbgV() *acmelib.Message {
 	msg := acmelib.NewMessage("INFO_01_DbgV", 8)
-	msg.SetID(288)
+	msg.SetCANID(288)
 
 	muxSig, err := acmelib.NewMultiplexerSignal("BMS_eDbgV", 256, 48)
 	panicErr(err)
@@ -116,7 +116,7 @@ func info01DbgV() *acmelib.Message {
 
 func info02DbgT() *acmelib.Message {
 	msg := acmelib.NewMessage("INFO_01_DbgV", 8)
-	msg.SetID(289)
+	msg.SetCANID(289)
 
 	muxSig, err := acmelib.NewMultiplexerSignal("BMS_eDbgT", 128, 48)
 	panicErr(err)
@@ -147,7 +147,7 @@ func info02DbgT() *acmelib.Message {
 
 func hvbTXVCUCmd() *acmelib.Message {
 	msg := acmelib.NewMessage("HVB_TX_VCUCmd", 8)
-	msg.SetID(336)
+	msg.SetCANID(336)
 
 	enum := acmelib.NewSignalEnum("status")
 	err := enum.AddValue(acmelib.NewSignalEnumValue("DISABLED", 0))
@@ -183,7 +183,7 @@ func hvbTXVCUCmd() *acmelib.Message {
 
 func nvbRXDiagnosis() *acmelib.Message {
 	msg := acmelib.NewMessage("HVB_RX_Diagnosis", 8)
-	msg.SetID(512)
+	msg.SetCANID(512)
 
 	sigNames := []string{
 		"HVB_Diag_Flash", "HVB_Diag_eeprom", "HVB_Diag_RAM",
@@ -215,7 +215,7 @@ func nvbRXDiagnosis() *acmelib.Message {
 
 func hvbRXCurLim() *acmelib.Message {
 	msg := acmelib.NewMessage("HVB_RX_CurrentLimits", 8)
-	msg.SetID(514)
+	msg.SetCANID(514)
 
 	chargeCurLim, err := acmelib.NewStandardSignal("HVB_ChargeCurLimits", float16Type)
 	panicErr(err)
@@ -246,7 +246,7 @@ func hvbRXCurLim() *acmelib.Message {
 
 func hvbRXStatus() *acmelib.Message {
 	msg := acmelib.NewMessage("HVB_RX_CurrentLimits", 8)
-	msg.SetID(515)
+	msg.SetCANID(515)
 
 	stSysEnum := acmelib.NewSignalEnum("HVB_stSys_enum")
 	stSysEnum.SetMinSize(8)

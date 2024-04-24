@@ -26,7 +26,7 @@ type Node struct {
 
 	messages     *set[EntityID, *Message]
 	messageNames *set[string, EntityID]
-	messageIDs   *set[MessageID, EntityID]
+	messageIDs   *set[MessageCANID, EntityID]
 
 	id NodeID
 }
@@ -42,7 +42,7 @@ func NewNode(name string, id NodeID) *Node {
 
 		messages:     newSet[EntityID, *Message](),
 		messageNames: newSet[string, EntityID](),
-		messageIDs:   newSet[MessageID, EntityID](),
+		messageIDs:   newSet[MessageCANID, EntityID](),
 
 		id: id,
 	}
@@ -84,7 +84,7 @@ func (n *Node) verifyMessageName(name string) error {
 	return nil
 }
 
-func (n *Node) verifyMessageID(msgID MessageID) error {
+func (n *Node) verifyMessageID(msgID MessageCANID) error {
 	err := n.messageIDs.verifyKeyUnique(msgID)
 	if err != nil {
 		return &MessageIDError{

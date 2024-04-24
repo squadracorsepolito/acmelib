@@ -19,16 +19,16 @@ func Test_Node_AddMessage(t *testing.T) {
 	assert.NoError(node.AddMessage(msg0))
 	assert.NoError(node.AddMessage(msg1))
 	assert.NoError(node.AddMessage(msg2))
-	expectedIDs := []MessageID{0x10, 0x20, 0x30}
+	expectedIDs := []MessageCANID{0x10, 0x20, 0x30}
 	expectedNames := []string{"msg_0", "msg_1", "msg_2"}
 	for idx, tmpMsg := range node.Messages() {
-		assert.Equal(expectedIDs[idx], tmpMsg.ID())
+		assert.Equal(expectedIDs[idx], tmpMsg.CANID())
 		assert.Equal(expectedNames[idx], tmpMsg.Name())
 	}
 
 	// should return an error because id 3 is already taken
 	dupIDMsg := NewMessage("", 1)
-	dupIDMsg.SetID(0x30)
+	dupIDMsg.SetCANID(0x30)
 	assert.Error(node.AddMessage(dupIDMsg))
 
 	// should return an error because name msg_2 is already taken
@@ -46,7 +46,7 @@ func Test_Node_RemoveMessage(t *testing.T) {
 	msg2 := NewMessage("msg_2", 1)
 	msg3 := NewMessage("msg_3", 1)
 
-	msg3.SetID(0x100)
+	msg3.SetCANID(0x100)
 
 	assert.NoError(node.AddMessage(msg0))
 	assert.NoError(node.AddMessage(msg1))
@@ -55,10 +55,10 @@ func Test_Node_RemoveMessage(t *testing.T) {
 
 	// should be able to remove msg1 and to cause the other ids to re-generate with the exeption of msg3
 	assert.NoError(node.RemoveMessage(msg1.EntityID()))
-	expectedIDs := []MessageID{0x10, 0x20, 0x100}
+	expectedIDs := []MessageCANID{0x10, 0x20, 0x100}
 	expectedNames := []string{"msg_0", "msg_2", "msg_3"}
 	for idx, tmpMsg := range node.Messages() {
-		assert.Equal(expectedIDs[idx], tmpMsg.ID())
+		assert.Equal(expectedIDs[idx], tmpMsg.CANID())
 		assert.Equal(expectedNames[idx], tmpMsg.Name())
 	}
 

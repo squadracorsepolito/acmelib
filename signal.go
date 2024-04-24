@@ -19,6 +19,16 @@ const (
 	SignalKindMultiplexer SignalKind = "signal-multiplexer"
 )
 
+// SignalByteOrder represents the byte order of a [Signal].
+type SignalByteOrder string
+
+const (
+	// SignalByteOrderLittleEndian defines a little endian byte order.
+	SignalByteOrderLittleEndian SignalByteOrder = "signal_byte_order-little_endian"
+	// SignalByteOrderBigEndian defines a big endian byte order.
+	SignalByteOrderBigEndian SignalByteOrder = "signal_byte_order-big_endian"
+)
+
 // Signal interface specifies all common methods of
 // [StandardSignal], [EnumSignal], and [MultiplexerSignal1].
 type Signal interface {
@@ -57,6 +67,12 @@ type Signal interface {
 	setParentMsg(parentMsg *Message)
 	setParentMuxSig(parentMuxSig *MultiplexerSignal)
 
+	// SetByteOrder sets the byte order of the signal.
+	// By default it is set to little endian.
+	SetByteOrder(byteOrder SignalByteOrder)
+	// ByteOrder returns the byte order of the signal.
+	ByteOrder() SignalByteOrder
+
 	// GetStartBit returns the start bit of the signal.
 	GetStartBit() int
 	getRelStartBit() int
@@ -80,6 +96,7 @@ type signal struct {
 	parentMuxSig *MultiplexerSignal
 
 	kind        SignalKind
+	byteOrder   SignalByteOrder
 	relStartBit int
 }
 
@@ -91,6 +108,7 @@ func newSignal(name string, kind SignalKind) *signal {
 		parentMuxSig: nil,
 
 		kind:        kind,
+		byteOrder:   SignalByteOrderLittleEndian,
 		relStartBit: 0,
 	}
 }
@@ -165,6 +183,14 @@ func (s *signal) stringify(b *strings.Builder, tabs int) {
 
 	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, s.kind))
 	b.WriteString(fmt.Sprintf("%sstart_bit: %d; ", tabStr, s.relStartBit))
+}
+
+func (s *signal) SetByteOrder(byteOrder SignalByteOrder) {
+	s.byteOrder = byteOrder
+}
+
+func (s *signal) ByteOrder() SignalByteOrder {
+	return s.byteOrder
 }
 
 func (s *signal) GetStartBit() int {
