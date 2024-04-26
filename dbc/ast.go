@@ -1,4 +1,4 @@
-// Package dbc provides a [Parser] and a [Writer] for DBC files.
+// Package dbc provides a [Parser] and a [writer] for DBC files.
 // It is based on the version 1.0.5 of the DBC file format.
 package dbc
 

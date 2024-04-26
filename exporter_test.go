@@ -1,18 +1,21 @@
 package acmelib
 
 import (
+	"io"
+	"log"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_WriteDBC(t *testing.T) {
+const cmpExportBusFilename = "testdata/test_ExportBus.dbc"
+
+func Test_ExportBus(t *testing.T) {
 	assert := assert.New(t)
 
-	net := NewNetwork("testdata_res")
-
 	bus0 := NewBus("bus_0")
-	assert.NoError(net.AddBus(bus0))
 	bus0.SetDesc("bus0 description")
 
 	node0 := NewNode("node_0", 0)
@@ -120,5 +123,22 @@ func Test_WriteDBC(t *testing.T) {
 
 	enumSig0.SetSendType(SignalSendTypeOnChangeWithRepetition)
 
-	// assert.NoError(WriteDBC(net, ""))
+	// exporting the bus
+	fileBuf := &strings.Builder{}
+	ExportBus(fileBuf, bus0)
+
+	log.Print(fileBuf)
+
+	testFile, err := os.Open(cmpExportBusFilename)
+	assert.NoError(err)
+
+	testFileBuf := &strings.Builder{}
+	_, err = io.Copy(testFileBuf, testFile)
+	assert.NoError(err)
+	testFile.Close()
+
+	expectedFileStr := strings.ReplaceAll(testFileBuf.String(), "\n", "")
+	fileStr := strings.ReplaceAll(fileBuf.String(), "\n", "")
+
+	assert.Equal(expectedFileStr, fileStr)
 }

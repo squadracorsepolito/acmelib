@@ -2,8 +2,8 @@ package dbc
 
 import (
 	"fmt"
+	"io"
 	"strconv"
-	"strings"
 )
 
 func writeSlice[T any](slice []T, writeFn func(T), newLineFn func()) {
@@ -15,51 +15,51 @@ func writeSlice[T any](slice []T, writeFn func(T), newLineFn func()) {
 	}
 }
 
-// Writer is a DBC file writer.
-type Writer struct {
-	f *strings.Builder
-}
-
-// NewWriter creates a new DBC [Writer].
-func NewWriter() *Writer {
-	return &Writer{
-		f: &strings.Builder{},
+// Write writes the generated DBC file into the [io.Writer].
+func Write(w io.Writer, ast *File) {
+	dbcWriter := &writer{
+		f: w,
 	}
+	dbcWriter.writeFile(ast)
 }
 
-func (w *Writer) print(format string, a ...any) {
+type writer struct {
+	f io.Writer
+}
+
+func (w *writer) print(format string, a ...any) {
 	fmt.Fprintf(w.f, format, a...)
 }
 
-func (w *Writer) println(format string, a ...any) {
+func (w *writer) println(format string, a ...any) {
 	fmt.Fprintf(w.f, format+"\n", a...)
 }
 
-func (w *Writer) newLine() {
-	w.f.WriteRune('\n')
+func (w *writer) newLine() {
+	fmt.Fprintf(w.f, "\n")
 }
 
-func (w *Writer) formatDouble(val float64) string {
+func (w *writer) formatDouble(val float64) string {
 	return strconv.FormatFloat(val, 'f', -1, 64)
 }
 
-func (w *Writer) formatString(val string) string {
+func (w *writer) formatString(val string) string {
 	return "\"" + val + "\""
 }
 
-func (w *Writer) formatInt(val int) string {
+func (w *writer) formatInt(val int) string {
 	return strconv.FormatInt(int64(val), 10)
 }
 
-func (w *Writer) formatHexInt(val int) string {
+func (w *writer) formatHexInt(val int) string {
 	return "0x" + strconv.FormatInt(int64(val), 16)
 }
 
-func (w *Writer) formatUint(val uint32) string {
+func (w *writer) formatUint(val uint32) string {
 	return strconv.FormatUint(uint64(val), 10)
 }
 
-func (w *Writer) Write(ast *File) string {
+func (w *writer) writeFile(ast *File) {
 	versionStr := "_"
 	if ast.Version != "" {
 		versionStr = ast.Version
@@ -95,16 +95,14 @@ func (w *Writer) Write(ast *File) string {
 	writeSlice(ast.SignalGroups, w.writeSignalGroup, w.newLine)
 	writeSlice(ast.SignalExtValueTypes, w.writeSignalExtValueType, w.newLine)
 	writeSlice(ast.ExtendedMuxes, w.writeExtendedMux, w.newLine)
-
-	return w.f.String()
 }
 
-func (w *Writer) writeVersion(ver string) {
+func (w *writer) writeVersion(ver string) {
 	w.println("%s %s", getKeyword(keywordVersion), w.formatString(ver))
 	w.newLine()
 }
 
-func (w *Writer) writeNewSymbols(ns *NewSymbols) {
+func (w *writer) writeNewSymbols(ns *NewSymbols) {
 	w.println("%s:", getKeyword(keywordNewSymbols))
 	for _, symbol := range ns.Symbols {
 		w.println("\t%s", symbol)
@@ -112,7 +110,7 @@ func (w *Writer) writeNewSymbols(ns *NewSymbols) {
 	w.newLine()
 }
 
-func (w *Writer) writeBitTiming(bitTime *BitTiming) {
+func (w *writer) writeBitTiming(bitTime *BitTiming) {
 	w.print("%s:", getKeyword(keywordBitTiming))
 	defer w.newLine()
 
@@ -128,7 +126,7 @@ func (w *Writer) writeBitTiming(bitTime *BitTiming) {
 	)
 }
 
-func (w *Writer) writeNodes(nodes *Nodes) {
+func (w *writer) writeNodes(nodes *Nodes) {
 	w.print("%s:", getKeyword(keywordNode))
 	for _, node := range nodes.Names {
 		w.print(" %s", node)
@@ -137,11 +135,11 @@ func (w *Writer) writeNodes(nodes *Nodes) {
 	w.newLine()
 }
 
-func (w *Writer) writeValueDescription(valDesc *ValueDescription) {
+func (w *writer) writeValueDescription(valDesc *ValueDescription) {
 	w.print(" %s %s", w.formatUint(valDesc.ID), w.formatString(valDesc.Name))
 }
 
-func (w *Writer) writeValueTable(valTable *ValueTable) {
+func (w *writer) writeValueTable(valTable *ValueTable) {
 	w.print("%s %s", getKeyword(keywordValueTable), valTable.Name)
 	for _, valDesc := range valTable.Values {
 		w.writeValueDescription(valDesc)
@@ -149,7 +147,7 @@ func (w *Writer) writeValueTable(valTable *ValueTable) {
 	w.println(";")
 }
 
-func (w *Writer) writeMessage(msg *Message) {
+func (w *writer) writeMessage(msg *Message) {
 	w.println("%s %s %s : %s %s",
 		getKeyword(keywordMessage),
 		w.formatUint(msg.ID),
@@ -165,7 +163,7 @@ func (w *Writer) writeMessage(msg *Message) {
 	w.newLine()
 }
 
-func (w *Writer) writeSignal(sig *Signal) {
+func (w *writer) writeSignal(sig *Signal) {
 	w.print("\t%s %s", getKeyword(keywordSignal), sig.Name)
 
 	if sig.IsMultiplexed && sig.IsMultiplexor {
@@ -205,7 +203,7 @@ func (w *Writer) writeSignal(sig *Signal) {
 	w.newLine()
 }
 
-func (w *Writer) writeMessageTransmitter(msgTx *MessageTransmitter) {
+func (w *writer) writeMessageTransmitter(msgTx *MessageTransmitter) {
 	w.print("%s %s :", getKeyword(keywordMessageTransmitter), w.formatUint(msgTx.MessageID))
 	for _, tx := range msgTx.Transmitters {
 		w.print(" %s", tx)
@@ -213,7 +211,7 @@ func (w *Writer) writeMessageTransmitter(msgTx *MessageTransmitter) {
 	w.println(";")
 }
 
-func (w *Writer) writeEnvVar(envVar *EnvVar) {
+func (w *writer) writeEnvVar(envVar *EnvVar) {
 	w.print("%s %s : ", getKeyword(keywordEnvVar), envVar.Name)
 
 	switch envVar.Type {
@@ -245,7 +243,7 @@ func (w *Writer) writeEnvVar(envVar *EnvVar) {
 	w.println(";")
 }
 
-func (w *Writer) writeEnvVarData(envVarData *EnvVarData) {
+func (w *writer) writeEnvVarData(envVarData *EnvVarData) {
 	w.println("%s %s : %s ;",
 		getKeyword(keywordEnvVarData),
 		envVarData.EnvVarName,
@@ -253,7 +251,7 @@ func (w *Writer) writeEnvVarData(envVarData *EnvVarData) {
 	)
 }
 
-func (w *Writer) writeSignalType(sigTyp *SignalType) {
+func (w *writer) writeSignalType(sigTyp *SignalType) {
 	w.print("%s %s : %s@", getKeyword(keywordSignalType), sigTyp.TypeName, w.formatUint(sigTyp.Size))
 
 	switch sigTyp.ByteOrder {
@@ -276,7 +274,7 @@ func (w *Writer) writeSignalType(sigTyp *SignalType) {
 	w.newLine()
 }
 
-func (w *Writer) writeComment(com *Comment) {
+func (w *writer) writeComment(com *Comment) {
 	w.print("%s ", getKeyword(keywordComment))
 
 	switch com.Kind {
@@ -293,7 +291,7 @@ func (w *Writer) writeComment(com *Comment) {
 	w.println("%s;", w.formatString(com.Text))
 }
 
-func (w *Writer) writeAttribute(att *Attribute) {
+func (w *writer) writeAttribute(att *Attribute) {
 	w.print("%s ", getKeyword(keywordAttribute))
 
 	switch att.Kind {
@@ -331,7 +329,7 @@ func (w *Writer) writeAttribute(att *Attribute) {
 	w.println(";")
 }
 
-func (w *Writer) writeAttributeDefault(attDef *AttributeDefault) {
+func (w *writer) writeAttributeDefault(attDef *AttributeDefault) {
 	w.print(`%s "%s" `, getKeyword(keywordAttributeDefault), attDef.AttributeName)
 
 	switch attDef.Type {
@@ -348,7 +346,7 @@ func (w *Writer) writeAttributeDefault(attDef *AttributeDefault) {
 	w.println(";")
 }
 
-func (w *Writer) writeAttributeValue(attVal *AttributeValue) {
+func (w *writer) writeAttributeValue(attVal *AttributeValue) {
 	w.print(`%s "%s" `, getKeyword(keywordAttributeValue), attVal.AttributeName)
 
 	switch attVal.AttributeKind {
@@ -376,7 +374,7 @@ func (w *Writer) writeAttributeValue(attVal *AttributeValue) {
 	w.println(";")
 }
 
-func (w *Writer) writeValueEncoding(valEnc *ValueEncoding) {
+func (w *writer) writeValueEncoding(valEnc *ValueEncoding) {
 	w.print("%s ", getKeyword(keywordValueEncoding))
 
 	switch valEnc.Kind {
@@ -392,7 +390,7 @@ func (w *Writer) writeValueEncoding(valEnc *ValueEncoding) {
 	w.println(";")
 }
 
-func (w *Writer) writeSignalTypeRef(sigTypRef *SignalTypeRef) {
+func (w *writer) writeSignalTypeRef(sigTypRef *SignalTypeRef) {
 	w.println("%s %s %s : %s;",
 		getKeyword(keywordSignalType),
 		w.formatUint(sigTypRef.MessageID),
@@ -401,7 +399,7 @@ func (w *Writer) writeSignalTypeRef(sigTypRef *SignalTypeRef) {
 	)
 }
 
-func (w *Writer) writeSignalGroup(sigGroup *SignalGroup) {
+func (w *writer) writeSignalGroup(sigGroup *SignalGroup) {
 	w.print("%s %s %s %s :",
 		getKeyword(keywordSignalGroup),
 		w.formatUint(sigGroup.MessageID),
@@ -415,7 +413,7 @@ func (w *Writer) writeSignalGroup(sigGroup *SignalGroup) {
 	w.println(";")
 }
 
-func (w *Writer) writeSignalExtValueType(sigExtValTyp *SignalExtValueType) {
+func (w *writer) writeSignalExtValueType(sigExtValTyp *SignalExtValueType) {
 	w.print("%s %s %s ",
 		getKeyword(keywordSignalValueType),
 		w.formatUint(sigExtValTyp.MessageID),
@@ -433,7 +431,7 @@ func (w *Writer) writeSignalExtValueType(sigExtValTyp *SignalExtValueType) {
 	w.println(";")
 }
 
-func (w *Writer) writeExtendedMux(extMux *ExtendedMux) {
+func (w *writer) writeExtendedMux(extMux *ExtendedMux) {
 	w.print("%s %s", getKeyword(keywordExtendedMux), w.formatUint(extMux.MessageID))
 	w.print(" %s %s", extMux.MultiplexedName, extMux.MultiplexorName)
 
