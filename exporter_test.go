@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -15,8 +16,11 @@ const cmpExportBusFilename = "testdata/test_ExportBus.dbc"
 func Test_ExportBus(t *testing.T) {
 	assert := assert.New(t)
 
+	net := NewNetwork("net")
+
 	bus0 := NewBus("bus_0")
 	bus0.SetDesc("bus0 description")
+	assert.NoError(net.AddBus(bus0))
 
 	node0 := NewNode("node_0", 0)
 	assert.NoError(bus0.AddNode(node0))
@@ -67,7 +71,7 @@ func Test_ExportBus(t *testing.T) {
 	assert.NoError(err)
 	assert.NoError(muxSig1.InsertSignal(oneGroupSig1, 0, 0))
 
-	nestedMuxSig1, err := NewMultiplexerSignal("nested_mux_sig_1", 2, 8)
+	nestedMuxSig1, err := NewMultiplexerSignal("nested_mux sig_1", 2, 8)
 	assert.NoError(err)
 	assert.NoError(muxSig1.InsertSignal(nestedMuxSig1, 0, 1))
 
@@ -75,7 +79,7 @@ func Test_ExportBus(t *testing.T) {
 	assert.NoError(err)
 	assert.NoError(nestedMuxSig1.InsertSignal(oneGroupSig2, 0, 0))
 
-	multiGroupSig1, err := NewStandardSignal("multi_group_sig_1", size4Type)
+	multiGroupSig1, err := NewStandardSignal("multi_group sig_1", size4Type)
 	assert.NoError(err)
 	assert.NoError(nestedMuxSig1.InsertSignal(multiGroupSig1, 4))
 
@@ -137,7 +141,10 @@ func Test_ExportBus(t *testing.T) {
 	assert.NoError(err)
 	testFile.Close()
 
-	expectedFileStr := strings.ReplaceAll(testFileBuf.String(), "\n", "")
+	// thanks to Windows that puts \r after \n
+	re := regexp.MustCompile(`\r?\n`)
+	expectedFileStr := re.ReplaceAllString(testFileBuf.String(), "")
+
 	fileStr := strings.ReplaceAll(fileBuf.String(), "\n", "")
 
 	assert.Equal(expectedFileStr, fileStr)

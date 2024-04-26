@@ -1,5 +1,7 @@
 package acmelib
 
+import "strings"
+
 const maxSize = 64
 
 func calcSizeFromValue(val int) int {
@@ -14,6 +16,10 @@ func calcSizeFromValue(val int) int {
 	}
 
 	return maxSize
+}
+
+func clearSpaces(str string) string {
+	return strings.ReplaceAll(strings.TrimSpace(str), " ", "_")
 }
 
 type set[K comparable, V any] struct {

@@ -1,9 +1,9 @@
 package acmelib
 
 import (
-	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/FerroO2000/acmelib/dbc"
@@ -13,11 +13,15 @@ import (
 // It will create a directory with the given base path and network name.
 // Into the directory, it will create a DBC file for each [Bus] of the network.
 func ExportNetwork(network *Network, basePath string) error {
-	dirPath := ""
+	netName := clearSpaces(network.name)
+	dirPath := netName
 	if len(basePath) > 0 {
-		dirPath = fmt.Sprintf("%s/%s/", basePath, network.name)
-	} else {
-		dirPath = fmt.Sprintf("%s/", network.name)
+		dirPath = filepath.Join(basePath, netName)
+	}
+
+	err := os.MkdirAll(dirPath, 0666)
+	if err != nil {
+		return err
 	}
 
 	buses := network.Buses()
@@ -25,7 +29,7 @@ func ExportNetwork(network *Network, basePath string) error {
 	wg.Add(len(buses))
 
 	for _, bus := range buses {
-		f, err := os.Create(dirPath + bus.name + dbc.FileExtension)
+		f, err := os.Create(filepath.Join(dirPath, clearSpaces(bus.name)+dbc.FileExtension))
 		if err != nil {
 			return err
 		}
@@ -82,7 +86,7 @@ func (e *exporter) addDBCComment(comment *dbc.Comment) {
 
 func (e *exporter) exportAttributeValue(attVal *AttributeValue, dbcAttKind dbc.AttributeKind, dbcAttVal *dbc.AttributeValue) {
 	att := attVal.attribute
-	attName := att.Name()
+	attName := clearSpaces(att.Name())
 
 	dbcAttVal.AttributeName = attName
 
@@ -170,7 +174,7 @@ func (e *exporter) exportAttributeValue(attVal *AttributeValue, dbcAttKind dbc.A
 }
 
 func (e *exporter) exportAttribute(att Attribute, dbcAtt *dbc.Attribute) {
-	attName := att.Name()
+	attName := clearSpaces(att.Name())
 	dbcAtt.Name = attName
 
 	dbcAttDef := new(dbc.AttributeDefault)
@@ -264,22 +268,24 @@ func (e *exporter) exportNodes(nodes []*Node) {
 	dbcNodes := new(dbc.Nodes)
 
 	for _, node := range nodes {
+		nodeName := clearSpaces(node.name)
+
 		if node.desc != "" {
 			e.addDBCComment(&dbc.Comment{
 				Kind:     dbc.CommentNode,
 				Text:     node.desc,
-				NodeName: node.name,
+				NodeName: nodeName,
 			})
 		}
 
 		for _, attVal := range node.AttributeValues() {
 			dbcAttVal := new(dbc.AttributeValue)
-			dbcAttVal.NodeName = node.name
+			dbcAttVal.NodeName = nodeName
 			e.exportAttributeValue(attVal, dbc.AttributeNode, dbcAttVal)
 			e.dbcFile.AttributeValues = append(e.dbcFile.AttributeValues, dbcAttVal)
 		}
 
-		dbcNodes.Names = append(dbcNodes.Names, node.name)
+		dbcNodes.Names = append(dbcNodes.Names, nodeName)
 
 		for _, msg := range node.Messages() {
 			e.exportMessage(msg)
@@ -322,7 +328,7 @@ func (e *exporter) exportMessage(msg *Message) {
 		e.dbcFile.AttributeValues = append(e.dbcFile.AttributeValues, dbcAttVal)
 	}
 
-	dbcMsg.Name = msg.name
+	dbcMsg.Name = clearSpaces(msg.name)
 	dbcMsg.Size = uint32(msg.sizeByte)
 	dbcMsg.Transmitter = msg.senderNode.name
 
@@ -338,13 +344,14 @@ func (e *exporter) exportMessage(msg *Message) {
 func (e *exporter) exportSignal(sig Signal) {
 	parMsg := sig.ParentMessage()
 	msgID := parMsg.CANID()
+	sigName := clearSpaces(sig.Name())
 
 	if sig.Desc() != "" {
 		e.addDBCComment(&dbc.Comment{
 			Kind:       dbc.CommentSignal,
 			Text:       sig.Desc(),
 			MessageID:  uint32(msgID),
-			SignalName: sig.Name(),
+			SignalName: sigName,
 		})
 	}
 
@@ -355,20 +362,20 @@ func (e *exporter) exportSignal(sig Signal) {
 	for _, attVal := range attValues {
 		dbcAttVal := new(dbc.AttributeValue)
 		dbcAttVal.MessageID = uint32(msgID)
-		dbcAttVal.SignalName = sig.Name()
+		dbcAttVal.SignalName = sigName
 		e.exportAttributeValue(attVal, dbc.AttributeSignal, dbcAttVal)
 		e.dbcFile.AttributeValues = append(e.dbcFile.AttributeValues, dbcAttVal)
 	}
 
 	dbcSig := new(dbc.Signal)
-	dbcSig.Name = sig.Name()
+	dbcSig.Name = sigName
 
 	if len(parMsg.Receivers()) == 0 {
 		dbcSig.Receivers = []string{dbc.DummyNode}
 	} else {
 		receiverNames := []string{}
 		for _, rec := range parMsg.Receivers() {
-			receiverNames = append(receiverNames, rec.name)
+			receiverNames = append(receiverNames, clearSpaces(rec.name))
 		}
 		dbcSig.Receivers = receiverNames
 	}
@@ -456,7 +463,7 @@ func (e *exporter) exportEnumSignal(enumSig *EnumSignal, dbcSig *dbc.Signal) {
 	dbcValEnc := new(dbc.ValueEncoding)
 	dbcValEnc.Kind = dbc.ValueEncodingSignal
 	dbcValEnc.MessageID = uint32(enumSig.parentMsg.id)
-	dbcValEnc.SignalName = enumSig.Name()
+	dbcValEnc.SignalName = clearSpaces(enumSig.Name())
 
 	for _, val := range enumSig.enum.Values() {
 		dbcValEnc.Values = append(dbcValEnc.Values, &dbc.ValueDescription{
@@ -499,7 +506,7 @@ func (e *exporter) exportMultiplexerSignal(muxSig *MultiplexerSignal, dbcSig *db
 	sigGroupIDs := make(map[string][]int)
 	for id, group := range muxSig.GetSignalGroups() {
 		for _, tmpSig := range group {
-			tmpSigName := tmpSig.Name()
+			tmpSigName := clearSpaces(tmpSig.Name())
 			groupIDs, ok := sigGroupIDs[tmpSigName]
 			if !ok {
 				sigGroupIDs[tmpSigName] = []int{id}
@@ -534,7 +541,7 @@ func (e *exporter) exportMultiplexerSignal(muxSig *MultiplexerSignal, dbcSig *db
 
 		dbcExtMux := new(dbc.ExtendedMux)
 		dbcExtMux.MessageID = uint32(muxSig.parentMsg.id)
-		dbcExtMux.MultiplexorName = muxSig.name
+		dbcExtMux.MultiplexorName = clearSpaces(muxSig.name)
 		dbcExtMux.MultiplexedName = tmpSigName
 
 		from := groupIDs[0]
