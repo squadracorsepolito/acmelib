@@ -2,6 +2,8 @@
 // It is based on the version 1.0.5 of the DBC file format.
 package dbc
 
+import "fmt"
+
 // FileExtension is the extension of a DBC file.
 const FileExtension = ".dbc"
 
@@ -13,6 +15,18 @@ type Location struct {
 	Filename string
 	Line     int
 	Col      int
+}
+
+func (l *Location) String() string {
+	return fmt.Sprintf("%s:%d:%d", l.Filename, l.Line, l.Col)
+}
+
+type withLocation struct {
+	loc *Location
+}
+
+func (wl *withLocation) Location() *Location {
+	return wl.loc
 }
 
 // File definition:
@@ -93,7 +107,7 @@ type BitTiming struct {
 //
 // node_name = DBC_identifier ;
 type Nodes struct {
-	Location *Location
+	withLocation
 
 	Names []string
 }
@@ -125,7 +139,7 @@ type ValueTable struct {
 //
 // value_description = unsigned_integer char_string ;
 type ValueDescription struct {
-	Location *Location
+	withLocation
 
 	ID   uint32
 	Name string
@@ -194,7 +208,7 @@ type ValueEncoding struct {
 // If the massage shall have no sender, the string 'Vector__XXX' has to be given
 // here.
 type Message struct {
-	Location *Location
+	withLocation
 
 	ID          uint32
 	Name        string
@@ -297,7 +311,7 @@ const (
 // be defined in the set of node names in the node section. If the signal shall have no
 // receiver, the string 'Vector__XXX' has to be given here.
 type Signal struct {
-	Location *Location
+	withLocation
 
 	Name           string
 	IsMultiplexor  bool

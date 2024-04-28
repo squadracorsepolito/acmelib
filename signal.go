@@ -58,6 +58,8 @@ type Signal interface {
 	EntityID() EntityID
 	// Name returns the name of the signal.
 	Name() string
+	// SetDesc stes the description of the signal.
+	SetDesc(desc string)
 	// Desc returns the description of the signal.
 	Desc() string
 	// CreateTime returns the creation time of the signal.

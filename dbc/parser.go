@@ -396,7 +396,7 @@ func (p *Parser) parseNodes() (*Nodes, error) {
 	p.foundNode = true
 
 	node := new(Nodes)
-	node.Location = p.getLocation()
+	node.withLocation.loc = p.getLocation()
 
 	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
@@ -416,7 +416,7 @@ func (p *Parser) parseNodes() (*Nodes, error) {
 
 func (p *Parser) parseValueDescription() (*ValueDescription, error) {
 	valDesc := new(ValueDescription)
-	valDesc.Location = p.getLocation()
+	valDesc.withLocation.loc = p.getLocation()
 
 	t := p.scan()
 	if !t.isNumber() {
@@ -485,7 +485,7 @@ func (p *Parser) parseMessageID() (uint32, error) {
 
 func (p *Parser) parseMessage() (*Message, error) {
 	msg := new(Message)
-	msg.Location = p.getLocation()
+	msg.withLocation.loc = p.getLocation()
 
 	id, err := p.parseMessageID()
 	if err != nil {
@@ -544,7 +544,7 @@ func (p *Parser) parseSignalName() (string, error) {
 
 func (p *Parser) parseSignal() (*Signal, error) {
 	sig := new(Signal)
-	sig.Location = p.getLocation()
+	sig.withLocation.loc = p.getLocation()
 
 	name, err := p.parseSignalName()
 	if err != nil {

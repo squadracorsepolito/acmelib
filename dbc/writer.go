@@ -28,7 +28,10 @@ type writer struct {
 }
 
 func (w *writer) print(format string, a ...any) {
-	fmt.Fprintf(w.f, format, a...)
+	_, err := fmt.Fprintf(w.f, format, a...)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (w *writer) println(format string, a ...any) {
