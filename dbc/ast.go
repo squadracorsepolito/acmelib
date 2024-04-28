@@ -39,7 +39,7 @@ func (wl *withLocation) Location() *Location {
 // which shall be part of the CAN network. The functional behavior
 // of the ECU is not addressed by the DBC file.
 type File struct {
-	Location *Location
+	withLocation
 
 	Version             string
 	NewSymbols          *NewSymbols
@@ -72,7 +72,7 @@ type File struct {
 // ['BA_DEF_REL_'] ['BA_REL_'] ['BA_DEF_DEF_REL_'] ['BU_SG_REL_']
 // ['BU_EV_REL_'] ['BU_BO_REL_'] [SG_MUL_VAL_'] ];
 type NewSymbols struct {
-	Location *Location
+	withLocation
 
 	Symbols []string
 }
@@ -91,7 +91,7 @@ type NewSymbols struct {
 //
 // BTR2 = unsigned_integer ;
 type BitTiming struct {
-	Location *Location
+	withLocation
 
 	Baudrate      uint32
 	BitTimingReg1 uint32
@@ -125,7 +125,7 @@ type Nodes struct {
 //
 // value_table_name = DBC_identifier ;
 type ValueTable struct {
-	Location *Location
+	withLocation
 
 	Name   string
 	Values []*ValueDescription
@@ -168,7 +168,7 @@ const (
 //
 // value_descriptions_for_env_var = 'VAL_' env_var_name { value_description } ';' ;
 type ValueEncoding struct {
-	Location *Location
+	withLocation
 
 	Kind       ValueEncodingKind
 	MessageID  uint32
@@ -350,7 +350,7 @@ const (
 // signal_extended_value_type = '0' | '1' | '2' | '3' ;
 // (* 0=signed or unsigned integer, 1=32-bit IEEE-float, 2=64-bit IEEE-double *)
 type SignalExtValueType struct {
-	Location *Location
+	withLocation
 
 	MessageID    uint32
 	SignalName   string
@@ -367,7 +367,7 @@ type SignalExtValueType struct {
 //
 // Message_transmitter = 'BO_TX_BU_' message_id ':' {transmitter} ';' ;
 type MessageTransmitter struct {
-	Location *Location
+	withLocation
 
 	MessageID    uint32
 	Transmitters []string
@@ -434,7 +434,7 @@ const (
 //
 // access_node = node_name | 'VECTOR__XXX' ;
 type EnvVar struct {
-	Location *Location
+	withLocation
 
 	Name         string
 	Type         EnvVarType
@@ -459,7 +459,7 @@ type EnvVar struct {
 //
 // data_size = unsigned_integer ;
 type EnvVarData struct {
-	Location *Location
+	withLocation
 
 	EnvVarName string
 	DataSize   uint32
@@ -480,7 +480,7 @@ type EnvVarData struct {
 //
 // value_table = value_table_name ;
 type SignalType struct {
-	Location *Location
+	withLocation
 
 	TypeName       string
 	Size           uint32
@@ -501,7 +501,7 @@ type SignalType struct {
 //
 // signal_type_ref = 'SGTYPE_' message_id signal_name ':' signal_type_name ';' ;
 type SignalTypeRef struct {
-	Location *Location
+	withLocation
 
 	TypeName   string
 	MessageID  uint32
@@ -517,7 +517,7 @@ type SignalTypeRef struct {
 //
 // signal_group_name = DBC_identifier ; repetitions = unsigned_integer ;
 type SignalGroup struct {
-	Location *Location
+	withLocation
 
 	MessageID   uint32
 	GroupName   string
@@ -555,7 +555,7 @@ const (
 // 'EV_' env_var_name char_string)
 // ';' ;
 type Comment struct {
-	Location *Location
+	withLocation
 
 	Kind       CommentKind
 	Text       string
@@ -618,7 +618,7 @@ const (
 // 'STRING' |
 // 'ENUM' [char_string {',' char_string}]
 type Attribute struct {
-	Location *Location
+	withLocation
 
 	Kind       AttributeKind
 	Type       AttributeType
@@ -654,7 +654,7 @@ const (
 //
 // attribute_value = unsigned_integer | signed_integer | double | char_string ;
 type AttributeDefault struct {
-	Location *Location
+	withLocation
 
 	Type          AttributeDefaultType
 	AttributeName string
@@ -689,7 +689,7 @@ const (
 // 'EV_' env_var_name attribute_value)
 // ';' ;
 type AttributeValue struct {
-	Location *Location
+	withLocation
 
 	AttributeKind AttributeKind
 	Type          AttributeValueType
@@ -721,7 +721,7 @@ type AttributeValue struct {
 //
 // message_id = unsigned_integer ; multiplexed_signal_name = DBC_identifier ; multiplexor_switch_name = DBC_identifier ;
 type ExtendedMux struct {
-	Location *Location
+	withLocation
 
 	MessageID       uint32
 	MultiplexorName string
@@ -735,7 +735,7 @@ type ExtendedMux struct {
 //
 // multiplexor_value_range = unsigned_integer '-' unsigned_integer ;
 type ExtendedMuxRange struct {
-	Location *Location
+	withLocation
 
 	From uint32
 	To   uint32

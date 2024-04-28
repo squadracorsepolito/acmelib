@@ -75,7 +75,7 @@ func newDBCAdapter() *dbcAdapter {
 }
 
 func (a *dbcAdapter) adaptFile(dbcFile *dbc.File) (*Bus, error) {
-	bus := NewBus(dbcFile.Location.Filename)
+	bus := NewBus(dbcFile.Location().Filename)
 
 	for _, comment := range dbcFile.Comments {
 		a.mapComment(comment)

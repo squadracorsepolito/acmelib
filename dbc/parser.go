@@ -119,7 +119,7 @@ func (p *Parser) Parse() (*File, error) {
 	ast := new(File)
 
 	t := p.scan()
-	ast.Location = p.getLocation()
+	ast.withLocation.loc = p.getLocation()
 
 	for !t.isEOF() {
 		switch t.kind {
@@ -290,7 +290,7 @@ func (p *Parser) parseNewSymbols() (*NewSymbols, error) {
 	p.foundNewSym = true
 
 	ns := new(NewSymbols)
-	ns.Location = p.getLocation()
+	ns.withLocation.loc = p.getLocation()
 
 	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
@@ -330,7 +330,7 @@ func (p *Parser) parseBitTiming() (*BitTiming, error) {
 	}
 
 	bt := new(BitTiming)
-	bt.Location = p.getLocation()
+	bt.withLocation.loc = p.getLocation()
 
 	if err := p.expectPunct(punctColon); err != nil {
 		return nil, err
@@ -441,7 +441,7 @@ func (p *Parser) parseValueDescription() (*ValueDescription, error) {
 
 func (p *Parser) parseValueTable() (*ValueTable, error) {
 	vt := new(ValueTable)
-	vt.Location = p.getLocation()
+	vt.withLocation.loc = p.getLocation()
 
 	t := p.scan()
 	if !t.isIdent() {
@@ -726,7 +726,7 @@ func (p *Parser) parseSignal() (*Signal, error) {
 
 func (p *Parser) parseMessageTransmitter() (*MessageTransmitter, error) {
 	mt := new(MessageTransmitter)
-	mt.Location = p.getLocation()
+	mt.withLocation.loc = p.getLocation()
 
 	msgID, err := p.parseMessageID()
 	if err != nil {
@@ -765,7 +765,7 @@ func (p *Parser) parseEnvVarName() (string, error) {
 
 func (p *Parser) parseEnvVar() (*EnvVar, error) {
 	envVar := new(EnvVar)
-	envVar.Location = p.getLocation()
+	envVar.withLocation.loc = p.getLocation()
 
 	t := p.scan()
 	if !t.isIdent() {
@@ -892,7 +892,7 @@ func (p *Parser) parseEnvVar() (*EnvVar, error) {
 
 func (p *Parser) parseEnvVarData() (*EnvVarData, error) {
 	evData := new(EnvVarData)
-	evData.Location = p.getLocation()
+	evData.withLocation.loc = p.getLocation()
 
 	evName, err := p.parseEnvVarName()
 	if err != nil {
@@ -923,10 +923,10 @@ func (p *Parser) parseEnvVarData() (*EnvVarData, error) {
 
 func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 	sigType := new(SignalType)
-	sigType.Location = p.getLocation()
+	sigType.withLocation.loc = p.getLocation()
 
 	sigTypeRef := new(SignalTypeRef)
-	sigTypeRef.Location = p.getLocation()
+	sigTypeRef.withLocation.loc = p.getLocation()
 
 	t := p.scan()
 	p.unscan()
@@ -1120,7 +1120,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 
 func (p *Parser) parseComment() (*Comment, error) {
 	com := new(Comment)
-	com.Location = p.getLocation()
+	com.withLocation.loc = p.getLocation()
 
 	t := p.scan()
 	switch t.kind {
@@ -1205,7 +1205,7 @@ func (p *Parser) parseAttributeName() (string, error) {
 
 func (p *Parser) parseAttribute() (*Attribute, error) {
 	att := new(Attribute)
-	att.Location = p.getLocation()
+	att.withLocation.loc = p.getLocation()
 
 	t := p.scan()
 	switch t.kind {
@@ -1346,7 +1346,7 @@ func (p *Parser) parseAttribute() (*Attribute, error) {
 
 func (p *Parser) parseAttributeDefault() (*AttributeDefault, error) {
 	attDef := new(AttributeDefault)
-	attDef.Location = p.getLocation()
+	attDef.withLocation.loc = p.getLocation()
 
 	attName, err := p.parseAttributeName()
 	if err != nil {
@@ -1398,7 +1398,7 @@ func (p *Parser) parseAttributeDefault() (*AttributeDefault, error) {
 
 func (p *Parser) parseAttributeValue() (*AttributeValue, error) {
 	attVal := new(AttributeValue)
-	attVal.Location = p.getLocation()
+	attVal.withLocation.loc = p.getLocation()
 
 	t := p.scan()
 	if !t.isString() {
@@ -1503,7 +1503,7 @@ func (p *Parser) parseAttributeValue() (*AttributeValue, error) {
 
 func (p *Parser) parseValueEncoding() (*ValueEncoding, error) {
 	valEnc := new(ValueEncoding)
-	valEnc.Location = p.getLocation()
+	valEnc.withLocation.loc = p.getLocation()
 
 	t := p.scan()
 	p.unscan()
@@ -1557,7 +1557,7 @@ func (p *Parser) parseValueEncoding() (*ValueEncoding, error) {
 
 func (p *Parser) parseSignalGroup() (*SignalGroup, error) {
 	sigGroup := new(SignalGroup)
-	sigGroup.Location = p.getLocation()
+	sigGroup.withLocation.loc = p.getLocation()
 
 	msgID, err := p.parseMessageID()
 	if err != nil {
@@ -1602,7 +1602,7 @@ func (p *Parser) parseSignalGroup() (*SignalGroup, error) {
 
 func (p *Parser) parseSignalExtValueType() (*SignalExtValueType, error) {
 	valType := new(SignalExtValueType)
-	valType.Location = p.getLocation()
+	valType.withLocation.loc = p.getLocation()
 
 	msgID, err := p.parseMessageID()
 	if err != nil {
@@ -1644,7 +1644,7 @@ func (p *Parser) parseSignalExtValueType() (*SignalExtValueType, error) {
 
 func (p *Parser) parseExtendedMuxRange() (*ExtendedMuxRange, error) {
 	extMuxR := new(ExtendedMuxRange)
-	extMuxR.Location = p.getLocation()
+	extMuxR.withLocation.loc = p.getLocation()
 
 	t := p.scan()
 	if !t.isNumberRange() {
@@ -1667,7 +1667,7 @@ func (p *Parser) parseExtendedMuxRange() (*ExtendedMuxRange, error) {
 
 func (p *Parser) parseExtendedMux() (*ExtendedMux, error) {
 	extMux := new(ExtendedMux)
-	extMux.Location = p.getLocation()
+	extMux.withLocation.loc = p.getLocation()
 
 	msgID, err := p.parseMessageID()
 	if err != nil {

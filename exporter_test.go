@@ -2,7 +2,6 @@ package acmelib
 
 import (
 	"io"
-	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -38,6 +37,7 @@ func Test_ExportBus(t *testing.T) {
 
 	stdSig0, err := NewStandardSignal("std_sig_0", size4Type)
 	assert.NoError(err)
+	stdSig0.SetUnit(NewSignalUnit("deg_celsius", SignalUnitKindTemperature, "degC"))
 	stdSig0.SetByteOrder(SignalByteOrderBigEndian)
 	assert.NoError(msg0.AppendSignal(stdSig0))
 
@@ -130,8 +130,6 @@ func Test_ExportBus(t *testing.T) {
 	// exporting the bus
 	fileBuf := &strings.Builder{}
 	ExportBus(fileBuf, bus0)
-
-	log.Print(fileBuf)
 
 	testFile, err := os.Open(cmpExportBusFilename)
 	assert.NoError(err)

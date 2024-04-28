@@ -18,7 +18,6 @@ type dbcFileLocator interface {
 type importer struct {
 	bus *Bus
 
-	busDesc  string
 	nodeDesc map[string]string
 	msgDesc  map[MessageCANID]string
 	sigDesc  map[string]string
@@ -28,7 +27,8 @@ type importer struct {
 
 func newImporter() *importer {
 	return &importer{
-		busDesc:  "",
+		bus: nil,
+
 		nodeDesc: make(map[string]string),
 		msgDesc:  make(map[MessageCANID]string),
 		sigDesc:  make(map[string]string),
@@ -46,11 +46,10 @@ func (i *importer) getSignalKey(dbcMsgID uint32, sigName string) string {
 }
 
 func (i *importer) importFile(dbcFile *dbc.File) (*Bus, error) {
-	bus := NewBus(dbcFile.Location.Filename)
+	bus := NewBus(dbcFile.Location().Filename)
 	i.bus = bus
 
 	i.importComments(dbcFile.Comments)
-	bus.SetDesc(i.busDesc)
 
 	for _, dbcValEnc := range dbcFile.ValueEncodings {
 		if err := i.importValueEncoding(dbcValEnc); err != nil {
@@ -75,7 +74,7 @@ func (i *importer) importComments(dbcComments []*dbc.Comment) {
 	for _, dbcComm := range dbcComments {
 		switch dbcComm.Kind {
 		case dbc.CommentGeneral:
-			i.busDesc = dbcComm.Text
+			i.bus.SetDesc(dbcComm.Text)
 
 		case dbc.CommentNode:
 			i.nodeDesc[dbcComm.NodeName] = dbcComm.Text
@@ -213,6 +212,14 @@ func (i *importer) importSignal(dbcSig *dbc.Signal, dbcMsgID uint32) (Signal, er
 		stdSig, err := NewStandardSignal(sigName, sigType)
 		if err != nil {
 			return nil, i.errorf(dbcSig, err)
+		}
+
+		if err := stdSig.SetPhysicalValues(dbcSig.Min, dbcSig.Max, dbcSig.Offset, dbcSig.Factor); err != nil {
+			return nil, i.errorf(dbcSig, err)
+		}
+
+		if dbcSig.Unit != "" {
+			stdSig.SetUnit(NewSignalUnit(fmt.Sprintf("%s_Unit", sigName), SignalUnitKindCustom, dbcSig.Unit))
 		}
 
 		sig = stdSig
