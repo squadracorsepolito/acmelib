@@ -293,6 +293,7 @@ func (m *Message) addSignal(sig Signal) {
 
 		for tmpSigID, tmpSig := range muxSig.signals.entries() {
 			m.signals.add(tmpSigID, tmpSig)
+			tmpSig.setParentMsg(m)
 		}
 
 		for tmpName, tmpSigID := range muxSig.signalNames.entries() {
@@ -315,8 +316,9 @@ func (m *Message) removeSignal(sig Signal) {
 			panic(err)
 		}
 
-		for _, tmpSigID := range muxSig.signals.getKeys() {
+		for tmpSigID, tmpSig := range muxSig.signals.entries() {
 			m.signals.remove(tmpSigID)
+			tmpSig.setParentMsg(nil)
 		}
 
 		for _, tmpName := range muxSig.signalNames.getKeys() {

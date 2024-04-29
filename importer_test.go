@@ -18,10 +18,16 @@ func Test_ImportDBCFile(t *testing.T) {
 	dbcFile, err := parser.Parse()
 	assert.NoError(err)
 
-	t.Log(dbcFile)
+	// t.Log(dbcFile)
 
-	// bus, err := ImportDBCFile(dbcFile)
+	bus, err := ImportDBCFile(dbcFile)
+	assert.NoError(err)
+
+	t.Log(bus)
+
+	// resFile, err := os.Create("testdata/res.dbc")
 	// assert.NoError(err)
 
-	// t.Log(bus)
+	// ExportBus(resFile, bus)
+	// resFile.Close()
 }

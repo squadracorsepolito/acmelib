@@ -1,0 +1,58 @@
+VERSION "_"
+
+NS_:
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	VAL_TABLE_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SIG_GROUP_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: node_0 rec_node_0 Vector__XXX
+
+BO_ 16 msg_0 : 8 node_0
+	SG_ std_sig_0 : 3|4@0+ (1,0) [0|15] "degC" Vector__XXX
+	SG_ mux_sig_0 M : 4|2@1+ (1,0) [0|3] "" Vector__XXX
+	SG_ fixed_sig m0 : 6|4@1+ (1,0) [0|15] "" Vector__XXX
+	SG_ multi_group_sig_0 m0 : 10|4@1+ (1,0) [0|15] "" Vector__XXX
+	SG_ one_group_sig_0 m1 : 10|4@1+ (1,0) [0|15] "" Vector__XXX
+
+BO_ 32 msg_1 : 8 node_0
+
+BO_ 48 msg_2 : 8 node_0
+	SG_ enum_sig_0 : 0|4@1+ (1,0) [0|15] "" rec_node_0
+
+
+CM_ "bus0 description";
+CM_ BU_ node_0 "node0 description";
+CM_ BO_ 32 "msg1 description";
+
+VAL_ 48 enum_sig_0 0 "VALUE_0" 1 "VALUE_1" 15 "VALUE_15";
+
+SG_MUL_VAL_ 16 fixed_sig mux_sig_0 0-3;
+SG_MUL_VAL_ 16 multi_group_sig_0 mux_sig_0 0-0, 2-3;
+

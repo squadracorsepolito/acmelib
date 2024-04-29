@@ -18,6 +18,13 @@ func calcSizeFromValue(val int) int {
 	return maxSize
 }
 
+func calcValueFromSize(size int) int {
+	if size <= 0 {
+		return 1
+	}
+	return 1 << size
+}
+
 func clearSpaces(str string) string {
 	return strings.ReplaceAll(strings.TrimSpace(str), " ", "_")
 }

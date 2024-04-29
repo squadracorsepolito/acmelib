@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -530,6 +531,8 @@ func (p *Parser) parseMessage() (*Message, error) {
 		}
 		msg.Signals = append(msg.Signals, sig)
 	}
+
+	slices.SortFunc(msg.Signals, func(a, b *Signal) int { return int(a.StartBit) - int(b.StartBit) })
 
 	return msg, nil
 }
