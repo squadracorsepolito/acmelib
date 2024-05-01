@@ -19,12 +19,16 @@ func writeSlice[T any](slice []T, writeFn func(T), newLineFn func()) {
 func Write(w io.Writer, ast *File) {
 	dbcWriter := &writer{
 		f: w,
+
+		hexNumberEnabled: false,
 	}
 	dbcWriter.writeFile(ast)
 }
 
 type writer struct {
 	f io.Writer
+
+	hexNumberEnabled bool
 }
 
 func (w *writer) print(format string, a ...any) {
@@ -54,7 +58,10 @@ func (w *writer) formatInt(val int) string {
 	return strconv.FormatInt(int64(val), 10)
 }
 
-func (w *writer) formatHexInt(val int) string {
+func (w *writer) formatHexInt(val uint32) string {
+	if !w.hexNumberEnabled {
+		return w.formatUint(val)
+	}
 	return "0x" + strconv.FormatInt(int64(val), 16)
 }
 

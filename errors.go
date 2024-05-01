@@ -32,6 +32,16 @@ var ErrIntersect = errors.New("is intersecting")
 // ErrInvalidType is returned when an invalid type is used.
 var ErrInvalidType = errors.New("invalid type")
 
+// ErrIsRequired is returned when something is required.
+// The Thing field is what is required.
+type ErrIsRequired struct {
+	Thing string
+}
+
+func (e *ErrIsRequired) Error() string {
+	return fmt.Sprintf("%s is required", e.Thing)
+}
+
 // ErrGreaterThen is returned when a value is greater than a target.
 // The Target field is the target.
 type ErrGreaterThen struct {

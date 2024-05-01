@@ -625,8 +625,8 @@ type Attribute struct {
 	Name       string
 	MinInt     int
 	MaxInt     int
-	MinHex     int
-	MaxHex     int
+	MinHex     uint32
+	MaxHex     uint32
 	MinFloat   float64
 	MaxFloat   float64
 	EnumValues []string
@@ -660,7 +660,7 @@ type AttributeDefault struct {
 	AttributeName string
 	ValueString   string
 	ValueInt      int
-	ValueHex      int
+	ValueHex      uint32
 	ValueFloat    float64
 }
 
@@ -700,7 +700,7 @@ type AttributeValue struct {
 	EnvVarName    string
 	ValueString   string
 	ValueInt      int
-	ValueHex      int
+	ValueHex      uint32
 	ValueFloat    float64
 }
 

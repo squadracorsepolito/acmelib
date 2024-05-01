@@ -217,6 +217,11 @@ func (s *signal) stringify(b *strings.Builder, tabs int) {
 	tabStr := getTabString(tabs)
 
 	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, s.kind))
+
+	if s.sendType != SignalSendTypeUnset {
+		b.WriteString(fmt.Sprintf("%ssend_type: %q\n", tabStr, s.sendType))
+	}
+
 	b.WriteString(fmt.Sprintf("%sstart_bit: %d; ", tabStr, s.relStartBit))
 }
 

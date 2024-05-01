@@ -56,8 +56,8 @@ const (
 	MessageSendTypeCyclic MessageSendType = "Cyclic"
 	// MessageSendTypeCyclicIfActive defines a cyclic if active transmission type.
 	MessageSendTypeCyclicIfActive MessageSendType = "CyclicIfActive"
-	// MessageSendTypeCyclicIfTriggered defines a cyclic if triggered transmission type.
-	MessageSendTypeCyclicIfTriggered MessageSendType = "CyclicAndTriggered"
+	// MessageSendTypeCyclicAndTriggered defines a cyclic and triggered transmission type.
+	MessageSendTypeCyclicAndTriggered MessageSendType = "CyclicAndTriggered"
 	// MessageSendTypeCyclicIfActiveAndTriggered defines a cyclic if active and triggered transmission type.
 	MessageSendTypeCyclicIfActiveAndTriggered MessageSendType = "CyclicIfActiveAndTriggered"
 )
@@ -222,6 +222,18 @@ func (m *Message) stringify(b *strings.Builder, tabs int) {
 		b.WriteString(fmt.Sprintf("%scycle_time: %d ms\n", tabStr, m.cycleTime))
 	}
 
+	if m.delayTime != 0 {
+		b.WriteString(fmt.Sprintf("%sdelay_time: %d ms\n", tabStr, m.delayTime))
+	}
+
+	if m.startDelayTime != 0 {
+		b.WriteString(fmt.Sprintf("%sstart_delay_time: %d ms\n", tabStr, m.startDelayTime))
+	}
+
+	if m.sendType != MessageSendTypeUnset {
+		b.WriteString(fmt.Sprintf("%ssend_type: %q\n", tabStr, m.sendType))
+	}
+
 	if m.receivers.size() > 0 {
 		b.WriteString(fmt.Sprintf("%sreceivers:\n", tabStr))
 		for _, rec := range m.Receivers() {
@@ -237,6 +249,82 @@ func (m *Message) stringify(b *strings.Builder, tabs int) {
 	for _, sig := range m.Signals() {
 		sig.stringify(b, tabs+1)
 		b.WriteRune('\n')
+	}
+}
+
+func (m *Message) addSignal(sig Signal) {
+	sigID := sig.EntityID()
+
+	m.signals.add(sigID, sig)
+	m.signalNames.add(sig.Name(), sigID)
+
+	sig.setParentMsg(m)
+
+	if sig.Kind() != SignalKindMultiplexer {
+		return
+	}
+
+	muxSigStack := newStack[Signal]()
+	muxSigStack.push(sig)
+
+	for muxSigStack.size() > 0 {
+		currSig := muxSigStack.pop()
+
+		muxSig, err := currSig.ToMultiplexer()
+		if err != nil {
+			panic(err)
+		}
+
+		for tmpSigID, tmpSig := range muxSig.signals.entries() {
+			if tmpSig.Kind() == SignalKindMultiplexer {
+				muxSigStack.push(tmpSig)
+			}
+
+			m.signals.add(tmpSigID, tmpSig)
+			tmpSig.setParentMsg(m)
+		}
+
+		for tmpName, tmpSigID := range muxSig.signalNames.entries() {
+			m.signalNames.add(tmpName, tmpSigID)
+		}
+	}
+}
+
+func (m *Message) removeSignal(sig Signal) {
+	sigID := sig.EntityID()
+
+	m.signals.remove(sigID)
+	m.signalNames.remove(sig.Name())
+
+	sig.setParentMsg(nil)
+
+	if sig.Kind() != SignalKindMultiplexer {
+		return
+	}
+
+	muxSigStack := newStack[Signal]()
+	muxSigStack.push(sig)
+
+	for muxSigStack.size() > 0 {
+		currSig := muxSigStack.pop()
+
+		muxSig, err := currSig.ToMultiplexer()
+		if err != nil {
+			panic(err)
+		}
+
+		for tmpSigID, tmpSig := range muxSig.signals.entries() {
+			if tmpSig.Kind() == SignalKindMultiplexer {
+				muxSigStack.push(tmpSig)
+			}
+
+			m.signals.remove(tmpSigID)
+			tmpSig.setParentMsg(nil)
+		}
+
+		for _, tmpName := range muxSig.signalNames.getKeys() {
+			m.signalNames.remove(tmpName)
+		}
 	}
 }
 
@@ -275,56 +363,6 @@ func (m *Message) UpdateName(newName string) error {
 // It returns nil if the message is not added to a node.
 func (m *Message) SenderNode() *Node {
 	return m.senderNode
-}
-
-func (m *Message) addSignal(sig Signal) {
-	sigID := sig.EntityID()
-
-	m.signals.add(sigID, sig)
-	m.signalNames.add(sig.Name(), sigID)
-
-	sig.setParentMsg(m)
-
-	if sig.Kind() == SignalKindMultiplexer {
-		muxSig, err := sig.ToMultiplexer()
-		if err != nil {
-			panic(err)
-		}
-
-		for tmpSigID, tmpSig := range muxSig.signals.entries() {
-			m.signals.add(tmpSigID, tmpSig)
-			tmpSig.setParentMsg(m)
-		}
-
-		for tmpName, tmpSigID := range muxSig.signalNames.entries() {
-			m.signalNames.add(tmpName, tmpSigID)
-		}
-	}
-}
-
-func (m *Message) removeSignal(sig Signal) {
-	sigID := sig.EntityID()
-
-	m.signals.remove(sigID)
-	m.signalNames.remove(sig.Name())
-
-	sig.setParentMsg(nil)
-
-	if sig.Kind() == SignalKindMultiplexer {
-		muxSig, err := sig.ToMultiplexer()
-		if err != nil {
-			panic(err)
-		}
-
-		for tmpSigID, tmpSig := range muxSig.signals.entries() {
-			m.signals.remove(tmpSigID)
-			tmpSig.setParentMsg(nil)
-		}
-
-		for _, tmpName := range muxSig.signalNames.getKeys() {
-			m.signalNames.remove(tmpName)
-		}
-	}
 }
 
 // AppendSignal appends a [Signal] to the last position of the [Message] payload.

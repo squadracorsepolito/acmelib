@@ -43,8 +43,10 @@ type scanner struct {
 }
 
 func newScanner(r io.Reader, str string) *scanner {
+	bufR := bufio.NewReader(r)
+
 	return &scanner{
-		r:     bufio.NewReader(r),
+		r:     bufR,
 		input: str,
 
 		pos:   0,
@@ -77,13 +79,24 @@ func (s *scanner) getPosition() (int, int) {
 	col := 1
 	line := 1
 
+	hasTab := false
 	for _, ch := range s.input[:s.pos-len(s.value)] {
 		if ch == '\n' {
+			hasTab = false
 			col = 1
 			line++
 			continue
 		}
+
+		if ch == '\t' {
+			hasTab = true
+		}
+
 		col++
+	}
+
+	if hasTab {
+		col += 5
 	}
 
 	return col, line
@@ -216,6 +229,9 @@ func (s *scanner) scanSpace() *token {
 }
 
 func (s *scanner) peek() rune {
+	if s.pos == len(s.input) {
+		return eof
+	}
 	return rune(s.input[s.pos])
 }
 
@@ -257,6 +273,8 @@ loop:
 	}
 
 	if isRange {
+		// log.Print(s.getPosition())
+		// log.Print(s.value)
 		return s.emitToken(tokenNumberRange)
 	}
 

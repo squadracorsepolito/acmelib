@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"slices"
+	"io"
 	"strconv"
 	"strings"
 )
@@ -22,12 +22,27 @@ type Parser struct {
 	foundNewSym bool
 	foundBitTim bool
 	foundNode   bool
+
+	hexNumberEnabled bool
+}
+
+func Parse(filename string, r io.Reader) (*File, error) {
+	parser, err := NewParser(filename, r)
+	if err != nil {
+		return nil, err
+	}
+	return parser.Parse()
 }
 
 // NewParser creates a new [Parser] for the given file.
-func NewParser(filename string, file []byte) *Parser {
+func NewParser(filename string, r io.Reader) (*Parser, error) {
+	fileBytes, err := io.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Parser{
-		s: newScanner(bytes.NewReader(file), string(file)),
+		s: newScanner(bytes.NewBuffer(fileBytes), string(fileBytes)),
 
 		usePrev: false,
 
@@ -37,7 +52,9 @@ func NewParser(filename string, file []byte) *Parser {
 		foundNewSym: false,
 		foundBitTim: false,
 		foundNode:   false,
-	}
+
+		hexNumberEnabled: false,
+	}, nil
 }
 
 func (p *Parser) parseUint(val string) (uint32, error) {
@@ -48,7 +65,11 @@ func (p *Parser) parseUint(val string) (uint32, error) {
 	return uint32(res), nil
 }
 
-func (p *Parser) parseHexInt(val string) (int, error) {
+func (p *Parser) parseHexInt(val string) (uint32, error) {
+	if !p.hexNumberEnabled {
+		return p.parseUint(val)
+	}
+
 	if !strings.HasPrefix(val, "0x") && !strings.HasPrefix(val, "0X") {
 		return 0, errors.New("invalid hex number")
 	}
@@ -56,7 +77,7 @@ func (p *Parser) parseHexInt(val string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return int(res), nil
+	return uint32(res), nil
 }
 
 func (p *Parser) parseInt(val string) (int, error) {
@@ -531,8 +552,6 @@ func (p *Parser) parseMessage() (*Message, error) {
 		}
 		msg.Signals = append(msg.Signals, sig)
 	}
-
-	slices.SortFunc(msg.Signals, func(a, b *Signal) int { return int(a.StartBit) - int(b.StartBit) })
 
 	return msg, nil
 }

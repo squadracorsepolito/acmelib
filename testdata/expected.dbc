@@ -58,7 +58,7 @@ CM_ SG_ 32 mux_sig_1 "mux1 description";
 
 BA_DEF_ "str_att" STRING;
 BA_DEF_ BU_ "int_att" INT 0 10000;
-BA_DEF_ BO_ "hex_att" HEX 0x0 0x2710;
+BA_DEF_ BO_ "hex_att" HEX 0 10000;
 BA_DEF_ SG_ "enum_att" ENUM "VALUE_0", "VALUE_1", "VALUE_2", "VALUE_3";
 BA_DEF_ SG_ "float_att" FLOAT 0 100.5;
 BA_DEF_ BO_ "GenMsgCycleTime" INT 0 1000;
@@ -69,7 +69,7 @@ BA_DEF_ SG_ "GenSigSendType" ENUM "NoSigSendType", "Cyclic", "OnWrite", "OnWrite
 
 BA_DEF_DEF_ "str_att" "";
 BA_DEF_DEF_ "int_att" 0;
-BA_DEF_DEF_ "hex_att" 0x0;
+BA_DEF_DEF_ "hex_att" 0;
 BA_DEF_DEF_ "enum_att" "VALUE_0";
 BA_DEF_DEF_ "float_att" "";
 BA_DEF_DEF_ "GenMsgCycleTime" 0;
@@ -80,7 +80,7 @@ BA_DEF_DEF_ "GenSigSendType" "NoSigSendType";
 
 BA_ "str_att" "bus0_value";
 BA_ "int_att" BU_ node_0 1;
-BA_ "hex_att" BO_ 16 0x1;
+BA_ "hex_att" BO_ 16 1;
 BA_ "enum_att" SG_ 16 std_sig_0 1;
 BA_ "float_att" SG_ 16 mux_sig_0 50.75;
 BA_ "GenMsgCycleTime" BO_ 48 10;

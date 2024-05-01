@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const cmpExportBusFilename = "testdata/test_ExportBus.dbc"
+const expectedDBCFilename = "testdata/expected.dbc"
 
 func Test_ExportBus(t *testing.T) {
 	assert := assert.New(t)
@@ -131,7 +131,7 @@ func Test_ExportBus(t *testing.T) {
 	fileBuf := &strings.Builder{}
 	ExportBus(fileBuf, bus0)
 
-	testFile, err := os.Open(cmpExportBusFilename)
+	testFile, err := os.Open(expectedDBCFilename)
 	assert.NoError(err)
 
 	testFileBuf := &strings.Builder{}

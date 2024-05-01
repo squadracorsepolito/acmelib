@@ -114,3 +114,28 @@ func getTabString(tabs int) string {
 	}
 	return tabStr
 }
+
+type stack[T any] struct {
+	items []T
+}
+
+func newStack[T any]() *stack[T] {
+	return &stack[T]{
+		items: []T{},
+	}
+}
+
+func (s *stack[T]) push(item T) {
+	s.items = append(s.items, item)
+}
+
+func (s *stack[T]) pop() T {
+	lastIdx := s.size() - 1
+	item := s.items[lastIdx]
+	s.items = s.items[:lastIdx]
+	return item
+}
+
+func (s *stack[T]) size() int {
+	return len(s.items)
+}

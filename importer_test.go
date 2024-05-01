@@ -1,33 +1,42 @@
 package acmelib
 
 import (
+	"io"
 	"os"
+	"regexp"
+	"strings"
 	"testing"
 
-	"github.com/FerroO2000/acmelib/dbc"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_ImportDBCFile(t *testing.T) {
 	assert := assert.New(t)
 
-	file, err := os.ReadFile(cmpExportBusFilename)
+	inputFile, err := os.Open(expectedDBCFilename)
 	assert.NoError(err)
 
-	parser := dbc.NewParser("test_ExportBus", file)
-	dbcFile, err := parser.Parse()
+	bus, err := ImportDBCFile(expectedDBCFilename, inputFile)
+	assert.NoError(err)
+	inputFile.Close()
+
+	// exporting the bus
+	fileBuf := &strings.Builder{}
+	ExportBus(fileBuf, bus)
+
+	testFile, err := os.Open(expectedDBCFilename)
 	assert.NoError(err)
 
-	// t.Log(dbcFile)
-
-	bus, err := ImportDBCFile(dbcFile)
+	testFileBuf := &strings.Builder{}
+	_, err = io.Copy(testFileBuf, testFile)
 	assert.NoError(err)
+	testFile.Close()
 
-	t.Log(bus)
+	// thanks to Windows that puts \r after \n
+	re := regexp.MustCompile(`\r?\n`)
+	expectedFileStr := re.ReplaceAllString(testFileBuf.String(), "")
 
-	// resFile, err := os.Create("testdata/res.dbc")
-	// assert.NoError(err)
+	fileStr := strings.ReplaceAll(fileBuf.String(), "\n", "")
 
-	// ExportBus(resFile, bus)
-	// resFile.Close()
+	assert.Equal(expectedFileStr, fileStr)
 }

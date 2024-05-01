@@ -143,7 +143,7 @@ func (e *exporter) exportAttributeValue(attVal *AttributeValue, dbcAttKind dbc.A
 		}
 		if intAtt.isHexFormat {
 			dbcAttVal.Type = dbc.AttributeValueHex
-			dbcAttVal.ValueHex = attVal.value.(int)
+			dbcAttVal.ValueHex = uint32(attVal.value.(int))
 		} else {
 
 			dbcAttVal.Type = dbc.AttributeValueInt
@@ -199,11 +199,11 @@ func (e *exporter) exportAttribute(att Attribute, dbcAtt *dbc.Attribute) {
 
 		if intAtt.isHexFormat {
 			dbcAtt.Type = dbc.AttributeHex
-			dbcAtt.MinHex = intAtt.min
-			dbcAtt.MaxHex = intAtt.max
+			dbcAtt.MinHex = uint32(intAtt.min)
+			dbcAtt.MaxHex = uint32(intAtt.max)
 
 			dbcAttDef.Type = dbc.AttributeDefaultHex
-			dbcAttDef.ValueHex = intAtt.defValue
+			dbcAttDef.ValueHex = uint32(intAtt.defValue)
 		} else {
 			dbcAtt.Type = dbc.AttributeInt
 			dbcAtt.MinInt = intAtt.min
