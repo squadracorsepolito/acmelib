@@ -8,6 +8,8 @@ import (
 	"unicode"
 )
 
+const maxErrorValueLength = 20
+
 const eof = rune(0)
 
 func isEOF(ch rune) bool {
@@ -35,22 +37,38 @@ func isAlphaNumeric(ch rune) bool {
 }
 
 type scanner struct {
-	r     *bufio.Reader
-	input string
+	r *bufio.Reader
 
-	pos   int
-	value string
+	value     string
+	peekBytes int
+
+	lastReadCh rune
+
+	beginToken bool
+
+	currLine  int
+	startLine int
+
+	currCol  int
+	startCol int
 }
 
-func newScanner(r io.Reader, str string) *scanner {
+func newScanner(r io.Reader) *scanner {
 	bufR := bufio.NewReader(r)
 
 	return &scanner{
-		r:     bufR,
-		input: str,
+		r: bufR,
 
-		pos:   0,
-		value: "",
+		value:     "",
+		peekBytes: 1,
+
+		beginToken: true,
+
+		currLine:  1,
+		startLine: 1,
+
+		currCol:  0,
+		startCol: 0,
 	}
 }
 
@@ -60,46 +78,38 @@ func (s *scanner) read() rune {
 		return eof
 	}
 
-	s.pos++
-
 	s.value += string(ch)
+	s.peekBytes = 1
+
+	s.lastReadCh = ch
+
+	if ch != '\t' {
+		s.currCol++
+	}
+
+	if ch == '\n' {
+		s.currLine++
+		s.currCol = 0
+	}
+
+	if s.beginToken {
+		s.startLine = s.currLine
+		s.startCol = s.currCol
+		s.beginToken = false
+	}
 
 	return ch
 }
 
-func (s *scanner) unread() {
-	_ = s.r.UnreadRune()
-
-	s.pos--
-
-	s.value = s.value[:len(s.value)-1]
-}
-
-func (s *scanner) getPosition() (int, int) {
-	col := 1
-	line := 1
-
-	hasTab := false
-	for _, ch := range s.input[:s.pos-len(s.value)] {
-		if ch == '\n' {
-			hasTab = false
-			col = 1
-			line++
-			continue
-		}
-
-		if ch == '\t' {
-			hasTab = true
-		}
-
-		col++
+func (s *scanner) peek() rune {
+	b, err := s.r.Peek(s.peekBytes)
+	if err != nil {
+		return eof
 	}
 
-	if hasTab {
-		col += 5
-	}
+	s.peekBytes++
 
-	return col, line
+	return rune(b[s.peekBytes-2])
 }
 
 func (s *scanner) emitToken(kind tokenKind) *token {
@@ -108,22 +118,22 @@ func (s *scanner) emitToken(kind tokenKind) *token {
 		val = s.value[1 : len(s.value)-1]
 	}
 
-	col, line := s.getPosition()
-
 	t := &token{
-		kind:     kind,
-		kindName: tokenNames[kind],
-		value:    val,
-		col:      col,
-		line:     line,
+		kind:      kind,
+		kindName:  tokenNames[kind],
+		value:     val,
+		startLine: s.startLine,
+		startCol:  s.startCol,
+		endLine:   s.currLine + 1,
+		endCol:    s.currCol + 1,
 	}
 
 	s.value = ""
 
+	s.beginToken = true
+
 	return t
 }
-
-const maxErrorValueLength = 20
 
 func (s *scanner) emitErrorToken(msg string) *token {
 	val := ""
@@ -133,17 +143,19 @@ func (s *scanner) emitErrorToken(msg string) *token {
 		val = fmt.Sprintf("%s : %s", msg, s.value)
 	}
 
-	col, line := s.getPosition()
-
 	t := &token{
-		kind:     tokenError,
-		kindName: tokenNames[tokenError],
-		value:    val,
-		col:      col,
-		line:     line,
+		kind:      tokenError,
+		kindName:  tokenNames[tokenError],
+		value:     val,
+		startLine: s.startLine,
+		startCol:  s.startCol,
+		endLine:   s.currLine + 1,
+		endCol:    s.currCol + 1,
 	}
 
 	s.value = ""
+
+	s.beginToken = true
 
 	return t
 }
@@ -157,11 +169,9 @@ func (s *scanner) scan() *token {
 		return s.scanSpace()
 
 	case isLetter(ch):
-		s.unread()
 		return s.scanText()
 
 	case isNumber(ch) || ch == '-' || ch == '+':
-		s.unread()
 		return s.scanNumber()
 
 	case ch == '"':
@@ -175,7 +185,7 @@ func (s *scanner) scan() *token {
 }
 
 func (s *scanner) scanText() *token {
-	firstCh := s.read()
+	firstCh := s.lastReadCh
 
 	buf := new(strings.Builder)
 	buf.WriteRune(firstCh)
@@ -188,7 +198,7 @@ func (s *scanner) scanText() *token {
 
 loop:
 	for {
-		switch ch := s.read(); {
+		switch ch := s.peek(); {
 		case isEOF(ch):
 			break loop
 
@@ -201,9 +211,9 @@ loop:
 				}
 			}
 			buf.WriteRune(ch)
+			s.read()
 
 		default:
-			s.unread()
 			break loop
 		}
 	}
@@ -220,29 +230,22 @@ loop:
 }
 
 func (s *scanner) scanSpace() *token {
-	ch := s.read()
+	ch := s.peek()
 	for isSpace(ch) {
-		ch = s.read()
+		s.read()
+		ch = s.peek()
 	}
-	s.unread()
 	return s.emitToken(tokenSpace)
 }
 
-func (s *scanner) peek() rune {
-	if s.pos == len(s.input) {
-		return eof
-	}
-	return rune(s.input[s.pos])
-}
-
 func (s *scanner) scanNumber() *token {
-	firstCh := s.read()
+	firstCh := s.lastReadCh
 	hasMore := false
 	isRange := false
 
 loop:
 	for {
-		switch ch := s.read(); {
+		switch ch := s.peek(); {
 		case isEOF(ch):
 			break loop
 
@@ -254,15 +257,17 @@ loop:
 				nextCh := s.peek()
 				if isNumber(nextCh) {
 					s.read()
+					s.read()
 					isRange = true
 					continue loop
 				}
 			}
-			s.unread()
+
 			break loop
 
 		default:
 			hasMore = true
+			s.read()
 		}
 	}
 
@@ -273,8 +278,6 @@ loop:
 	}
 
 	if isRange {
-		// log.Print(s.getPosition())
-		// log.Print(s.value)
 		return s.emitToken(tokenNumberRange)
 	}
 
@@ -282,17 +285,22 @@ loop:
 }
 
 func (s *scanner) scanHexNumber() *token {
-	if !isHexNumber(s.read()) {
+	ch := s.peek()
+	if !isHexNumber(ch) {
 		return s.emitErrorToken("invalid hex number")
 	}
 
+	s.read()
+	s.read()
+
 	for i := 0; i < 8; i++ {
-		ch := s.read()
+		ch = s.peek()
 
 		if !isHexNumber(ch) {
-			s.unread()
 			break
 		}
+
+		s.read()
 	}
 
 	return s.emitToken(tokenNumber)

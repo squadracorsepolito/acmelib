@@ -53,7 +53,7 @@ func exportBusAsync(w io.Writer, bus *Bus, wg *sync.WaitGroup) {
 func ExportBus(w io.Writer, bus *Bus) {
 	exp := newExporter()
 	dbcFile := exp.exportBus(bus)
-	dbc.Write(w, dbcFile)
+	dbc.Write(w, dbcFile, false)
 }
 
 type exporter struct {

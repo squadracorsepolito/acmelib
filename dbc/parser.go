@@ -1,7 +1,6 @@
 package dbc
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -9,8 +8,19 @@ import (
 	"strings"
 )
 
-// Parser is a parser for DBC files.
-type Parser struct {
+// Parse parses the given [io.Reader] and returns the generated DBC [File]
+// AST from the reader.
+// if hex numbers are enabled, the parser will expect the values of hex attributes
+// as hex formatted numbers.
+//
+// NOTE: common editors like canDB++ will not write values of hex attributes as
+// hex formatted numbers.
+func Parse(filename string, r io.Reader, hexNumbersEnabled bool) (*File, error) {
+	parser := newParser(filename, r, hexNumbersEnabled)
+	return parser.parse()
+}
+
+type parser struct {
 	s *scanner
 
 	usePrev   bool
@@ -23,26 +33,12 @@ type Parser struct {
 	foundBitTim bool
 	foundNode   bool
 
-	hexNumberEnabled bool
+	hexNumbersEnabled bool
 }
 
-func Parse(filename string, r io.Reader) (*File, error) {
-	parser, err := NewParser(filename, r)
-	if err != nil {
-		return nil, err
-	}
-	return parser.Parse()
-}
-
-// NewParser creates a new [Parser] for the given file.
-func NewParser(filename string, r io.Reader) (*Parser, error) {
-	fileBytes, err := io.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Parser{
-		s: newScanner(bytes.NewBuffer(fileBytes), string(fileBytes)),
+func newParser(filename string, r io.Reader, hexNumbersEnabled bool) *parser {
+	return &parser{
+		s: newScanner(r),
 
 		usePrev: false,
 
@@ -53,11 +49,11 @@ func NewParser(filename string, r io.Reader) (*Parser, error) {
 		foundBitTim: false,
 		foundNode:   false,
 
-		hexNumberEnabled: false,
-	}, nil
+		hexNumbersEnabled: hexNumbersEnabled,
+	}
 }
 
-func (p *Parser) parseUint(val string) (uint32, error) {
+func (p *parser) parseUint(val string) (uint32, error) {
 	res, err := strconv.ParseUint(val, 10, 32)
 	if err != nil {
 		return 0, err
@@ -65,8 +61,8 @@ func (p *Parser) parseUint(val string) (uint32, error) {
 	return uint32(res), nil
 }
 
-func (p *Parser) parseHexInt(val string) (uint32, error) {
-	if !p.hexNumberEnabled {
+func (p *parser) parseHexInt(val string) (uint32, error) {
+	if !p.hexNumbersEnabled {
 		return p.parseUint(val)
 	}
 
@@ -80,7 +76,7 @@ func (p *Parser) parseHexInt(val string) (uint32, error) {
 	return uint32(res), nil
 }
 
-func (p *Parser) parseInt(val string) (int, error) {
+func (p *parser) parseInt(val string) (int, error) {
 	res, err := strconv.ParseInt(val, 10, 64)
 	if err != nil {
 		return 0, err
@@ -88,11 +84,11 @@ func (p *Parser) parseInt(val string) (int, error) {
 	return int(res), nil
 }
 
-func (p *Parser) parseDouble(val string) (float64, error) {
+func (p *parser) parseDouble(val string) (float64, error) {
 	return strconv.ParseFloat(val, 64)
 }
 
-func (p *Parser) scan() *token {
+func (p *parser) scan() *token {
 	if p.usePrev {
 		p.usePrev = false
 		return p.currToken
@@ -107,37 +103,35 @@ func (p *Parser) scan() *token {
 	return token
 }
 
-func (p *Parser) unscan() {
+func (p *parser) unscan() {
 	p.usePrev = true
 }
 
-func (p *Parser) getLocation() *Location {
+func (p *parser) getLocation() *Location {
 	return &Location{
 		Filename: p.filename,
-		Line:     p.currToken.line,
-		Col:      p.currToken.col,
+		Line:     p.currToken.startLine,
+		Col:      p.currToken.startCol,
 	}
 }
 
-func (p *Parser) errorf(format string, args ...any) error {
+func (p *parser) errorf(format string, args ...any) error {
 	msg := fmt.Sprintf(format, args...)
 	val := p.currToken.value
 	if !p.currToken.isError() {
 		val = `"` + val + `"`
 	}
-	return fmt.Errorf(`syntax error at %s:%d:%d; %s: %s`, p.filename, p.currToken.line, p.currToken.col, msg, val)
+	return fmt.Errorf(`syntax error at %s:%d:%d; %s: %s`, p.filename, p.currToken.startLine, p.currToken.startCol, msg, val)
 }
 
-func (p *Parser) expectPunct(kind punctKind) error {
+func (p *parser) expectPunct(kind punctKind) error {
 	if !p.scan().isPunct(kind) {
 		return p.errorf(fmt.Sprintf(`expected "%q"`, getPunctRune(kind)))
 	}
 	return nil
 }
 
-// Parse parses the BDC file and returns a [File].
-// It may return an error if it fails to parse the file.
-func (p *Parser) Parse() (*File, error) {
+func (p *parser) parse() (*File, error) {
 	ast := new(File)
 
 	t := p.scan()
@@ -292,7 +286,7 @@ func (p *Parser) Parse() (*File, error) {
 	return ast, nil
 }
 
-func (p *Parser) parseVersion() (string, error) {
+func (p *parser) parseVersion() (string, error) {
 	if p.foundVer {
 		return "", p.errorf("duplicated version")
 	}
@@ -305,7 +299,7 @@ func (p *Parser) parseVersion() (string, error) {
 	return t.value, nil
 }
 
-func (p *Parser) parseNewSymbols() (*NewSymbols, error) {
+func (p *parser) parseNewSymbols() (*NewSymbols, error) {
 	if p.foundNewSym {
 		return nil, p.errorf("duplicated new symbols")
 	}
@@ -346,7 +340,7 @@ func (p *Parser) parseNewSymbols() (*NewSymbols, error) {
 	return ns, nil
 }
 
-func (p *Parser) parseBitTiming() (*BitTiming, error) {
+func (p *parser) parseBitTiming() (*BitTiming, error) {
 	if p.foundBitTim {
 		return nil, p.errorf("duplicated bit timing")
 	}
@@ -403,7 +397,7 @@ func (p *Parser) parseBitTiming() (*BitTiming, error) {
 	return bt, nil
 }
 
-func (p *Parser) parseNodeName() (string, error) {
+func (p *parser) parseNodeName() (string, error) {
 	t := p.scan()
 	if !t.isIdent() {
 		return "", p.errorf("expected node name")
@@ -411,7 +405,7 @@ func (p *Parser) parseNodeName() (string, error) {
 	return t.value, nil
 }
 
-func (p *Parser) parseNodes() (*Nodes, error) {
+func (p *parser) parseNodes() (*Nodes, error) {
 	if p.foundNode {
 		return nil, p.errorf("duplicated node definition")
 	}
@@ -436,7 +430,7 @@ func (p *Parser) parseNodes() (*Nodes, error) {
 	return node, nil
 }
 
-func (p *Parser) parseValueDescription() (*ValueDescription, error) {
+func (p *parser) parseValueDescription() (*ValueDescription, error) {
 	valDesc := new(ValueDescription)
 	valDesc.withLocation.loc = p.getLocation()
 
@@ -461,7 +455,7 @@ func (p *Parser) parseValueDescription() (*ValueDescription, error) {
 	return valDesc, nil
 }
 
-func (p *Parser) parseValueTable() (*ValueTable, error) {
+func (p *parser) parseValueTable() (*ValueTable, error) {
 	vt := new(ValueTable)
 	vt.withLocation.loc = p.getLocation()
 
@@ -493,7 +487,7 @@ func (p *Parser) parseValueTable() (*ValueTable, error) {
 	return vt, nil
 }
 
-func (p *Parser) parseMessageID() (uint32, error) {
+func (p *parser) parseMessageID() (uint32, error) {
 	t := p.scan()
 	if !t.isNumber() {
 		return 0, p.errorf("expected message id")
@@ -505,7 +499,7 @@ func (p *Parser) parseMessageID() (uint32, error) {
 	return id, nil
 }
 
-func (p *Parser) parseMessage() (*Message, error) {
+func (p *parser) parseMessage() (*Message, error) {
 	msg := new(Message)
 	msg.withLocation.loc = p.getLocation()
 
@@ -556,7 +550,7 @@ func (p *Parser) parseMessage() (*Message, error) {
 	return msg, nil
 }
 
-func (p *Parser) parseSignalName() (string, error) {
+func (p *parser) parseSignalName() (string, error) {
 	t := p.scan()
 	if !t.isIdent() {
 		return "", p.errorf("expected signal name")
@@ -564,7 +558,7 @@ func (p *Parser) parseSignalName() (string, error) {
 	return t.value, nil
 }
 
-func (p *Parser) parseSignal() (*Signal, error) {
+func (p *parser) parseSignal() (*Signal, error) {
 	sig := new(Signal)
 	sig.withLocation.loc = p.getLocation()
 
@@ -746,7 +740,7 @@ func (p *Parser) parseSignal() (*Signal, error) {
 	return sig, nil
 }
 
-func (p *Parser) parseMessageTransmitter() (*MessageTransmitter, error) {
+func (p *parser) parseMessageTransmitter() (*MessageTransmitter, error) {
 	mt := new(MessageTransmitter)
 	mt.withLocation.loc = p.getLocation()
 
@@ -777,7 +771,7 @@ func (p *Parser) parseMessageTransmitter() (*MessageTransmitter, error) {
 	return mt, nil
 }
 
-func (p *Parser) parseEnvVarName() (string, error) {
+func (p *parser) parseEnvVarName() (string, error) {
 	t := p.scan()
 	if !t.isIdent() {
 		return "", p.errorf("expected envvar name")
@@ -785,7 +779,7 @@ func (p *Parser) parseEnvVarName() (string, error) {
 	return t.value, nil
 }
 
-func (p *Parser) parseEnvVar() (*EnvVar, error) {
+func (p *parser) parseEnvVar() (*EnvVar, error) {
 	envVar := new(EnvVar)
 	envVar.withLocation.loc = p.getLocation()
 
@@ -912,7 +906,7 @@ func (p *Parser) parseEnvVar() (*EnvVar, error) {
 	return envVar, nil
 }
 
-func (p *Parser) parseEnvVarData() (*EnvVarData, error) {
+func (p *parser) parseEnvVarData() (*EnvVarData, error) {
 	evData := new(EnvVarData)
 	evData.withLocation.loc = p.getLocation()
 
@@ -943,7 +937,7 @@ func (p *Parser) parseEnvVarData() (*EnvVarData, error) {
 	return evData, nil
 }
 
-func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
+func (p *parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 	sigType := new(SignalType)
 	sigType.withLocation.loc = p.getLocation()
 
@@ -1140,7 +1134,7 @@ func (p *Parser) parseSignalType() (*SignalType, *SignalTypeRef, error) {
 	return sigType, nil, nil
 }
 
-func (p *Parser) parseComment() (*Comment, error) {
+func (p *parser) parseComment() (*Comment, error) {
 	com := new(Comment)
 	com.withLocation.loc = p.getLocation()
 
@@ -1211,7 +1205,7 @@ func (p *Parser) parseComment() (*Comment, error) {
 	return com, nil
 }
 
-func (p *Parser) parseAttributeName() (string, error) {
+func (p *parser) parseAttributeName() (string, error) {
 	t := p.scan()
 	if !t.isString() {
 		return "", p.errorf("expected attribute name")
@@ -1225,7 +1219,7 @@ func (p *Parser) parseAttributeName() (string, error) {
 	return t.value, nil
 }
 
-func (p *Parser) parseAttribute() (*Attribute, error) {
+func (p *parser) parseAttribute() (*Attribute, error) {
 	att := new(Attribute)
 	att.withLocation.loc = p.getLocation()
 
@@ -1366,7 +1360,7 @@ func (p *Parser) parseAttribute() (*Attribute, error) {
 	return att, nil
 }
 
-func (p *Parser) parseAttributeDefault() (*AttributeDefault, error) {
+func (p *parser) parseAttributeDefault() (*AttributeDefault, error) {
 	attDef := new(AttributeDefault)
 	attDef.withLocation.loc = p.getLocation()
 
@@ -1418,7 +1412,7 @@ func (p *Parser) parseAttributeDefault() (*AttributeDefault, error) {
 	return attDef, nil
 }
 
-func (p *Parser) parseAttributeValue() (*AttributeValue, error) {
+func (p *parser) parseAttributeValue() (*AttributeValue, error) {
 	attVal := new(AttributeValue)
 	attVal.withLocation.loc = p.getLocation()
 
@@ -1523,7 +1517,7 @@ func (p *Parser) parseAttributeValue() (*AttributeValue, error) {
 	return attVal, nil
 }
 
-func (p *Parser) parseValueEncoding() (*ValueEncoding, error) {
+func (p *parser) parseValueEncoding() (*ValueEncoding, error) {
 	valEnc := new(ValueEncoding)
 	valEnc.withLocation.loc = p.getLocation()
 
@@ -1577,7 +1571,7 @@ func (p *Parser) parseValueEncoding() (*ValueEncoding, error) {
 	return valEnc, nil
 }
 
-func (p *Parser) parseSignalGroup() (*SignalGroup, error) {
+func (p *parser) parseSignalGroup() (*SignalGroup, error) {
 	sigGroup := new(SignalGroup)
 	sigGroup.withLocation.loc = p.getLocation()
 
@@ -1622,7 +1616,7 @@ func (p *Parser) parseSignalGroup() (*SignalGroup, error) {
 	return sigGroup, nil
 }
 
-func (p *Parser) parseSignalExtValueType() (*SignalExtValueType, error) {
+func (p *parser) parseSignalExtValueType() (*SignalExtValueType, error) {
 	valType := new(SignalExtValueType)
 	valType.withLocation.loc = p.getLocation()
 
@@ -1664,7 +1658,7 @@ func (p *Parser) parseSignalExtValueType() (*SignalExtValueType, error) {
 	return valType, nil
 }
 
-func (p *Parser) parseExtendedMuxRange() (*ExtendedMuxRange, error) {
+func (p *parser) parseExtendedMuxRange() (*ExtendedMuxRange, error) {
 	extMuxR := new(ExtendedMuxRange)
 	extMuxR.withLocation.loc = p.getLocation()
 
@@ -1687,7 +1681,7 @@ func (p *Parser) parseExtendedMuxRange() (*ExtendedMuxRange, error) {
 	return extMuxR, nil
 }
 
-func (p *Parser) parseExtendedMux() (*ExtendedMux, error) {
+func (p *parser) parseExtendedMux() (*ExtendedMux, error) {
 	extMux := new(ExtendedMux)
 	extMux.withLocation.loc = p.getLocation()
 

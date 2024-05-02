@@ -31,12 +31,13 @@ var tokenNames = map[tokenKind]string{
 }
 
 type token struct {
-	kind     tokenKind
-	kindName string
-	value    string
-	start    int
-	col      int
-	line     int
+	kind      tokenKind
+	kindName  string
+	value     string
+	startLine int
+	startCol  int
+	endLine   int
+	endCol    int
 }
 
 func (t *token) isEOF() bool {

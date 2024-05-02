@@ -16,19 +16,28 @@ func writeSlice[T any](slice []T, writeFn func(T), newLineFn func()) {
 }
 
 // Write writes the generated DBC file into the [io.Writer].
-func Write(w io.Writer, ast *File) {
-	dbcWriter := &writer{
-		f: w,
-
-		hexNumberEnabled: false,
-	}
+// If hex numbers are enabled, all the values of hex attributes will be
+// formatted as hex numbers.
+//
+// NOTE: common editors like canDB++ cannot read DBC files with hex
+// formatted numbers.
+func Write(w io.Writer, ast *File, hexNumbersEnabled bool) {
+	dbcWriter := newWriter(w, hexNumbersEnabled)
 	dbcWriter.writeFile(ast)
 }
 
 type writer struct {
 	f io.Writer
 
-	hexNumberEnabled bool
+	hexNumbersEnabled bool
+}
+
+func newWriter(w io.Writer, hexNumbersEnabled bool) *writer {
+	return &writer{
+		f: w,
+
+		hexNumbersEnabled: hexNumbersEnabled,
+	}
 }
 
 func (w *writer) print(format string, a ...any) {
@@ -59,7 +68,7 @@ func (w *writer) formatInt(val int) string {
 }
 
 func (w *writer) formatHexInt(val uint32) string {
-	if !w.hexNumberEnabled {
+	if !w.hexNumbersEnabled {
 		return w.formatUint(val)
 	}
 	return "0x" + strconv.FormatInt(int64(val), 16)

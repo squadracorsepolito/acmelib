@@ -9,7 +9,7 @@ import (
 )
 
 func ImportDBCFile(filename string, r io.Reader) (*Bus, error) {
-	dbcFile, err := dbc.Parse(filename, r)
+	dbcFile, err := dbc.Parse(filename, r, false)
 	if err != nil {
 		return nil, err
 	}
