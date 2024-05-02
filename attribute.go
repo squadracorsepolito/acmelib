@@ -230,7 +230,7 @@ func (sa *StringAttribute) ToString() (*StringAttribute, error) {
 
 // ToInteger always returns an error.
 func (sa *StringAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, sa.errorf(&ConvertionError{
+	return nil, sa.errorf(&ConversionError{
 		From: string(AttributeKindString),
 		To:   string(AttributeKindInteger),
 	})
@@ -238,7 +238,7 @@ func (sa *StringAttribute) ToInteger() (*IntegerAttribute, error) {
 
 // ToFloat always returns an error.
 func (sa *StringAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, sa.errorf(&ConvertionError{
+	return nil, sa.errorf(&ConversionError{
 		From: string(AttributeKindString),
 		To:   string(AttributeKindFloat),
 	})
@@ -246,7 +246,7 @@ func (sa *StringAttribute) ToFloat() (*FloatAttribute, error) {
 
 // ToEnum always returns an error.
 func (sa *StringAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, sa.errorf(&ConvertionError{
+	return nil, sa.errorf(&ConversionError{
 		From: string(AttributeKindString),
 		To:   string(AttributeKindEnum),
 	})
@@ -341,7 +341,7 @@ func (ia *IntegerAttribute) IsHexFormat() bool {
 
 // ToString always returns an error.
 func (ia *IntegerAttribute) ToString() (*StringAttribute, error) {
-	return nil, ia.errorf(&ConvertionError{
+	return nil, ia.errorf(&ConversionError{
 		From: string(AttributeKindInteger),
 		To:   string(AttributeKindString),
 	})
@@ -354,7 +354,7 @@ func (ia *IntegerAttribute) ToInteger() (*IntegerAttribute, error) {
 
 // ToFloat always returns an error.
 func (ia *IntegerAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, ia.errorf(&ConvertionError{
+	return nil, ia.errorf(&ConversionError{
 		From: string(AttributeKindInteger),
 		To:   string(AttributeKindFloat),
 	})
@@ -362,7 +362,7 @@ func (ia *IntegerAttribute) ToFloat() (*FloatAttribute, error) {
 
 // ToEnum always returns an error.
 func (ia *IntegerAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, ia.errorf(&ConvertionError{
+	return nil, ia.errorf(&ConversionError{
 		From: string(AttributeKindInteger),
 		To:   string(AttributeKindEnum),
 	})
@@ -443,7 +443,7 @@ func (fa *FloatAttribute) Max() float64 {
 
 // ToString always returns an error.
 func (fa *FloatAttribute) ToString() (*StringAttribute, error) {
-	return nil, fa.errorf(&ConvertionError{
+	return nil, fa.errorf(&ConversionError{
 		From: string(AttributeKindFloat),
 		To:   string(AttributeKindString),
 	})
@@ -451,7 +451,7 @@ func (fa *FloatAttribute) ToString() (*StringAttribute, error) {
 
 // ToInteger always returns an error.
 func (fa *FloatAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, fa.errorf(&ConvertionError{
+	return nil, fa.errorf(&ConversionError{
 		From: string(AttributeKindFloat),
 		To:   string(AttributeKindInteger),
 	})
@@ -464,7 +464,7 @@ func (fa *FloatAttribute) ToFloat() (*FloatAttribute, error) {
 
 // ToEnum always returns an error.
 func (fa *FloatAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, fa.errorf(&ConvertionError{
+	return nil, fa.errorf(&ConversionError{
 		From: string(AttributeKindFloat),
 		To:   string(AttributeKindEnum),
 	})
@@ -567,7 +567,7 @@ func (ea *EnumAttribute) GetValueAtIndex(valueIndex int) (string, error) {
 
 // ToString always returns an error.
 func (ea *EnumAttribute) ToString() (*StringAttribute, error) {
-	return nil, ea.errorf(&ConvertionError{
+	return nil, ea.errorf(&ConversionError{
 		From: string(AttributeKindEnum),
 		To:   string(AttributeKindString),
 	})
@@ -575,7 +575,7 @@ func (ea *EnumAttribute) ToString() (*StringAttribute, error) {
 
 // ToInteger always returns an error.
 func (ea *EnumAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, ea.errorf(&ConvertionError{
+	return nil, ea.errorf(&ConversionError{
 		From: string(AttributeKindEnum),
 		To:   string(AttributeKindInteger),
 	})
@@ -583,7 +583,7 @@ func (ea *EnumAttribute) ToInteger() (*IntegerAttribute, error) {
 
 // ToFloat always returns an error.
 func (ea *EnumAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, ea.errorf(&ConvertionError{
+	return nil, ea.errorf(&ConversionError{
 		From: string(AttributeKindEnum),
 		To:   string(AttributeKindFloat),
 	})

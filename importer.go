@@ -8,6 +8,8 @@ import (
 	"github.com/FerroO2000/acmelib/dbc"
 )
 
+// ImportDBCFile imports a DBC file passed as [io.Reader] and converts it
+// to a [Bus]. The given filename will be used as the name of the bus.
 func ImportDBCFile(filename string, r io.Reader) (*Bus, error) {
 	dbcFile, err := dbc.Parse(filename, r, false)
 	if err != nil {

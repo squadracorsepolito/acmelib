@@ -226,14 +226,14 @@ func (e *AppendSignalError) Error() string {
 
 func (e *AppendSignalError) Unwrap() error { return e.Err }
 
-// ConvertionError is returned when a signal cannot be converted.
-type ConvertionError struct {
+// ConversionError is returned when a signal cannot be converted.
+type ConversionError struct {
 	From string
 	To   string
 }
 
-func (e *ConvertionError) Error() string {
-	return fmt.Sprintf("convertion error; from:%q, to:%q", e.From, e.To)
+func (e *ConversionError) Error() string {
+	return fmt.Sprintf("conversion error; from:%q, to:%q", e.From, e.To)
 }
 
 // SignalSizeError is returned when a signal size is invalid.

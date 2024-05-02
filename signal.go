@@ -330,7 +330,7 @@ func (ss *StandardSignal) ToStandard() (*StandardSignal, error) {
 
 // ToEnum always returns an error, because a [StandardSignal] cannot be converted to an [EnumSignal].
 func (ss *StandardSignal) ToEnum() (*EnumSignal, error) {
-	return nil, ss.errorf(&ConvertionError{
+	return nil, ss.errorf(&ConversionError{
 		From: string(SignalKindStandard),
 		To:   string(SignalKindEnum),
 	})
@@ -338,7 +338,7 @@ func (ss *StandardSignal) ToEnum() (*EnumSignal, error) {
 
 // ToMultiplexer always returns an error, because a [StandardSigna] cannot be converted to a [MultiplexerSignal].
 func (ss *StandardSignal) ToMultiplexer() (*MultiplexerSignal, error) {
-	return nil, ss.errorf(&ConvertionError{
+	return nil, ss.errorf(&ConversionError{
 		From: string(SignalKindStandard),
 		To:   string(SignalKindMultiplexer),
 	})
@@ -484,7 +484,7 @@ func (es *EnumSignal) GetSize() int {
 
 // ToStandard always returns an error, because an [EnumSignal] cannot be converted to a [StandardSignal].
 func (es *EnumSignal) ToStandard() (*StandardSignal, error) {
-	return nil, es.errorf(&ConvertionError{
+	return nil, es.errorf(&ConversionError{
 		From: string(SignalKindEnum),
 		To:   string(SignalKindStandard),
 	})
@@ -497,7 +497,7 @@ func (es *EnumSignal) ToEnum() (*EnumSignal, error) {
 
 // ToMultiplexer always returns an error, because an [EnumSignal] cannot be converted to a [MultiplexerSignal].
 func (es *EnumSignal) ToMultiplexer() (*MultiplexerSignal, error) {
-	return nil, es.errorf(&ConvertionError{
+	return nil, es.errorf(&ConversionError{
 		From: string(SignalKindEnum),
 		To:   string(SignalKindMultiplexer),
 	})

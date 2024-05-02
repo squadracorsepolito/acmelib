@@ -313,17 +313,17 @@ func (ms *MultiplexerSignal) GetSize() int {
 	return ms.groupSize + ms.GetGroupCountSize()
 }
 
-// ToStandard always returns a [ConvertionError], since [MultiplexerSignal] cannot be converted to [StandardSignal].
+// ToStandard always returns a [ConversionError], since [MultiplexerSignal] cannot be converted to [StandardSignal].
 func (ms *MultiplexerSignal) ToStandard() (*StandardSignal, error) {
-	return nil, ms.errorf(&ConvertionError{
+	return nil, ms.errorf(&ConversionError{
 		From: string(SignalKindMultiplexer),
 		To:   string(SignalKindStandard),
 	})
 }
 
-// ToEnum always returns a [ConvertionError], since [MultiplexerSignal] cannot be converted to [EnumSignal].
+// ToEnum always returns a [ConversionError], since [MultiplexerSignal] cannot be converted to [EnumSignal].
 func (ms *MultiplexerSignal) ToEnum() (*EnumSignal, error) {
-	return nil, ms.errorf(&ConvertionError{
+	return nil, ms.errorf(&ConversionError{
 		From: string(SignalKindMultiplexer),
 		To:   string(SignalKindEnum),
 	})
