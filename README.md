@@ -23,8 +23,6 @@ go get -u github.com/FerroO2000/acmelib
 
 ## TODOs
 
-- Linking the Network model with the dbc parser
-- Improving dbc parser
 - Adding examples
 - Adding JSON/Yaml and Protobuf parsing of the model
 - Improving test coverage
