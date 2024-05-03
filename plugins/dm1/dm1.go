@@ -104,6 +104,12 @@ func generateOccCounter() *acmelib.StandardSignal {
 	return occ
 }
 
+func dm1CANIDGenerator(_ acmelib.MessagePriority, _ int, nodeID acmelib.NodeID) (messageCANID acmelib.MessageCANID) {
+	messageCANID = 0x110
+	messageCANID |= (acmelib.MessageCANID(nodeID) & 0xF)
+	return messageCANID
+}
+
 func GenerateDM1Messages(bus *acmelib.Bus) (*acmelib.Bus, error) {
 	messages := []*acmelib.Message{}
 	for _, node := range bus.Nodes() {
@@ -123,6 +129,8 @@ func GenerateDM1Messages(bus *acmelib.Bus) (*acmelib.Bus, error) {
 		if err := dm1.InsertSignal(generateOccCounter(), 16); err != nil {
 			return nil, err
 		}
+
+		dm1.SetCANIDGeneratorFn(dm1CANIDGenerator)
 
 		if err := node.AddMessage(dm1); err != nil {
 			return nil, err
