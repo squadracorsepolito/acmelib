@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/FerroO2000/acmelib"
-	"github.com/FerroO2000/acmelib/plugins/dm1"
+	"github.com/squadracorsepolito/acmelib"
+	"github.com/squadracorsepolito/acmelib/plugins/dm1"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/FerroO2000/acmelib"
+	"github.com/squadracorsepolito/acmelib"
 )
 
 const dm1MsgNamePrefix = "dm1"

@@ -1,7 +1,7 @@
 # acmelib
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/FerroO2000/acmelib.svg)](https://pkg.go.dev/github.com/FerroO2000/acmelib)
-[![Go Report Card](https://goreportcard.com/badge/github.com/FerroO2000/acmelib)](https://goreportcard.com/report/github.com/FerroO2000/acmelib)
+[![Go Reference](https://pkg.go.dev/badge/github.com/squadracorsepolito/acmelib.svg)](https://pkg.go.dev/github.com/squadracorsepolito/acmelib)
+[![Go Report Card](https://goreportcard.com/badge/github.com/squadracorsepolito/acmelib)](https://goreportcard.com/report/github.com/squadracorsepolito/acmelib)
 
 > [!IMPORTANT]
 > Thi repo was moved to [squadracorse](https://github.com/squadracorsepolito/acmelib) organization.
@@ -21,7 +21,7 @@ The package documentation can be found [here](https://pkg.go.dev/github.com/Ferr
 Run the following Go command to install the `acmelib` package:
 
 ```sh
-go get -u github.com/FerroO2000/acmelib
+go get -u github.com/squadracorsepolito/acmelib
 ```
 
 ## TODOs
