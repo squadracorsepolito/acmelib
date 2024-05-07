@@ -5,7 +5,7 @@ import (
 	"io"
 	"slices"
 
-	"github.com/FerroO2000/acmelib/dbc"
+	"github.com/squadracorsepolito/acmelib/dbc"
 )
 
 // ImportDBCFile imports a DBC file passed as [io.Reader] and converts it

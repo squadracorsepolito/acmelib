@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/FerroO2000/acmelib/dbc"
+	"github.com/squadracorsepolito/acmelib/dbc"
 )
 
 // ExportNetwork exports the given [Network] to DBC.
