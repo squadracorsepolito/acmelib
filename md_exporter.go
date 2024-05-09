@@ -123,7 +123,7 @@ func (e *mdExporter) exportMessage(msg *Message) {
 		sigTable.Rows = append(sigTable.Rows, e.sigTableRow)
 		e.sigTableRow = []string{}
 	}
-	e.w.Table(sigTable)
+	e.w.CustomTable(sigTable, md.TableOptions{AutoWrapText: false, AutoFormatHeaders: false})
 }
 
 func (e *mdExporter) exportSignal(sig Signal) {
