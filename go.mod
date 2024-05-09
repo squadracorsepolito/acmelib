@@ -3,10 +3,10 @@ module github.com/squadracorsepolito/acmelib
 go 1.22.2
 
 require (
-	github.com/FerroO2000/acmelib v0.5.1
 	github.com/jaevor/go-nanoid v1.4.0
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
+	google.golang.org/protobuf v1.34.1
 )
 
 require (
