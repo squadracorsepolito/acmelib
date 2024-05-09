@@ -3,6 +3,7 @@ package acmelib
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	md "github.com/nao1215/markdown"
 )
@@ -26,6 +27,10 @@ func newMDExporter(mdWriter *md.Markdown) *mdExporter {
 
 		sigTableRow: []string{},
 	}
+}
+
+func (e *mdExporter) getLink(text string) string {
+	return md.Link(text, "#"+strings.ReplaceAll(text, " ", ""))
 }
 
 func (e *mdExporter) exportNetwork(net *Network) {
@@ -61,11 +66,17 @@ func (e *mdExporter) exportNode(node *Node) {
 
 	if len(node.desc) > 0 {
 		e.w.PlainText(node.desc)
+		e.w.LF()
 	}
+
+	e.w.PlainTextf("Node ID: %s", md.Bold(fmt.Sprintf("%d", node.id)))
+	e.w.LF()
 
 	for _, msg := range node.Messages() {
 		e.exportMessage(msg)
 	}
+
+	e.w.HorizontalRule()
 }
 
 func (e *mdExporter) exportMessage(msg *Message) {
@@ -73,10 +84,38 @@ func (e *mdExporter) exportMessage(msg *Message) {
 
 	if len(msg.desc) > 0 {
 		e.w.PlainText(msg.desc)
+		e.w.LF()
 	}
 
+	e.w.PlainTextf("CAN-ID: %s", md.Bold(fmt.Sprintf("%d", msg.id)))
+	e.w.LF()
+
+	e.w.PlainTextf("Size: %s bytes", md.Bold(fmt.Sprintf("%d", msg.sizeByte)))
+	e.w.LF()
+
+	if msg.cycleTime > 0 {
+		e.w.PlainTextf("Cycle Time: %s ms", md.Bold(fmt.Sprintf("%d", msg.cycleTime)))
+	} else {
+		e.w.PlainText("Cycle Time: -")
+	}
+	e.w.LF()
+
+	recStr := "Receivers: "
+	for idx, rec := range msg.Receivers() {
+		recLink := e.getLink(rec.name)
+
+		if idx == 0 {
+			recStr += recLink
+			continue
+		}
+
+		recStr = fmt.Sprintf("%s, %s", recLink, recLink)
+	}
+	e.w.PlainText(recStr)
+	e.w.LF()
+
 	sigTable := md.TableSet{
-		Header: []string{"Name", "Start Bit", "Type", "Min", "Max", "Offset", "Scale", "Description"},
+		Header: []string{"Name", "Start Bit", "Size", "Min", "Max", "Offset", "Scale", "Unit", "Description"},
 		Rows:   [][]string{},
 	}
 	for _, sig := range msg.Signals() {
@@ -91,6 +130,8 @@ func (e *mdExporter) exportSignal(sig Signal) {
 	e.sigTableRow = append(e.sigTableRow, sig.Name())
 
 	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%d", sig.GetStartBit()))
+
+	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%d", sig.GetSize()))
 
 	switch sig.Kind() {
 	case SignalKindStandard:
@@ -123,8 +164,6 @@ func (e *mdExporter) exportSignal(sig Signal) {
 }
 
 func (e *mdExporter) exportStandardSignal(stdSig *StandardSignal) {
-	e.sigTableRow = append(e.sigTableRow, stdSig.typ.name)
-
 	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.min))
 
 	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.max))
@@ -132,11 +171,15 @@ func (e *mdExporter) exportStandardSignal(stdSig *StandardSignal) {
 	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.offset))
 
 	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.scale))
+
+	unitSymbol := "-"
+	if stdSig.unit != nil {
+		unitSymbol = stdSig.unit.symbol
+	}
+	e.sigTableRow = append(e.sigTableRow, unitSymbol)
 }
 
 func (e *mdExporter) exportEnumSignal(enumSig *EnumSignal) {
-	e.sigTableRow = append(e.sigTableRow, enumSig.enum.name)
-
 	e.sigTableRow = append(e.sigTableRow, "0")
 
 	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%d", enumSig.GetSize()))
@@ -144,9 +187,11 @@ func (e *mdExporter) exportEnumSignal(enumSig *EnumSignal) {
 	e.sigTableRow = append(e.sigTableRow, "0")
 
 	e.sigTableRow = append(e.sigTableRow, "1")
+
+	e.sigTableRow = append(e.sigTableRow, "-")
 }
 
-func (e *mdExporter) exportMultiplexerSignal(mucSig *MultiplexerSignal) {
+func (e *mdExporter) exportMultiplexerSignal(_ *MultiplexerSignal) {
 	e.sigTableRow = append(e.sigTableRow, "-")
 
 	e.sigTableRow = append(e.sigTableRow, "-")

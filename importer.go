@@ -34,6 +34,7 @@ type importer struct {
 	messages map[MessageCANID]*Message
 	signals  map[string]Signal
 
+	flagSigType *SignalType
 	signalEnums map[string]*SignalEnum
 
 	dbcExtMuxes map[string]*dbc.ExtendedMux
@@ -51,6 +52,7 @@ func newImporter() *importer {
 		messages: make(map[MessageCANID]*Message),
 		signals:  make(map[string]Signal),
 
+		flagSigType: NewFlagSignalType("flag"),
 		signalEnums: make(map[string]*SignalEnum),
 
 		dbcExtMuxes: make(map[string]*dbc.ExtendedMux),
@@ -594,9 +596,16 @@ func (i *importer) importSignal(dbcSig *dbc.Signal, dbcMsgID uint32) (Signal, er
 			signed = true
 		}
 
-		sigType, err := NewIntegerSignalType(fmt.Sprintf("%s_Type", sigName), int(dbcSig.Size), signed)
-		if err != nil {
-			return nil, i.errorf(dbcSig, err)
+		sigSize := int(dbcSig.Size)
+		var sigType *SignalType
+		if sigSize == 1 && dbcSig.ValueType == dbc.SignalUnsigned {
+			sigType = i.flagSigType
+		} else {
+			tmpSigType, err := NewIntegerSignalType(fmt.Sprintf("%s_Type", sigName), sigSize, signed)
+			if err != nil {
+				return nil, i.errorf(dbcSig, err)
+			}
+			sigType = tmpSigType
 		}
 
 		stdSig, err := NewStandardSignal(sigName, sigType)
