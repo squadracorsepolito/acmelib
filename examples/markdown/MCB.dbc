@@ -141,12 +141,20 @@ BO_ 49 SB_FRONT_sdcStatus: 1 SB_FRONT
 	SG_ SDC_POST_COCKPIT_isClosed : 3|1@1+ (1,0) [0|1] "" DSPACE
 
 BO_ 1024 SB_FRONT_ntcResistance: 8 SB_FRONT
-	SG_ RAD_NTC_IN_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ RAD_NTC_OUT_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ JACKET_NTC_FRONT_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ JACKET_NTC_REAR_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ COLDPLATE_NTC_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ NTC_SPARE_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ JACKET_FL_NTC_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ JACKET_FR_NTC_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ COLDPLATE_L_NTC_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ COLDPLATE_R_NTC_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ SPARE_NTC_0_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ SPARE_NTC_1_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+
+BO_ 1025 SB_REAR_ntcResistance: 8 SB_REAR
+	SG_ JACKET_RL_NTC_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ JACKET_RR_NTC_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ RAD_RL_IN_NTC_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ RAD_RL_OUT_NTC_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ RAD_RR_IN_NTC_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ RAD_RR_OUT_NTC_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
 
 BO_ 48 SB_REAR_sdcStatus: 1 SB_REAR
 	SG_ SDC_POST_BSPD_isClosed : 0|1@1+ (1,0) [0|1] "" DSPACE
@@ -157,6 +165,9 @@ BO_ 48 SB_REAR_sdcStatus: 1 SB_REAR
 
 BO_ 50 SB_REAR_dischargeStatus: 1 SB_REAR
 	SG_ DISCHARGE_isOpen : 0|1@1+ (1,0) [0|1] "" DSPACE
+
+
+
 
 
 
@@ -246,13 +257,7 @@ BO_ 512 dSpace_PeripheralsCTRL: 3 DSPACE
 
 
 
-BO_ 1025 Sens_Rear_NTC: 8 SB_REAR
-	SG_ NTC_1_Resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ NTC_2_Resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ NTC_3_Resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ NTC_4_Resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ NTC_5_Resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ NTC_6_Resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+
 
 BO_ 1026 Sens_Rear_2: 4 SB_REAR
 	SG_ CoolingPressure_DX_Voltage_mV : 0|16@1+ (1,0) [0|65535] "" DSPACE
@@ -353,12 +358,19 @@ CM_ SG_ 49 SDC_POST_INERTIA_isClosed "States whether the SDC post inertia switch
 CM_ SG_ 49 SDC_POST_BOTS_isClosed "States whether the SDC post BOTS is closed.";
 CM_ SG_ 49 SDC_POST_COCKPIT_isClosed "States whether the SDC post cockpit push button is closed.";
 
-CM_ SG_ 1024 RAD_NTC_IN_resistance "The resistance of the radiator IN NTC expressed in Ohm.";
-CM_ SG_ 1024 RAD_NTC_OUT_resistance "The resistance of the radiator OUT NTC expressed in Ohm.";
-CM_ SG_ 1024 JACKET_NTC_FRONT_resistance "The resistance of the jacket front NTC expressed in Ohm.";
-CM_ SG_ 1024 JACKET_NTC_REAR_resistance "The resistance of the jacket rear NTC expressed in Ohm.";
-CM_ SG_ 1024 COLDPLATE_NTC_resistance "The resistance of the coldplate NTC expressed in Ohm.";
-CM_ SG_ 1024 NTC_SPARE_resistance "The resistance of the spare NTC expressed in Ohm.";
+CM_ SG_ 1024 JACKET_FL_NTC_resistance "The resistance of the front left jacket NTC expressed in Ohm.";
+CM_ SG_ 1024 JACKET_FR_NTC_resistance "The resistance of the front right jacket NTC expressed in Ohm.";
+CM_ SG_ 1024 COLDPLATE_L_NTC_resistance "The resistance of the left coldplate NTC expressed in Ohm.";
+CM_ SG_ 1024 COLDPLATE_R_NTC_resistance "The resistance of the right coldplate NTC expressed in Ohm.";
+CM_ SG_ 1024 SPARE_NTC_0_resistance "The resistance of the spare NTC #0 expressed in Ohm.";
+CM_ SG_ 1024 SPARE_NTC_1_resistance "The resistance of the spare NTC #1 expressed in Ohm.";
+
+CM_ SG_ 1024 JACKET_RL_NTC_resistance "The resistance of the rear left jacket NTC expressed in Ohm.";
+CM_ SG_ 1024 JACKET_RR_NTC_resistance "The resistance of the rear right jacket NTC expressed in Ohm.";
+CM_ SG_ 1024 RAD_RL_IN_NTC_resistance "The resistance of the rear left IN radiator NTC expressed in Ohm.";
+CM_ SG_ 1024 RAD_RL_OUT_NTC_resistance "The resistance of the rear left OUT radiator NTC expressed in Ohm.";
+CM_ SG_ 1024 RAD_RR_IN_NTC_resistance "The resistance of the rear right IN radiator NTC expressed in Ohm.";
+CM_ SG_ 1024 RAD_RR_OUT_NTC_resistance "The resistance of the rear right OUT radiator NTC expressed in Ohm.";
 
 CM_ SG_ 48 SDC_POST_BSPD_isClosed "States whether the SDC post BSPD is closed.";
 CM_ SG_ 48 SDC_PRE_PUSH_BTNS_isClosed "States whether the SDC per push buttons (hoop right/left) is closed.";
@@ -375,7 +387,6 @@ CM_ SG_ 50 DISCHARGE_isOpen "States whether the discharge is open.";
 
 
 CM_ BO_ 1026 "(period: 10 ms)";
-CM_ BO_ 1025 "(period: 10 ms)";
 CM_ BO_ 5 "(period: 10 ms)";
 CM_ BO_ 16 "(period: 10 ms)";
 CM_ BO_ 18 "(period: 100 ms)";
@@ -409,4 +420,5 @@ BA_ "GenMsgCycleTime" BO_ 261 2000;
 BA_ "GenMsgCycleTime" BO_ 38 500;
 BA_ "GenMsgCycleTime" BO_ 49 10;
 BA_ "GenMsgCycleTime" BO_ 1024 10;
+BA_ "GenMsgCycleTime" BO_ 1025 10;
 BA_ "GenMsgCycleTime" BO_ 48 10;

@@ -9,7 +9,7 @@ import (
 func Test_CANIDBuilder(t *testing.T) {
 	assert := assert.New(t)
 
-	b := NewCANIDBuilder()
+	b := NewCANIDBuilder("canid_builder")
 	b.UseMessagePriority(30).UseMessageID(4, 10).UseNodeID(0, 4)
 
 	msgPriority := MessagePriorityLow

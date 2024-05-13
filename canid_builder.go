@@ -29,11 +29,15 @@ func (bo *CANIDBuilderOp) Len() int {
 }
 
 type CANIDBuilder struct {
+	*entity
+
 	operations []*CANIDBuilderOp
 }
 
-func NewCANIDBuilder() *CANIDBuilder {
+func NewCANIDBuilder(name string) *CANIDBuilder {
 	return &CANIDBuilder{
+		entity: newEntity(name),
+
 		operations: []*CANIDBuilderOp{},
 	}
 }

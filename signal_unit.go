@@ -6,18 +6,33 @@ import (
 )
 
 // SignalUnitKind defines the kind of a [SignalUnit].
-type SignalUnitKind string
+type SignalUnitKind int
 
 const (
 	// SignalUnitKindCustom defines a custom unit.
-	SignalUnitKindCustom SignalUnitKind = "signal_unit-custom"
+	SignalUnitKindCustom SignalUnitKind = iota
 	// SignalUnitKindTemperature defines a temperature unit.
-	SignalUnitKindTemperature SignalUnitKind = "signal_unit-temperature"
+	SignalUnitKindTemperature
 	// SignalUnitKindElectrical defines an electrical unit.
-	SignalUnitKindElectrical SignalUnitKind = "signal_unit-electrical"
+	SignalUnitKindElectrical
 	// SignalUnitKindPower defines a power unit.
-	SignalUnitKindPower SignalUnitKind = "signal_unit-power"
+	SignalUnitKindPower
 )
+
+func (suk SignalUnitKind) String() string {
+	switch suk {
+	case SignalUnitKindCustom:
+		return "custom"
+	case SignalUnitKindTemperature:
+		return "temperature"
+	case SignalUnitKindElectrical:
+		return "electrical"
+	case SignalUnitKindPower:
+		return "power"
+	default:
+		return "unknown"
+	}
+}
 
 // SignalUnit is an entity that defines the physical unit of a [Signal].
 type SignalUnit struct {
