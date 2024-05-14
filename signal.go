@@ -485,8 +485,8 @@ func (es *EnumSignal) ToEnum() (*EnumSignal, error) {
 // ToMultiplexer always returns an error, because an [EnumSignal] cannot be converted to a [MultiplexerSignal].
 func (es *EnumSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 	return nil, es.errorf(&ConversionError{
-		From: string(SignalKindEnum),
-		To:   string(SignalKindMultiplexer),
+		From: SignalKindEnum.String(),
+		To:   SignalKindMultiplexer.String(),
 	})
 }
 

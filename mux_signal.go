@@ -316,16 +316,16 @@ func (ms *MultiplexerSignal) GetSize() int {
 // ToStandard always returns a [ConversionError], since [MultiplexerSignal] cannot be converted to [StandardSignal].
 func (ms *MultiplexerSignal) ToStandard() (*StandardSignal, error) {
 	return nil, ms.errorf(&ConversionError{
-		From: string(SignalKindMultiplexer),
-		To:   string(SignalKindStandard),
+		From: SignalKindMultiplexer.String(),
+		To:   SignalKindStandard.String(),
 	})
 }
 
 // ToEnum always returns a [ConversionError], since [MultiplexerSignal] cannot be converted to [EnumSignal].
 func (ms *MultiplexerSignal) ToEnum() (*EnumSignal, error) {
 	return nil, ms.errorf(&ConversionError{
-		From: string(SignalKindMultiplexer),
-		To:   string(SignalKindEnum),
+		From: SignalKindMultiplexer.String(),
+		To:   SignalKindEnum.String(),
 	})
 }
 

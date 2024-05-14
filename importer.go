@@ -530,11 +530,7 @@ func (i *importer) importMuxSignal(dbcMuxSig *dbc.Signal, dbcMsgID uint32, muxed
 	lastMuxedSig := muxedSignals[len(muxedSignals)-1]
 
 	lastSize := lastMuxedSig.sig.GetSize()
-
-	lastStartBit := int(lastMuxedSig.dbcSig.StartBit)
-	if lastMuxedSig.dbcSig.ByteOrder == dbc.SignalBigEndian {
-		lastStartBit -= lastSize - 1
-	}
+	lastStartBit := i.getSignalStartBit(lastMuxedSig.dbcSig)
 
 	muxSigStartBit := i.getSignalStartBit(dbcMuxSig)
 
