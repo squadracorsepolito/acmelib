@@ -47,20 +47,37 @@ const (
 )
 
 // MessageSendType rappresents the transition type of a [Message].
-type MessageSendType string
+type MessageSendType int
 
 const (
 	// MessageSendTypeUnset defines an unset transmission type.
-	MessageSendTypeUnset MessageSendType = "NoMsgSendType"
+	MessageSendTypeUnset MessageSendType = iota
 	// MessageSendTypeCyclic defines a cyclic transmission type.
-	MessageSendTypeCyclic MessageSendType = "Cyclic"
+	MessageSendTypeCyclic
 	// MessageSendTypeCyclicIfActive defines a cyclic if active transmission type.
-	MessageSendTypeCyclicIfActive MessageSendType = "CyclicIfActive"
+	MessageSendTypeCyclicIfActive
 	// MessageSendTypeCyclicAndTriggered defines a cyclic and triggered transmission type.
-	MessageSendTypeCyclicAndTriggered MessageSendType = "CyclicAndTriggered"
+	MessageSendTypeCyclicAndTriggered
 	// MessageSendTypeCyclicIfActiveAndTriggered defines a cyclic if active and triggered transmission type.
-	MessageSendTypeCyclicIfActiveAndTriggered MessageSendType = "CyclicIfActiveAndTriggered"
+	MessageSendTypeCyclicIfActiveAndTriggered
 )
+
+func (mst MessageSendType) String() string {
+	switch mst {
+	case MessageSendTypeUnset:
+		return "unset"
+	case MessageSendTypeCyclic:
+		return "cyclic"
+	case MessageSendTypeCyclicIfActive:
+		return "cyclic_if_active"
+	case MessageSendTypeCyclicAndTriggered:
+		return "cyclic_and_triggered"
+	case MessageSendTypeCyclicIfActiveAndTriggered:
+		return "cyclic_if_active_and_triggered"
+	default:
+		return "unknown"
+	}
+}
 
 type MessageByteOrder int
 

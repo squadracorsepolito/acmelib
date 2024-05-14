@@ -18,7 +18,7 @@ type Bus struct {
 	nodeNames *set[string, EntityID]
 	nodeIDs   *set[NodeID, EntityID]
 
-	baudrate uint
+	baudrate int
 }
 
 // NewBus creates a new [Bus] with the given name and description.
@@ -218,11 +218,11 @@ func (b *Bus) GetNodeByName(nodeName string) (*Node, error) {
 }
 
 // SetBaudrate sets the baudrate of the [Bus].
-func (b *Bus) SetBaudrate(baudrate uint) {
+func (b *Bus) SetBaudrate(baudrate int) {
 	b.baudrate = baudrate
 }
 
 // Baudrate returns the baudrate of the [Bus].
-func (b *Bus) Baudrate() uint {
+func (b *Bus) Baudrate() int {
 	return b.baudrate
 }

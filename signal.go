@@ -33,26 +33,49 @@ func (sk SignalKind) String() string {
 }
 
 // SignalSendType rappresents the send type of a [Signal].
-type SignalSendType string
+type SignalSendType int
 
 const (
 	// SignalSendTypeUnset defines an unset transmission type.
-	SignalSendTypeUnset SignalSendType = "NoSigSendType"
+	SignalSendTypeUnset SignalSendType = iota
 	// SignalSendTypeCyclic defines a cyclic transmission type.
-	SignalSendTypeCyclic SignalSendType = "Cyclic"
+	SignalSendTypeCyclic
 	// SignalSendTypeOnWrite defines an on write transmission type.
-	SignalSendTypeOnWrite SignalSendType = "OnWrite"
+	SignalSendTypeOnWrite
 	// SignalSendTypeOnWriteWithRepetition defines an on write with repetition transmission type.
-	SignalSendTypeOnWriteWithRepetition SignalSendType = "OnWriteWithRepetition"
+	SignalSendTypeOnWriteWithRepetition
 	// SignalSendTypeOnChange defines an on change transmission type.
-	SignalSendTypeOnChange SignalSendType = "OnChange"
+	SignalSendTypeOnChange
 	// SignalSendTypeOnChangeWithRepetition defines an on change with repetition transmission type.
-	SignalSendTypeOnChangeWithRepetition SignalSendType = "OnChangeWithRepetition"
+	SignalSendTypeOnChangeWithRepetition
 	// SignalSendTypeIfActive defines an if active transmission type.
-	SignalSendTypeIfActive SignalSendType = "IfActive"
+	SignalSendTypeIfActive
 	// SignalSendTypeIfActiveWithRepetition defines an if active with repetition transmission type.
-	SignalSendTypeIfActiveWithRepetition SignalSendType = "IfActiveWithRepetition"
+	SignalSendTypeIfActiveWithRepetition
 )
+
+func (sst SignalSendType) String() string {
+	switch sst {
+	case SignalSendTypeUnset:
+		return "unset"
+	case SignalSendTypeCyclic:
+		return "cyclic"
+	case SignalSendTypeOnWrite:
+		return "on-write"
+	case SignalSendTypeOnWriteWithRepetition:
+		return "on-write_with_repetition"
+	case SignalSendTypeOnChange:
+		return "on-change"
+	case SignalSendTypeOnChangeWithRepetition:
+		return "on-change_with_repetition"
+	case SignalSendTypeIfActive:
+		return "if_active"
+	case SignalSendTypeIfActiveWithRepetition:
+		return "if_active_with_repetition"
+	default:
+		return "unknown"
+	}
+}
 
 // Signal interface specifies all common methods of
 // [StandardSignal], [EnumSignal], and [MultiplexerSignal1].
@@ -94,6 +117,10 @@ type Signal interface {
 	setParentMsg(parentMsg *Message)
 	setParentMuxSig(parentMuxSig *MultiplexerSignal)
 
+	// SetStartValue sets the initial raw value of the signal.
+	SetStartValue(startValue int)
+	// StartValue returns the initial raw value of the signal.
+	StartValue() int
 	// SetSendType sets the send type of the signal.
 	SetSendType(sendType SignalSendType)
 	// SendType returns the send type of the signal.
@@ -123,7 +150,8 @@ type signal struct {
 
 	kind SignalKind
 
-	sendType SignalSendType
+	startValue int
+	sendType   SignalSendType
 
 	relStartBit int
 }
@@ -137,7 +165,8 @@ func newSignal(name string, kind SignalKind) *signal {
 
 		kind: kind,
 
-		sendType: SignalSendTypeUnset,
+		startValue: 0,
+		sendType:   SignalSendTypeUnset,
 
 		relStartBit: 0,
 	}
@@ -218,6 +247,14 @@ func (s *signal) stringify(b *strings.Builder, tabs int) {
 	}
 
 	b.WriteString(fmt.Sprintf("%sstart_bit: %d; ", tabStr, s.relStartBit))
+}
+
+func (s *signal) SetStartValue(startValue int) {
+	s.startValue = startValue
+}
+
+func (s *signal) StartValue() int {
+	return s.startValue
 }
 
 func (s *signal) SetSendType(sendType SignalSendType) {

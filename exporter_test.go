@@ -2,6 +2,7 @@ package acmelib
 
 import (
 	"io"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -156,6 +157,8 @@ func Test_ExportBus(t *testing.T) {
 	expectedFileStr := re.ReplaceAllString(testFileBuf.String(), "")
 
 	fileStr := strings.ReplaceAll(fileBuf.String(), "\n", "")
+
+	log.Print(fileBuf.String())
 
 	assert.Equal(expectedFileStr, fileStr)
 }

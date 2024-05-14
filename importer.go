@@ -250,7 +250,7 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 						msg.SetStartDelayTime(value.(int))
 
 					case specialAttributeMsgSendType:
-						msg.SetSendType(messageSendTypeFromString(value.(string)))
+						msg.SetSendType(messageSendTypeFromDBC(value.(string)))
 					}
 
 					break
@@ -266,8 +266,11 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 				attType, ok := specialAttributeTypes[attName]
 				if ok {
 					switch attType {
+					case specialAttributeSigStartValue:
+						sig.SetStartValue(value.(int))
+
 					case specialAttributeSigSendType:
-						sig.SetSendType(signalSendTypeFromString(value.(string)))
+						sig.SetSendType(signalSendTypeFromDBC(value.(string)))
 					}
 
 					break

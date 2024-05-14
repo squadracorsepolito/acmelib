@@ -65,9 +65,9 @@ BA_DEF_ BU_ "int_att" INT 0 10000;
 BA_DEF_ BO_ "hex_att" HEX 0 10000;
 BA_DEF_ SG_ "enum_att" ENUM "VALUE_0", "VALUE_1", "VALUE_2", "VALUE_3";
 BA_DEF_ SG_ "float_att" FLOAT 0 100.5;
-BA_DEF_ BO_ "GenMsgCycleTime" INT 0 1000;
+BA_DEF_ BO_ "GenMsgCycleTime" INT 0 3600000;
 BA_DEF_ BO_ "GenMsgDelayTime" INT 0 1000;
-BA_DEF_ BO_ "GenMsgStartDelayTime" INT 0 1000;
+BA_DEF_ BO_ "GenMsgStartDelayTime" INT 0 100000;
 BA_DEF_ BO_ "GenMsgSendType" ENUM "NoMsgSendType", "Cyclic", "CyclicIfActive", "CyclicAndTriggered", "CyclicIfActiveAndTriggered";
 BA_DEF_ SG_ "GenSigSendType" ENUM "NoSigSendType", "Cyclic", "OnWrite", "OnWriteWithRepetition", "OnChange", "OnChangeWithRepetition", "IfActive", "IfActiveWithRepetition";
 

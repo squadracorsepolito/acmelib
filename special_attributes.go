@@ -1,5 +1,7 @@
 package acmelib
 
+import "github.com/squadracorsepolito/acmelib/dbc"
+
 type specialAttributeType int
 
 const (
@@ -8,86 +10,108 @@ const (
 	specialAttributeMsgStartDelayTime
 	specialAttributeMsgSendType
 
+	specialAttributeSigStartValue
 	specialAttributeSigSendType
 )
 
 var specialAttributeNames = map[specialAttributeType]string{
-	specialAttributeMsgCycleTime:      "GenMsgCycleTime",
-	specialAttributeMsgDelayTime:      "GenMsgDelayTime",
-	specialAttributeMsgStartDelayTime: "GenMsgStartDelayTime",
-	specialAttributeMsgSendType:       "GenMsgSendType",
+	specialAttributeMsgCycleTime:      dbc.MsgCycleTimeName,
+	specialAttributeMsgDelayTime:      dbc.MsgDelayTimeName,
+	specialAttributeMsgStartDelayTime: dbc.MsgStartDelayTimeName,
+	specialAttributeMsgSendType:       dbc.MsgSendTypeName,
 
-	specialAttributeSigSendType: "GenSigSendType",
+	specialAttributeSigStartValue: dbc.SigStartValueName,
+	specialAttributeSigSendType:   dbc.SigSendTypeName,
 }
 
 var specialAttributeTypes = map[string]specialAttributeType{
-	"GenMsgCycleTime":      specialAttributeMsgCycleTime,
-	"GenMsgDelayTime":      specialAttributeMsgDelayTime,
-	"GenMsgStartDelayTime": specialAttributeMsgStartDelayTime,
-	"GenMsgSendType":       specialAttributeMsgSendType,
+	dbc.MsgCycleTimeName:      specialAttributeMsgCycleTime,
+	dbc.MsgDelayTimeName:      specialAttributeMsgDelayTime,
+	dbc.MsgStartDelayTimeName: specialAttributeMsgStartDelayTime,
+	dbc.MsgSendTypeName:       specialAttributeMsgSendType,
 
-	"GenSigSendType": specialAttributeSigSendType,
+	dbc.SigStartValueName: specialAttributeSigStartValue,
+	dbc.SigSendTypeName:   specialAttributeSigSendType,
 }
 
 var (
-	msgCycleTimeAtt, _      = NewIntegerAttribute(specialAttributeNames[specialAttributeMsgCycleTime], 0, 0, 1000)
-	msgDelayTimeAtt, _      = NewIntegerAttribute(specialAttributeNames[specialAttributeMsgDelayTime], 0, 0, 1000)
-	msgStartDelayTimeAtt, _ = NewIntegerAttribute(specialAttributeNames[specialAttributeMsgStartDelayTime], 0, 0, 1000)
+	msgCycleTimeAtt, _      = NewIntegerAttribute(dbc.MsgCycleTimeName, dbc.MsgCycleTimeMin, dbc.MsgCycleTimeMin, dbc.MsgCycleTimeMax)
+	msgDelayTimeAtt, _      = NewIntegerAttribute(dbc.MsgDelayTimeName, dbc.MsgDelayTimeMin, dbc.MsgDelayTimeMin, dbc.MsgDelayTimeMax)
+	msgStartDelayTimeAtt, _ = NewIntegerAttribute(dbc.MsgStartDelayTimeName, dbc.MsgStartDelayTimeMin, dbc.MsgStartDelayTimeMin, dbc.MsgStartDelayTimeMax)
+	msgSendTypeAtt, _       = NewEnumAttribute(dbc.MsgSendTypeName, dbc.MsgSendTypeValues...)
+
+	sigStartValueAtt, _ = NewIntegerAttribute(dbc.SigStartValueName, dbc.SigStartValueMin, dbc.SigStartValueMin, dbc.SigStartValueMax)
+	sigSendTypeAtt, _   = NewEnumAttribute(dbc.SigSendTypeName, dbc.SigSendTypeValues...)
 )
 
-var msgSendTypeValues = []string{
-	"NoMsgSendType",
-	"Cyclic",
-	"CyclicIfActive",
-	"CyclicAndTriggered",
-	"CyclicIfActiveAndTriggered",
-}
-
-func messageSendTypeFromString(str string) MessageSendType {
+func messageSendTypeFromDBC(str string) MessageSendType {
 	switch str {
-	case msgSendTypeValues[1]:
+	case dbc.MsgSendTypeValues[1]:
 		return MessageSendTypeCyclic
-	case msgSendTypeValues[2]:
+	case dbc.MsgSendTypeValues[2]:
 		return MessageSendTypeCyclicIfActive
-	case msgSendTypeValues[3]:
+	case dbc.MsgSendTypeValues[3]:
 		return MessageSendTypeCyclicAndTriggered
-	case msgSendTypeValues[4]:
+	case dbc.MsgSendTypeValues[4]:
 		return MessageSendTypeCyclicIfActiveAndTriggered
+	default:
+		return MessageSendTypeUnset
 	}
-	return MessageSendTypeUnset
 }
 
-var msgSendTypeAtt, _ = NewEnumAttribute(specialAttributeNames[specialAttributeMsgSendType], msgSendTypeValues...)
-
-var sigSendTypeValues = []string{
-	"NoSigSendType",
-	"Cyclic",
-	"OnWrite",
-	"OnWriteWithRepetition",
-	"OnChange",
-	"OnChangeWithRepetition",
-	"IfActive",
-	"IfActiveWithRepetition",
+func messageSendTypeToDBC(sendType MessageSendType) string {
+	switch sendType {
+	case MessageSendTypeCyclic:
+		return dbc.MsgSendTypeValues[1]
+	case MessageSendTypeCyclicIfActive:
+		return dbc.MsgSendTypeValues[2]
+	case MessageSendTypeCyclicAndTriggered:
+		return dbc.MsgSendTypeValues[3]
+	case MessageSendTypeCyclicIfActiveAndTriggered:
+		return dbc.MsgSendTypeValues[4]
+	default:
+		return dbc.MsgSendTypeValues[0]
+	}
 }
 
-func signalSendTypeFromString(str string) SignalSendType {
+func signalSendTypeFromDBC(str string) SignalSendType {
 	switch str {
-	case sigSendTypeValues[1]:
+	case dbc.SigSendTypeValues[1]:
 		return SignalSendTypeCyclic
-	case sigSendTypeValues[2]:
+	case dbc.SigSendTypeValues[2]:
 		return SignalSendTypeOnWrite
-	case sigSendTypeValues[3]:
+	case dbc.SigSendTypeValues[3]:
 		return SignalSendTypeOnWriteWithRepetition
-	case sigSendTypeValues[4]:
+	case dbc.SigSendTypeValues[4]:
 		return SignalSendTypeOnChange
-	case sigSendTypeValues[5]:
+	case dbc.SigSendTypeValues[5]:
 		return SignalSendTypeOnChangeWithRepetition
-	case sigSendTypeValues[6]:
+	case dbc.SigSendTypeValues[6]:
 		return SignalSendTypeIfActive
-	case sigSendTypeValues[6]:
+	case dbc.SigSendTypeValues[7]:
 		return SignalSendTypeIfActiveWithRepetition
+	default:
+		return SignalSendTypeUnset
 	}
-	return SignalSendTypeUnset
 }
 
-var sigSendTypeAtt, _ = NewEnumAttribute(specialAttributeNames[specialAttributeSigSendType], sigSendTypeValues...)
+func signalSendTypeToDBC(sendType SignalSendType) string {
+	switch sendType {
+	case SignalSendTypeCyclic:
+		return dbc.SigSendTypeValues[1]
+	case SignalSendTypeOnWrite:
+		return dbc.SigSendTypeValues[2]
+	case SignalSendTypeOnWriteWithRepetition:
+		return dbc.SigSendTypeValues[3]
+	case SignalSendTypeOnChange:
+		return dbc.SigSendTypeValues[4]
+	case SignalSendTypeOnChangeWithRepetition:
+		return dbc.SigSendTypeValues[5]
+	case SignalSendTypeIfActive:
+		return dbc.SigSendTypeValues[6]
+	case SignalSendTypeIfActiveWithRepetition:
+		return dbc.SigSendTypeValues[7]
+	default:
+		return dbc.SigSendTypeValues[0]
+	}
+}

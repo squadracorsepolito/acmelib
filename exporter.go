@@ -319,7 +319,7 @@ func (e *exporter) exportMessage(msg *Message) {
 		attValues = append(attValues, newAttributeValue(msgStartDelayTimeAtt, msg.startDelayTime))
 	}
 	if msg.sendType != MessageSendTypeUnset {
-		attValues = append(attValues, newAttributeValue(msgSendTypeAtt, string(msg.sendType)))
+		attValues = append(attValues, newAttributeValue(msgSendTypeAtt, messageSendTypeToDBC(msg.sendType)))
 	}
 	for _, attVal := range attValues {
 		dbcAttVal := new(dbc.AttributeValue)
@@ -356,8 +356,11 @@ func (e *exporter) exportSignal(sig Signal) {
 	}
 
 	attValues := sig.AttributeValues()
+	if sig.StartValue() != 0 {
+		attValues = append(attValues, newAttributeValue(sigStartValueAtt, sig.StartValue()))
+	}
 	if sig.SendType() != SignalSendTypeUnset {
-		attValues = append(attValues, newAttributeValue(sigSendTypeAtt, string(sig.SendType())))
+		attValues = append(attValues, newAttributeValue(sigSendTypeAtt, signalSendTypeToDBC(sig.SendType())))
 	}
 	for _, attVal := range attValues {
 		dbcAttVal := new(dbc.AttributeValue)
