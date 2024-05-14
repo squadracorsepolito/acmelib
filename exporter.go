@@ -410,18 +410,21 @@ func (e *exporter) exportSignal(sig Signal) {
 	}
 }
 
+func (e *exporter) getStartBit(startBit int, byteOrder MessageByteOrder) (uint32, dbc.SignalByteOrder) {
+	if byteOrder == MessageByteOrderLittleEndian {
+		return uint32(startBit), dbc.SignalLittleEndian
+	}
+
+	tmpStartBit := startBit + 7 - 2*(startBit%8)
+	return uint32(tmpStartBit), dbc.SignalBigEndian
+}
+
 func (e *exporter) exportStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Signal) {
 	dbcSig.Size = uint32(stdSig.GetSize())
 
-	switch stdSig.byteOrder {
-	case SignalByteOrderLittleEndian:
-		dbcSig.ByteOrder = dbc.SignalLittleEndian
-		dbcSig.StartBit = uint32(stdSig.GetStartBit())
-
-	case SignalByteOrderBigEndian:
-		dbcSig.ByteOrder = dbc.SignalBigEndian
-		dbcSig.StartBit = uint32(stdSig.GetStartBit()) + dbcSig.Size - 1
-	}
+	startBit, byteOrder := e.getStartBit(stdSig.GetStartBit(), stdSig.parentMsg.byteOrder)
+	dbcSig.StartBit = startBit
+	dbcSig.ByteOrder = byteOrder
 
 	if stdSig.typ.signed {
 		dbcSig.ValueType = dbc.SignalSigned
@@ -443,15 +446,9 @@ func (e *exporter) exportStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Sign
 func (e *exporter) exportEnumSignal(enumSig *EnumSignal, dbcSig *dbc.Signal) {
 	dbcSig.Size = uint32(enumSig.GetSize())
 
-	switch enumSig.byteOrder {
-	case SignalByteOrderLittleEndian:
-		dbcSig.ByteOrder = dbc.SignalLittleEndian
-		dbcSig.StartBit = uint32(enumSig.GetStartBit())
-
-	case SignalByteOrderBigEndian:
-		dbcSig.ByteOrder = dbc.SignalBigEndian
-		dbcSig.StartBit = uint32(enumSig.GetStartBit()) + dbcSig.Size - 1
-	}
+	startBit, byteOrder := e.getStartBit(enumSig.GetStartBit(), enumSig.parentMsg.byteOrder)
+	dbcSig.StartBit = startBit
+	dbcSig.ByteOrder = byteOrder
 
 	dbcSig.ValueType = dbc.SignalUnsigned
 
@@ -478,15 +475,9 @@ func (e *exporter) exportEnumSignal(enumSig *EnumSignal, dbcSig *dbc.Signal) {
 func (e *exporter) exportMultiplexerSignal(muxSig *MultiplexerSignal, dbcSig *dbc.Signal) {
 	dbcSig.Size = uint32(muxSig.GetGroupCountSize())
 
-	switch muxSig.byteOrder {
-	case SignalByteOrderLittleEndian:
-		dbcSig.ByteOrder = dbc.SignalLittleEndian
-		dbcSig.StartBit = uint32(muxSig.GetStartBit())
-
-	case SignalByteOrderBigEndian:
-		dbcSig.ByteOrder = dbc.SignalBigEndian
-		dbcSig.StartBit = uint32(muxSig.GetStartBit()) + dbcSig.Size - 1
-	}
+	startBit, byteOrder := e.getStartBit(muxSig.GetStartBit(), muxSig.parentMsg.byteOrder)
+	dbcSig.StartBit = startBit
+	dbcSig.ByteOrder = byteOrder
 
 	dbcSig.IsMultiplexor = true
 

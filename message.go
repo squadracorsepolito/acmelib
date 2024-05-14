@@ -62,6 +62,13 @@ const (
 	MessageSendTypeCyclicIfActiveAndTriggered MessageSendType = "CyclicIfActiveAndTriggered"
 )
 
+type MessageByteOrder int
+
+const (
+	MessageByteOrderLittleEndian MessageByteOrder = iota
+	MessageByteOrderBigEndian
+)
+
 // Message is the representation of data sent by a node thought the bus.
 // It holds a list of signals that are contained in the message payload.
 type Message struct {
@@ -80,6 +87,7 @@ type Message struct {
 	isStaticID bool
 	idGenFn    MessageCANIDGeneratorFn
 	priority   MessagePriority
+	byteOrder  MessageByteOrder
 
 	cycleTime      int
 	sendType       MessageSendType
@@ -108,6 +116,7 @@ func NewMessage(name string, sizeByte int) *Message {
 		isStaticID: false,
 		idGenFn:    defMsgIDGenFn,
 		priority:   MessagePriorityVeryHigh,
+		byteOrder:  MessageByteOrderLittleEndian,
 
 		cycleTime:      0,
 		sendType:       MessageSendTypeUnset,
@@ -574,4 +583,12 @@ func (m *Message) RemoveReceiver(receiverEntityID EntityID) {
 // Receivers returns a slice of all receiver nodes of the [Message].
 func (m *Message) Receivers() []*Node {
 	return m.receivers.getValues()
+}
+
+func (m *Message) SetByteOrder(byteOrder MessageByteOrder) {
+	m.byteOrder = byteOrder
+}
+
+func (m *Message) ByteOrder() MessageByteOrder {
+	return m.byteOrder
 }

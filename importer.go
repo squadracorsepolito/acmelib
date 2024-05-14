@@ -349,7 +349,8 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 
 	slices.SortFunc(dbcMsg.Signals, func(a, b *dbc.Signal) int { return int(a.StartBit) - int(b.StartBit) })
 
-	for _, dbcSig := range dbcMsg.Signals {
+	var currByteOrder dbc.SignalByteOrder
+	for idx, dbcSig := range dbcMsg.Signals {
 		if dbcSig.IsMultiplexor {
 			muxSignals = append(muxSignals, dbcSig)
 			muxSigNames[dbcSig.Name] = len(muxSignals) - 1
@@ -358,6 +359,19 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 		for _, rec := range dbcSig.Receivers {
 			receivers[rec] = true
 		}
+
+		if idx == 0 {
+			currByteOrder = dbcSig.ByteOrder
+			continue
+		}
+
+		if dbcSig.ByteOrder != currByteOrder {
+			return i.errorf(dbcSig, fmt.Errorf("byte_order: should be the same for all the signals within the message"))
+		}
+	}
+
+	if currByteOrder == dbc.SignalBigEndian {
+		msg.SetByteOrder(MessageByteOrderBigEndian)
 	}
 
 	for recName := range receivers {
@@ -501,11 +515,10 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 
 func (i *importer) getSignalStartBit(dbcSig *dbc.Signal) int {
 	startBit := int(dbcSig.StartBit)
-	size := int(dbcSig.Size)
-	if dbcSig.ByteOrder == dbc.SignalBigEndian {
-		startBit -= size - 1
+	if dbcSig.ByteOrder == dbc.SignalLittleEndian {
+		return startBit
 	}
-	return startBit
+	return startBit + 7 - 2*(startBit%8)
 }
 
 type importerMuxedSignal struct {
@@ -568,10 +581,6 @@ func (i *importer) importMuxSignal(dbcMuxSig *dbc.Signal, dbcMsgID uint32, muxed
 		muxSig.SetDesc(desc)
 	}
 
-	if dbcMuxSig.ByteOrder == dbc.SignalBigEndian {
-		muxSig.SetByteOrder(SignalByteOrderBigEndian)
-	}
-
 	i.signals[sigKey] = muxSig
 
 	return muxSig, nil
@@ -626,10 +635,6 @@ func (i *importer) importSignal(dbcSig *dbc.Signal, dbcMsgID uint32) (Signal, er
 
 	if desc, ok := i.sigDesc[sigKey]; ok {
 		sig.SetDesc(desc)
-	}
-
-	if dbcSig.ByteOrder == dbc.SignalBigEndian {
-		sig.SetByteOrder(SignalByteOrderBigEndian)
 	}
 
 	i.signals[sigKey] = sig

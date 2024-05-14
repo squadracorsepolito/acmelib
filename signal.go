@@ -8,26 +8,29 @@ import (
 
 // SignalKind rappresents the kind of a [Signal].
 // It can be standard, enum, or multiplexer
-type SignalKind string
+type SignalKind int
 
 const (
 	// SignalKindStandard defines a standard signal.
-	SignalKindStandard SignalKind = "signal-standard"
+	SignalKindStandard SignalKind = iota
 	// SignalKindEnum defines a enum signal.
-	SignalKindEnum SignalKind = "signal-enum"
+	SignalKindEnum
 	// SignalKindMultiplexer defines a multiplexer signal.
-	SignalKindMultiplexer SignalKind = "signal-multiplexer"
+	SignalKindMultiplexer
 )
 
-// SignalByteOrder represents the byte order of a [Signal].
-type SignalByteOrder string
-
-const (
-	// SignalByteOrderLittleEndian defines a little endian byte order.
-	SignalByteOrderLittleEndian SignalByteOrder = "signal_byte_order-little_endian"
-	// SignalByteOrderBigEndian defines a big endian byte order.
-	SignalByteOrderBigEndian SignalByteOrder = "signal_byte_order-big_endian"
-)
+func (sk SignalKind) String() string {
+	switch sk {
+	case SignalKindStandard:
+		return "standard"
+	case SignalKindEnum:
+		return "enum"
+	case SignalKindMultiplexer:
+		return "multiplexer"
+	default:
+		return "unknown"
+	}
+}
 
 // SignalSendType rappresents the send type of a [Signal].
 type SignalSendType string
@@ -91,12 +94,6 @@ type Signal interface {
 	setParentMsg(parentMsg *Message)
 	setParentMuxSig(parentMuxSig *MultiplexerSignal)
 
-	// SetByteOrder sets the byte order of the signal.
-	// By default it is set to little endian.
-	SetByteOrder(byteOrder SignalByteOrder)
-	// ByteOrder returns the byte order of the signal.
-	ByteOrder() SignalByteOrder
-
 	// SetSendType sets the send type of the signal.
 	SetSendType(sendType SignalSendType)
 	// SendType returns the send type of the signal.
@@ -126,8 +123,7 @@ type signal struct {
 
 	kind SignalKind
 
-	byteOrder SignalByteOrder
-	sendType  SignalSendType
+	sendType SignalSendType
 
 	relStartBit int
 }
@@ -141,8 +137,7 @@ func newSignal(name string, kind SignalKind) *signal {
 
 		kind: kind,
 
-		byteOrder: SignalByteOrderLittleEndian,
-		sendType:  SignalSendTypeUnset,
+		sendType: SignalSendTypeUnset,
 
 		relStartBit: 0,
 	}
@@ -223,14 +218,6 @@ func (s *signal) stringify(b *strings.Builder, tabs int) {
 	}
 
 	b.WriteString(fmt.Sprintf("%sstart_bit: %d; ", tabStr, s.relStartBit))
-}
-
-func (s *signal) SetByteOrder(byteOrder SignalByteOrder) {
-	s.byteOrder = byteOrder
-}
-
-func (s *signal) ByteOrder() SignalByteOrder {
-	return s.byteOrder
 }
 
 func (s *signal) SetSendType(sendType SignalSendType) {
@@ -331,16 +318,16 @@ func (ss *StandardSignal) ToStandard() (*StandardSignal, error) {
 // ToEnum always returns an error, because a [StandardSignal] cannot be converted to an [EnumSignal].
 func (ss *StandardSignal) ToEnum() (*EnumSignal, error) {
 	return nil, ss.errorf(&ConversionError{
-		From: string(SignalKindStandard),
-		To:   string(SignalKindEnum),
+		From: SignalKindStandard.String(),
+		To:   SignalKindEnum.String(),
 	})
 }
 
 // ToMultiplexer always returns an error, because a [StandardSigna] cannot be converted to a [MultiplexerSignal].
 func (ss *StandardSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 	return nil, ss.errorf(&ConversionError{
-		From: string(SignalKindStandard),
-		To:   string(SignalKindMultiplexer),
+		From: SignalKindStandard.String(),
+		To:   SignalKindMultiplexer.String(),
 	})
 }
 
@@ -485,8 +472,8 @@ func (es *EnumSignal) GetSize() int {
 // ToStandard always returns an error, because an [EnumSignal] cannot be converted to a [StandardSignal].
 func (es *EnumSignal) ToStandard() (*StandardSignal, error) {
 	return nil, es.errorf(&ConversionError{
-		From: string(SignalKindEnum),
-		To:   string(SignalKindStandard),
+		From: SignalKindEnum.String(),
+		To:   SignalKindStandard.String(),
 	})
 }
 

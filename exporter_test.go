@@ -38,7 +38,7 @@ func Test_ExportBus(t *testing.T) {
 	stdSig0, err := NewStandardSignal("std_sig_0", size4Type)
 	assert.NoError(err)
 	stdSig0.SetUnit(NewSignalUnit("deg_celsius", SignalUnitKindTemperature, "degC"))
-	stdSig0.SetByteOrder(SignalByteOrderBigEndian)
+	// stdSig0.SetByteOrder(SignalByteOrderBigEndian)
 	assert.NoError(msg0.AppendSignal(stdSig0))
 
 	muxSig0, err := NewMultiplexerSignal("mux_sig_0", 4, 16)
@@ -96,6 +96,18 @@ func Test_ExportBus(t *testing.T) {
 	enumSig0, err := NewEnumSignal("enum_sig_0", enum)
 	assert.NoError(err)
 	assert.NoError(msg2.AppendSignal(enumSig0))
+
+	// msg3 is big endian
+	msg3 := NewMessage("msg_3", 1)
+	msg3.SetCANID(100)
+	msg3.SetByteOrder(MessageByteOrderBigEndian)
+	assert.NoError(node0.AddMessage(msg3))
+	stdSig1, err := NewStandardSignal("std_sig_1", size4Type)
+	assert.NoError(err)
+	stdSig2, err := NewStandardSignal("std_sig_2", size4Type)
+	assert.NoError(err)
+	assert.NoError(msg3.AppendSignal(stdSig1))
+	assert.NoError(msg3.AppendSignal(stdSig2))
 
 	// attributes testing
 	strAtt := NewStringAttribute("str_att", "")
