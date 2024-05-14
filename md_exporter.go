@@ -3,6 +3,7 @@ package acmelib
 import (
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	md "github.com/nao1215/markdown"
@@ -85,22 +86,17 @@ func (e *mdExporter) exportMessage(msg *Message) {
 	e.w.H4(msg.name)
 
 	if len(msg.desc) > 0 {
-		e.w.PlainText(msg.desc)
-		e.w.LF()
+		e.w.PlainText(msg.desc).LF()
 	}
 
-	e.w.PlainTextf("CAN-ID: %s", md.Bold(fmt.Sprintf("%d", msg.id)))
-	e.w.LF()
+	e.w.PlainTextf("CAN-ID: %s\n", md.Bold(fmt.Sprintf("%d", msg.id)))
+	e.w.PlainTextf("Size: %s bytes\n", md.Bold(fmt.Sprintf("%d", msg.sizeByte)))
 
-	e.w.PlainTextf("Size: %s bytes", md.Bold(fmt.Sprintf("%d", msg.sizeByte)))
-	e.w.LF()
-
+	cycleTimeStr := "-"
 	if msg.cycleTime > 0 {
-		e.w.PlainTextf("Cycle Time: %s ms", md.Bold(fmt.Sprintf("%d", msg.cycleTime)))
-	} else {
-		e.w.PlainText("Cycle Time: -")
+		cycleTimeStr = fmt.Sprintf("%s ms", md.Bold(strconv.Itoa(msg.cycleTime)))
 	}
-	e.w.LF()
+	e.w.PlainTextf("Cycle Time: %s\n", cycleTimeStr)
 
 	recStr := "Receivers: "
 	for idx, rec := range msg.Receivers() {
@@ -113,8 +109,7 @@ func (e *mdExporter) exportMessage(msg *Message) {
 
 		recStr = fmt.Sprintf("%s, %s", recLink, recLink)
 	}
-	e.w.PlainText(recStr)
-	e.w.LF()
+	e.w.PlainText(recStr).LF()
 
 	sigTable := md.TableSet{
 		Header: []string{"Name", "Start Bit", "Size", "Min", "Max", "Offset", "Scale", "Unit", "Description"},

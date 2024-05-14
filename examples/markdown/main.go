@@ -9,13 +9,13 @@ import (
 func main() {
 	sc24 := acmelib.NewNetwork("SC24")
 
-	dbcFile, err := os.Open("MCB.dbc")
+	mcbFile, err := os.Open("MCB.dbc")
 	if err != nil {
 		panic(err)
 	}
-	defer dbcFile.Close()
+	defer mcbFile.Close()
 
-	mcb, err := acmelib.ImportDBCFile("mcb", dbcFile)
+	mcb, err := acmelib.ImportDBCFile("mcb", mcbFile)
 	if err != nil {
 		panic(err)
 	}
@@ -27,6 +27,21 @@ func main() {
 	if err := sc24.AddBus(mcb); err != nil {
 		panic(err)
 	}
+
+	// hvcbFile, err := os.Open("HVCB.dbc")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer hvcbFile.Close()
+
+	// hvcb, err := acmelib.ImportDBCFile("hvcb", hvcbFile)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// if err := sc24.AddBus(hvcb); err != nil {
+	// 	panic(err)
+	// }
 
 	mdFile, err := os.Create("SC24.md")
 	if err != nil {
