@@ -98,9 +98,9 @@ func (b *Bus) stringify(builder *strings.Builder, tabs int) {
 		return
 	}
 
-	builder.WriteString(fmt.Sprintf("%snodes:\n", tabStr))
+	builder.WriteString(fmt.Sprintf("%sattached_node_interfaces:\n", tabStr))
 	for _, nodeInt := range b.Nodes() {
-		nodeInt.node.stringify(builder, tabs+1)
+		nodeInt.stringify(builder, tabs+1)
 		builder.WriteRune('\n')
 	}
 }

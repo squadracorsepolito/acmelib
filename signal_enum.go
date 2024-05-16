@@ -27,7 +27,7 @@ type SignalEnum struct {
 func NewSignalEnum(name string) *SignalEnum {
 	return &SignalEnum{
 		entity:           newEntity(name),
-		withTemplateRefs: newWithTemplateRefs[*EnumSignal](TemplateKindSignalEnum),
+		withTemplateRefs: newWithTemplateRefs[*EnumSignal](),
 
 		// refs:     newSet[EntityID, *EnumSignal](),
 		parErrID: "",

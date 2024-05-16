@@ -65,7 +65,7 @@ type CANIDBuilder struct {
 func NewCANIDBuilder(name string) *CANIDBuilder {
 	return &CANIDBuilder{
 		entity:           newEntity(name),
-		withTemplateRefs: newWithTemplateRefs[*Bus](TemplateKindCANIDBuilder),
+		withTemplateRefs: newWithTemplateRefs[*Bus](),
 
 		operations: []*CANIDBuilderOp{},
 	}

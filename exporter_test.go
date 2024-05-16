@@ -21,13 +21,13 @@ func Test_ExportBus(t *testing.T) {
 	bus0.SetDesc("bus0 description")
 	assert.NoError(net.AddBus(bus0))
 
-	node0 := NewNode("node_0", 0)
+	node0 := NewNode("node_0", 0, 1)
 	node0.SetDesc("node0 description")
-	node0Int := node0.AddInterface()
+	node0Int := node0.Interfaces()[0]
 	assert.NoError(bus0.AddNodeInterface(node0Int))
 
-	recNode0 := NewNode("rec_node_0", 1).AddInterface()
-	assert.NoError(bus0.AddNodeInterface(recNode0))
+	recNode0Int := NewNode("rec_node_0", 1, 1).Interfaces()[0]
+	assert.NoError(bus0.AddNodeInterface(recNode0Int))
 
 	// msg0 has a signal in big endian order and a multiplexer signal
 	msg0 := NewMessage("msg_0", 1, 8)
@@ -87,7 +87,7 @@ func Test_ExportBus(t *testing.T) {
 	// msg2 has an enum signal
 	msg2 := NewMessage("msg_2", 3, 8)
 	assert.NoError(node0Int.AddMessage(msg2))
-	msg2.AddReceiver(recNode0)
+	msg2.AddReceiver(recNode0Int)
 
 	enum := NewSignalEnum("enum")
 	assert.NoError(enum.AddValue(NewSignalEnumValue("VALUE_0", 0)))

@@ -48,7 +48,7 @@ type SignalUnit struct {
 func NewSignalUnit(name string, kind SignalUnitKind, symbol string) *SignalUnit {
 	return &SignalUnit{
 		entity:           newEntity(name),
-		withTemplateRefs: newWithTemplateRefs[*StandardSignal](TemplateKindSignalUnit),
+		withTemplateRefs: newWithTemplateRefs[*StandardSignal](),
 
 		kind:   kind,
 		symbol: symbol,

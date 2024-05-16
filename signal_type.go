@@ -48,7 +48,7 @@ func newSignalType(name string, kind SignalTypeKind, size int, signed bool, min,
 
 	return &SignalType{
 		entity:           newEntity(name),
-		withTemplateRefs: newWithTemplateRefs[*StandardSignal](TemplateKindSignalType),
+		withTemplateRefs: newWithTemplateRefs[*StandardSignal](),
 
 		kind:   kind,
 		size:   size,

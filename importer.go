@@ -314,13 +314,13 @@ func (i *importer) importExtMuxes(dbcExtMuxes []*dbc.ExtendedMux) {
 
 func (i *importer) importNodes(dbcNodes *dbc.Nodes) error {
 	for idx, nodeName := range dbcNodes.Names {
-		tmpNode := NewNode(nodeName, NodeID(idx))
+		tmpNode := NewNode(nodeName, NodeID(idx), 1)
 
 		if desc, ok := i.nodeDesc[nodeName]; ok {
 			tmpNode.SetDesc(desc)
 		}
 
-		tmpNodeInt := tmpNode.AddInterface()
+		tmpNodeInt := tmpNode.Interfaces()[0]
 
 		if err := i.bus.AddNodeInterface(tmpNodeInt); err != nil {
 			return i.errorf(dbcNodes, err)
@@ -329,7 +329,7 @@ func (i *importer) importNodes(dbcNodes *dbc.Nodes) error {
 		i.nodeInts[tmpNode.name] = tmpNodeInt
 	}
 
-	if err := i.bus.AddNodeInterface(NewNode(dbc.DummyNode, 1024).AddInterface()); err != nil {
+	if err := i.bus.AddNodeInterface(NewNode(dbc.DummyNode, 1024, 1).Interfaces()[0]); err != nil {
 		return i.errorf(dbcNodes, err)
 	}
 

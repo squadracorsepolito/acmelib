@@ -2,6 +2,7 @@ package acmelib
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"golang.org/x/exp/slices"
@@ -64,6 +65,34 @@ func (ni *NodeInterface) errorf(err error) error {
 	}
 
 	return nodeIntErr
+}
+
+func (ni *NodeInterface) stringify(b *strings.Builder, tabs int) {
+	tabStr := getTabString(tabs)
+
+	b.WriteString(fmt.Sprintf("%sentity_id: %s\n", tabStr, ni.entityID))
+	b.WriteString(fmt.Sprintf("%sname: %s\n", tabStr, ni.GetName()))
+	b.WriteString(fmt.Sprintf("%screate_time: %s\n", tabStr, ni.createTime.Format(time.RFC3339)))
+	b.WriteString(fmt.Sprintf("%snumber: %d\n", tabStr, ni.number))
+
+	b.WriteString(fmt.Sprintf("%snode:\n", tabStr))
+	ni.node.stringify(b, tabs+1)
+
+	if ni.messages.size() == 0 {
+		return
+	}
+
+	b.WriteString(fmt.Sprintf("%ssended_messages:\n", tabStr))
+	for _, msg := range ni.Messages() {
+		msg.stringify(b, tabs+1)
+		b.WriteRune('\n')
+	}
+}
+
+func (ni *NodeInterface) String() string {
+	builder := new(strings.Builder)
+	ni.stringify(builder, 0)
+	return builder.String()
 }
 
 func (ni *NodeInterface) verifyMessageName(name string) error {

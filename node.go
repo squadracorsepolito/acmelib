@@ -2,6 +2,7 @@ package acmelib
 
 import (
 	"fmt"
+	"strings"
 )
 
 // NodeID is a unique identifier for a node.
@@ -25,45 +26,56 @@ type Node struct {
 	// messageNames *set[string, EntityID]
 	// messageIDs   *set[MessageID, EntityID]
 
-	interfaces   *set[EntityID, *NodeInterface]
-	interfaceIDs *set[int, EntityID]
+	interfaces []*NodeInterface
 
 	id NodeID
 }
 
 // NewNode creates a new [Node] with the given name and id.
 // The id must be unique among all nodes within a bus.
-func NewNode(name string, id NodeID) *Node {
-	return &Node{
+func NewNode(name string, id NodeID, interfaceCount int) *Node {
+	node := &Node{
 		attributeEntity: newAttributeEntity(name, AttributeRefKindNode),
-
-		interfaces:   newSet[EntityID, *NodeInterface](),
-		interfaceIDs: newSet[int, EntityID](),
-
-		// parentBuses: newSet[EntityID, *Bus](),
-		// parErrID:    "",
-
-		// messages:     newSet[EntityID, *Message](),
-		// messageNames: newSet[string, EntityID](),
-		// messageIDs:   newSet[MessageID, EntityID](),
 
 		id: id,
 	}
-}
 
-func (n *Node) AddInterface() *NodeInterface {
-	intNum := 0
-	for {
-		if !n.interfaceIDs.hasKey(intNum) {
-			break
-		}
-		intNum++
+	node.interfaces = make([]*NodeInterface, interfaceCount)
+	for i := 0; i < interfaceCount; i++ {
+		node.interfaces[i] = newNodeInterface(i, node)
 	}
 
-	nodeInt := newNodeInterface(intNum, n)
-	n.interfaceIDs.add(intNum, nodeInt.entityID)
+	return node
 
-	return nodeInt
+	// return &Node{
+	// 	attributeEntity: newAttributeEntity(name, AttributeRefKindNode),
+
+	// 	interfaces:   newSet[EntityID, *NodeInterface](),
+	// 	interfaceIDs: newSet[int, EntityID](),
+
+	// 	// parentBuses: newSet[EntityID, *Bus](),
+	// 	// parErrID:    "",
+
+	// 	// messages:     newSet[EntityID, *Message](),
+	// 	// messageNames: newSet[string, EntityID](),
+	// 	// messageIDs:   newSet[MessageID, EntityID](),
+
+	// 	id: id,
+	// }
+}
+
+func (n *Node) errorf(err error) error {
+	nodeIntErr := &EntityError{
+		Kind:     EntityKindNode,
+		EntityID: n.entityID,
+		Name:     n.name,
+		Err:      err,
+	}
+	return nodeIntErr
+}
+
+func (n *Node) Interfaces() []*NodeInterface {
+	return n.interfaces
 }
 
 // func (n *Node) errorf(err error) error {
@@ -113,29 +125,58 @@ func (n *Node) AddInterface() *NodeInterface {
 // 	return nil
 // }
 
-// func (n *Node) stringify(b *strings.Builder, tabs int) {
-// 	n.entity.stringify(b, tabs)
+func (n *Node) stringify(b *strings.Builder, tabs int) {
+	n.entity.stringify(b, tabs)
+	tabStr := getTabString(tabs)
+	b.WriteString(fmt.Sprintf("%snode_id: %s\n", tabStr, n.id.String()))
+}
 
-// 	tabStr := getTabString(tabs)
+func (n *Node) String() string {
+	builder := new(strings.Builder)
+	n.stringify(builder, 0)
+	return builder.String()
+}
 
-// 	b.WriteString(fmt.Sprintf("%snode_id: %s\n", tabStr, n.id.String()))
+func (n *Node) UpdateName(newName string) error {
+	if n.name == newName {
+		return nil
+	}
 
-// 	if n.messages.size() == 0 {
-// 		return
-// 	}
+	buses := []*Bus{}
+	for _, nodeInt := range n.interfaces {
+		if !nodeInt.hasParentBus() {
+			continue
+		}
 
-// 	b.WriteString(fmt.Sprintf("%smessages:\n", tabStr))
-// 	for _, msg := range n.Messages() {
-// 		msg.stringify(b, tabs+1)
-// 		b.WriteRune('\n')
-// 	}
-// }
+		tmpBus := nodeInt.parentBus
+		if err := tmpBus.verifyNodeName(newName); err != nil {
+			return n.errorf(&UpdateNameError{Err: err})
+		}
 
-// func (n *Node) String() string {
-// 	builder := new(strings.Builder)
-// 	n.stringify(builder, 0)
-// 	return builder.String()
-// }
+		buses = append(buses, tmpBus)
+	}
+
+	// buses := []*Bus{}
+	// for _, tmpBus := range n.parentBuses.entries() {
+	// 	if err := tmpBus.verifyNodeName(newName); err != nil {
+	// 		return n.errorf(&UpdateNameError{Err: err})
+	// 	}
+
+	// 	buses = append(buses, tmpBus)
+	// }
+
+	for _, tmpBus := range buses {
+		nodeIntEntID, err := tmpBus.nodeNames.getValue(n.name)
+		if err != nil {
+			panic(err)
+		}
+		tmpBus.nodeNames.modifyKey(n.name, newName, nodeIntEntID)
+	}
+
+	n.name = newName
+
+	return nil
+}
 
 // // UpdateName updates the name of the [Node].
 // // It may return an error if the new name is already in use within a bus.

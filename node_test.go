@@ -9,7 +9,7 @@ import (
 func Test_Node_AddMessage(t *testing.T) {
 	assert := assert.New(t)
 
-	node := NewNode("node", 0).AddInterface()
+	node := NewNode("node", 0, 1).Interfaces()[0]
 
 	msg0 := NewMessage("msg_0", 1, 1)
 	msg1 := NewMessage("msg_1", 2, 1)
@@ -38,7 +38,7 @@ func Test_Node_AddMessage(t *testing.T) {
 func Test_Node_RemoveMessage(t *testing.T) {
 	assert := assert.New(t)
 
-	node := NewNode("node", 0).AddInterface()
+	node := NewNode("node", 0, 1).Interfaces()[0]
 
 	msg0 := NewMessage("msg_0", 1, 1)
 	msg1 := NewMessage("msg_1", 2, 1)
@@ -66,7 +66,7 @@ func Test_Node_RemoveMessage(t *testing.T) {
 func Test_Node_RemoveAllMessages(t *testing.T) {
 	assert := assert.New(t)
 
-	node := NewNode("node", 0).AddInterface()
+	node := NewNode("node", 0, 1).Interfaces()[0]
 
 	msg0 := NewMessage("msg_0", 1, 1)
 	msg1 := NewMessage("msg_1", 2, 1)
@@ -83,25 +83,25 @@ func Test_Node_RemoveAllMessages(t *testing.T) {
 	assert.Equal(0, len(node.Messages()))
 }
 
-// func Test_Node_UpdateName(t *testing.T) {
-// 	assert := assert.New(t)
+func Test_Node_UpdateName(t *testing.T) {
+	assert := assert.New(t)
 
-// 	bus := NewBus("bus")
+	bus := NewBus("bus")
 
-// 	node0 := NewNode("node_0", 0).AddInterface()
-// 	node1 := NewNode("node_1", 1).AddInterface()
+	node0 := NewNode("node_0", 0, 1)
+	node1 := NewNode("node_1", 1, 1)
 
-// 	assert.NoError(bus.AddNode(node0))
-// 	assert.NoError(bus.AddNode(node1))
+	assert.NoError(bus.AddNodeInterface(node0.Interfaces()[0]))
+	assert.NoError(bus.AddNodeInterface(node1.Interfaces()[0]))
 
-// 	// should change the name to node_00
-// 	assert.NoError(node0.UpdateName("node_00"))
-// 	assert.Equal("node_00", node0.Name())
+	// should change the name to node_00
+	assert.NoError(node0.UpdateName("node_00"))
+	assert.Equal("node_00", node0.Name())
 
-// 	// should not change the name
-// 	assert.NoError(node1.UpdateName("node_1"))
-// 	assert.Equal("node_1", node1.Name())
+	// should not change the name
+	assert.NoError(node1.UpdateName("node_1"))
+	assert.Equal("node_1", node1.Name())
 
-// 	// should return an error because node_00 is already taken
-// 	assert.Error(node1.UpdateName("node_00"))
-// }
+	// should return an error because node_00 is already taken
+	assert.Error(node1.UpdateName("node_00"))
+}

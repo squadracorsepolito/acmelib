@@ -11,9 +11,9 @@ func Test_Bus_AddNode(t *testing.T) {
 
 	bus := NewBus("bus")
 
-	node0 := NewNode("node_0", 0).AddInterface()
-	node1 := NewNode("node_1", 1).AddInterface()
-	node2 := NewNode("node_2", 2).AddInterface()
+	node0 := NewNode("node_0", 0, 1).Interfaces()[0]
+	node1 := NewNode("node_1", 1, 1).Interfaces()[0]
+	node2 := NewNode("node_2", 2, 1).Interfaces()[0]
 
 	// should add node0, node1, and node2 without errors
 	assert.NoError(bus.AddNodeInterface(node0))
@@ -27,11 +27,11 @@ func Test_Bus_AddNode(t *testing.T) {
 	}
 
 	// should return an error because id 1 is already taken
-	dupIDNode := NewNode("", 2).AddInterface()
+	dupIDNode := NewNode("", 2, 1).Interfaces()[0]
 	assert.Error(bus.AddNodeInterface(dupIDNode))
 
 	// should return an error because name node_1 is already taken
-	dupNameNode := NewNode("node_1", 3).AddInterface()
+	dupNameNode := NewNode("node_1", 3, 1).Interfaces()[0]
 	assert.Error(bus.AddNodeInterface(dupNameNode))
 }
 
@@ -40,10 +40,10 @@ func Test_Bus_RemoveNode(t *testing.T) {
 
 	bus := NewBus("bus")
 
-	node0 := NewNode("node_0", 0).AddInterface()
-	node1 := NewNode("node_1", 1).AddInterface()
-	node2 := NewNode("node_2", 2).AddInterface()
-	node3 := NewNode("node_3", 3).AddInterface()
+	node0 := NewNode("node_0", 0, 1).Interfaces()[0]
+	node1 := NewNode("node_1", 1, 1).Interfaces()[0]
+	node2 := NewNode("node_2", 2, 1).Interfaces()[0]
+	node3 := NewNode("node_3", 3, 1).Interfaces()[0]
 
 	assert.NoError(bus.AddNodeInterface(node0))
 	assert.NoError(bus.AddNodeInterface(node1))
@@ -68,10 +68,10 @@ func Test_Bus_RemoveAllNodes(t *testing.T) {
 
 	bus := NewBus("bus")
 
-	node0 := NewNode("node_0", 0).AddInterface()
-	node1 := NewNode("node_1", 1).AddInterface()
-	node2 := NewNode("node_2", 2).AddInterface()
-	node3 := NewNode("node_3", 3).AddInterface()
+	node0 := NewNode("node_0", 0, 1).Interfaces()[0]
+	node1 := NewNode("node_1", 1, 1).Interfaces()[0]
+	node2 := NewNode("node_2", 2, 1).Interfaces()[0]
+	node3 := NewNode("node_3", 3, 1).Interfaces()[0]
 
 	assert.NoError(bus.AddNodeInterface(node0))
 	assert.NoError(bus.AddNodeInterface(node1))
