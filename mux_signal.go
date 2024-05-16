@@ -345,6 +345,13 @@ func (ms *MultiplexerSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 //   - [StartBitError] in case of an invalid start bit
 //   - [GroupIDError] in case of an invalid group ID
 func (ms *MultiplexerSignal) InsertSignal(signal Signal, startBit int, groupIDs ...int) error {
+	if signal == nil {
+		return &ArgumentError{
+			Name: "signal",
+			Err:  ErrIsNil,
+		}
+	}
+
 	insErr := &InsertSignalError{
 		EntityID: signal.EntityID(),
 		Name:     signal.Name(),

@@ -330,7 +330,7 @@ func NewStandardSignal(name string, typ *SignalType) (*StandardSignal, error) {
 		}
 	}
 
-	return &StandardSignal{
+	sig := &StandardSignal{
 		signal: newSignal(name, SignalKindStandard),
 
 		typ:    typ,
@@ -339,7 +339,11 @@ func NewStandardSignal(name string, typ *SignalType) (*StandardSignal, error) {
 		offset: 0,
 		scale:  1,
 		unit:   nil,
-	}, nil
+	}
+
+	typ.addRef(sig)
+
+	return sig, nil
 }
 
 // GetSize returns the size of the [StandardSignal].
@@ -412,11 +416,15 @@ func (ss *StandardSignal) SetType(typ *SignalType) error {
 		return ss.errorf(err)
 	}
 
+	ss.typ.removeRef(ss.entityID)
+
 	ss.typ = typ
 	ss.min = typ.min
 	ss.max = typ.max
 	ss.offset = 0
 	ss.scale = 1
+
+	typ.addRef(ss)
 
 	return nil
 }
@@ -465,6 +473,11 @@ func (ss *StandardSignal) Scale() float64 {
 
 // SetUnit sets the [SignalUnit] of the [StandardSignal] to the given one.
 func (ss *StandardSignal) SetUnit(unit *SignalUnit) {
+	if ss.unit != nil {
+		ss.unit.removeRef(ss.entityID)
+	}
+
+	unit.addRef(ss)
 	ss.unit = unit
 }
 
@@ -496,7 +509,7 @@ func NewEnumSignal(name string, enum *SignalEnum) (*EnumSignal, error) {
 		enum: enum,
 	}
 
-	enum.parentSignals.add(sig.entityID, sig)
+	enum.addRef(sig)
 
 	return sig, nil
 }
@@ -563,11 +576,11 @@ func (es *EnumSignal) SetEnum(enum *SignalEnum) error {
 		return es.errorf(err)
 	}
 
+	es.enum.removeRef(es.entityID)
+
 	es.enum = enum
 
-	es.enum.parentSignals.remove(es.entityID)
-
-	enum.parentSignals.add(es.entityID, es)
+	enum.addRef(es)
 
 	return nil
 }

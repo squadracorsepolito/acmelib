@@ -5,30 +5,32 @@ import (
 	"strings"
 )
 
-// MessageCANID is the bus unique identifier of a [Message].
-// By default 11 bits ids are used.
-type MessageCANID uint32
+// // MessageCANID is the bus unique identifier of a [Message].
+// // By default 11 bits ids are used.
+// type MessageCANID uint32
 
-func (id MessageCANID) String() string {
-	return fmt.Sprintf("%d", id)
-}
+// func (id MessageCANID) String() string {
+// 	return fmt.Sprintf("%d", id)
+// }
 
-// MessageCANIDGeneratorFn is callback used for generating automatically
-// the [MessageCANID] of a [Message]. It is triggered when a [Message] is added to
-// a [Node] or when the former is removed. It takes as prameters the priority
-// of the message, the number of messages sended by the node, and the node id,
-// then it returns the computed message id.
-// By default the messages calculate their 11 bit ids by putting the node id
-// in the 4 lsb, the message id (the nth message sent by the node) from
-// bit 4 to 9, and the priority in the 2 msb.
-type MessageCANIDGeneratorFn func(priority MessagePriority, messageID int, nodeID NodeID) (messageCANID MessageCANID)
+// // MessageCANIDGeneratorFn is callback used for generating automatically
+// // the [MessageCANID] of a [Message]. It is triggered when a [Message] is added to
+// // a [Node] or when the former is removed. It takes as prameters the priority
+// // of the message, the number of messages sended by the node, and the node id,
+// // then it returns the computed message id.
+// // By default the messages calculate their 11 bit ids by putting the node id
+// // in the 4 lsb, the message id (the nth message sent by the node) from
+// // bit 4 to 9, and the priority in the 2 msb.
+// type MessageCANIDGeneratorFn func(priority MessagePriority, messageID int, nodeID NodeID) (messageCANID MessageCANID)
 
-var defMsgIDGenFn = func(priority MessagePriority, messageID int, nodeID NodeID) (messageCANID MessageCANID) {
-	messageCANID = (MessageCANID(messageID) & 0b11111) << 4
-	messageCANID |= MessageCANID(priority) << 9
-	messageCANID |= MessageCANID(nodeID) & 0b1111
-	return messageCANID
-}
+// var defMsgIDGenFn = func(priority MessagePriority, messageID int, nodeID NodeID) (messageCANID MessageCANID) {
+// 	messageCANID = (MessageCANID(messageID) & 0b11111) << 4
+// 	messageCANID |= MessageCANID(priority) << 9
+// 	messageCANID |= MessageCANID(nodeID) & 0b1111
+// 	return messageCANID
+// }
+
+type MessageID uint32
 
 // MessagePriority rappresents the priority of a [Message].
 // The priorities are very high, high, medium, and low.
@@ -91,7 +93,8 @@ const (
 type Message struct {
 	*attributeEntity
 
-	senderNode *Node
+	// senderNode    *Node
+	senderNodeInt *NodeInterface
 
 	signals     *set[EntityID, Signal]
 	signalNames *set[string, EntityID]
@@ -100,27 +103,31 @@ type Message struct {
 
 	sizeByte int
 
-	id         MessageCANID
-	isStaticID bool
-	idGenFn    MessageCANIDGeneratorFn
-	priority   MessagePriority
-	byteOrder  MessageByteOrder
+	id             MessageID
+	staticCANID    CANID
+	hasStaticCANID bool
+	// id         MessageCANID
+	// isStaticID bool
+	// idGenFn    MessageCANIDGeneratorFn
+	priority  MessagePriority
+	byteOrder MessageByteOrder
 
 	cycleTime      int
 	sendType       MessageSendType
 	delayTime      int
 	startDelayTime int
 
-	receivers *set[EntityID, *Node]
+	receivers *set[EntityID, *NodeInterface]
 }
 
-// NewMessage creates a new [Message] with the given name and size in bytes.
+// NewMessage creates a new [Message] with the given name, id and size in bytes.
 // By default a [MessagePriority] of [MessagePriorityVeryHigh] is used.
-func NewMessage(name string, sizeByte int) *Message {
+func NewMessage(name string, id MessageID, sizeByte int) *Message {
 	return &Message{
 		attributeEntity: newAttributeEntity(name, AttributeRefKindMessage),
 
-		senderNode: nil,
+		// senderNode:    nil,
+		senderNodeInt: nil,
 
 		signals:     newSet[EntityID, Signal](),
 		signalNames: newSet[string, EntityID](),
@@ -129,35 +136,37 @@ func NewMessage(name string, sizeByte int) *Message {
 
 		sizeByte: sizeByte,
 
-		id:         0,
-		isStaticID: false,
-		idGenFn:    defMsgIDGenFn,
-		priority:   MessagePriorityVeryHigh,
-		byteOrder:  MessageByteOrderLittleEndian,
+		id:             id,
+		staticCANID:    0,
+		hasStaticCANID: false,
+		// isStaticID: false,
+		// idGenFn:    defMsgIDGenFn,
+		priority:  MessagePriorityVeryHigh,
+		byteOrder: MessageByteOrderLittleEndian,
 
 		cycleTime:      0,
 		sendType:       MessageSendTypeUnset,
 		delayTime:      0,
 		startDelayTime: 0,
 
-		receivers: newSet[EntityID, *Node](),
+		receivers: newSet[EntityID, *NodeInterface](),
 	}
 }
 
-func (m *Message) generateID(msgCount int, nodeID NodeID) {
-	if m.isStaticID {
-		return
-	}
-	m.id = m.idGenFn(m.priority, msgCount, nodeID)
-}
+// func (m *Message) generateID(msgCount int, nodeID NodeID) {
+// 	if m.isStaticID {
+// 		return
+// 	}
+// 	m.id = m.idGenFn(m.priority, msgCount, nodeID)
+// }
 
-func (m *Message) resetID() {
-	m.isStaticID = false
-	m.id = 0
-}
+// func (m *Message) resetID() {
+// 	m.isStaticID = false
+// 	m.id = 0
+// }
 
-func (m *Message) hasSenderNode() bool {
-	return m.senderNode != nil
+func (m *Message) hasSenderNodeInt() bool {
+	return m.senderNodeInt != nil
 }
 
 func (m *Message) errorf(err error) error {
@@ -167,8 +176,8 @@ func (m *Message) errorf(err error) error {
 		Name:     m.name,
 		Err:      err,
 	}
-	if m.hasSenderNode() {
-		return m.senderNode.errorf(msgErr)
+	if m.hasSenderNodeInt() {
+		return m.senderNodeInt.errorf(msgErr)
 	}
 	return msgErr
 }
@@ -238,7 +247,7 @@ func (m *Message) stringify(b *strings.Builder, tabs int) {
 	tabStr := getTabString(tabs)
 
 	if m.id != 0 {
-		b.WriteString(fmt.Sprintf("%smessage_id: %d; is_static_id: %t\n", tabStr, m.id, m.isStaticID))
+		b.WriteString(fmt.Sprintf("%smessage_id: %d\n", tabStr, m.id))
 	}
 
 	b.WriteString(fmt.Sprintf("%spriority: %d (very_high=0; low=3)\n", tabStr, m.priority))
@@ -263,7 +272,7 @@ func (m *Message) stringify(b *strings.Builder, tabs int) {
 	if m.receivers.size() > 0 {
 		b.WriteString(fmt.Sprintf("%sreceivers:\n", tabStr))
 		for _, rec := range m.Receivers() {
-			b.WriteString(fmt.Sprintf("%s\tname: %s; node_id: %d; entity_id: %s\n", tabStr, rec.name, rec.id, rec.entityID))
+			b.WriteString(fmt.Sprintf("%s\tname: %s; node_id: %d; entity_id: %s\n", tabStr, rec.GetName(), rec.node.id, rec.entityID))
 		}
 	}
 
@@ -367,8 +376,8 @@ func (m *Message) UpdateName(newName string) error {
 		return nil
 	}
 
-	if m.hasSenderNode() {
-		if err := m.senderNode.messageNames.verifyKeyUnique(newName); err != nil {
+	if m.hasSenderNodeInt() {
+		if err := m.senderNodeInt.messageNames.verifyKeyUnique(newName); err != nil {
 			return m.errorf(&UpdateNameError{
 				Err: &NameError{
 					Name: newName,
@@ -377,7 +386,7 @@ func (m *Message) UpdateName(newName string) error {
 			})
 		}
 
-		m.senderNode.messageNames.modifyKey(m.name, newName, m.entityID)
+		m.senderNodeInt.messageNames.modifyKey(m.name, newName, m.entityID)
 	}
 
 	m.name = newName
@@ -385,16 +394,21 @@ func (m *Message) UpdateName(newName string) error {
 	return nil
 }
 
-// SenderNode returns the [Node] that sends the [Message].
-// It returns nil if the message is not added to a node.
-func (m *Message) SenderNode() *Node {
-	return m.senderNode
+func (m *Message) SenderNodeInterface() *NodeInterface {
+	return m.senderNodeInt
 }
 
 // AppendSignal appends a [Signal] to the last position of the [Message] payload.
 // It may return an error if the signal name is already used within the message,
 // or if the signal cannot fit in the available space left at the end of the message payload.
 func (m *Message) AppendSignal(signal Signal) error {
+	if signal == nil {
+		return &ArgumentError{
+			Name: "signal",
+			Err:  ErrIsNil,
+		}
+	}
+
 	if err := m.verifySignalName(signal.Name()); err != nil {
 		return m.errorf(&AppendSignalError{
 			EntityID: signal.EntityID(),
@@ -417,6 +431,13 @@ func (m *Message) AppendSignal(signal Signal) error {
 // It may return an error if the signal name is already used within the message,
 // or if the signal cannot fit in the available space left at the start bit.
 func (m *Message) InsertSignal(signal Signal, startBit int) error {
+	if signal == nil {
+		return &ArgumentError{
+			Name: "signal",
+			Err:  ErrIsNil,
+		}
+	}
+
 	if err := m.verifySignalName(signal.Name()); err != nil {
 		return m.errorf(&InsertSignalError{
 			EntityID: signal.EntityID(),
@@ -519,23 +540,23 @@ func (m *Message) SizeByte() int {
 	return m.sizeByte
 }
 
-// CANID returns the message CAN id.
-func (m *Message) CANID() MessageCANID {
-	return m.id
-}
+// // CANID returns the message CAN id.
+// func (m *Message) CANID() MessageCANID {
+// 	return m.id
+// }
 
-// SetCANIDGeneratorFn sets the message CAN id generator function.
-func (m *Message) SetCANIDGeneratorFn(canIDGeneratorFn MessageCANIDGeneratorFn) {
-	m.isStaticID = false
-	m.idGenFn = canIDGeneratorFn
-}
+// // SetCANIDGeneratorFn sets the message CAN id generator function.
+// func (m *Message) SetCANIDGeneratorFn(canIDGeneratorFn MessageCANIDGeneratorFn) {
+// 	m.isStaticID = false
+// 	m.idGenFn = canIDGeneratorFn
+// }
 
-// SetCANID sets the message CAN id.
-// When the id is set in this way, the id generator function is not used anymore.
-func (m *Message) SetCANID(messageCANID MessageCANID) {
-	m.isStaticID = true
-	m.id = messageCANID
-}
+// // SetCANID sets the message CAN id.
+// // When the id is set in this way, the id generator function is not used anymore.
+// func (m *Message) SetCANID(messageCANID MessageCANID) {
+// 	m.isStaticID = true
+// 	m.id = messageCANID
+// }
 
 // SetPriority sets the message priority.
 func (m *Message) SetPriority(priority MessagePriority) {
@@ -587,18 +608,15 @@ func (m *Message) StartDelayTime() int {
 	return m.startDelayTime
 }
 
-// AddReceiver adds a receiver [Node] to the [Message].
-func (m *Message) AddReceiver(receiver *Node) {
+func (m *Message) AddReceiver(receiver *NodeInterface) {
 	m.receivers.add(receiver.entityID, receiver)
 }
 
-// RemoveReceiver removes a receiver [Node] of the [Message].
 func (m *Message) RemoveReceiver(receiverEntityID EntityID) {
 	m.receivers.remove(receiverEntityID)
 }
 
-// Receivers returns a slice of all receiver nodes of the [Message].
-func (m *Message) Receivers() []*Node {
+func (m *Message) Receivers() []*NodeInterface {
 	return m.receivers.getValues()
 }
 
@@ -608,4 +626,39 @@ func (m *Message) SetByteOrder(byteOrder MessageByteOrder) {
 
 func (m *Message) ByteOrder() MessageByteOrder {
 	return m.byteOrder
+}
+
+func (m *Message) SetID(id MessageID) {
+	m.id = id
+}
+
+func (m *Message) ID() MessageID {
+	return m.id
+}
+
+func (m *Message) GetCANID() CANID {
+	if m.hasStaticCANID {
+		return m.staticCANID
+	}
+
+	if !m.hasSenderNodeInt() {
+		return CANID(m.id)
+	}
+
+	nodeInt := m.senderNodeInt
+	if !nodeInt.hasParentBus() {
+		return CANID(m.id)
+	}
+
+	return nodeInt.parentBus.canIDBuilder.Calculate(m.priority, m.id, nodeInt.node.id)
+}
+
+func (m *Message) SetStaticCANID(canID CANID) {
+	m.hasStaticCANID = true
+	m.staticCANID = canID
+	m.id = MessageID(canID)
+}
+
+func (m *Message) HasStaticCANID() bool {
+	return m.hasStaticCANID
 }

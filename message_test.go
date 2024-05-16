@@ -9,7 +9,7 @@ import (
 func Test_Message(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg_0", 8)
+	msg := NewMessage("msg_0", 1, 8)
 	assert.Equal(msg.name, "msg_0")
 	assert.Equal(msg.SizeByte(), 8)
 }
@@ -17,7 +17,7 @@ func Test_Message(t *testing.T) {
 func Test_Message_AppendSignal(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg_0", 8)
+	msg := NewMessage("msg_0", 1, 8)
 
 	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, -128, 127)
 	sigTypInt32, _ := newSignalType("int32", SignalTypeKindInteger, 32, true, -128, 127)
@@ -58,7 +58,7 @@ func Test_Message_AppendSignal(t *testing.T) {
 func Test_Message_InsertSignal(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg_0", 8)
+	msg := NewMessage("msg_0", 1, 8)
 
 	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, -128, 127)
 	sigTypInt32, _ := newSignalType("int32", SignalTypeKindInteger, 32, true, -128, 127)
@@ -108,7 +108,7 @@ func Test_Message_InsertSignal(t *testing.T) {
 func Test_Message_RemoveSignal(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg_0", 8)
+	msg := NewMessage("msg_0", 1, 8)
 
 	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, -128, 127)
 	sigTypInt32, _ := newSignalType("int32", SignalTypeKindInteger, 32, true, -128, 127)
@@ -143,7 +143,7 @@ func Test_Message_RemoveSignal(t *testing.T) {
 func Test_Message_CompactSignals(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg_0", 8)
+	msg := NewMessage("msg_0", 1, 8)
 
 	sigTypInt8, _ := newSignalType("int8", SignalTypeKindInteger, 8, true, -128, 127)
 
@@ -168,7 +168,7 @@ func Test_Message_CompactSignals(t *testing.T) {
 func Test_Message_ShiftSignalLeft(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("message", 2)
+	msg := NewMessage("message", 1, 2)
 
 	sigTypeInt4, err := newSignalType("int4", SignalTypeKindInteger, 4, true, -8, 7)
 	assert.NoError(err)
@@ -204,7 +204,7 @@ func Test_Message_ShiftSignalLeft(t *testing.T) {
 func Test_Message_ShiftSignalRight(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("message", 2)
+	msg := NewMessage("message", 1, 2)
 
 	sigTypeInt4, _ := newSignalType("int4", SignalTypeKindInteger, 4, true, -8, 7)
 

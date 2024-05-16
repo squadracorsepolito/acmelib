@@ -22,6 +22,7 @@ const (
 // SignalType is the representation of a signal type.
 type SignalType struct {
 	*entity
+	*withTemplateRefs[*StandardSignal]
 
 	kind   SignalTypeKind
 	size   int
@@ -46,7 +47,8 @@ func newSignalType(name string, kind SignalTypeKind, size int, signed bool, min,
 	}
 
 	return &SignalType{
-		entity: newEntity(name),
+		entity:           newEntity(name),
+		withTemplateRefs: newWithTemplateRefs[*StandardSignal](TemplateKindSignalType),
 
 		kind:   kind,
 		size:   size,
@@ -141,4 +143,8 @@ func (st *SignalType) Min() float64 {
 // Max returns the maximum value of the [SignalType].
 func (st *SignalType) Max() float64 {
 	return st.max
+}
+
+func (st *SignalType) ToSignalType() (*SignalType, error) {
+	return st, nil
 }

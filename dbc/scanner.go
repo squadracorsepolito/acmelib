@@ -83,8 +83,9 @@ func (s *scanner) read() rune {
 
 	s.lastReadCh = ch
 
-	if ch != '\t' {
-		s.currCol++
+	s.currCol++
+	if ch == '\t' {
+		s.currCol += 4
 	}
 
 	if ch == '\n' {

@@ -51,7 +51,7 @@ BO_ 32 msg_1 : 8 node_0
 BO_ 48 msg_2 : 8 node_0
 	SG_ enum_sig_0 : 0|4@1+ (1,0) [0|15] "" rec_node_0
 
-BO_ 100 msg_3 : 1 node_0
+BO_ 64 msg_3 : 1 node_0
 	SG_ std_sig_1 : 7|4@0+ (1,0) [0|15] "" Vector__XXX
 	SG_ std_sig_2 : 3|4@0+ (1,0) [0|15] "" Vector__XXX
 

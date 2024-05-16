@@ -13,7 +13,7 @@ func Test_CANIDBuilder(t *testing.T) {
 	b.UseMessagePriority(30).UseMessageID(4, 10).UseNodeID(0, 4)
 
 	msgPriority := MessagePriorityLow
-	msgID := 0b1111111111
+	msgID := MessageID(0b1111111111)
 	nodeID := NodeID(0b11)
 
 	expected := uint32(msgPriority << 30)

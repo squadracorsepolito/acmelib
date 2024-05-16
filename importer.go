@@ -27,11 +27,11 @@ type importer struct {
 	bus *Bus
 
 	nodeDesc map[string]string
-	msgDesc  map[MessageCANID]string
+	msgDesc  map[MessageID]string
 	sigDesc  map[string]string
 
-	nodes    map[string]*Node
-	messages map[MessageCANID]*Message
+	nodeInts map[string]*NodeInterface
+	messages map[MessageID]*Message
 	signals  map[string]Signal
 
 	flagSigType *SignalType
@@ -45,11 +45,11 @@ func newImporter() *importer {
 		bus: nil,
 
 		nodeDesc: make(map[string]string),
-		msgDesc:  make(map[MessageCANID]string),
+		msgDesc:  make(map[MessageID]string),
 		sigDesc:  make(map[string]string),
 
-		nodes:    make(map[string]*Node),
-		messages: make(map[MessageCANID]*Message),
+		nodeInts: make(map[string]*NodeInterface),
+		messages: make(map[MessageID]*Message),
 		signals:  make(map[string]Signal),
 
 		flagSigType: NewFlagSignalType("flag"),
@@ -101,7 +101,7 @@ func (i *importer) importFile(dbcFile *dbc.File) (*Bus, error) {
 	}
 
 	if len(dummyNode.Messages()) == 0 {
-		if err := bus.RemoveNode(dummyNode.entityID); err != nil {
+		if err := bus.RemoveNodeInterface(dummyNode.entityID); err != nil {
 			panic(err)
 		}
 	}
@@ -119,7 +119,7 @@ func (i *importer) importComments(dbcComments []*dbc.Comment) {
 			i.nodeDesc[dbcComm.NodeName] = dbcComm.Text
 
 		case dbc.CommentMessage:
-			i.msgDesc[MessageCANID(dbcComm.MessageID)] = dbcComm.Text
+			i.msgDesc[MessageID(dbcComm.MessageID)] = dbcComm.Text
 
 		case dbc.CommentSignal:
 			key := i.getSignalKey(dbcComm.MessageID, dbcComm.SignalName)
@@ -229,14 +229,14 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 			}
 
 		case dbc.AttributeNode:
-			if node, ok := i.nodes[dbcAttVal.NodeName]; ok {
-				if err := node.AddAttributeValue(att, value); err != nil {
+			if node, ok := i.nodeInts[dbcAttVal.NodeName]; ok {
+				if err := node.node.AddAttributeValue(att, value); err != nil {
 					return i.errorf(dbcAttVal, err)
 				}
 			}
 
 		case dbc.AttributeMessage:
-			if msg, ok := i.messages[MessageCANID(dbcAttVal.MessageID)]; ok {
+			if msg, ok := i.messages[MessageID(dbcAttVal.MessageID)]; ok {
 				attType, ok := specialAttributeTypes[attName]
 				if ok {
 					switch attType {
@@ -320,14 +320,16 @@ func (i *importer) importNodes(dbcNodes *dbc.Nodes) error {
 			tmpNode.SetDesc(desc)
 		}
 
-		if err := i.bus.AddNode(tmpNode); err != nil {
+		tmpNodeInt := tmpNode.AddInterface()
+
+		if err := i.bus.AddNodeInterface(tmpNodeInt); err != nil {
 			return i.errorf(dbcNodes, err)
 		}
 
-		i.nodes[tmpNode.name] = tmpNode
+		i.nodeInts[tmpNode.name] = tmpNodeInt
 	}
 
-	if err := i.bus.AddNode(NewNode(dbc.DummyNode, 1024)); err != nil {
+	if err := i.bus.AddNodeInterface(NewNode(dbc.DummyNode, 1024).AddInterface()); err != nil {
 		return i.errorf(dbcNodes, err)
 	}
 
@@ -335,10 +337,10 @@ func (i *importer) importNodes(dbcNodes *dbc.Nodes) error {
 }
 
 func (i *importer) importMessage(dbcMsg *dbc.Message) error {
-	msg := NewMessage(dbcMsg.Name, int(dbcMsg.Size))
+	msgID := MessageID(dbcMsg.ID)
+	msg := NewMessage(dbcMsg.Name, msgID, int(dbcMsg.Size))
 
-	msgID := MessageCANID(dbcMsg.ID)
-	msg.SetCANID(msgID)
+	msg.SetStaticCANID(CANID(msgID))
 
 	i.messages[msgID] = msg
 

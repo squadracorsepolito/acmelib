@@ -23,7 +23,7 @@ func Test_MultiplexerSignal(t *testing.T) {
 	_, err = NewMultiplexerSignal("invalid_mux_sig", 4, 0)
 	assert.ErrorAs(err, &ErrIsZero)
 
-	msg := NewMessage("msg", 8)
+	msg := NewMessage("msg", 1, 8)
 	assert.NoError(msg.AppendSignal(muxSig))
 
 	// testing multiplexed signal size change
@@ -98,7 +98,7 @@ func Test_MultiplexerSignal(t *testing.T) {
 func Test_MultiplexerSignal_InsertSignal(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 8)
+	msg := NewMessage("msg", 1, 8)
 
 	muxSig, err := NewMultiplexerSignal("mux_sig", 4, 16)
 	assert.NoError(err)
@@ -189,7 +189,7 @@ func Test_MultiplexerSignal_InsertSignal(t *testing.T) {
 func Test_MultiplexerSignal_RemoveSignal(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 8)
+	msg := NewMessage("msg", 1, 8)
 
 	muxSig, err := NewMultiplexerSignal("mux_sig", 4, 16)
 	assert.NoError(err)
@@ -246,7 +246,7 @@ func Test_MultiplexerSignal_RemoveSignal(t *testing.T) {
 func Test_MultiplexerSignal_ClearSignalGroup(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 8)
+	msg := NewMessage("msg", 1, 8)
 
 	muxSig, err := NewMultiplexerSignal("mux_sig", 4, 16)
 	assert.NoError(err)
@@ -282,7 +282,7 @@ func Test_MultiplexerSignal_ClearSignalGroup(t *testing.T) {
 func Test_MultiplexerSignal_ClearAllSignalGroups(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 8)
+	msg := NewMessage("msg", 1, 8)
 
 	muxSig, err := NewMultiplexerSignal("mux_sig", 4, 16)
 	assert.NoError(err)

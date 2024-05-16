@@ -2,7 +2,6 @@ package acmelib
 
 import (
 	"io"
-	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -23,15 +22,16 @@ func Test_ExportBus(t *testing.T) {
 	assert.NoError(net.AddBus(bus0))
 
 	node0 := NewNode("node_0", 0)
-	assert.NoError(bus0.AddNode(node0))
 	node0.SetDesc("node0 description")
+	node0Int := node0.AddInterface()
+	assert.NoError(bus0.AddNodeInterface(node0Int))
 
-	recNode0 := NewNode("rec_node_0", 1)
-	assert.NoError(bus0.AddNode(recNode0))
+	recNode0 := NewNode("rec_node_0", 1).AddInterface()
+	assert.NoError(bus0.AddNodeInterface(recNode0))
 
 	// msg0 has a signal in big endian order and a multiplexer signal
-	msg0 := NewMessage("msg_0", 8)
-	assert.NoError(node0.AddMessage(msg0))
+	msg0 := NewMessage("msg_0", 1, 8)
+	assert.NoError(node0Int.AddMessage(msg0))
 
 	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
 	assert.NoError(err)
@@ -59,8 +59,8 @@ func Test_ExportBus(t *testing.T) {
 	assert.NoError(muxSig0.InsertSignal(oneGroupSig0, 4, 1))
 
 	// msg1 has a 2 level nested multiplexer signals
-	msg1 := NewMessage("msg_1", 8)
-	assert.NoError(node0.AddMessage(msg1))
+	msg1 := NewMessage("msg_1", 2, 8)
+	assert.NoError(node0Int.AddMessage(msg1))
 	msg1.SetDesc("msg1 description")
 
 	muxSig1, err := NewMultiplexerSignal("mux_sig_1", 4, 16)
@@ -85,8 +85,8 @@ func Test_ExportBus(t *testing.T) {
 	assert.NoError(nestedMuxSig1.InsertSignal(multiGroupSig1, 4))
 
 	// msg2 has an enum signal
-	msg2 := NewMessage("msg_2", 8)
-	assert.NoError(node0.AddMessage(msg2))
+	msg2 := NewMessage("msg_2", 3, 8)
+	assert.NoError(node0Int.AddMessage(msg2))
 	msg2.AddReceiver(recNode0)
 
 	enum := NewSignalEnum("enum")
@@ -99,10 +99,9 @@ func Test_ExportBus(t *testing.T) {
 	assert.NoError(msg2.AppendSignal(enumSig0))
 
 	// msg3 is big endian
-	msg3 := NewMessage("msg_3", 1)
-	msg3.SetCANID(100)
+	msg3 := NewMessage("msg_3", 4, 1)
 	msg3.SetByteOrder(MessageByteOrderBigEndian)
-	assert.NoError(node0.AddMessage(msg3))
+	assert.NoError(node0Int.AddMessage(msg3))
 	stdSig1, err := NewStandardSignal("std_sig_1", size4Type)
 	assert.NoError(err)
 	stdSig2, err := NewStandardSignal("std_sig_2", size4Type)
@@ -127,7 +126,7 @@ func Test_ExportBus(t *testing.T) {
 	assert.NoError(err)
 
 	bus0.AddAttributeValue(strAtt, "bus0_value")
-	node0.AddAttributeValue(intAtt, 1)
+	node0Int.node.AddAttributeValue(intAtt, 1)
 	msg0.AddAttributeValue(hexAtt, 1)
 	stdSig0.AddAttributeValue(enumAtt, "VALUE_1")
 	muxSig0.AddAttributeValue(floatAtt, 50.75)
@@ -157,8 +156,6 @@ func Test_ExportBus(t *testing.T) {
 	expectedFileStr := re.ReplaceAllString(testFileBuf.String(), "")
 
 	fileStr := strings.ReplaceAll(fileBuf.String(), "\n", "")
-
-	log.Print(fileBuf.String())
 
 	assert.Equal(expectedFileStr, fileStr)
 }

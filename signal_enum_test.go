@@ -19,7 +19,7 @@ func Test_SignalEnum(t *testing.T) {
 func Test_SignalEnum_AddValue(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 1)
+	msg := NewMessage("msg", 1, 1)
 
 	enum := NewSignalEnum("enum")
 
@@ -54,7 +54,7 @@ func Test_SignalEnum_AddValue(t *testing.T) {
 func Test_SignalEnum_RemoveValue(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 1)
+	msg := NewMessage("msg", 1, 1)
 
 	enum := NewSignalEnum("enum")
 
@@ -114,8 +114,8 @@ func Test_SignalEnumValue_UpdateName(t *testing.T) {
 func Test_SignalEnumValue_UpdateIndex(t *testing.T) {
 	assert := assert.New(t)
 
-	msg0 := NewMessage("msg_0", 1)
-	msg1 := NewMessage("msg_1", 2)
+	msg0 := NewMessage("msg_0", 1, 1)
+	msg1 := NewMessage("msg_1", 2, 2)
 
 	enum := NewSignalEnum("enum")
 

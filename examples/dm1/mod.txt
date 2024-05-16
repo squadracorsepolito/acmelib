@@ -1,5 +1,0 @@
-BMSLV_Temp1 shift
-nome nodi maiuscolo
-time msg mandato da dspace a 10 ms (vedi telegram software)
-
-dm1: 500ms per errori non critici

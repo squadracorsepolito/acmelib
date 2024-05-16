@@ -66,14 +66,14 @@ func (e *mdExporter) exportBus(bus *Bus) {
 	}
 }
 
-func (e *mdExporter) exportNode(node *Node) {
-	e.w.H3(node.name)
+func (e *mdExporter) exportNode(node *NodeInterface) {
+	e.w.H3(node.GetName())
 
-	if len(node.desc) > 0 {
-		e.w.PlainText(node.desc).LF()
+	if len(node.node.desc) > 0 {
+		e.w.PlainText(node.node.desc).LF()
 	}
 
-	e.w.PlainTextf("Node ID: %s", md.Bold(fmt.Sprintf("%d", node.id))).LF()
+	e.w.PlainTextf("Node ID: %s", md.Bold(fmt.Sprintf("%d", node.node.id))).LF()
 
 	for _, msg := range node.Messages() {
 		e.exportMessage(msg)
@@ -100,7 +100,7 @@ func (e *mdExporter) exportMessage(msg *Message) {
 
 	recStr := "Receivers: "
 	for idx, rec := range msg.Receivers() {
-		recLink := e.getLink(rec.name)
+		recLink := e.getLink(rec.GetName())
 
 		if idx == 0 {
 			recStr += recLink

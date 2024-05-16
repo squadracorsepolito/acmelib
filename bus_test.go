@@ -11,28 +11,28 @@ func Test_Bus_AddNode(t *testing.T) {
 
 	bus := NewBus("bus")
 
-	node0 := NewNode("node_0", 0)
-	node1 := NewNode("node_1", 1)
-	node2 := NewNode("node_2", 2)
+	node0 := NewNode("node_0", 0).AddInterface()
+	node1 := NewNode("node_1", 1).AddInterface()
+	node2 := NewNode("node_2", 2).AddInterface()
 
 	// should add node0, node1, and node2 without errors
-	assert.NoError(bus.AddNode(node0))
-	assert.NoError(bus.AddNode(node1))
-	assert.NoError(bus.AddNode(node2))
+	assert.NoError(bus.AddNodeInterface(node0))
+	assert.NoError(bus.AddNodeInterface(node1))
+	assert.NoError(bus.AddNodeInterface(node2))
 	expectedIDs := []NodeID{0, 1, 2}
 	expectedNames := []string{"node_0", "node_1", "node_2"}
 	for idx, tmpNode := range bus.Nodes() {
-		assert.Equal(expectedIDs[idx], tmpNode.ID())
-		assert.Equal(expectedNames[idx], tmpNode.Name())
+		assert.Equal(expectedIDs[idx], tmpNode.node.ID())
+		assert.Equal(expectedNames[idx], tmpNode.node.Name())
 	}
 
 	// should return an error because id 1 is already taken
-	dupIDNode := NewNode("", 2)
-	assert.Error(bus.AddNode(dupIDNode))
+	dupIDNode := NewNode("", 2).AddInterface()
+	assert.Error(bus.AddNodeInterface(dupIDNode))
 
 	// should return an error because name node_1 is already taken
-	dupNameNode := NewNode("node_1", 3)
-	assert.Error(bus.AddNode(dupNameNode))
+	dupNameNode := NewNode("node_1", 3).AddInterface()
+	assert.Error(bus.AddNodeInterface(dupNameNode))
 }
 
 func Test_Bus_RemoveNode(t *testing.T) {
@@ -40,27 +40,27 @@ func Test_Bus_RemoveNode(t *testing.T) {
 
 	bus := NewBus("bus")
 
-	node0 := NewNode("node_0", 0)
-	node1 := NewNode("node_1", 1)
-	node2 := NewNode("node_2", 2)
-	node3 := NewNode("node_3", 3)
+	node0 := NewNode("node_0", 0).AddInterface()
+	node1 := NewNode("node_1", 1).AddInterface()
+	node2 := NewNode("node_2", 2).AddInterface()
+	node3 := NewNode("node_3", 3).AddInterface()
 
-	assert.NoError(bus.AddNode(node0))
-	assert.NoError(bus.AddNode(node1))
-	assert.NoError(bus.AddNode(node2))
-	assert.NoError(bus.AddNode(node3))
+	assert.NoError(bus.AddNodeInterface(node0))
+	assert.NoError(bus.AddNodeInterface(node1))
+	assert.NoError(bus.AddNodeInterface(node2))
+	assert.NoError(bus.AddNodeInterface(node3))
 
 	// should remove without problems node2
-	assert.NoError(bus.RemoveNode(node2.EntityID()))
+	assert.NoError(bus.RemoveNodeInterface(node2.EntityID()))
 	expectedIDs := []NodeID{0, 1, 3}
 	expectedNames := []string{"node_0", "node_1", "node_3"}
 	for idx, tmpNode := range bus.Nodes() {
-		assert.Equal(expectedIDs[idx], tmpNode.ID())
-		assert.Equal(expectedNames[idx], tmpNode.Name())
+		assert.Equal(expectedIDs[idx], tmpNode.node.ID())
+		assert.Equal(expectedNames[idx], tmpNode.node.Name())
 	}
 
 	// should return an error because the entity id is invalid
-	assert.Error(bus.RemoveNode("dummy-id"))
+	assert.Error(bus.RemoveNodeInterface("dummy-id"))
 }
 
 func Test_Bus_RemoveAllNodes(t *testing.T) {
@@ -68,17 +68,17 @@ func Test_Bus_RemoveAllNodes(t *testing.T) {
 
 	bus := NewBus("bus")
 
-	node0 := NewNode("node_0", 0)
-	node1 := NewNode("node_1", 1)
-	node2 := NewNode("node_2", 2)
-	node3 := NewNode("node_3", 3)
+	node0 := NewNode("node_0", 0).AddInterface()
+	node1 := NewNode("node_1", 1).AddInterface()
+	node2 := NewNode("node_2", 2).AddInterface()
+	node3 := NewNode("node_3", 3).AddInterface()
 
-	assert.NoError(bus.AddNode(node0))
-	assert.NoError(bus.AddNode(node1))
-	assert.NoError(bus.AddNode(node2))
-	assert.NoError(bus.AddNode(node3))
+	assert.NoError(bus.AddNodeInterface(node0))
+	assert.NoError(bus.AddNodeInterface(node1))
+	assert.NoError(bus.AddNodeInterface(node2))
+	assert.NoError(bus.AddNodeInterface(node3))
 
-	bus.RemoveAllNodes()
+	bus.RemoveAllNodeInterfaces()
 
 	assert.Equal(0, len(bus.Nodes()))
 }

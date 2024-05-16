@@ -14,7 +14,9 @@ type Bus struct {
 
 	parentNetwork *Network
 
-	nodes     *set[EntityID, *Node]
+	canIDBuilder *CANIDBuilder
+
+	nodeInts  *set[EntityID, *NodeInterface]
 	nodeNames *set[string, EntityID]
 	nodeIDs   *set[NodeID, EntityID]
 
@@ -28,7 +30,9 @@ func NewBus(name string) *Bus {
 
 		parentNetwork: nil,
 
-		nodes:     newSet[EntityID, *Node](),
+		canIDBuilder: defaulCANIDBuilder,
+
+		nodeInts:  newSet[EntityID, *NodeInterface](),
 		nodeNames: newSet[string, EntityID](),
 		nodeIDs:   newSet[NodeID, EntityID](),
 
@@ -88,13 +92,15 @@ func (b *Bus) stringify(builder *strings.Builder, tabs int) {
 
 	builder.WriteString(fmt.Sprintf("%sbaudrate: %d\n", tabStr, b.baudrate))
 
-	if b.nodes.size() == 0 {
+	b.canIDBuilder.stringify(builder, tabs)
+
+	if b.nodeInts.size() == 0 {
 		return
 	}
 
 	builder.WriteString(fmt.Sprintf("%snodes:\n", tabStr))
-	for _, node := range b.Nodes() {
-		node.stringify(builder, tabs+1)
+	for _, nodeInt := range b.Nodes() {
+		nodeInt.node.stringify(builder, tabs+1)
 		builder.WriteRune('\n')
 	}
 }
@@ -131,13 +137,20 @@ func (b *Bus) ParentNetwork() *Network {
 	return b.parentNetwork
 }
 
-// AddNode adds the given [Node] to the [Bus].
-// It may return an error if the node name or the node id is already used by the bus.
-func (b *Bus) AddNode(node *Node) error {
-	addNodeErr := &AddEntityError{
-		EntityID: node.entityID,
-		Name:     node.name,
+func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
+	if nodeInterface == nil {
+		return &ArgumentError{
+			Name: "nodeInterface",
+			Err:  ErrIsNil,
+		}
 	}
+
+	addNodeErr := &AddEntityError{
+		EntityID: nodeInterface.entityID,
+		Name:     nodeInterface.GetName(),
+	}
+
+	node := nodeInterface.node
 
 	if err := b.verifyNodeName(node.name); err != nil {
 		addNodeErr.Err = err
@@ -149,56 +162,51 @@ func (b *Bus) AddNode(node *Node) error {
 		return b.errorf(addNodeErr)
 	}
 
-	node.parentBuses.add(b.entityID, b)
+	nodeInterface.parentBus = b
 
-	b.nodes.add(node.entityID, node)
-	b.nodeNames.add(node.name, node.entityID)
-	b.nodeIDs.add(node.id, node.entityID)
+	b.nodeInts.add(nodeInterface.entityID, nodeInterface)
+	b.nodeNames.add(node.name, nodeInterface.entityID)
+	b.nodeIDs.add(node.id, nodeInterface.entityID)
 
 	return nil
 }
 
-// RemoveNode removes a [Node] that matches the given entity id from the [Bus].
-// It may return an error if the node with the given entity id is not part of the bus.
-func (b *Bus) RemoveNode(nodeEntityID EntityID) error {
-	node, err := b.nodes.getValue(nodeEntityID)
+func (b *Bus) RemoveNodeInterface(nodeInterfaceEntityID EntityID) error {
+	nodeInt, err := b.nodeInts.getValue(nodeInterfaceEntityID)
 	if err != nil {
 		return b.errorf(&RemoveEntityError{
-			EntityID: nodeEntityID,
+			EntityID: nodeInterfaceEntityID,
 			Err:      err,
 		})
 	}
 
-	node.parentBuses.remove(b.entityID)
+	nodeInt.parentBus = nil
 
-	b.nodes.remove(nodeEntityID)
-	b.nodeNames.remove(node.name)
-	b.nodeIDs.remove(node.id)
+	b.nodeInts.remove(nodeInterfaceEntityID)
+	b.nodeNames.remove(nodeInt.node.name)
+	b.nodeIDs.remove(nodeInt.node.id)
 
 	return nil
 }
 
-// RemoveAllNodes removes all nodes from the [Bus].
-func (b *Bus) RemoveAllNodes() {
-	for _, tmpNode := range b.nodes.entries() {
-		tmpNode.parentBuses.remove(b.entityID)
+func (b *Bus) RemoveAllNodeInterfaces() {
+	for _, tmpNodeInt := range b.nodeInts.entries() {
+		tmpNodeInt.parentBus = nil
 	}
 
-	b.nodes.clear()
+	b.nodeInts.clear()
 	b.nodeNames.clear()
 	b.nodeIDs.clear()
 }
 
 // Nodes returns a slice of all nodes in the [Bus] sorted by node id.
-func (b *Bus) Nodes() []*Node {
-	nodeSlice := b.nodes.getValues()
-	slices.SortFunc(nodeSlice, func(a, b *Node) int { return int(a.id) - int(b.id) })
+func (b *Bus) Nodes() []*NodeInterface {
+	nodeSlice := b.nodeInts.getValues()
+	slices.SortFunc(nodeSlice, func(a, b *NodeInterface) int { return int(a.node.id) - int(b.node.id) })
 	return nodeSlice
 }
 
-// GetNodeByName returns the [Node] with the given name from the [Bus].
-// It may return an error if the node with the given name is not part of the bus.
-func (b *Bus) GetNodeByName(nodeName string) (*Node, error) {
+func (b *Bus) GetNodeByName(nodeName string) (*NodeInterface, error) {
 	id, err := b.nodeNames.getValue(nodeName)
 	if err != nil {
 		return nil, b.errorf(&GetEntityError{
@@ -206,7 +214,7 @@ func (b *Bus) GetNodeByName(nodeName string) (*Node, error) {
 		})
 	}
 
-	node, err := b.nodes.getValue(id)
+	node, err := b.nodeInts.getValue(id)
 	if err != nil {
 		return nil, b.errorf(&GetEntityError{
 			EntityID: id,
@@ -225,4 +233,12 @@ func (b *Bus) SetBaudrate(baudrate int) {
 // Baudrate returns the baudrate of the [Bus].
 func (b *Bus) Baudrate() int {
 	return b.baudrate
+}
+
+func (b *Bus) SetCANIDBuilder(canIDBuilder *CANIDBuilder) {
+	b.canIDBuilder = canIDBuilder
+}
+
+func (b *Bus) CANIDBuilder() *CANIDBuilder {
+	return b.canIDBuilder
 }

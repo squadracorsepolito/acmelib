@@ -9,7 +9,7 @@ import (
 func Test_signal_UpdateName(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 2)
+	msg := NewMessage("msg", 1, 2)
 
 	size8Type, err := NewIntegerSignalType("8_bits", 8, false)
 	assert.NoError(err)
@@ -79,7 +79,7 @@ func Test_StandardSignal(t *testing.T) {
 func Test_StandardSignal_SetType(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 2)
+	msg := NewMessage("msg", 1, 2)
 
 	size16Type, err := NewIntegerSignalType("16_bits", 16, false)
 	assert.NoError(err)
@@ -115,7 +115,7 @@ func Test_StandardSignal_SetType(t *testing.T) {
 func Test_EnumSignal_SetEnum(t *testing.T) {
 	assert := assert.New(t)
 
-	msg := NewMessage("msg", 2)
+	msg := NewMessage("msg", 1, 2)
 
 	size8Enum := NewSignalEnum("8_bits")
 	assert.NoError(size8Enum.AddValue(NewSignalEnumValue("val_255", 255)))

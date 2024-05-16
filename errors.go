@@ -172,7 +172,7 @@ func (e *NodeIDError) Unwrap() error { return e.Err }
 // MessageIDError is returned when a [MessageCANID] is invalid.
 // The MessageID field is the message ID and the Err field is the cause.
 type MessageIDError struct {
-	MessageID MessageCANID
+	MessageID MessageID
 	Err       error
 }
 

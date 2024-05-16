@@ -259,26 +259,26 @@ func (e *exporter) exportBus(bus *Bus) *dbc.File {
 		Baudrate: uint32(bus.baudrate),
 	}
 
-	e.exportNodes(bus.Nodes())
+	e.exportNodeInterfaces(bus.Nodes())
 
 	return e.dbcFile
 }
 
-func (e *exporter) exportNodes(nodes []*Node) {
+func (e *exporter) exportNodeInterfaces(nodeInts []*NodeInterface) {
 	dbcNodes := new(dbc.Nodes)
 
-	for _, node := range nodes {
-		nodeName := clearSpaces(node.name)
+	for _, nodeInt := range nodeInts {
+		nodeName := clearSpaces(nodeInt.node.name)
 
-		if node.desc != "" {
+		if nodeInt.node.desc != "" {
 			e.addDBCComment(&dbc.Comment{
 				Kind:     dbc.CommentNode,
-				Text:     node.desc,
+				Text:     nodeInt.node.desc,
 				NodeName: nodeName,
 			})
 		}
 
-		for _, attVal := range node.AttributeValues() {
+		for _, attVal := range nodeInt.node.AttributeValues() {
 			dbcAttVal := new(dbc.AttributeValue)
 			dbcAttVal.NodeName = nodeName
 			e.exportAttributeValue(attVal, dbc.AttributeNode, dbcAttVal)
@@ -287,7 +287,7 @@ func (e *exporter) exportNodes(nodes []*Node) {
 
 		dbcNodes.Names = append(dbcNodes.Names, nodeName)
 
-		for _, msg := range node.Messages() {
+		for _, msg := range nodeInt.Messages() {
 			e.exportMessage(msg)
 		}
 	}
@@ -298,15 +298,16 @@ func (e *exporter) exportNodes(nodes []*Node) {
 func (e *exporter) exportMessage(msg *Message) {
 	dbcMsg := new(dbc.Message)
 
+	msgID := uint32(msg.GetCANID())
 	if msg.desc != "" {
 		e.addDBCComment(&dbc.Comment{
 			Kind:      dbc.CommentMessage,
 			Text:      msg.desc,
-			MessageID: uint32(msg.CANID()),
+			MessageID: msgID,
 		})
 	}
 
-	dbcMsg.ID = uint32(msg.CANID())
+	dbcMsg.ID = msgID
 
 	attValues := msg.AttributeValues()
 	if msg.cycleTime != 0 {
@@ -330,27 +331,26 @@ func (e *exporter) exportMessage(msg *Message) {
 
 	dbcMsg.Name = clearSpaces(msg.name)
 	dbcMsg.Size = uint32(msg.sizeByte)
-	dbcMsg.Transmitter = msg.senderNode.name
+	dbcMsg.Transmitter = msg.senderNodeInt.node.name
 
 	e.currDBCMsg = dbcMsg
 
 	for _, sig := range msg.Signals() {
-		e.exportSignal(sig)
+		e.exportSignal(sig, msgID)
 	}
 
 	e.dbcFile.Messages = append(e.dbcFile.Messages, dbcMsg)
 }
 
-func (e *exporter) exportSignal(sig Signal) {
+func (e *exporter) exportSignal(sig Signal, dbcMsgID uint32) {
 	parMsg := sig.ParentMessage()
-	msgID := parMsg.CANID()
 	sigName := clearSpaces(sig.Name())
 
 	if sig.Desc() != "" {
 		e.addDBCComment(&dbc.Comment{
 			Kind:       dbc.CommentSignal,
 			Text:       sig.Desc(),
-			MessageID:  uint32(msgID),
+			MessageID:  dbcMsgID,
 			SignalName: sigName,
 		})
 	}
@@ -364,7 +364,7 @@ func (e *exporter) exportSignal(sig Signal) {
 	}
 	for _, attVal := range attValues {
 		dbcAttVal := new(dbc.AttributeValue)
-		dbcAttVal.MessageID = uint32(msgID)
+		dbcAttVal.MessageID = dbcMsgID
 		dbcAttVal.SignalName = sigName
 		e.exportAttributeValue(attVal, dbc.AttributeSignal, dbcAttVal)
 		e.dbcFile.AttributeValues = append(e.dbcFile.AttributeValues, dbcAttVal)
@@ -378,7 +378,7 @@ func (e *exporter) exportSignal(sig Signal) {
 	} else {
 		receiverNames := []string{}
 		for _, rec := range parMsg.Receivers() {
-			receiverNames = append(receiverNames, clearSpaces(rec.name))
+			receiverNames = append(receiverNames, clearSpaces(rec.node.name))
 		}
 		dbcSig.Receivers = receiverNames
 	}
@@ -401,7 +401,7 @@ func (e *exporter) exportSignal(sig Signal) {
 		if err != nil {
 			panic(err)
 		}
-		e.exportEnumSignal(enumSig, dbcSig)
+		e.exportEnumSignal(enumSig, dbcMsgID, dbcSig)
 		e.currDBCMsg.Signals = append(e.currDBCMsg.Signals, dbcSig)
 
 	case SignalKindMultiplexer:
@@ -409,7 +409,7 @@ func (e *exporter) exportSignal(sig Signal) {
 		if err != nil {
 			panic(err)
 		}
-		e.exportMultiplexerSignal(muxSig, dbcSig)
+		e.exportMultiplexerSignal(muxSig, dbcMsgID, dbcSig)
 	}
 }
 
@@ -446,7 +446,7 @@ func (e *exporter) exportStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Sign
 	}
 }
 
-func (e *exporter) exportEnumSignal(enumSig *EnumSignal, dbcSig *dbc.Signal) {
+func (e *exporter) exportEnumSignal(enumSig *EnumSignal, dbcMsgID uint32, dbcSig *dbc.Signal) {
 	dbcSig.Size = uint32(enumSig.GetSize())
 
 	startBit, byteOrder := e.getStartBit(enumSig.GetStartBit(), enumSig.parentMsg.byteOrder)
@@ -462,7 +462,7 @@ func (e *exporter) exportEnumSignal(enumSig *EnumSignal, dbcSig *dbc.Signal) {
 
 	dbcValEnc := new(dbc.ValueEncoding)
 	dbcValEnc.Kind = dbc.ValueEncodingSignal
-	dbcValEnc.MessageID = uint32(enumSig.parentMsg.id)
+	dbcValEnc.MessageID = dbcMsgID
 	dbcValEnc.SignalName = clearSpaces(enumSig.Name())
 
 	for _, val := range enumSig.enum.Values() {
@@ -475,7 +475,7 @@ func (e *exporter) exportEnumSignal(enumSig *EnumSignal, dbcSig *dbc.Signal) {
 	e.dbcFile.ValueEncodings = append(e.dbcFile.ValueEncodings, dbcValEnc)
 }
 
-func (e *exporter) exportMultiplexerSignal(muxSig *MultiplexerSignal, dbcSig *dbc.Signal) {
+func (e *exporter) exportMultiplexerSignal(muxSig *MultiplexerSignal, dbcMsgID uint32, dbcSig *dbc.Signal) {
 	dbcSig.Size = uint32(muxSig.GetGroupCountSize())
 
 	startBit, byteOrder := e.getStartBit(muxSig.GetStartBit(), muxSig.parentMsg.byteOrder)
@@ -512,7 +512,7 @@ func (e *exporter) exportMultiplexerSignal(muxSig *MultiplexerSignal, dbcSig *db
 
 			if len(groupIDs) == 0 {
 				sigNames = append(sigNames, tmpSigName)
-				e.exportSignal(tmpSig)
+				e.exportSignal(tmpSig, dbcMsgID)
 				e.currDBCMsg.Signals[len(e.currDBCMsg.Signals)-1].MuxSwitchValue = uint32(id)
 				continue
 			}
@@ -534,7 +534,7 @@ func (e *exporter) exportMultiplexerSignal(muxSig *MultiplexerSignal, dbcSig *db
 		}
 
 		dbcExtMux := new(dbc.ExtendedMux)
-		dbcExtMux.MessageID = uint32(muxSig.parentMsg.id)
+		dbcExtMux.MessageID = dbcMsgID
 		dbcExtMux.MultiplexorName = clearSpaces(muxSig.name)
 		dbcExtMux.MultiplexedName = tmpSigName
 

@@ -14,6 +14,8 @@ type Network struct {
 
 	buses    *set[EntityID, *Bus]
 	busNames *set[string, EntityID]
+
+	templates *set[EntityID, Template]
 }
 
 // NewNetwork returns a new [Network] with the given name.
@@ -23,6 +25,8 @@ func NewNetwork(name string) *Network {
 
 		buses:    newSet[EntityID, *Bus](),
 		busNames: newSet[string, EntityID](),
+
+		templates: newSet[EntityID, Template](),
 	}
 }
 
@@ -72,6 +76,13 @@ func (n *Network) UpdateName(newName string) {
 // AddBus adds a [Bus] to the [Network].
 // It may return an error if the bus name is already taken.
 func (n *Network) AddBus(bus *Bus) error {
+	if bus == nil {
+		return &ArgumentError{
+			Name: "bus",
+			Err:  ErrIsNil,
+		}
+	}
+
 	if err := n.verifyBusName(bus.name); err != nil {
 		return n.errorf(&AddEntityError{
 			EntityID: bus.entityID,
@@ -124,4 +135,112 @@ func (n *Network) Buses() []*Bus {
 		return strings.Compare(a.name, b.name)
 	})
 	return busSlice
+}
+
+func (n *Network) AddTemplate(template Template) error {
+	if template == nil {
+		return &ArgumentError{
+			Name: "template",
+			Err:  ErrIsNil,
+		}
+	}
+
+	n.templates.add(template.EntityID(), template)
+	template.setParentNetwork(n)
+
+	return nil
+}
+
+func (n *Network) RemoveTemplate(templateEntityID EntityID) error {
+	tpl, err := n.templates.getValue(templateEntityID)
+	if err != nil {
+		return n.errorf(&RemoveEntityError{
+			EntityID: templateEntityID,
+			Err:      err,
+		})
+	}
+
+	tpl.setParentNetwork(nil)
+	n.templates.remove(templateEntityID)
+
+	return nil
+}
+
+func (n *Network) Templates() []Template {
+	templates := n.templates.getValues()
+	slices.SortFunc(templates, func(a, b Template) int {
+		kindA := a.TemplateKind()
+		kindB := b.TemplateKind()
+
+		if kindA == kindB {
+			return strings.Compare(a.Name(), b.Name())
+		}
+
+		return int(kindA) - int(kindB)
+	})
+	return templates
+}
+
+func (n *Network) CANIDBuilderTemplates() []*CANIDBuilder {
+	canIDBuilder := []*CANIDBuilder{}
+
+	for _, tpl := range n.templates.getValues() {
+		if tpl.TemplateKind() == TemplateKindCANIDBuilder {
+			tmpCANIDBuilder, err := tpl.ToCANIDBuilder()
+			if err != nil {
+				panic(err)
+			}
+			canIDBuilder = append(canIDBuilder, tmpCANIDBuilder)
+		}
+	}
+
+	return canIDBuilder
+}
+
+func (n *Network) SignaTypeTemplates() []*SignalType {
+	sigTypes := []*SignalType{}
+
+	for _, tpl := range n.templates.getValues() {
+		if tpl.TemplateKind() == TemplateKindSignalType {
+			tmpSigType, err := tpl.ToSignalType()
+			if err != nil {
+				panic(err)
+			}
+			sigTypes = append(sigTypes, tmpSigType)
+		}
+	}
+
+	return sigTypes
+}
+
+func (n *Network) SignaUnitTemplates() []*SignalUnit {
+	sigUnits := []*SignalUnit{}
+
+	for _, tpl := range n.templates.getValues() {
+		if tpl.TemplateKind() == TemplateKindSignalUnit {
+			tmpSigUnit, err := tpl.ToSignalUnit()
+			if err != nil {
+				panic(err)
+			}
+			sigUnits = append(sigUnits, tmpSigUnit)
+		}
+	}
+
+	return sigUnits
+}
+
+func (n *Network) SignaEnumTemplates() []*SignalEnum {
+	sigEnums := []*SignalEnum{}
+
+	for _, tpl := range n.templates.getValues() {
+		if tpl.TemplateKind() == TemplateKindSignalEnum {
+			tmpSigEnum, err := tpl.ToSignalEnum()
+			if err != nil {
+				panic(err)
+			}
+			sigEnums = append(sigEnums, tmpSigEnum)
+		}
+	}
+
+	return sigEnums
 }

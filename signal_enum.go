@@ -10,9 +10,10 @@ import (
 // to a signal.
 type SignalEnum struct {
 	*entity
+	*withTemplateRefs[*EnumSignal]
 
-	parentSignals *set[EntityID, *EnumSignal]
-	parErrID      EntityID
+	// refs     *set[EntityID, *EnumSignal]
+	parErrID EntityID
 
 	values       *set[EntityID, *SignalEnumValue]
 	valueNames   *set[string, EntityID]
@@ -25,10 +26,11 @@ type SignalEnum struct {
 // NewSignalEnum creates a new [SignalEnum] with the given name.
 func NewSignalEnum(name string) *SignalEnum {
 	return &SignalEnum{
-		entity: newEntity(name),
+		entity:           newEntity(name),
+		withTemplateRefs: newWithTemplateRefs[*EnumSignal](TemplateKindSignalEnum),
 
-		parentSignals: newSet[EntityID, *EnumSignal](),
-		parErrID:      "",
+		// refs:     newSet[EntityID, *EnumSignal](),
+		parErrID: "",
 
 		values:       newSet[EntityID, *SignalEnumValue](),
 		valueNames:   newSet[string, EntityID](),
@@ -47,9 +49,9 @@ func (se *SignalEnum) errorf(err error) error {
 		Err:      err,
 	}
 
-	if se.parentSignals.size() > 0 {
+	if se.refs.size() > 0 {
 		if se.parErrID != "" {
-			parSig, err := se.parentSignals.getValue(se.parErrID)
+			parSig, err := se.refs.getValue(se.parErrID)
 			if err != nil {
 				panic(err)
 			}
@@ -58,7 +60,7 @@ func (se *SignalEnum) errorf(err error) error {
 			return parSig.errorf(enumErr)
 		}
 
-		return se.parentSignals.getValues()[0].errorf(enumErr)
+		return se.refs.getValues()[0].errorf(enumErr)
 	}
 
 	return enumErr
@@ -84,7 +86,7 @@ func (se *SignalEnum) verifyValueIndex(index int) error {
 		prevSize := se.GetSize()
 		newSize := calcSizeFromValue(index)
 
-		for _, tmpSig := range se.parentSignals.entries() {
+		for _, tmpSig := range se.refs.entries() {
 			if tmpSig.hasParentMsg() {
 				if err := tmpSig.parentMsg.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
 					se.parErrID = tmpSig.entityID
@@ -124,7 +126,7 @@ func (se *SignalEnum) modifyValueIndex(value *SignalEnumValue, newIndex int) {
 	if gtMaxIndex || updateMaxIdx {
 		amount := calcSizeFromValue(newIndex) - se.GetSize()
 
-		for _, tmpSig := range se.parentSignals.entries() {
+		for _, tmpSig := range se.refs.entries() {
 			if err := tmpSig.modifySize(amount); err != nil {
 				panic(err)
 			}
@@ -188,6 +190,13 @@ func (se *SignalEnum) String() string {
 // It may return an error if the value name is already in use within
 // the signal enum, or if it has an invalid index.
 func (se *SignalEnum) AddValue(value *SignalEnumValue) error {
+	if value == nil {
+		return &ArgumentError{
+			Name: "value",
+			Err:  ErrIsNil,
+		}
+	}
+
 	addValErr := &AddEntityError{
 		EntityID: value.entityID,
 		Name:     value.name,
@@ -288,6 +297,10 @@ func (se *SignalEnum) SetMinSize(minSize int) {
 // MinSize return the minimum size of the [SignalEnum] in bits.
 func (se *SignalEnum) MinSize() int {
 	return se.minSize
+}
+
+func (se *SignalEnum) ToSignalEnum() (*SignalEnum, error) {
+	return se, nil
 }
 
 // SignalEnumValue holds the key (name) and the value (index) of a signal enum
