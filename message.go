@@ -272,7 +272,7 @@ func (m *Message) stringify(b *strings.Builder, tabs int) {
 	if m.receivers.size() > 0 {
 		b.WriteString(fmt.Sprintf("%sreceivers:\n", tabStr))
 		for _, rec := range m.Receivers() {
-			b.WriteString(fmt.Sprintf("%s\tname: %s; node_id: %d; entity_id: %s\n", tabStr, rec.GetName(), rec.node.id, rec.entityID))
+			b.WriteString(fmt.Sprintf("%s\tname: %s; node_id: %d; entity_id: %s\n", tabStr, rec.Name(), rec.node.id, rec.entityID))
 		}
 	}
 

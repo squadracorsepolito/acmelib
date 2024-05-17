@@ -79,7 +79,3 @@ func (su *SignalUnit) Kind() SignalUnitKind {
 func (su *SignalUnit) Symbol() string {
 	return su.symbol
 }
-
-func (su *SignalUnit) ToSignalUnit() (*SignalUnit, error) {
-	return su, nil
-}

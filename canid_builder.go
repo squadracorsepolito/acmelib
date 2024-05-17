@@ -142,7 +142,3 @@ func (b *CANIDBuilder) UseNodeID(from, len int) *CANIDBuilder {
 	})
 	return b
 }
-
-func (b *CANIDBuilder) ToCANIDBuilder() (*CANIDBuilder, error) {
-	return b, nil
-}

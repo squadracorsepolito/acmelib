@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Bus_AddNode(t *testing.T) {
+func Test_Bus_AddNodeInterface(t *testing.T) {
 	assert := assert.New(t)
 
 	bus := NewBus("bus")
@@ -35,7 +35,7 @@ func Test_Bus_AddNode(t *testing.T) {
 	assert.Error(bus.AddNodeInterface(dupNameNode))
 }
 
-func Test_Bus_RemoveNode(t *testing.T) {
+func Test_Bus_RemoveNodeInterface(t *testing.T) {
 	assert := assert.New(t)
 
 	bus := NewBus("bus")
@@ -63,7 +63,7 @@ func Test_Bus_RemoveNode(t *testing.T) {
 	assert.Error(bus.RemoveNodeInterface("dummy-id"))
 }
 
-func Test_Bus_RemoveAllNodes(t *testing.T) {
+func Test_Bus_RemoveAllNodeInterfaces(t *testing.T) {
 	assert := assert.New(t)
 
 	bus := NewBus("bus")

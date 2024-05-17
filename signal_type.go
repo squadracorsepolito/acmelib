@@ -144,7 +144,3 @@ func (st *SignalType) Min() float64 {
 func (st *SignalType) Max() float64 {
 	return st.max
 }
-
-func (st *SignalType) ToSignalType() (*SignalType, error) {
-	return st, nil
-}

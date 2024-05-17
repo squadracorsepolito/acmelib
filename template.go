@@ -69,7 +69,7 @@ type templateRef interface {
 // }
 
 type withTemplateRefs[R templateRef] struct {
-	parentNetwork *Network
+	// parentNetwork *Network
 
 	// tplKind TemplateKind
 
@@ -78,7 +78,7 @@ type withTemplateRefs[R templateRef] struct {
 
 func newWithTemplateRefs[R templateRef]() *withTemplateRefs[R] {
 	return &withTemplateRefs[R]{
-		parentNetwork: nil,
+		// parentNetwork: nil,
 
 		// tplKind: tplKind,
 
@@ -86,9 +86,9 @@ func newWithTemplateRefs[R templateRef]() *withTemplateRefs[R] {
 	}
 }
 
-func (t *withTemplateRefs[R]) isTemplate() bool {
-	return t.parentNetwork != nil
-}
+// func (t *withTemplateRefs[R]) isTemplate() bool {
+// 	return t.parentNetwork != nil
+// }
 
 func (t *withTemplateRefs[R]) addRef(ref R) {
 	t.refs.add(ref.EntityID(), ref)
@@ -96,6 +96,14 @@ func (t *withTemplateRefs[R]) addRef(ref R) {
 
 func (t *withTemplateRefs[R]) removeRef(refID EntityID) {
 	t.refs.remove(refID)
+}
+
+func (t *withTemplateRefs[R]) ReferenceCount() int {
+	return t.refs.size()
+}
+
+func (t *withTemplateRefs[R]) References() []R {
+	return t.refs.getValues()
 }
 
 // func (t *withTemplateRefs[R]) setParentNetwork(parentNetwork *Network) {
@@ -108,10 +116,6 @@ func (t *withTemplateRefs[R]) removeRef(refID EntityID) {
 
 // func (t *withTemplateRefs[R]) TemplateKind() TemplateKind {
 // 	return t.tplKind
-// }
-
-// func (t *withTemplateRefs[R]) References() []R {
-// 	return t.refs.getValues()
 // }
 
 // func (t *withTemplateRefs[R]) ToCANIDBuilder() (*CANIDBuilder, error) {

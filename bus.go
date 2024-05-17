@@ -145,21 +145,21 @@ func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 		}
 	}
 
-	addNodeErr := &AddEntityError{
+	addNodeIntErr := &AddEntityError{
 		EntityID: nodeInterface.entityID,
-		Name:     nodeInterface.GetName(),
+		Name:     nodeInterface.name,
 	}
 
 	node := nodeInterface.node
 
 	if err := b.verifyNodeName(node.name); err != nil {
-		addNodeErr.Err = err
-		return b.errorf(addNodeErr)
+		addNodeIntErr.Err = err
+		return b.errorf(addNodeIntErr)
 	}
 
 	if err := b.verifyNodeID(node.id); err != nil {
-		addNodeErr.Err = err
-		return b.errorf(addNodeErr)
+		addNodeIntErr.Err = err
+		return b.errorf(addNodeIntErr)
 	}
 
 	nodeInterface.parentBus = b
@@ -206,7 +206,7 @@ func (b *Bus) Nodes() []*NodeInterface {
 	return nodeSlice
 }
 
-func (b *Bus) GetNodeByName(nodeName string) (*NodeInterface, error) {
+func (b *Bus) GetNodeInterfaceByNodeName(nodeName string) (*NodeInterface, error) {
 	id, err := b.nodeNames.getValue(nodeName)
 	if err != nil {
 		return nil, b.errorf(&GetEntityError{
@@ -214,7 +214,7 @@ func (b *Bus) GetNodeByName(nodeName string) (*NodeInterface, error) {
 		})
 	}
 
-	node, err := b.nodeInts.getValue(id)
+	nodeInt, err := b.nodeInts.getValue(id)
 	if err != nil {
 		return nil, b.errorf(&GetEntityError{
 			EntityID: id,
@@ -222,7 +222,7 @@ func (b *Bus) GetNodeByName(nodeName string) (*NodeInterface, error) {
 		})
 	}
 
-	return node, nil
+	return nodeInt, nil
 }
 
 // SetBaudrate sets the baudrate of the [Bus].

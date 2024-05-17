@@ -67,7 +67,7 @@ func (e *mdExporter) exportBus(bus *Bus) {
 }
 
 func (e *mdExporter) exportNode(node *NodeInterface) {
-	e.w.H3(node.GetName())
+	e.w.H3(node.Name())
 
 	if len(node.node.desc) > 0 {
 		e.w.PlainText(node.node.desc).LF()
@@ -100,7 +100,7 @@ func (e *mdExporter) exportMessage(msg *Message) {
 
 	recStr := "Receivers: "
 	for idx, rec := range msg.Receivers() {
-		recLink := e.getLink(rec.GetName())
+		recLink := e.getLink(rec.Name())
 
 		if idx == 0 {
 			recStr += recLink

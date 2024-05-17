@@ -3,45 +3,42 @@ package acmelib
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"golang.org/x/exp/slices"
 )
 
 type NodeInterface struct {
-	entityID   EntityID
-	createTime time.Time
-	number     int
-	node       *Node
+	*entity
 
 	parentBus *Bus
 
 	messages     *set[EntityID, *Message]
 	messageNames *set[string, EntityID]
 	messageIDs   *set[MessageID, EntityID]
+
+	number int
+	node   *Node
 }
 
 func newNodeInterface(number int, node *Node) *NodeInterface {
-	return &NodeInterface{
-		entityID:   newEntityID(),
-		createTime: time.Now(),
-		number:     number,
-
-		node:      node,
+	ni := &NodeInterface{
 		parentBus: nil,
 
 		messages:     newSet[EntityID, *Message](),
 		messageNames: newSet[string, EntityID](),
 		messageIDs:   newSet[MessageID, EntityID](),
+
+		number: number,
+		node:   node,
 	}
+
+	ni.entity = newEntity(ni.setName(node.name))
+
+	return ni
 }
 
-func (ni *NodeInterface) EntityID() EntityID {
-	return ni.entityID
-}
-
-func (ni *NodeInterface) CreateTime() time.Time {
-	return ni.createTime
+func (ni *NodeInterface) setName(nodeName string) string {
+	return fmt.Sprintf("%s/int%d", nodeName, ni.number)
 }
 
 func (ni *NodeInterface) Number() int {
@@ -56,7 +53,7 @@ func (ni *NodeInterface) errorf(err error) error {
 	nodeIntErr := &EntityError{
 		Kind:     EntityKindNode,
 		EntityID: ni.entityID,
-		Name:     ni.GetName(),
+		Name:     ni.name,
 		Err:      err,
 	}
 
@@ -68,11 +65,10 @@ func (ni *NodeInterface) errorf(err error) error {
 }
 
 func (ni *NodeInterface) stringify(b *strings.Builder, tabs int) {
+	ni.entity.stringify(b, tabs)
+
 	tabStr := getTabString(tabs)
 
-	b.WriteString(fmt.Sprintf("%sentity_id: %s\n", tabStr, ni.entityID))
-	b.WriteString(fmt.Sprintf("%sname: %s\n", tabStr, ni.GetName()))
-	b.WriteString(fmt.Sprintf("%screate_time: %s\n", tabStr, ni.createTime.Format(time.RFC3339)))
 	b.WriteString(fmt.Sprintf("%snumber: %d\n", tabStr, ni.number))
 
 	b.WriteString(fmt.Sprintf("%snode:\n", tabStr))
@@ -186,10 +182,6 @@ func (ni *NodeInterface) Messages() []*Message {
 		return int(a.id) - int(b.id)
 	})
 	return msgSlice
-}
-
-func (ni *NodeInterface) GetName() string {
-	return fmt.Sprintf("%s/int%d", ni.node.name, ni.number)
 }
 
 func (ni *NodeInterface) Node() *Node {

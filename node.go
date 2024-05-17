@@ -27,6 +27,7 @@ type Node struct {
 	// messageIDs   *set[MessageID, EntityID]
 
 	interfaces []*NodeInterface
+	intErrNum  int
 
 	id NodeID
 }
@@ -36,6 +37,8 @@ type Node struct {
 func NewNode(name string, id NodeID, interfaceCount int) *Node {
 	node := &Node{
 		attributeEntity: newAttributeEntity(name, AttributeRefKindNode),
+
+		intErrNum: -1,
 
 		id: id,
 	}
@@ -65,13 +68,22 @@ func NewNode(name string, id NodeID, interfaceCount int) *Node {
 }
 
 func (n *Node) errorf(err error) error {
-	nodeIntErr := &EntityError{
+	nodeErr := &EntityError{
 		Kind:     EntityKindNode,
 		EntityID: n.entityID,
 		Name:     n.name,
 		Err:      err,
 	}
-	return nodeIntErr
+
+	if len(n.interfaces) > 0 {
+		if n.intErrNum >= 0 {
+			nodeInt := n.interfaces[n.intErrNum]
+			n.intErrNum = -1
+			return nodeInt.errorf(nodeErr)
+		}
+	}
+
+	return nodeErr
 }
 
 func (n *Node) Interfaces() []*NodeInterface {
@@ -143,17 +155,20 @@ func (n *Node) UpdateName(newName string) error {
 	}
 
 	buses := []*Bus{}
-	for _, nodeInt := range n.interfaces {
-		if !nodeInt.hasParentBus() {
+	intEntIDs := []EntityID{}
+	for _, tmpInt := range n.interfaces {
+		if !tmpInt.hasParentBus() {
 			continue
 		}
 
-		tmpBus := nodeInt.parentBus
+		tmpBus := tmpInt.parentBus
 		if err := tmpBus.verifyNodeName(newName); err != nil {
+			n.intErrNum = tmpInt.number
 			return n.errorf(&UpdateNameError{Err: err})
 		}
 
 		buses = append(buses, tmpBus)
+		intEntIDs = append(intEntIDs, tmpInt.entityID)
 	}
 
 	// buses := []*Bus{}
@@ -165,12 +180,12 @@ func (n *Node) UpdateName(newName string) error {
 	// 	buses = append(buses, tmpBus)
 	// }
 
-	for _, tmpBus := range buses {
-		nodeIntEntID, err := tmpBus.nodeNames.getValue(n.name)
-		if err != nil {
-			panic(err)
-		}
-		tmpBus.nodeNames.modifyKey(n.name, newName, nodeIntEntID)
+	for idx, tmpBus := range buses {
+		tmpBus.nodeNames.modifyKey(n.name, newName, intEntIDs[idx])
+	}
+
+	for _, tmpInt := range n.interfaces {
+		tmpInt.name = tmpInt.setName(newName)
 	}
 
 	n.name = newName

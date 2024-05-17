@@ -95,7 +95,7 @@ func (i *importer) importFile(dbcFile *dbc.File) (*Bus, error) {
 		return nil, err
 	}
 
-	dummyNode, err := bus.GetNodeByName(dbc.DummyNode)
+	dummyNode, err := bus.GetNodeInterfaceByNodeName(dbc.DummyNode)
 	if err != nil {
 		panic(err)
 	}
@@ -384,7 +384,7 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 			continue
 		}
 
-		recNode, err := i.bus.GetNodeByName(recName)
+		recNode, err := i.bus.GetNodeInterfaceByNodeName(recName)
 		if err != nil {
 			return i.errorf(dbcMsg, err)
 		}
@@ -392,7 +392,7 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 		msg.AddReceiver(recNode)
 	}
 
-	sendNode, err := i.bus.GetNodeByName(dbcMsg.Transmitter)
+	sendNode, err := i.bus.GetNodeInterfaceByNodeName(dbcMsg.Transmitter)
 	if err != nil {
 		return i.errorf(dbcMsg, err)
 	}

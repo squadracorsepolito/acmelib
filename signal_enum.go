@@ -299,10 +299,6 @@ func (se *SignalEnum) MinSize() int {
 	return se.minSize
 }
 
-func (se *SignalEnum) ToSignalEnum() (*SignalEnum, error) {
-	return se, nil
-}
-
 // SignalEnumValue holds the key (name) and the value (index) of a signal enum
 // entry.
 type SignalEnumValue struct {
