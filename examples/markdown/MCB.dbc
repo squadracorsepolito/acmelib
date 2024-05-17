@@ -350,12 +350,12 @@ CM_ SG_ 1024 COLDPLATE_R_NTC_resistance "The resistance of the right coldplate N
 CM_ SG_ 1024 SPARE_NTC_0_resistance "The resistance of the spare NTC #0 expressed in Ohm.";
 CM_ SG_ 1024 SPARE_NTC_1_resistance "The resistance of the spare NTC #1 expressed in Ohm.";
 
-CM_ SG_ 1024 JACKET_RL_NTC_resistance "The resistance of the rear left jacket NTC expressed in Ohm.";
-CM_ SG_ 1024 JACKET_RR_NTC_resistance "The resistance of the rear right jacket NTC expressed in Ohm.";
-CM_ SG_ 1024 RAD_RL_IN_NTC_resistance "The resistance of the rear left IN radiator NTC expressed in Ohm.";
-CM_ SG_ 1024 RAD_RL_OUT_NTC_resistance "The resistance of the rear left OUT radiator NTC expressed in Ohm.";
-CM_ SG_ 1024 RAD_RR_IN_NTC_resistance "The resistance of the rear right IN radiator NTC expressed in Ohm.";
-CM_ SG_ 1024 RAD_RR_OUT_NTC_resistance "The resistance of the rear right OUT radiator NTC expressed in Ohm.";
+CM_ SG_ 1025 JACKET_RL_NTC_resistance "The resistance of the rear left jacket NTC expressed in Ohm.";
+CM_ SG_ 1025 JACKET_RR_NTC_resistance "The resistance of the rear right jacket NTC expressed in Ohm.";
+CM_ SG_ 1025 RAD_RL_IN_NTC_resistance "The resistance of the rear left IN radiator NTC expressed in Ohm.";
+CM_ SG_ 1025 RAD_RL_OUT_NTC_resistance "The resistance of the rear left OUT radiator NTC expressed in Ohm.";
+CM_ SG_ 1025 RAD_RR_IN_NTC_resistance "The resistance of the rear right IN radiator NTC expressed in Ohm.";
+CM_ SG_ 1025 RAD_RR_OUT_NTC_resistance "The resistance of the rear right OUT radiator NTC expressed in Ohm.";
 
 CM_ SG_ 48 SDC_POST_BSPD_isClosed "States whether the SDC post BSPD is closed.";
 CM_ SG_ 48 SDC_PRE_PUSH_BTNS_isClosed "States whether the SDC per push buttons (hoop right/left) is closed.";

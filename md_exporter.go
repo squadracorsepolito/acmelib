@@ -89,14 +89,14 @@ func (e *mdExporter) exportMessage(msg *Message) {
 		e.w.PlainText(msg.desc).LF()
 	}
 
-	e.w.PlainTextf("CAN-ID: %s", md.Bold(fmt.Sprintf("%d", msg.id)))
-	e.w.PlainTextf("Size: %s bytes", md.Bold(fmt.Sprintf("%d", msg.sizeByte)))
+	e.w.PlainTextf("CAN-ID: %s", md.Bold(fmt.Sprintf("%d", msg.id))).LF()
+	e.w.PlainTextf("Size: %s bytes", md.Bold(fmt.Sprintf("%d", msg.sizeByte))).LF()
 
 	cycleTimeStr := "-"
 	if msg.cycleTime > 0 {
 		cycleTimeStr = fmt.Sprintf("%s ms", md.Bold(strconv.Itoa(msg.cycleTime)))
 	}
-	e.w.PlainTextf("Cycle Time: %s", cycleTimeStr)
+	e.w.PlainTextf("Cycle Time: %s", cycleTimeStr).LF()
 
 	recStr := "Receivers: "
 	for idx, rec := range msg.Receivers() {
