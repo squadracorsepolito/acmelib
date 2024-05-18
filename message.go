@@ -5,31 +5,8 @@ import (
 	"strings"
 )
 
-// // MessageCANID is the bus unique identifier of a [Message].
-// // By default 11 bits ids are used.
-// type MessageCANID uint32
-
-// func (id MessageCANID) String() string {
-// 	return fmt.Sprintf("%d", id)
-// }
-
-// // MessageCANIDGeneratorFn is callback used for generating automatically
-// // the [MessageCANID] of a [Message]. It is triggered when a [Message] is added to
-// // a [Node] or when the former is removed. It takes as prameters the priority
-// // of the message, the number of messages sended by the node, and the node id,
-// // then it returns the computed message id.
-// // By default the messages calculate their 11 bit ids by putting the node id
-// // in the 4 lsb, the message id (the nth message sent by the node) from
-// // bit 4 to 9, and the priority in the 2 msb.
-// type MessageCANIDGeneratorFn func(priority MessagePriority, messageID int, nodeID NodeID) (messageCANID MessageCANID)
-
-// var defMsgIDGenFn = func(priority MessagePriority, messageID int, nodeID NodeID) (messageCANID MessageCANID) {
-// 	messageCANID = (MessageCANID(messageID) & 0b11111) << 4
-// 	messageCANID |= MessageCANID(priority) << 9
-// 	messageCANID |= MessageCANID(nodeID) & 0b1111
-// 	return messageCANID
-// }
-
+// MessageID rappresents the ID of a [Message].
+// It must be unique within all the messages sended by a [NodeInterface].
 type MessageID uint32
 
 // MessagePriority rappresents the priority of a [Message].
@@ -81,10 +58,14 @@ func (mst MessageSendType) String() string {
 	}
 }
 
+// MessageByteOrder rappresents the byte order of the payload of a [Message].
+// By default a [MessageByteOrder] of [MessageByteOrderLittleEndian] is used.
 type MessageByteOrder int
 
 const (
+	// MessageByteOrderLittleEndian defines a little endian byte order.
 	MessageByteOrderLittleEndian MessageByteOrder = iota
+	// MessageByteOrderBigEndian defines a big endian byte order.
 	MessageByteOrderBigEndian
 )
 
@@ -394,6 +375,8 @@ func (m *Message) UpdateName(newName string) error {
 	return nil
 }
 
+// SenderNodeInterface returns the [NodeInterface] that is responsible for sending the [Message].
+// If the [Message] is not sent by a [NodeInterface], it will return nil.
 func (m *Message) SenderNodeInterface() *NodeInterface {
 	return m.senderNodeInt
 }
@@ -608,34 +591,63 @@ func (m *Message) StartDelayTime() int {
 	return m.startDelayTime
 }
 
+// AddReceiver adds a receiver to the [Message].
 func (m *Message) AddReceiver(receiver *NodeInterface) {
 	m.receivers.add(receiver.entityID, receiver)
 }
 
+// RemoveReceiver removes a receiver from the [Message].
 func (m *Message) RemoveReceiver(receiverEntityID EntityID) {
 	m.receivers.remove(receiverEntityID)
 }
 
+// Receivers returns a slice of all receivers of the [Message].
 func (m *Message) Receivers() []*NodeInterface {
 	return m.receivers.getValues()
 }
 
+// SetByteOrder sets the byte order of the [Message].
 func (m *Message) SetByteOrder(byteOrder MessageByteOrder) {
 	m.byteOrder = byteOrder
 }
 
+// ByteOrder returns the byte order of the [Message].
 func (m *Message) ByteOrder() MessageByteOrder {
 	return m.byteOrder
 }
 
-func (m *Message) SetID(id MessageID) {
-	m.id = id
+// UpdateID updates the id of the [Message].
+// It will also reset the static CAN-ID of the message.
+//
+// It may return an error if the new message id is already used within a [NodeInterface].
+func (m *Message) UpdateID(newID MessageID) error {
+	if m.id == newID {
+		return nil
+	}
+
+	if m.hasSenderNodeInt() {
+		if err := m.senderNodeInt.verifyMessageID(newID); err != nil {
+			return m.errorf(err)
+		}
+	}
+
+	m.staticCANID = 0
+	m.hasStaticCANID = false
+	m.id = newID
+
+	return nil
 }
 
+// ID returns the id of the [Message].
 func (m *Message) ID() MessageID {
 	return m.id
 }
 
+// GetCANID returns the [CANID] associated to the [Message].
+// If the message has a static CAN-ID, it will be returned.
+// If the message does not have a sender [NodeInterface], it will return the message id.
+// Otherwise, it will calculate the CAN-ID based on the [CANIDBuilder]
+// provided by the [Bus] which owns the node interface.
 func (m *Message) GetCANID() CANID {
 	if m.hasStaticCANID {
 		return m.staticCANID
@@ -653,12 +665,14 @@ func (m *Message) GetCANID() CANID {
 	return nodeInt.parentBus.canIDBuilder.Calculate(m.priority, m.id, nodeInt.node.id)
 }
 
+// SetStaticCANID sets the static CAN-ID of the [Message].
 func (m *Message) SetStaticCANID(canID CANID) {
 	m.hasStaticCANID = true
 	m.staticCANID = canID
 	m.id = MessageID(canID)
 }
 
+// HasStaticCANID returns whether the [Message] has a static CAN-ID.
 func (m *Message) HasStaticCANID() bool {
 	return m.hasStaticCANID
 }
