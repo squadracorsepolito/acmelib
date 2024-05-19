@@ -137,6 +137,10 @@ func (b *Bus) ParentNetwork() *Network {
 	return b.parentNetwork
 }
 
+// AddNodeInterface adds a [NodeInterface] to the [Bus].
+//
+// It returns an [ArgumentError] if the given node interface is nil
+// or a [NameError]/[NodeIDError] if the node name/id is duplicated.
 func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 	if nodeInterface == nil {
 		return &ArgumentError{
@@ -171,6 +175,10 @@ func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 	return nil
 }
 
+// RemoveNodeInterface removes a [NodeInterface] from the [Bus].
+//
+// It returns an [ErrNotFound] if the given entity id does not match
+// any node interface.
 func (b *Bus) RemoveNodeInterface(nodeInterfaceEntityID EntityID) error {
 	nodeInt, err := b.nodeInts.getValue(nodeInterfaceEntityID)
 	if err != nil {
@@ -189,6 +197,7 @@ func (b *Bus) RemoveNodeInterface(nodeInterfaceEntityID EntityID) error {
 	return nil
 }
 
+// RemoveAllNodeInterfaces removes all node interfaces from the [Bus].
 func (b *Bus) RemoveAllNodeInterfaces() {
 	for _, tmpNodeInt := range b.nodeInts.entries() {
 		tmpNodeInt.parentBus = nil
@@ -206,6 +215,10 @@ func (b *Bus) Nodes() []*NodeInterface {
 	return nodeSlice
 }
 
+// GetNodeInterfaceByNodeName returns the [NodeInterface] with the given node name.
+//
+// It returns an [ErrNotFound] wrapped by a [NameError]
+// if the node name does not match any node interface.
 func (b *Bus) GetNodeInterfaceByNodeName(nodeName string) (*NodeInterface, error) {
 	id, err := b.nodeNames.getValue(nodeName)
 	if err != nil {
@@ -216,10 +229,7 @@ func (b *Bus) GetNodeInterfaceByNodeName(nodeName string) (*NodeInterface, error
 
 	nodeInt, err := b.nodeInts.getValue(id)
 	if err != nil {
-		return nil, b.errorf(&GetEntityError{
-			EntityID: id,
-			Err:      err,
-		})
+		panic(err)
 	}
 
 	return nodeInt, nil
@@ -235,10 +245,13 @@ func (b *Bus) Baudrate() int {
 	return b.baudrate
 }
 
+// SetCANIDBuilder sets the [CANIDBuilder] of the [Bus].
 func (b *Bus) SetCANIDBuilder(canIDBuilder *CANIDBuilder) {
 	b.canIDBuilder = canIDBuilder
 }
 
+// CANIDBuilder returns the [CANIDBuilder] of the [Bus].
+// If it is not set, it returns the default CAN-ID builder.
 func (b *Bus) CANIDBuilder() *CANIDBuilder {
 	return b.canIDBuilder
 }
