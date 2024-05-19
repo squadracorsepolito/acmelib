@@ -140,7 +140,7 @@ func (b *Bus) ParentNetwork() *Network {
 // AddNodeInterface adds a [NodeInterface] to the [Bus].
 //
 // It returns an [ArgumentError] if the given node interface is nil
-// or a [NameError]/[NodeIDError] if the node name/id is duplicated.
+// or a [NameError]/[NodeIDError] if the node name/id is already used.
 func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 	if nodeInterface == nil {
 		return &ArgumentError{

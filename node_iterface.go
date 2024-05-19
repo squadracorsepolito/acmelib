@@ -7,6 +7,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// NodeInterface represents an interface between a [Bus] and a [Node].
 type NodeInterface struct {
 	*entity
 
@@ -39,10 +40,6 @@ func newNodeInterface(number int, node *Node) *NodeInterface {
 
 func (ni *NodeInterface) setName(nodeName string) string {
 	return fmt.Sprintf("%s/int%d", nodeName, ni.number)
-}
-
-func (ni *NodeInterface) Number() int {
-	return ni.number
 }
 
 func (ni *NodeInterface) hasParentBus() bool {
@@ -113,6 +110,10 @@ func (ni *NodeInterface) verifyMessageID(msgID MessageID) error {
 	return nil
 }
 
+// AddMessage adds a [Message] that the [NodeInterface] can send.
+//
+// It returns an [ArgumentError] if the given message is nil or
+// a [NameError]/[MessageIDError] if the message name/id is already used.
 func (ni *NodeInterface) AddMessage(message *Message) error {
 	if message == nil {
 		return &ArgumentError{
@@ -148,6 +149,10 @@ func (ni *NodeInterface) AddMessage(message *Message) error {
 	return nil
 }
 
+// RemoveMessage removes a [Message] sent by the [NodeInterface].
+//
+// It returns an [ErrNotFound] if the given entity id does not match
+// any message.
 func (ni *NodeInterface) RemoveMessage(messageEntityID EntityID) error {
 	msg, err := ni.messages.getValue(messageEntityID)
 	if err != nil {
@@ -166,6 +171,7 @@ func (ni *NodeInterface) RemoveMessage(messageEntityID EntityID) error {
 	return nil
 }
 
+// RemoveAllMessages removes all the messages sent by the [NodeInterface].
 func (ni *NodeInterface) RemoveAllMessages() {
 	for _, tmpMsg := range ni.messages.entries() {
 		tmpMsg.senderNodeInt = nil
@@ -176,6 +182,7 @@ func (ni *NodeInterface) RemoveAllMessages() {
 	ni.messageIDs.clear()
 }
 
+// Messages returns a slice of messages sended by the [NodeInterface].
 func (ni *NodeInterface) Messages() []*Message {
 	msgSlice := ni.messages.getValues()
 	slices.SortFunc(msgSlice, func(a, b *Message) int {
@@ -184,10 +191,19 @@ func (ni *NodeInterface) Messages() []*Message {
 	return msgSlice
 }
 
+// Node returns the [Node] that owns the [NodeInterface].
 func (ni *NodeInterface) Node() *Node {
 	return ni.node
 }
 
+// ParentBus returns the [Bus] attached to the [NodeInterface].
 func (ni *NodeInterface) ParentBus() *Bus {
 	return ni.parentBus
+}
+
+// Number returns the number of the [NodeInterface].
+// The number is unique among all the interfaces within a [Node]
+// and it cannot be manually assigned.
+func (ni *NodeInterface) Number() int {
+	return ni.number
 }
