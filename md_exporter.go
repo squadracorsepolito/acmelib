@@ -9,6 +9,8 @@ import (
 	md "github.com/nao1215/markdown"
 )
 
+// ExportToMarkdown exports the given [Network] to a markdown document.
+// It writes the markdown document to the given [io.Writer].
 func ExportToMarkdown(network *Network, w io.Writer) error {
 	mdWriter := md.NewMarkdown(w)
 	exporter := newMDExporter(mdWriter)
