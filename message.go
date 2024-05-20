@@ -551,7 +551,7 @@ func (m *Message) Priority() MessagePriority {
 	return m.priority
 }
 
-// SetCycleTime sets the message cycle time.
+// SetCycleTime sets the message cycle time in ms.
 func (m *Message) SetCycleTime(cycleTime int) {
 	m.cycleTime = cycleTime
 }

@@ -7,6 +7,23 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// BusType is the type of a [Bus].
+type BusType int
+
+const (
+	// BusTypeCAN2A represents a CAN 2.0A bus.
+	BusTypeCAN2A BusType = iota
+)
+
+func (bt BusType) String() string {
+	switch bt {
+	case BusTypeCAN2A:
+		return "CAN_2.0A"
+	default:
+		return "unknown"
+	}
+}
+
 // Bus is the virtual representation of physical CAN bus cable.
 // It holds a list of nodes that are connected to it.
 type Bus struct {
@@ -21,9 +38,11 @@ type Bus struct {
 	nodeIDs   *set[NodeID, EntityID]
 
 	baudrate int
+	typ      BusType
 }
 
 // NewBus creates a new [Bus] with the given name and description.
+// By default, the bus is set to be of type CAN 2.0A.
 func NewBus(name string) *Bus {
 	return &Bus{
 		attributeEntity: newAttributeEntity(name, AttributeRefKindBus),
@@ -37,6 +56,7 @@ func NewBus(name string) *Bus {
 		nodeIDs:   newSet[NodeID, EntityID](),
 
 		baudrate: 0,
+		typ:      BusTypeCAN2A,
 	}
 }
 
@@ -254,4 +274,55 @@ func (b *Bus) SetCANIDBuilder(canIDBuilder *CANIDBuilder) {
 // If it is not set, it returns the default CAN-ID builder.
 func (b *Bus) CANIDBuilder() *CANIDBuilder {
 	return b.canIDBuilder
+}
+
+// SetType sets the type of the [Bus].
+func (b *Bus) SetType(typ BusType) {
+	b.typ = typ
+}
+
+// Type returns the type of the [Bus].
+func (b *Bus) Type() BusType {
+	return b.typ
+}
+
+// GetLoad returns the estimed load of the [Bus] in the worst case scenario.
+// If the bus does not have the baudrate set, it returns 0.
+// If a [Message] within the bus does not have the cycle time set,
+// a default cycle time of 500ms is used.
+func (b *Bus) GetLoad() float64 {
+	if b.baudrate == 0 {
+		return 0
+	}
+
+	var headerBits int
+	var trailerBits int
+	var stuffingBits int
+	switch b.typ {
+	case BusTypeCAN2A:
+		// start of frame + id + rtr + ide + r0 + dlc
+		headerBits = 19
+		// crc + delim crc + slot ack + delim ack + eof
+		trailerBits = 25
+		// worst case scenario
+		stuffingBits = 19
+	}
+
+	consumedBitsPerSec := float64(0)
+	for _, tmpInt := range b.nodeInts.getValues() {
+		for _, tmpMsg := range tmpInt.messages.getValues() {
+			msgBits := tmpMsg.sizeByte*8 + headerBits + trailerBits + stuffingBits
+
+			var cycleTime int
+			if tmpMsg.cycleTime == 0 {
+				cycleTime = 500
+			} else {
+				cycleTime = tmpMsg.cycleTime
+			}
+
+			consumedBitsPerSec += float64(msgBits) / float64(cycleTime) * 1000
+		}
+	}
+
+	return consumedBitsPerSec / float64(b.baudrate) * 100
 }
