@@ -193,7 +193,7 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 			value = dbcAttVal.ValueString
 
 		case dbc.AttributeValueInt:
-			if att.Kind() == AttributeKindEnum {
+			if att.Type() == AttributeTypeEnum {
 				enumAtt, err := att.ToEnum()
 				if err != nil {
 					panic(err)
@@ -208,7 +208,7 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 				break
 			}
 
-			if att.Kind() == AttributeKindFloat {
+			if att.Type() == AttributeTypeFloat {
 				value = float64(dbcAttVal.ValueInt)
 				break
 			}

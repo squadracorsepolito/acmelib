@@ -177,7 +177,7 @@ func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) err
 
 	switch v := value.(type) {
 	case int:
-		if attribute.Kind() != AttributeKindInteger {
+		if attribute.Type() != AttributeTypeInteger {
 			entErr.Err = &ArgumentError{
 				Name: "value",
 				Err:  ErrInvalidType,
@@ -198,7 +198,7 @@ func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) err
 		}
 
 	case float64:
-		if attribute.Kind() != AttributeKindFloat {
+		if attribute.Type() != AttributeTypeFloat {
 			entErr.Err = &ArgumentError{
 				Name: "value",
 				Err:  ErrInvalidType,
@@ -219,9 +219,9 @@ func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) err
 		}
 
 	case string:
-		switch attribute.Kind() {
-		case AttributeKindString:
-		case AttributeKindEnum:
+		switch attribute.Type() {
+		case AttributeTypeString:
+		case AttributeTypeEnum:
 			enumAtt, err := attribute.ToEnum()
 			if err != nil {
 				panic(err)
@@ -305,4 +305,34 @@ func (ae *attributeEntity) GetAttributeValue(attributeEntityID EntityID) (*Attri
 		}
 	}
 	return attVal, nil
+}
+
+type referenceableEntity interface {
+	EntityID() EntityID
+}
+
+type withRefs[R referenceableEntity] struct {
+	refs *set[EntityID, R]
+}
+
+func newWithRefs[R referenceableEntity]() *withRefs[R] {
+	return &withRefs[R]{
+		refs: newSet[EntityID, R](),
+	}
+}
+
+func (t *withRefs[R]) addRef(ref R) {
+	t.refs.add(ref.EntityID(), ref)
+}
+
+func (t *withRefs[R]) removeRef(refID EntityID) {
+	t.refs.remove(refID)
+}
+
+func (t *withRefs[R]) ReferenceCount() int {
+	return t.refs.size()
+}
+
+func (t *withRefs[R]) References() []R {
+	return t.refs.getValues()
 }

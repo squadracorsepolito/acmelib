@@ -131,12 +131,12 @@ func (e *exporter) exportAttributeValue(attVal *AttributeValue, dbcAttKind dbc.A
 		e.exportAttribute(att, dbcAtt)
 	}
 
-	switch att.Kind() {
-	case AttributeKindString:
+	switch att.Type() {
+	case AttributeTypeString:
 		dbcAttVal.Type = dbc.AttributeValueString
 		dbcAttVal.ValueString = attVal.value.(string)
 
-	case AttributeKindInteger:
+	case AttributeTypeInteger:
 		intAtt, err := att.ToInteger()
 		if err != nil {
 			panic(err)
@@ -150,11 +150,11 @@ func (e *exporter) exportAttributeValue(attVal *AttributeValue, dbcAttKind dbc.A
 			dbcAttVal.ValueInt = attVal.value.(int)
 		}
 
-	case AttributeKindFloat:
+	case AttributeTypeFloat:
 		dbcAttVal.Type = dbc.AttributeValueFloat
 		dbcAttVal.ValueFloat = attVal.value.(float64)
 
-	case AttributeKindEnum:
+	case AttributeTypeEnum:
 		enumAtt, err := att.ToEnum()
 		if err != nil {
 			panic(err)
@@ -180,8 +180,8 @@ func (e *exporter) exportAttribute(att Attribute, dbcAtt *dbc.Attribute) {
 	dbcAttDef := new(dbc.AttributeDefault)
 	dbcAttDef.AttributeName = attName
 
-	switch att.Kind() {
-	case AttributeKindString:
+	switch att.Type() {
+	case AttributeTypeString:
 		strAtt, err := att.ToString()
 		if err != nil {
 			panic(err)
@@ -191,7 +191,7 @@ func (e *exporter) exportAttribute(att Attribute, dbcAtt *dbc.Attribute) {
 		dbcAttDef.Type = dbc.AttributeDefaultString
 		dbcAttDef.ValueString = strAtt.defValue
 
-	case AttributeKindInteger:
+	case AttributeTypeInteger:
 		intAtt, err := att.ToInteger()
 		if err != nil {
 			panic(err)
@@ -213,7 +213,7 @@ func (e *exporter) exportAttribute(att Attribute, dbcAtt *dbc.Attribute) {
 			dbcAttDef.ValueInt = intAtt.defValue
 		}
 
-	case AttributeKindFloat:
+	case AttributeTypeFloat:
 		floatAtt, err := att.ToFloat()
 		if err != nil {
 			panic(err)
@@ -225,7 +225,7 @@ func (e *exporter) exportAttribute(att Attribute, dbcAtt *dbc.Attribute) {
 		dbcAttDef.Type = dbc.AttributeDefaultString
 		dbcAttDef.ValueFloat = floatAtt.defValue
 
-	case AttributeKindEnum:
+	case AttributeTypeEnum:
 		enumAtt, err := att.ToEnum()
 		if err != nil {
 			panic(err)

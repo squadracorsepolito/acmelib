@@ -9,6 +9,7 @@ import "acmelib/v1/node.proto";
 import "acmelib/v1/signal_type.proto";
 import "acmelib/v1/signal_unit.proto";
 import "acmelib/v1/signal_enum.proto";
+import "acmelib/v1/attribute.proto";
 
 message Network {
     acmelib.v1.Entity entity = 1;
@@ -20,4 +21,5 @@ message Network {
     repeated acmelib.v1.SignalType signal_types = 5;
     repeated acmelib.v1.SignalUnit signal_units = 6;
     repeated acmelib.v1.SignalEnum signal_enums = 7;
+    repeated acmelib.v1.Attribute attributes = 8;
 }

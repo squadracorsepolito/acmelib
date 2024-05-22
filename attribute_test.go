@@ -10,7 +10,7 @@ func Test_StringAttribute(t *testing.T) {
 	assert := assert.New(t)
 
 	strAtt := NewStringAttribute("str_att", "def_val")
-	assert.Equal(AttributeKindString, strAtt.Kind())
+	assert.Equal(AttributeTypeString, strAtt.Type())
 	assert.Equal("str_att", strAtt.Name())
 	assert.Equal("def_val", strAtt.DefValue())
 
@@ -30,7 +30,7 @@ func Test_IntegerAttribute(t *testing.T) {
 
 	intAtt, err := NewIntegerAttribute("int_att", 10, 0, 100)
 	assert.NoError(err)
-	assert.Equal(AttributeKindInteger, intAtt.Kind())
+	assert.Equal(AttributeTypeInteger, intAtt.Type())
 	assert.Equal("int_att", intAtt.Name())
 	assert.Equal(10, intAtt.DefValue())
 	assert.Equal(0, intAtt.Min())
@@ -60,7 +60,7 @@ func Test_FloatAttribute(t *testing.T) {
 
 	floatAtt, err := NewFloatAttribute("float_att", 10, 0, 100)
 	assert.NoError(err)
-	assert.Equal(AttributeKindFloat, floatAtt.Kind())
+	assert.Equal(AttributeTypeFloat, floatAtt.Type())
 	assert.Equal("float_att", floatAtt.Name())
 	assert.Equal(10.0, floatAtt.DefValue())
 	assert.Equal(0.0, floatAtt.Min())
@@ -90,7 +90,7 @@ func Test_EnumAttribute(t *testing.T) {
 
 	enumAtt, err := NewEnumAttribute("enum_att", "val_0", "val_1", "val_2")
 	assert.NoError(err)
-	assert.Equal(AttributeKindEnum, enumAtt.Kind())
+	assert.Equal(AttributeTypeEnum, enumAtt.Type())
 	assert.Equal("enum_att", enumAtt.Name())
 	assert.Equal("val_0", enumAtt.DefValue())
 	assert.Equal(3, len(enumAtt.Values()))

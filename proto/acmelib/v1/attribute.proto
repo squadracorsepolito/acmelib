@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package acmelib.v1;
+
+import "acmelib/v1/entity.proto";
+
+enum AttributeType {
+    ATTRIBUTE_TYPE_UNSPECIFIED = 0;
+    ATTRIBUTE_TYPE_STRING = 1;
+    ATTRIBUTE_TYPE_INTEGER = 2;
+    ATTRIBUTE_TYPE_FLOAT = 3;
+    ATTRIBUTE_TYPE_ENUM = 4;
+}
+
+message Attribute {
+    acmelib.v1.Entity entity = 1;
+
+    AttributeType type = 2;
+
+    oneof attribute {
+        StringAttribute string_attribute = 3;
+        IntegerAttribute integer_attribute = 4;
+        FloatAttribute float_attribute = 5;
+        EnumAttribute enum_attribute = 6;
+    }
+}
+
+message StringAttribute {
+    string def_value = 1;
+}
+
+message IntegerAttribute {
+    int32 def_value = 1;
+    int32 min = 2;
+    int32 max = 3;
+    bool is_hex_format = 4;
+}
+
+message FloatAttribute {
+    double def_value = 1;
+    double min = 2;
+    double max = 3;
+}
+
+message EnumAttribute {
+    string def_value = 1;
+    repeated string values = 2;
+}
+
+enum AttributeRefKind {
+    ATTRIBUTE_REF_KIND_UNSPECIFIED = 0;
+    ATTRIBUTE_REF_KIND_BUS = 1;
+    ATTRIBUTE_REF_KIND_NODE = 2;
+    ATTRIBUTE_REF_KIND_MESSAGE = 3;
+    ATTRIBUTE_REF_KIND_SIGNAL = 4;
+}
+
+message AttributeRef {
+    string entity_id = 1;
+    AttributeRefKind kind = 2;
+
+    oneof value {
+        string value_string = 3;
+        int32 value_int = 4;
+        double value_double = 5;
+    } 
+}

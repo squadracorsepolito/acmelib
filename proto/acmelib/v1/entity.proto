@@ -10,3 +10,21 @@ message Entity {
     string desc = 3;
     google.protobuf.Timestamp create_time = 4;
 }
+
+message EntityWithAttributes {
+    string entity_id = 1;
+    string name = 2;
+    string desc = 3;
+    google.protobuf.Timestamp create_time = 4;
+    repeated AttributeValue attribute_values = 5;
+}
+
+message AttributeValue {
+    string attribute_entity_id = 1;
+
+    oneof value {
+        string value_string = 2;
+        int32 value_int = 3;
+        double value_double = 4;
+    } 
+}

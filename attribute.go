@@ -21,7 +21,7 @@ func newAttributeValue(att Attribute, val any) *AttributeValue {
 
 func (av *AttributeValue) stringify(b *strings.Builder, tabs int) {
 	b.WriteString(fmt.Sprintf("%sname: %s; type: %s; value: %v\n",
-		getTabString(tabs), av.attribute.Name(), av.attribute.Kind(), av.value))
+		getTabString(tabs), av.attribute.Name(), av.attribute.Type(), av.value))
 }
 
 // Attribute returns the [Attribute] of the [AttributeValue].
@@ -84,19 +84,34 @@ func (af *AttributeRef) Value() any {
 	return af.value
 }
 
-// AttributeKind defines the kind of an [Attribute].
-type AttributeKind string
+// AttributeType defines the type of an [Attribute].
+type AttributeType int
 
 const (
-	// AttributeKindString defines a string attribute.
-	AttributeKindString AttributeKind = "attribute-string"
-	// AttributeKindInteger defines an integer attribute.
-	AttributeKindInteger AttributeKind = "attribute-integer"
-	// AttributeKindFloat defines a float attribute.
-	AttributeKindFloat AttributeKind = "attribute-float"
-	// AttributeKindEnum defines an enum attribute.
-	AttributeKindEnum AttributeKind = "attribute-enum"
+	// AttributeTypeString defines a string attribute.
+	AttributeTypeString AttributeType = iota
+	// AttributeTypeInteger defines an integer attribute.
+	AttributeTypeInteger
+	// AttributeTypeFloat defines a float attribute.
+	AttributeTypeFloat
+	// AttributeTypeEnum defines an enum attribute.
+	AttributeTypeEnum
 )
+
+func (at AttributeType) String() string {
+	switch at {
+	case AttributeTypeString:
+		return "string"
+	case AttributeTypeInteger:
+		return "integer"
+	case AttributeTypeFloat:
+		return "float"
+	case AttributeTypeEnum:
+		return "enum"
+	default:
+		return "unknown"
+	}
+}
 
 // Attribute interface specifies all common methods of
 // [StringAttribute], [IntegerAttribute], [FloatAttribute], and
@@ -111,8 +126,8 @@ type Attribute interface {
 	// CreateTime returns the time of creation of an attribute.
 	CreateTime() time.Time
 
-	// Kind returns the kind of an attribute.
-	Kind() AttributeKind
+	// Type returns the kind of an attribute.
+	Type() AttributeType
 
 	addReference(ref *AttributeRef)
 	removeReference(refID EntityID)
@@ -133,19 +148,17 @@ type Attribute interface {
 
 type attribute struct {
 	*entity
+	*withRefs[*AttributeRef]
 
-	kind AttributeKind
-
-	references *set[EntityID, *AttributeRef]
+	typ AttributeType
 }
 
-func newAttribute(name string, kind AttributeKind) *attribute {
+func newAttribute(name string, typ AttributeType) *attribute {
 	return &attribute{
-		entity: newEntity(name),
+		entity:   newEntity(name),
+		withRefs: newWithRefs[*AttributeRef](),
 
-		kind: kind,
-
-		references: newSet[EntityID, *AttributeRef](),
+		typ: typ,
 	}
 }
 
@@ -162,9 +175,9 @@ func (a *attribute) stringify(b *strings.Builder, tabs int) {
 	a.entity.stringify(b, tabs)
 
 	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, a.kind))
+	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, a.typ))
 
-	if a.references.size() == 0 {
+	if a.refs.size() == 0 {
 		return
 	}
 
@@ -174,20 +187,16 @@ func (a *attribute) stringify(b *strings.Builder, tabs int) {
 	}
 }
 
-func (a *attribute) Kind() AttributeKind {
-	return a.kind
+func (a *attribute) Type() AttributeType {
+	return a.typ
 }
 
 func (a *attribute) addReference(ref *AttributeRef) {
-	a.references.add(ref.entityID, ref)
+	a.refs.add(ref.entityID, ref)
 }
 
 func (a *attribute) removeReference(refID EntityID) {
-	a.references.remove(refID)
-}
-
-func (a *attribute) References() []*AttributeRef {
-	return a.references.getValues()
+	a.refs.remove(refID)
 }
 
 // StringAttribute is an [Attribute] that holds a string value.
@@ -201,7 +210,7 @@ type StringAttribute struct {
 // and default value.
 func NewStringAttribute(name, defValue string) *StringAttribute {
 	return &StringAttribute{
-		attribute: newAttribute(name, AttributeKindString),
+		attribute: newAttribute(name, AttributeTypeString),
 
 		defValue: defValue,
 	}
@@ -231,24 +240,24 @@ func (sa *StringAttribute) ToString() (*StringAttribute, error) {
 // ToInteger always returns an error.
 func (sa *StringAttribute) ToInteger() (*IntegerAttribute, error) {
 	return nil, sa.errorf(&ConversionError{
-		From: string(AttributeKindString),
-		To:   string(AttributeKindInteger),
+		From: AttributeTypeString.String(),
+		To:   AttributeTypeInteger.String(),
 	})
 }
 
 // ToFloat always returns an error.
 func (sa *StringAttribute) ToFloat() (*FloatAttribute, error) {
 	return nil, sa.errorf(&ConversionError{
-		From: string(AttributeKindString),
-		To:   string(AttributeKindFloat),
+		From: AttributeTypeString.String(),
+		To:   AttributeTypeFloat.String(),
 	})
 }
 
 // ToEnum always returns an error.
 func (sa *StringAttribute) ToEnum() (*EnumAttribute, error) {
 	return nil, sa.errorf(&ConversionError{
-		From: string(AttributeKindString),
-		To:   string(AttributeKindEnum),
+		From: AttributeTypeString.String(),
+		To:   AttributeTypeEnum.String(),
 	})
 }
 
@@ -290,7 +299,7 @@ func NewIntegerAttribute(name string, defValue, min, max int) (*IntegerAttribute
 	}
 
 	return &IntegerAttribute{
-		attribute: newAttribute(name, AttributeKindInteger),
+		attribute: newAttribute(name, AttributeTypeInteger),
 
 		defValue: defValue,
 		min:      min,
@@ -342,8 +351,8 @@ func (ia *IntegerAttribute) IsHexFormat() bool {
 // ToString always returns an error.
 func (ia *IntegerAttribute) ToString() (*StringAttribute, error) {
 	return nil, ia.errorf(&ConversionError{
-		From: string(AttributeKindInteger),
-		To:   string(AttributeKindString),
+		From: AttributeTypeInteger.String(),
+		To:   AttributeTypeString.String(),
 	})
 }
 
@@ -355,16 +364,16 @@ func (ia *IntegerAttribute) ToInteger() (*IntegerAttribute, error) {
 // ToFloat always returns an error.
 func (ia *IntegerAttribute) ToFloat() (*FloatAttribute, error) {
 	return nil, ia.errorf(&ConversionError{
-		From: string(AttributeKindInteger),
-		To:   string(AttributeKindFloat),
+		From: AttributeTypeInteger.String(),
+		To:   AttributeTypeFloat.String(),
 	})
 }
 
 // ToEnum always returns an error.
 func (ia *IntegerAttribute) ToEnum() (*EnumAttribute, error) {
 	return nil, ia.errorf(&ConversionError{
-		From: string(AttributeKindInteger),
-		To:   string(AttributeKindEnum),
+		From: AttributeTypeInteger.String(),
+		To:   AttributeTypeEnum.String(),
 	})
 }
 
@@ -404,7 +413,7 @@ func NewFloatAttribute(name string, defValue, min, max float64) (*FloatAttribute
 	}
 
 	return &FloatAttribute{
-		attribute: newAttribute(name, AttributeKindFloat),
+		attribute: newAttribute(name, AttributeTypeFloat),
 
 		defValue: defValue,
 		min:      min,
@@ -444,16 +453,16 @@ func (fa *FloatAttribute) Max() float64 {
 // ToString always returns an error.
 func (fa *FloatAttribute) ToString() (*StringAttribute, error) {
 	return nil, fa.errorf(&ConversionError{
-		From: string(AttributeKindFloat),
-		To:   string(AttributeKindString),
+		From: AttributeTypeFloat.String(),
+		To:   AttributeTypeString.String(),
 	})
 }
 
 // ToInteger always returns an error.
 func (fa *FloatAttribute) ToInteger() (*IntegerAttribute, error) {
 	return nil, fa.errorf(&ConversionError{
-		From: string(AttributeKindFloat),
-		To:   string(AttributeKindInteger),
+		From: AttributeTypeFloat.String(),
+		To:   AttributeTypeInteger.String(),
 	})
 }
 
@@ -465,8 +474,8 @@ func (fa *FloatAttribute) ToFloat() (*FloatAttribute, error) {
 // ToEnum always returns an error.
 func (fa *FloatAttribute) ToEnum() (*EnumAttribute, error) {
 	return nil, fa.errorf(&ConversionError{
-		From: string(AttributeKindFloat),
-		To:   string(AttributeKindEnum),
+		From: AttributeTypeFloat.String(),
+		To:   AttributeTypeEnum.String(),
 	})
 }
 
@@ -501,7 +510,7 @@ func NewEnumAttribute(name string, values ...string) (*EnumAttribute, error) {
 	}
 
 	return &EnumAttribute{
-		attribute: newAttribute(name, AttributeKindEnum),
+		attribute: newAttribute(name, AttributeTypeEnum),
 
 		defValue: values[0],
 		values:   valSet,
@@ -568,58 +577,28 @@ func (ea *EnumAttribute) GetValueAtIndex(valueIndex int) (string, error) {
 // ToString always returns an error.
 func (ea *EnumAttribute) ToString() (*StringAttribute, error) {
 	return nil, ea.errorf(&ConversionError{
-		From: string(AttributeKindEnum),
-		To:   string(AttributeKindString),
+		From: AttributeTypeEnum.String(),
+		To:   AttributeTypeString.String(),
 	})
 }
 
 // ToInteger always returns an error.
 func (ea *EnumAttribute) ToInteger() (*IntegerAttribute, error) {
 	return nil, ea.errorf(&ConversionError{
-		From: string(AttributeKindEnum),
-		To:   string(AttributeKindInteger),
+		From: AttributeTypeEnum.String(),
+		To:   AttributeTypeInteger.String(),
 	})
 }
 
 // ToFloat always returns an error.
 func (ea *EnumAttribute) ToFloat() (*FloatAttribute, error) {
 	return nil, ea.errorf(&ConversionError{
-		From: string(AttributeKindEnum),
-		To:   string(AttributeKindFloat),
+		From: AttributeTypeEnum.String(),
+		To:   AttributeTypeFloat.String(),
 	})
 }
 
 // ToEnum returns the [EnumAttribute] itself.
 func (ea *EnumAttribute) ToEnum() (*EnumAttribute, error) {
 	return ea, nil
-}
-
-type referenceableEntity interface {
-	EntityID() EntityID
-}
-
-type withRefs[R referenceableEntity] struct {
-	refs *set[EntityID, R]
-}
-
-func newWithRefs[R referenceableEntity]() *withRefs[R] {
-	return &withRefs[R]{
-		refs: newSet[EntityID, R](),
-	}
-}
-
-func (t *withRefs[R]) addRef(ref R) {
-	t.refs.add(ref.EntityID(), ref)
-}
-
-func (t *withRefs[R]) removeRef(refID EntityID) {
-	t.refs.remove(refID)
-}
-
-func (t *withRefs[R]) ReferenceCount() int {
-	return t.refs.size()
-}
-
-func (t *withRefs[R]) References() []R {
-	return t.refs.getValues()
 }
