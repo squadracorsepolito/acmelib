@@ -312,12 +312,8 @@ func (s *signal) UpdateName(newName string) error {
 type StandardSignal struct {
 	*signal
 
-	typ    *SignalType
-	min    float64
-	max    float64
-	offset float64
-	scale  float64
-	unit   *SignalUnit
+	typ  *SignalType
+	unit *SignalUnit
 }
 
 // NewStandardSignal creates a new [StandardSignal] with the given name and [SignalType].
@@ -333,12 +329,8 @@ func NewStandardSignal(name string, typ *SignalType) (*StandardSignal, error) {
 	sig := &StandardSignal{
 		signal: newSignal(name, SignalKindStandard),
 
-		typ:    typ,
-		min:    typ.min,
-		max:    typ.max,
-		offset: 0,
-		scale:  1,
-		unit:   nil,
+		typ:  typ,
+		unit: nil,
 	}
 
 	typ.addRef(sig)
@@ -378,7 +370,6 @@ func (ss *StandardSignal) stringify(b *strings.Builder, tabs int) {
 	tabStr := getTabString(tabs)
 
 	b.WriteString(fmt.Sprintf("size: %d\n", ss.GetSize()))
-	b.WriteString(fmt.Sprintf("%smin: %g; max: %g; offset: %g; scale: %g\n", tabStr, ss.min, ss.max, ss.offset, ss.scale))
 
 	b.WriteString(fmt.Sprintf("%stype:\n", tabStr))
 	ss.typ.stringify(b, tabs+1)
@@ -419,56 +410,10 @@ func (ss *StandardSignal) SetType(typ *SignalType) error {
 	ss.typ.removeRef(ss.entityID)
 
 	ss.typ = typ
-	ss.min = typ.min
-	ss.max = typ.max
-	ss.offset = 0
-	ss.scale = 1
 
 	typ.addRef(ss)
 
 	return nil
-}
-
-// SetPhysicalValues sets the physical min, max, offset, and scale of the [StandardSignal].
-// It returns an error if the scale is equal to 0.
-func (ss *StandardSignal) SetPhysicalValues(min, max, offset, scale float64) error {
-	if scale == 0 {
-		return ss.errorf(&ArgumentError{
-			Name: "scale",
-			Err:  ErrIsZero,
-		})
-	}
-
-	ss.min = min
-	ss.max = max
-	ss.offset = offset
-	ss.scale = scale
-
-	return nil
-}
-
-// Min returns the minimum value of the [StandardSignal].
-// It may differ from the minimum value of the signal type associated
-// with the [StandardSignal].
-func (ss *StandardSignal) Min() float64 {
-	return ss.min
-}
-
-// Max returns the maximum value of the [StandardSignal].
-// It may differ from the maximum value of the signal type associated
-// with the [StandardSignal].
-func (ss *StandardSignal) Max() float64 {
-	return ss.max
-}
-
-// Offset returns the offset of the [StandardSignal].
-func (ss *StandardSignal) Offset() float64 {
-	return ss.offset
-}
-
-// Scale returns the scale of the [StandardSignal].
-func (ss *StandardSignal) Scale() float64 {
-	return ss.scale
 }
 
 // SetUnit sets the [SignalUnit] of the [StandardSignal] to the given one.
