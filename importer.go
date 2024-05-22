@@ -615,15 +615,17 @@ func (i *importer) importSignal(dbcSig *dbc.Signal, dbcMsgID uint32) (Signal, er
 			if err != nil {
 				return nil, i.errorf(dbcSig, err)
 			}
+
+			tmpSigType.SetMin(dbcSig.Min)
+			tmpSigType.SetMax(dbcSig.Max)
+			tmpSigType.SetScale(dbcSig.Factor)
+			tmpSigType.SetOffset(dbcSig.Offset)
+
 			sigType = tmpSigType
 		}
 
 		stdSig, err := NewStandardSignal(sigName, sigType)
 		if err != nil {
-			return nil, i.errorf(dbcSig, err)
-		}
-
-		if err := stdSig.SetPhysicalValues(dbcSig.Min, dbcSig.Max, dbcSig.Offset, dbcSig.Factor); err != nil {
 			return nil, i.errorf(dbcSig, err)
 		}
 

@@ -593,3 +593,33 @@ func (ea *EnumAttribute) ToFloat() (*FloatAttribute, error) {
 func (ea *EnumAttribute) ToEnum() (*EnumAttribute, error) {
 	return ea, nil
 }
+
+type referenceableEntity interface {
+	EntityID() EntityID
+}
+
+type withRefs[R referenceableEntity] struct {
+	refs *set[EntityID, R]
+}
+
+func newWithRefs[R referenceableEntity]() *withRefs[R] {
+	return &withRefs[R]{
+		refs: newSet[EntityID, R](),
+	}
+}
+
+func (t *withRefs[R]) addRef(ref R) {
+	t.refs.add(ref.EntityID(), ref)
+}
+
+func (t *withRefs[R]) removeRef(refID EntityID) {
+	t.refs.remove(refID)
+}
+
+func (t *withRefs[R]) ReferenceCount() int {
+	return t.refs.size()
+}
+
+func (t *withRefs[R]) References() []R {
+	return t.refs.getValues()
+}

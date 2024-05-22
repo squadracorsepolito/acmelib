@@ -14,8 +14,6 @@ type Network struct {
 
 	buses    *set[EntityID, *Bus]
 	busNames *set[string, EntityID]
-
-	// templates *set[EntityID, Template]
 }
 
 // NewNetwork returns a new [Network] with the given name.
@@ -25,8 +23,6 @@ func NewNetwork(name string) *Network {
 
 		buses:    newSet[EntityID, *Bus](),
 		busNames: newSet[string, EntityID](),
-
-		// templates: newSet[EntityID, Template](),
 	}
 }
 

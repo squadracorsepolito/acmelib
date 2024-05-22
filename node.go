@@ -21,7 +21,8 @@ type Node struct {
 	interfaces []*NodeInterface
 	intErrNum  int
 
-	id NodeID
+	id             NodeID
+	interfaceCount int
 }
 
 // NewNode creates a new [Node] with the given name, id and count of interfaces.
@@ -30,9 +31,11 @@ func NewNode(name string, id NodeID, interfaceCount int) *Node {
 	node := &Node{
 		attributeEntity: newAttributeEntity(name, AttributeRefKindNode),
 
-		intErrNum: -1,
+		interfaces: []*NodeInterface{},
+		intErrNum:  -1,
 
-		id: id,
+		id:             id,
+		interfaceCount: interfaceCount,
 	}
 
 	node.interfaces = make([]*NodeInterface, interfaceCount)

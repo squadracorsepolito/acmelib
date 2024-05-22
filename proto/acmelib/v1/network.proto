@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package acmelib.v1;
+
+import "acmelib/v1/entity.proto";
+import "acmelib/v1/bus.proto";
+import "acmelib/v1/canid_builder.proto";
+import "acmelib/v1/node.proto";
+import "acmelib/v1/signal_type.proto";
+import "acmelib/v1/signal_unit.proto";
+import "acmelib/v1/signal_enum.proto";
+
+message Network {
+    acmelib.v1.Entity entity = 1;
+
+    repeated acmelib.v1.Bus buses = 2;
+
+    repeated acmelib.v1.CANIDBuilder canid_builders = 3;
+    repeated acmelib.v1.Node nodes = 4;
+    repeated acmelib.v1.SignalType signal_types = 5;
+    repeated acmelib.v1.SignalUnit signal_units = 6;
+    repeated acmelib.v1.SignalEnum signal_enums = 7;
+}

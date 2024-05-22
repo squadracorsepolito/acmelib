@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package acmelib.v1;
+
+import "acmelib/v1/entity.proto";
+
+enum SignalTypeKind {
+    SIGNAL_TYPE_KIND_UNSPECIFIED = 0;
+    SIGNAL_TYPE_KIND_CUSTOM = 1;
+    SIGNAL_TYPE_KIND_FLAG = 2;
+    SIGNAL_TYPE_KIND_INTEGER = 3;
+    SIGNAL_TYPE_KIND_DECIMAL = 4;
+}
+
+message SignalType {
+    acmelib.v1.Entity entity = 1;
+
+    SignalTypeKind kind = 2;
+    uint32 size = 3;
+    bool signed = 4;
+    double min = 5;
+    double max = 6;
+    double scale = 7;
+    double offset = 8;
+}

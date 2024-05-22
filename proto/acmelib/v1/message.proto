@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package acmelib.v1;
+
+import "acmelib/v1/entity.proto";
+import "acmelib/v1/signal_payload.proto";
+import "acmelib/v1/signal.proto";
+
+enum MessagePriority {
+    MESSAGE_PRIORITY_UNSPECIFIED = 0;
+    MESSAGE_PRIORITY_VERY_HIGH = 1;
+    MESSAGE_PRIORITY_HIGH = 2;
+    MESSAGE_PRIORITY_MEDIUM = 3;
+    MESSAGE_PRIORITY_LOW = 4;
+}
+
+enum MessageSendType {
+    MESSAGE_SEND_TYPE_UNSPECIFIED = 0;
+    MESSAGE_SEND_TYPE_CYCLIC = 1;
+    MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE = 2;
+    MESSAGE_SEND_TYPE_CYCLIC_AND_TRIGGERED = 3;
+    MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE_AND_TRIGGERED = 4;
+}
+
+enum MessageByteOrder {
+    MESSAGE_BYTE_ORDER_UNSPECIFIED = 0;
+    MESSAGE_BYTE_ORDER_LITTLE_ENDIAN = 1;
+    MESSAGE_BYTE_ORDER_BIG_ENDIAN = 2;
+}
+
+message Message {
+    acmelib.v1.Entity entity = 1;
+
+    repeated acmelib.v1.Signal signals = 2;
+    acmelib.v1.SignalPayload payload = 3;
+
+    uint32 size_byte = 4;
+
+    uint32 message_id = 5;
+    uint32 static_can_id = 6;
+    bool has_static_can_id = 7;
+
+    MessagePriority priority = 8;
+    MessageByteOrder byte_order = 9;
+
+    uint32 cycle_time = 10;
+    MessageSendType send_type = 11;
+    uint32 delay_time = 12;
+    uint32 start_delay_time = 13;
+
+    repeated string receiver_ids = 14;
+}

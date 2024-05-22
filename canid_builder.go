@@ -16,24 +16,24 @@ type CANID uint32
 type CANIDBuilderOpKind int
 
 const (
-	// CANIDBuilderOpMessagePriority represents an operation
+	// CANIDBuilderOpKindMessagePriority represents an operation
 	// that involves the message priority.
-	CANIDBuilderOpMessagePriority CANIDBuilderOpKind = iota
-	// CANIDBuilderOpMessageID represents an operation
+	CANIDBuilderOpKindMessagePriority CANIDBuilderOpKind = iota
+	// CANIDBuilderOpKindMessageID represents an operation
 	// that involves the message id.
-	CANIDBuilderOpMessageID
-	// CANIDBuilderOpNodeID represents an operation
+	CANIDBuilderOpKindMessageID
+	// CANIDBuilderOpKindNodeID represents an operation
 	// that involves the node id.
-	CANIDBuilderOpNodeID
+	CANIDBuilderOpKindNodeID
 )
 
 func (bok CANIDBuilderOpKind) String() string {
 	switch bok {
-	case CANIDBuilderOpMessagePriority:
+	case CANIDBuilderOpKindMessagePriority:
 		return "message-priority"
-	case CANIDBuilderOpMessageID:
+	case CANIDBuilderOpKindMessageID:
 		return "message-id"
-	case CANIDBuilderOpNodeID:
+	case CANIDBuilderOpKindNodeID:
 		return "node-id"
 	default:
 		return "unknown"
@@ -73,7 +73,7 @@ func (bo *CANIDBuilderOp) Len() int {
 // the CAN-ID of the messages within a [Bus].
 type CANIDBuilder struct {
 	*entity
-	*withTemplateRefs[*Bus]
+	*withRefs[*Bus]
 
 	operations []*CANIDBuilderOp
 }
@@ -81,8 +81,8 @@ type CANIDBuilder struct {
 // NewCANIDBuilder creates a new [CANIDBuilder] with the given name.
 func NewCANIDBuilder(name string) *CANIDBuilder {
 	return &CANIDBuilder{
-		entity:           newEntity(name),
-		withTemplateRefs: newWithTemplateRefs[*Bus](),
+		entity:   newEntity(name),
+		withRefs: newWithRefs[*Bus](),
 
 		operations: []*CANIDBuilderOp{},
 	}
@@ -117,11 +117,11 @@ func (b *CANIDBuilder) Calculate(messagePriority MessagePriority, messageID Mess
 	for _, op := range b.operations {
 		tmpVal := uint32(0)
 		switch op.kind {
-		case CANIDBuilderOpMessagePriority:
+		case CANIDBuilderOpKindMessagePriority:
 			tmpVal = uint32(messagePriority)
-		case CANIDBuilderOpMessageID:
+		case CANIDBuilderOpKindMessageID:
 			tmpVal = uint32(messageID)
-		case CANIDBuilderOpNodeID:
+		case CANIDBuilderOpKindNodeID:
 			tmpVal = uint32(nodeID)
 		}
 
@@ -139,7 +139,7 @@ func (b *CANIDBuilder) Calculate(messagePriority MessagePriority, messageID Mess
 // The length of the operation is fixed (2 bits).
 func (b *CANIDBuilder) UseMessagePriority(from int) *CANIDBuilder {
 	b.operations = append(b.operations, &CANIDBuilderOp{
-		kind: CANIDBuilderOpMessagePriority,
+		kind: CANIDBuilderOpKindMessagePriority,
 		from: from,
 		len:  2,
 	})
@@ -149,7 +149,7 @@ func (b *CANIDBuilder) UseMessagePriority(from int) *CANIDBuilder {
 // UseMessageID adds an operation that involves the message id from the given index and length.
 func (b *CANIDBuilder) UseMessageID(from, len int) *CANIDBuilder {
 	b.operations = append(b.operations, &CANIDBuilderOp{
-		kind: CANIDBuilderOpMessageID,
+		kind: CANIDBuilderOpKindMessageID,
 		from: from,
 		len:  len,
 	})
@@ -159,7 +159,7 @@ func (b *CANIDBuilder) UseMessageID(from, len int) *CANIDBuilder {
 // UseNodeID adds an operation that involves the node id from the given index and length.
 func (b *CANIDBuilder) UseNodeID(from, len int) *CANIDBuilder {
 	b.operations = append(b.operations, &CANIDBuilderOp{
-		kind: CANIDBuilderOpNodeID,
+		kind: CANIDBuilderOpKindNodeID,
 		from: from,
 		len:  len,
 	})

@@ -435,10 +435,10 @@ func (e *exporter) exportStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Sign
 		dbcSig.ValueType = dbc.SignalUnsigned
 	}
 
-	dbcSig.Min = stdSig.min
-	dbcSig.Max = stdSig.max
-	dbcSig.Offset = stdSig.offset
-	dbcSig.Factor = stdSig.scale
+	dbcSig.Min = stdSig.typ.min
+	dbcSig.Max = stdSig.typ.max
+	dbcSig.Offset = stdSig.typ.offset
+	dbcSig.Factor = stdSig.typ.scale
 
 	unit := stdSig.unit
 	if unit != nil {

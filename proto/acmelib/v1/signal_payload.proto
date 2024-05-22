@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package acmelib.v1;
+
+message SignalPayloadRef {
+    string signal_entity_id = 1;
+    uint32 start_bit = 2;
+}
+
+message SignalPayload {
+    repeated SignalPayloadRef refs = 1;
+}

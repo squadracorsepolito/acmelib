@@ -10,7 +10,7 @@ import (
 // to a signal.
 type SignalEnum struct {
 	*entity
-	*withTemplateRefs[*EnumSignal]
+	*withRefs[*EnumSignal]
 
 	// refs     *set[EntityID, *EnumSignal]
 	parErrID EntityID
@@ -26,8 +26,8 @@ type SignalEnum struct {
 // NewSignalEnum creates a new [SignalEnum] with the given name.
 func NewSignalEnum(name string) *SignalEnum {
 	return &SignalEnum{
-		entity:           newEntity(name),
-		withTemplateRefs: newWithTemplateRefs[*EnumSignal](),
+		entity:   newEntity(name),
+		withRefs: newWithRefs[*EnumSignal](),
 
 		// refs:     newSet[EntityID, *EnumSignal](),
 		parErrID: "",

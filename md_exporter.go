@@ -163,13 +163,13 @@ func (e *mdExporter) exportSignal(sig Signal) {
 }
 
 func (e *mdExporter) exportStandardSignal(stdSig *StandardSignal) {
-	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.min))
+	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.typ.min))
 
-	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.max))
+	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.typ.max))
 
-	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.offset))
+	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.typ.offset))
 
-	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.scale))
+	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.typ.scale))
 
 	unitSymbol := "-"
 	if stdSig.unit != nil {

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package acmelib.v1;
+
+import "acmelib/v1/entity.proto";
+
+enum SignalUnitKind {
+    SIGNAL_UNIT_KIND_UNSPECIFIED = 0;
+    SIGNAL_UNIT_KIND_CUSTOM = 1;
+    SIGNAL_UNIT_KIND_TEMPERATURE = 2;
+    SIGNAL_UNIT_KIND_ELECTRICAL = 3;
+    SIGNAL_UNIT_KIND_POWER = 4;
+}
+
+message SignalUnit {
+    acmelib.v1.Entity entity = 1;
+
+    SignalUnitKind kind = 2;
+    string symbol = 3;
+}

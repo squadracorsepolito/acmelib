@@ -51,22 +51,10 @@ func Test_StandardSignal(t *testing.T) {
 	assert.Error(err)
 
 	assert.Equal(size8Type.EntityID(), sig.Type().EntityID())
-	assert.Equal(size8Type.Min(), sig.Min())
-	assert.Equal(size8Type.Max(), sig.Max())
-	assert.Equal(float64(0), sig.Offset())
-	assert.Equal(float64(1), sig.Scale())
 
 	assert.Equal(voltUnit.EntityID(), sig.Unit().EntityID())
 	sig.SetUnit(currUnit)
 	assert.Equal(currUnit.EntityID(), sig.Unit().EntityID())
-
-	assert.NoError(sig.SetPhysicalValues(-10, 10, 1, 2))
-	assert.Equal(float64(-10), sig.Min())
-	assert.Equal(float64(10), sig.Max())
-	assert.Equal(float64(1), sig.Offset())
-	assert.Equal(float64(2), sig.Scale())
-
-	assert.Error(sig.SetPhysicalValues(-10, 10, 1, 0))
 
 	_, err = sig.ToStandard()
 	assert.NoError(err)

@@ -37,7 +37,7 @@ func (suk SignalUnitKind) String() string {
 // SignalUnit is an entity that defines the physical unit of a [Signal].
 type SignalUnit struct {
 	*entity
-	*withTemplateRefs[*StandardSignal]
+	*withRefs[*StandardSignal]
 
 	kind   SignalUnitKind
 	symbol string
@@ -47,8 +47,8 @@ type SignalUnit struct {
 // kind, and symbol.
 func NewSignalUnit(name string, kind SignalUnitKind, symbol string) *SignalUnit {
 	return &SignalUnit{
-		entity:           newEntity(name),
-		withTemplateRefs: newWithTemplateRefs[*StandardSignal](),
+		entity:   newEntity(name),
+		withRefs: newWithRefs[*StandardSignal](),
 
 		kind:   kind,
 		symbol: symbol,

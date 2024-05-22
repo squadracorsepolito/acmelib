@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package acmelib.v1;
+
+import "acmelib/v1/entity.proto";
+import "acmelib/v1/node_interface.proto";
+import "acmelib/v1/canid_builder.proto";
+
+enum BusType {
+    BUS_TYPE_UNSPECIFIED = 0;
+    BUS_TYPE_CAN_2A = 1;
+}
+
+message Bus {
+    acmelib.v1.Entity entity = 1;
+
+    repeated acmelib.v1.NodeInterface node_interfaces = 2;
+
+    uint32 baudrate = 3;
+    BusType type = 4;
+
+    oneof canid_builder {
+        acmelib.v1.CANIDBuilder embedded_canid_builder = 5;
+        string canid_builder_entity_id = 6;
+    }
+}

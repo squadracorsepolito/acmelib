@@ -12,7 +12,7 @@ type MessageID uint32
 // MessagePriority rappresents the priority of a [Message].
 // The priorities are very high, high, medium, and low.
 // The higher priority has the value 0 and the lower has 3.
-type MessagePriority uint
+type MessagePriority uint32
 
 const (
 	// MessagePriorityVeryHigh defines a very high priority.
@@ -74,7 +74,6 @@ const (
 type Message struct {
 	*attributeEntity
 
-	// senderNode    *Node
 	senderNodeInt *NodeInterface
 
 	signals     *set[EntityID, Signal]
@@ -87,9 +86,7 @@ type Message struct {
 	id             MessageID
 	staticCANID    CANID
 	hasStaticCANID bool
-	// id         MessageCANID
-	// isStaticID bool
-	// idGenFn    MessageCANIDGeneratorFn
+
 	priority  MessagePriority
 	byteOrder MessageByteOrder
 
@@ -107,7 +104,6 @@ func NewMessage(name string, id MessageID, sizeByte int) *Message {
 	return &Message{
 		attributeEntity: newAttributeEntity(name, AttributeRefKindMessage),
 
-		// senderNode:    nil,
 		senderNodeInt: nil,
 
 		signals:     newSet[EntityID, Signal](),
@@ -120,8 +116,7 @@ func NewMessage(name string, id MessageID, sizeByte int) *Message {
 		id:             id,
 		staticCANID:    0,
 		hasStaticCANID: false,
-		// isStaticID: false,
-		// idGenFn:    defMsgIDGenFn,
+
 		priority:  MessagePriorityVeryHigh,
 		byteOrder: MessageByteOrderLittleEndian,
 
