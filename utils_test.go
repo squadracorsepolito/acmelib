@@ -6,22 +6,34 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_calcSizeFromValue(t *testing.T) {
+func Test_CalculateBusLoad(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.Equal(1, calcSizeFromValue(1))
-	assert.Equal(2, calcSizeFromValue(3))
-	assert.Equal(2, calcSizeFromValue(2))
-	assert.Equal(6, calcSizeFromValue(32))
-	assert.Equal(7, calcSizeFromValue(127))
-	assert.Equal(9, calcSizeFromValue(256))
-}
+	bus := NewBus("bus")
+	bus.SetBaudrate(250_000)
 
-func Test_calcValueFromSize(t *testing.T) {
-	assert := assert.New(t)
+	node := NewNode("node", 1, 1)
+	nodeInt := node.Interfaces()[0]
+	assert.NoError(bus.AddNodeInterface(nodeInt))
 
-	assert.Equal(1, calcValueFromSize(0))
-	assert.Equal(256, calcValueFromSize(8))
-	assert.Equal(32, calcValueFromSize(5))
-	assert.Equal(8, calcValueFromSize(3))
+	msg0 := NewMessage("msg_0", 1, 8)
+	msg0.SetCycleTime(10)
+	assert.NoError(nodeInt.AddMessage(msg0))
+	msg1 := NewMessage("msg_1", 2, 8)
+	msg1.SetCycleTime(10)
+	assert.NoError(nodeInt.AddMessage(msg1))
+
+	load, err := CalculateBusLoad(bus, 500)
+	assert.NoError(err)
+	assert.Equal(10.16, load)
+
+	argErr := &ArgumentError{}
+
+	_, err = CalculateBusLoad(bus, 0)
+	assert.ErrorAs(err, &argErr)
+	assert.ErrorAs(err, &ErrIsZero)
+
+	_, err = CalculateBusLoad(bus, -1)
+	assert.ErrorAs(err, &argErr)
+	assert.ErrorAs(err, &ErrIsNegative)
 }

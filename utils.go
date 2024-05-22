@@ -1,141 +1,57 @@
 package acmelib
 
-import "strings"
-
-const maxSize = 64
-
-func calcSizeFromValue(val int) int {
-	if val == 0 {
-		return 1
-	}
-
-	for i := 0; i < maxSize; i++ {
-		if val < 1<<i {
-			return i
+// CalculateBusLoad returns the estimed load of the given [Bus] in the worst case scenario.
+// The default cycle time is used when a message within the bus does not have one set.
+// If the bus does not have the baudrate set, it returns 0.
+//
+// It returns an [ArgumentError] if the given default cycle time is invalid.
+func CalculateBusLoad(bus *Bus, defCycleTime int) (float64, error) {
+	if defCycleTime < 0 {
+		return 0, &ArgumentError{
+			Name: "defCycleTime",
+			Err:  ErrIsNegative,
 		}
 	}
 
-	return maxSize
-}
-
-func calcValueFromSize(size int) int {
-	if size <= 0 {
-		return 1
+	if defCycleTime == 0 {
+		return 0, &ArgumentError{
+			Name: "defCycleTime",
+			Err:  ErrIsZero,
+		}
 	}
-	return 1 << size
-}
 
-func clearSpaces(str string) string {
-	return strings.ReplaceAll(strings.TrimSpace(str), " ", "_")
-}
-
-type set[K comparable, V any] struct {
-	m map[K]V
-}
-
-func newSet[K comparable, V any]() *set[K, V] {
-	return &set[K, V]{
-		m: make(map[K]V),
+	if bus.baudrate == 0 {
+		return 0, nil
 	}
-}
 
-func (s *set[K, V]) verifyKeyUnique(key K) error {
-	if _, ok := s.m[key]; ok {
-		return ErrIsDuplicated
+	var headerBits int
+	var trailerBits int
+	var stuffingBits int
+	switch bus.typ {
+	case BusTypeCAN2A:
+		// start of frame + id + rtr + ide + r0 + dlc
+		headerBits = 19
+		// crc + delim crc + slot ack + delim ack + eof
+		trailerBits = 25
+		// worst case scenario
+		stuffingBits = 19
 	}
-	return nil
-}
 
-func (s *set[K, V]) add(key K, val V) {
-	s.m[key] = val
-}
+	consumedBitsPerSec := float64(0)
+	for _, tmpInt := range bus.nodeInts.getValues() {
+		for _, tmpMsg := range tmpInt.messages.getValues() {
+			msgBits := tmpMsg.sizeByte*8 + headerBits + trailerBits + stuffingBits
 
-func (s *set[K, V]) remove(key K) {
-	delete(s.m, key)
-}
+			var cycleTime int
+			if tmpMsg.cycleTime == 0 {
+				cycleTime = defCycleTime
+			} else {
+				cycleTime = tmpMsg.cycleTime
+			}
 
-func (s *set[K, V]) hasKey(key K) bool {
-	_, ok := s.m[key]
-	return ok
-}
-
-func (s *set[K, V]) modifyKey(oldKey, newKey K, val V) {
-	s.remove(oldKey)
-	s.add(newKey, val)
-}
-
-func (s *set[K, V]) getValue(key K) (V, error) {
-	val, ok := s.m[key]
-	if ok {
-		return val, nil
+			consumedBitsPerSec += float64(msgBits) / float64(cycleTime) * 1000
+		}
 	}
-	return val, ErrNotFound
-}
 
-func (s *set[K, V]) getKeys() []K {
-	count := len(s.m)
-	keys := make([]K, count)
-	i := 0
-	for k := range s.m {
-		keys[i] = k
-		i++
-	}
-	return keys
-}
-
-func (s *set[K, V]) size() int {
-	return len(s.m)
-}
-
-func (s *set[K, V]) clear() {
-	for key := range s.m {
-		delete(s.m, key)
-	}
-}
-
-func (s *set[K, V]) entries() map[K]V {
-	return s.m
-}
-
-func (s *set[K, V]) getValues() []V {
-	values := make([]V, s.size())
-	i := 0
-	for _, val := range s.m {
-		values[i] = val
-		i++
-	}
-	return values
-}
-
-func getTabString(tabs int) string {
-	tabStr := ""
-	for i := 0; i < tabs; i++ {
-		tabStr += "\t"
-	}
-	return tabStr
-}
-
-type stack[T any] struct {
-	items []T
-}
-
-func newStack[T any]() *stack[T] {
-	return &stack[T]{
-		items: []T{},
-	}
-}
-
-func (s *stack[T]) push(item T) {
-	s.items = append(s.items, item)
-}
-
-func (s *stack[T]) pop() T {
-	lastIdx := s.size() - 1
-	item := s.items[lastIdx]
-	s.items = s.items[:lastIdx]
-	return item
-}
-
-func (s *stack[T]) size() int {
-	return len(s.items)
+	return consumedBitsPerSec / float64(bus.baudrate) * 100, nil
 }
