@@ -93,6 +93,7 @@ func (e *mdExporter) exportMessage(msg *Message) {
 
 	e.w.PlainTextf("CAN-ID: %s", md.Bold(fmt.Sprintf("%d", msg.id))).LF()
 	e.w.PlainTextf("Size: %s bytes", md.Bold(fmt.Sprintf("%d", msg.sizeByte))).LF()
+	e.w.PlainTextf("Byte Order: %s", md.Bold(msg.byteOrder.String())).LF()
 
 	cycleTimeStr := "-"
 	if msg.cycleTime > 0 {

@@ -81,7 +81,7 @@ BO_ 258 BMS_LV_lvBatGeneral: 6 BMS_LV
 	SG_ LV_BAT_summedVoltage : 32|16@1+ (0.267,14000) [0|17497.845] "mV" DSPACE
 
 BO_ 259 BMS_LV_status: 4 BMS_LV
-	SG_ LV_RELAY_isOpen : 0|1@1+ (1,0) [0|1] "" DSPACE
+	SG_ LV_RELAY_isClosed : 0|1@1+ (1,0) [0|1] "" DSPACE
 	SG_ LV_CELL_0_isOV : 1|1@1+ (1,0) [0|1] "" DSPACE
 	SG_ LV_CELL_0_isUV : 2|1@1+ (1,0) [0|1] "" DSPACE
 	SG_ LV_CELL_1_isOV : 3|1@1+ (1,0) [0|1] "" DSPACE
@@ -185,6 +185,9 @@ BO_ 1026 SB_REAR_analog: 6 SB_REAR
 	SG_ COOL_PRESS_RIGHT_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE
 	SG_ BRAKE_PRESS_REAR_voltage : 32|16@1+ (1,0) [0|65535] "mV" DSPACE
 
+BO_ 255 DASH_lvRelayOverride: 2 DASH
+	SG_ BMS_LV_diagPWD : 0|15@1+ (1,0) [0|65535] "" BMS_LV
+	SG_ LV_RELAY_forcedState : 15|1@1+ (1,0) [0|1] "" BMS_LV 
 
 
 
@@ -233,9 +236,7 @@ BO_ 37 dSpace_RTD_ACK: 1 DSPACE
 
 
 
-BO_ 255 BMSLV_RelayOverride: 2 DSPACE
-	SG_ password : 0|15@1+ (1,0) [0|65535] "" BMS_LV
-	SG_ close_relay : 15|1@1+ (1,0) [0|1] "" BMS_LV
+
 
 
 BO_ 512 dSpace_PeripheralsCTRL: 3 DSPACE
@@ -290,7 +291,7 @@ CM_ SG_ 258 LV_BAT_currentSensVoltage "The voltage returned by the current senso
 CM_ SG_ 258 LV_BAT_voltage "The total read voltage of the LV battery pack expressed in mV.";
 CM_ SG_ 258 LV_BAT_summedVoltage "The total voltage of the LV battery pack calculated by summing each cell voltage expressed in mV.";
 
-CM_ SG_ 259 LV_RELAY_isOpen "States whether the LV relay is open.";
+CM_ SG_ 259 LV_RELAY_isClosed "States whether the LV relay is closed.";
 CM_ SG_ 259 LV_CELL_0_isOV "States whether the LV cell #0 is in overvoltage.";
 CM_ SG_ 259 LV_CELL_0_isUV "States whether the LV cell #0 is in undervoltage.";
 CM_ SG_ 259 LV_CELL_1_isOV "States whether the LV cell #1 is in overvoltage.";
@@ -379,6 +380,10 @@ CM_ SG_ 17 SUSP_EXT_RR_POT_voltage "The voltage of the rear right suspension ext
 CM_ SG_ 1026 COOL_PRESS_LEFT_voltage "The voltage of the left cooling pressure sensor expressed in mV.";
 CM_ SG_ 1026 COOL_PRESS_RIGHT_voltage "The voltage of the right cooling pressure sensor expressed in mV.";
 CM_ SG_ 1026 BRAKE_PRESS_REAR_voltage "The voltage of the rear brake pressure sensor expressed in mV.";
+
+CM_ SG_ 255 BMS_LV_diagPWD "The diagnostic password of the BMS_LV.";
+CM_ SG_ 255 LV_RELAY_forcedState "The command to force the LV relay open (0) or closed (1).";
+
 
 
 

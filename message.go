@@ -69,6 +69,17 @@ const (
 	MessageByteOrderBigEndian
 )
 
+func (mbo MessageByteOrder) String() string {
+	switch mbo {
+	case MessageByteOrderLittleEndian:
+		return "little-endian"
+	case MessageByteOrderBigEndian:
+		return "big-endian"
+	default:
+		return "unknown"
+	}
+}
+
 // Message is the representation of data sent by a node thought the bus.
 // It holds a list of signals that are contained in the message payload.
 type Message struct {
