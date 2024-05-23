@@ -110,7 +110,7 @@ func (e *mdExporter) exportMessage(msg *Message) {
 			continue
 		}
 
-		recStr = fmt.Sprintf("%s, %s", recLink, recLink)
+		recStr += fmt.Sprintf(", %s", recLink)
 	}
 	e.w.PlainText(recStr).LF()
 

@@ -32,162 +32,194 @@ NS_ :
 
 BS_ :
 
-BU_ : BMS_LV DASH DSPACE SB_FRONT SB_REAR TLB_BAT
+BU_ : BMS_LV DASH DSPACE SB_FRONT SB_REAR TLB_BAT SCANNER
 
 BO_ 20 BMS_LV_hello: 3 BMS_LV
-	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 
 BO_ 21 SB_FRONT_hello: 3 SB_FRONT
-	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 
 BO_ 22 SB_REAR_hello: 3 SB_REAR
-	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 
 BO_ 23 DASH_hello: 3 DASH
-	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 
 BO_ 24 TLB_BAT_hello: 3 TLB_BAT
-	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 
 BO_ 25 DSPACE_hello: 3 DSPACE
-	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE
-	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 
 BO_ 256 BMS_LV_lvCellVoltage0: 8 BMS_LV
-	SG_ LV_CELL_0_voltage : 0|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE
-	SG_ LV_CELL_1_voltage : 16|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE
-	SG_ LV_CELL_2_voltage : 32|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE
-	SG_ LV_CELL_3_voltage : 48|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE
+	SG_ LV_CELL_0_voltage : 0|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+	SG_ LV_CELL_1_voltage : 16|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+	SG_ LV_CELL_2_voltage : 32|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+	SG_ LV_CELL_3_voltage : 48|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
 
 BO_ 257 BMS_LV_lvCellVoltage1: 6 BMS_LV
-	SG_ LV_CELL_4_voltage : 0|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE
-	SG_ LV_CELL_5_voltage : 16|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE
-	SG_ LV_CELL_6_voltage : 32|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE
+	SG_ LV_CELL_4_voltage : 0|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+	SG_ LV_CELL_5_voltage : 16|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+	SG_ LV_CELL_6_voltage : 32|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
 
 BO_ 258 BMS_LV_lvBatGeneral: 6 BMS_LV
-	SG_ LV_BAT_currentSensVoltage : 0|16@1+ (0.076,0) [0|4980.66] "mV" DSPACE
-	SG_ LV_BAT_voltage : 16|16@1+ (0.267,14000) [0|17497.845] "mV" DSPACE
-	SG_ LV_BAT_summedVoltage : 32|16@1+ (0.267,14000) [0|17497.845] "mV" DSPACE
+	SG_ LV_BAT_currentSensVoltage : 0|16@1+ (0.076,0) [0|4980.66] "mV" DSPACE, SCANNER
+	SG_ LV_BAT_voltage : 16|16@1+ (0.267,14000) [0|17497.845] "mV" DSPACE, SCANNER
+	SG_ LV_BAT_summedVoltage : 32|16@1+ (0.267,14000) [0|17497.845] "mV" DSPACE, SCANNER
 
 BO_ 259 BMS_LV_status: 4 BMS_LV
-	SG_ LV_RELAY_isClosed : 0|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_0_isOV : 1|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_0_isUV : 2|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_1_isOV : 3|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_1_isUV : 4|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_2_isOV : 5|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_2_isUV : 6|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_3_isOV : 7|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_3_isUV : 8|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_4_isOV : 9|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_4_isUV : 10|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_5_isOV : 11|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_5_isUV : 12|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_6_isOV : 13|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_CELL_6_isUV : 14|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_00_isOT : 15|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_01_isOT : 16|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_02_isOT : 17|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_03_isOT : 18|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_04_isOT : 19|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_05_isOT : 20|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_06_isOT : 21|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_07_isOT : 22|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_08_isOT : 23|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_09_isOT : 24|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_10_isOT : 25|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ LV_TEMP_SENS_11_isOT : 26|1@1+ (1,0) [0|1] "" DSPACE
+	SG_ LV_RELAY_isClosed : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_0_isOV : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_0_isUV : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_1_isOV : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_1_isUV : 4|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_2_isOV : 5|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_2_isUV : 6|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_3_isOV : 7|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_3_isUV : 8|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_4_isOV : 9|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_4_isUV : 10|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_5_isOV : 11|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_5_isUV : 12|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_6_isOV : 13|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_6_isUV : 14|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_00_isOT : 15|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_01_isOT : 16|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_02_isOT : 17|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_03_isOT : 18|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_04_isOT : 19|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_05_isOT : 20|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_06_isOT : 21|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_07_isOT : 22|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_08_isOT : 23|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_09_isOT : 24|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_10_isOT : 25|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_TEMP_SENS_11_isOT : 26|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
 BO_ 260 BMS_LV_lvCellNTCResistance0: 8 BMS_LV
-	SG_ LV_CELL_NTC_00_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ LV_CELL_NTC_01_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ LV_CELL_NTC_02_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ LV_CELL_NTC_03_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ LV_CELL_NTC_04_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ LV_CELL_NTC_05_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ LV_CELL_NTC_00_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_01_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_02_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_03_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_04_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_05_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
 
 BO_ 261 BMS_LV_lvCellNTCResistance1: 8 BMS_LV
-	SG_ LV_CELL_NTC_06_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ LV_CELL_NTC_07_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ LV_CELL_NTC_08_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ LV_CELL_NTC_09_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ LV_CELL_NTC_10_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ LV_CELL_NTC_11_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ LV_CELL_NTC_06_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_07_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_08_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_09_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_10_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_11_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
 
-BO_ 38 DASH_rtd: 1 DASH
-	SG_ RTD_CMD : 0|8@1+ (1,0) [0|255] "" DSPACE
+BO_ 38 DASH_buttonState: 2 DASH
+	SG_ RTD_CMD : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ BTN_0_isPressed : 8|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ BTN_1_isPressed : 9|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ BTN_2_isPressed : 10|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ BTN_3_isPressed : 11|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
-BO_ 1280 DASH_motorStatus: 1 DASH
-	SG_ MOTOR_FL_isON : 0|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ MOTOR_FR_isON : 1|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ MOTOR_RL_isON : 2|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ MOTOR_RR_isON : 3|1@1+ (1,0) [0|1] "" DSPACE
+BO_ 1280 DSPACE_motorStatus: 1 DSPACE
+	SG_ MOTOR_FL_isON : 0|1@1+ (1,0) [0|1] "" SCANNER
+	SG_ MOTOR_FR_isON : 1|1@1+ (1,0) [0|1] "" SCANNER
+	SG_ MOTOR_RL_isON : 2|1@1+ (1,0) [0|1] "" SCANNER
+	SG_ MOTOR_RR_isON : 3|1@1+ (1,0) [0|1] "" SCANNER
 
 BO_ 49 SB_FRONT_sdcStatus: 1 SB_FRONT
-	SG_ SDC_PRE_INERTIA_isClosed : 0|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ SDC_POST_INERTIA_isClosed : 1|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ SDC_POST_BOTS_isClosed : 2|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ SDC_POST_COCKPIT_isClosed : 3|1@1+ (1,0) [0|1] "" DSPACE
+	SG_ SDC_POST_INERTIA_isActive : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_POST_BOTS_isActive : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_POST_COCKPIT_isActive : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
 BO_ 1024 SB_FRONT_ntcResistance: 8 SB_FRONT
-	SG_ JACKET_FL_NTC_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ JACKET_FR_NTC_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ COLDPLATE_L_NTC_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ COLDPLATE_R_NTC_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ SPARE_NTC_0_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ SPARE_NTC_1_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ JACKET_FL_NTC_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ JACKET_FR_NTC_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ COLDPLATE_L_NTC_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ COLDPLATE_R_NTC_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ SPARE_NTC_0_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ SPARE_NTC_1_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
 
 BO_ 1025 SB_REAR_ntcResistance: 8 SB_REAR
-	SG_ JACKET_RL_NTC_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ JACKET_RR_NTC_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ RAD_RL_IN_NTC_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ RAD_RL_OUT_NTC_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ RAD_RR_IN_NTC_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
-	SG_ RAD_RR_OUT_NTC_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE
+	SG_ JACKET_RL_NTC_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ JACKET_RR_NTC_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ RAD_RL_IN_NTC_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ RAD_RL_OUT_NTC_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ RAD_RR_IN_NTC_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ RAD_RR_OUT_NTC_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
 
 BO_ 48 SB_REAR_sdcStatus: 1 SB_REAR
-	SG_ SDC_POST_BSPD_isClosed : 0|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ SDC_PRE_PUSH_BTNS_isClosed : 1|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ SDC_POST_DC_BUS_isClosed : 2|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ SDC_POST_INV_FR_isClosed : 3|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ BSPD_hasError : 4|1@1+ (1,0) [0|1] "" DSPACE
+	SG_ SDC_POST_BSPD_isClosed : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_PRE_PUSH_BTNS_isClosed : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_POST_DC_BUS_isClosed : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_POST_INV_FR_isClosed : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ BSPD_hasError : 4|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
 BO_ 50 SB_REAR_dischargeStatus: 1 SB_REAR
-	SG_ DISCHARGE_isOpen : 0|1@1+ (1,0) [0|1] "" DSPACE
+	SG_ DISCHARGE_isOpen : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
 BO_ 5 SB_FRONT_analog: 8 SB_FRONT
-	SG_ APPS_0_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE
-	SG_ APPS_1_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE
-	SG_ STEERING_SENS_voltage : 32|16@1+ (1,0) [0|65535] "mV" DSPACE
-	SG_ BRAKE_PRESS_FRONT_voltage : 48|16@1+ (1,0) [0|65535] "mV" DSPACE
+	SG_ APPS_0_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ APPS_1_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ STEERING_SENS_voltage : 32|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ BRAKE_PRESS_FRONT_voltage : 48|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
 
 BO_ 16 SB_FRONT_potentiometer: 4 SB_FRONT
-	SG_ SUSP_EXT_FL_POT_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE
-	SG_ SUSP_EXT_FR_POT_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE
+	SG_ LPPS_DAMPER_FL_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ LPPS_DAMPER_FR_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
 
 BO_ 17 SB_REAR_potentiometer: 4 SB_REAR
-	SG_ SUSP_EXT_RL_POT_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE
-	SG_ SUSP_EXT_RR_POT_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE
+	SG_ LPPS_DAMPER_RL_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ LPPS_DAMPER_RR_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
 
 BO_ 1026 SB_REAR_analog: 6 SB_REAR
-	SG_ COOL_PRESS_LEFT_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE
-	SG_ COOL_PRESS_RIGHT_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE
-	SG_ BRAKE_PRESS_REAR_voltage : 32|16@1+ (1,0) [0|65535] "mV" DSPACE
+	SG_ COOL_PRESS_LEFT_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ COOL_PRESS_RIGHT_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ BRAKE_PRESS_REAR_voltage : 32|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
 
 BO_ 255 DASH_lvRelayOverride: 2 DASH
 	SG_ BMS_LV_diagPWD : 0|15@1+ (1,0) [0|65535] "" BMS_LV
-	SG_ LV_RELAY_forcedState : 15|1@1+ (1,0) [0|1] "" BMS_LV 
+	SG_ LV_RELAY_forcedState : 15|1@1+ (1,0) [0|1] "closed" BMS_LV 
+
+BO_ 1300 DASH_appsRangeLimits: 8 DASH
+	SG_ APPS_0_voltageRangeMin : 0|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ APPS_0_voltageRangeMax : 16|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ APPS_1_voltageRangeMin : 32|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ APPS_1_voltageRangeMax : 48|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+
+BO_ 1301 DASH_rotarySwitchState: 1 DASH
+	SG_ ROT_SWITCH_0_position : 0|4@1+ (1,0) [0|10] "" DSPACE, SCANNER
+	SG_ ROT_SWITCH_1_position : 4|4@1+ (1,0) [0|10] "" DSPACE, SCANNER
+
+BO_ 37 DSPACE_rtdACK: 1 DSPACE
+	SG_ RTD_FSM_STATE : 0|8@1- (1,0) [-1|6] "" DASH, SCANNER
+
+BO_ 512 DSPACE_peripheralsCTRL: 2 DSPACE
+	SG_ BRAKE_LIGHT_activeCMD : 0|1@1+ (1,0) [0|1] "" SB_REAR, SCANNER
+	SG_ RAD_FAN_pwmCtrl : 8|8@1+ (1,0) [0|255] "%" DASH, SCANNER
+
+BO_ 519 DASH_peripheralsStatus: 1 DASH
+	SG_ TSAC_FAN_pwmStatus : 0|4@1+ (1,0) [0|10] "%" DSPACE, SCANNER
+
+BO_ 39 DSPACE_timeDate: 1 DSPACE
+	SG_ year : 0|8@1+ (1,0) [0|255] "" DASH, SCANNER, SB_FRONT, SB_REAR, TLB_BAT
+
+BO_ 18 TLB_BAT_sdcStatus: 3 TLB_BAT
+	SG_ SDC_TSAC_INIT_IN_isActive : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_TSAC_INIT_OUT_isActive : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_POST_AMS_IMD_RELAY_isActive : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_TSAC_FINAL_IN_isActive : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
 
 
@@ -195,43 +227,25 @@ BO_ 255 DASH_lvRelayOverride: 2 DASH
 
 
 
-
-
-
-BO_ 18 TLB_Battery_ShutStatus: 3 TLB_BAT
-	SG_ isShutClosed_preAMS_IMD_Latch : 0|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ isShutClosed_postAMSLatch : 1|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ isShutClosed_postIMDLatch : 2|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ isShutdownClosed_preTLBBattFinal : 3|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ isAMSErrorLatched : 4|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ isIMDErrorLatched : 5|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ isSdPrchRlyClosed : 6|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ ShutdownADC_postSDPrechargeRelay : 8|8@1+ (0.117,0) [0|255] "V" DSPACE
-	SG_ ShutdownADC_AIRsOpeningDelayCaps : 16|8@1+ (0.117,0) [0|255] "V" DSPACE
 
 BO_ 19 TLB_Battery_TSALStatus: 3 TLB_BAT
-	SG_ TSAL_isGreenON : 0|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ TSAL_isAIRPosClosed : 1|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ TSAL_IsAIRNegClosed : 2|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ TSAL_IsRelayPrechargeClosed : 3|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ TSAL_isDCBusOver60V : 4|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ IntentionalState_AIRPos : 5|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ IntentionalState_AIRNeg : 6|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ IntentionalState_RelayPrecharge : 7|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ SCS_Short2GND_AirPos : 8|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ SCS_Short2GND_AirNeg : 9|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ SCS_isAnyShort2GND_Present : 10|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ Imp_isAnyImp_Present : 11|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ Imp_isAIRPosImp_Present : 12|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ Imp_isAIRNegImp_Present : 13|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ Imp_isRelayPrechargeImp_Present : 14|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ Imp_isDCBusVoltageImp_Present : 15|1@1+ (1,0) [0|1] "" DSPACE
-	SG_ Imp_isAnyImp_Latched : 16|1@1+ (1,0) [0|1] "" DSPACE
-
-
-
-BO_ 37 dSpace_RTD_ACK: 1 DSPACE
-	SG_ RTD_FSM_STATE : 0|8@1- (1,0) [-1|6] "" DASH
+	SG_ TSAL_isGreenON : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ TSAL_isAIRPosClosed : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ TSAL_IsAIRNegClosed : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ TSAL_IsRelayPrechargeClosed : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ TSAL_isDCBusOver60V : 4|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ IntentionalState_AIRPos : 5|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ IntentionalState_AIRNeg : 6|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ IntentionalState_RelayPrecharge : 7|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SCS_Short2GND_AirPos : 8|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SCS_Short2GND_AirNeg : 9|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SCS_isAnyShort2GND_Present : 10|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ Imp_isAnyImp_Present : 11|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ Imp_isAIRPosImp_Present : 12|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ Imp_isAIRNegImp_Present : 13|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ Imp_isRelayPrechargeImp_Present : 14|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ Imp_isDCBusVoltageImp_Present : 15|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ Imp_isAnyImp_Latched : 16|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
 
 
@@ -239,10 +253,10 @@ BO_ 37 dSpace_RTD_ACK: 1 DSPACE
 
 
 
-BO_ 512 dSpace_PeripheralsCTRL: 3 DSPACE
-	SG_ BrakeLightON_CTRL : 0|1@1- (1,0) [0|1] "" DASH
-	SG_ RadFAN_PWM_CTRL : 8|8@1+ (1,0) [0|255] "" DASH
-	SG_ BattHVFan_CTRL : 16|8@1+ (1,0) [0|255] "" DASH
+
+
+
+
 
 
 
@@ -339,10 +353,9 @@ CM_ SG_ 1280 MOTOR_FR_isON "States whether the front right motor is ON.";
 CM_ SG_ 1280 MOTOR_RL_isON "States whether the rear left motor is ON.";
 CM_ SG_ 1280 MOTOR_RR_isON "States whether the rear right motor is ON.";
 
-CM_ SG_ 49 SDC_PRE_INERTIA_isClosed "States whether the SDC pre inertia switch is closed.";
-CM_ SG_ 49 SDC_POST_INERTIA_isClosed "States whether the SDC post inertia switch is closed.";
-CM_ SG_ 49 SDC_POST_BOTS_isClosed "States whether the SDC post BOTS is closed.";
-CM_ SG_ 49 SDC_POST_COCKPIT_isClosed "States whether the SDC post cockpit push button is closed.";
+CM_ SG_ 49 SDC_POST_INERTIA_isActive "States whether the SDC post inertia switch is active.";
+CM_ SG_ 49 SDC_POST_BOTS_isActive "States whether the SDC post BOTS is active.";
+CM_ SG_ 49 SDC_POST_COCKPIT_isActive "States whether the SDC post cockpit push button is active.";
 
 CM_ SG_ 1024 JACKET_FL_NTC_resistance "The resistance of the front left jacket NTC expressed in Ohm.";
 CM_ SG_ 1024 JACKET_FR_NTC_resistance "The resistance of the front right jacket NTC expressed in Ohm.";
@@ -371,21 +384,22 @@ CM_ SG_ 5 APPS_1_voltage "The voltage of the APPS #1 expressed in mV.";
 CM_ SG_ 5 STEERING_SENS_voltage "The voltage of the steering hall-effect sensor expressed in mV.";
 CM_ SG_ 5 BRAKE_PRESS_FRONT_voltage "The voltage of the front brake pressure sensor expressed in mV.";
 
-CM_ SG_ 16 SUSP_EXT_FL_POT_voltage "The voltage of the front left suspension extensimeter potentiometer expressed in mV.";
-CM_ SG_ 16 SUSP_EXT_FR_POT_voltage "The voltage of the front right suspension extensimeter potentiometer expressed in mV.";
+CM_ SG_ 16 LPPS_DAMPER_FL_voltage "The voltage of the linear potentiometer position sensor on the front left damper expressed in mV.";
+CM_ SG_ 16 LPPS_DAMPER_FR_voltage "The voltage of the linear potentiometer position sensor on the front right damper expressed in mV.";
 
-CM_ SG_ 17 SUSP_EXT_RL_POT_voltage "The voltage of the rear left suspension extensimeter potentiometer expressed in mV.";
-CM_ SG_ 17 SUSP_EXT_RR_POT_voltage "The voltage of the rear right suspension extensimeter potentiometer expressed in mV.";
+CM_ SG_ 17 LPPS_DAMPER_RL_voltage "The voltage of the linear potentiometer position sensor on the rear left damper expressed in mV.";
+CM_ SG_ 17 LPPS_DAMPER_RR_voltage "The voltage of the linear potentiometer position sensor on the rear left damper expressed in mV.";
 
 CM_ SG_ 1026 COOL_PRESS_LEFT_voltage "The voltage of the left cooling pressure sensor expressed in mV.";
 CM_ SG_ 1026 COOL_PRESS_RIGHT_voltage "The voltage of the right cooling pressure sensor expressed in mV.";
 CM_ SG_ 1026 BRAKE_PRESS_REAR_voltage "The voltage of the rear brake pressure sensor expressed in mV.";
 
-CM_ SG_ 255 BMS_LV_diagPWD "The diagnostic password of the BMS_LV.";
+CM_ SG_ 255 BMS_LV_diagPWD "The password to enter diagnostic mode of the BMS_LV.";
 CM_ SG_ 255 LV_RELAY_forcedState "The command to force the LV relay open (0) or closed (1).";
 
+CM_ SG_ 519 TSAC_FAN_pwmStatus "The percentage of the duty cycle of the TSAC fan.";
 
-
+CM_ SG_ 512 BRAKE_LIGHT_activeCMD "The command to turn on the brake light (1 active).";
 
 
 
@@ -410,7 +424,7 @@ BA_ "GenMsgCycleTime" BO_ 258 100;
 BA_ "GenMsgCycleTime" BO_ 259 100;
 BA_ "GenMsgCycleTime" BO_ 260 2000;
 BA_ "GenMsgCycleTime" BO_ 261 2000;
-BA_ "GenMsgCycleTime" BO_ 38 500;
+BA_ "GenMsgCycleTime" BO_ 38 100;
 BA_ "GenMsgCycleTime" BO_ 49 10;
 BA_ "GenMsgCycleTime" BO_ 1024 10;
 BA_ "GenMsgCycleTime" BO_ 1025 10;
@@ -421,3 +435,5 @@ BA_ "GenMsgCycleTime" BO_ 17 10;
 BA_ "GenMsgCycleTime" BO_ 1026 10;
 BA_ "GenMsgCycleTime" BO_ 18 10;
 BA_ "GenMsgCycleTime" BO_ 19 10;
+BA_ "GenMsgCycleTime" BO_ 1301 100;
+BA_ "GenMsgCycleTime" BO_ 512 100;

@@ -2,6 +2,7 @@ package acmelib
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -609,7 +610,11 @@ func (m *Message) RemoveReceiver(receiverEntityID EntityID) {
 
 // Receivers returns a slice of all receivers of the [Message].
 func (m *Message) Receivers() []*NodeInterface {
-	return m.receivers.getValues()
+	recSlice := m.receivers.getValues()
+	slices.SortFunc(recSlice, func(a, b *NodeInterface) int {
+		return strings.Compare(a.name, b.name)
+	})
+	return recSlice
 }
 
 // SetByteOrder sets the byte order of the [Message].

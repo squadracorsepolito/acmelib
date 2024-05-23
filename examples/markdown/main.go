@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/squadracorsepolito/acmelib"
@@ -42,6 +43,14 @@ func main() {
 	// if err := sc24.AddBus(hvcb); err != nil {
 	// 	panic(err)
 	// }
+
+	mcb.SetBaudrate(1_000_000)
+
+	busLoad, err := acmelib.CalculateBusLoad(mcb, 1000)
+	if err != nil {
+		panic(err)
+	}
+	log.Print("BUS LOAD: ", busLoad)
 
 	mdFile, err := os.Create("SC24.md")
 	if err != nil {
