@@ -9,6 +9,7 @@ import (
 
 func main() {
 	sc24 := acmelib.NewNetwork("SC24")
+	sc24.SetDesc("The CAN network of the squadracorse 2024 formula SAE car.")
 
 	mcbFile, err := os.Open("MCB.dbc")
 	if err != nil {

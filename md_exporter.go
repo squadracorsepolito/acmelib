@@ -32,8 +32,9 @@ func newMDExporter(mdWriter *md.Markdown) *mdExporter {
 	}
 }
 
-func (e *mdExporter) getLink(text string) string {
-	return md.Link(text, "#"+strings.ReplaceAll(text, " ", ""))
+func (e *mdExporter) getHeaderLink(headerName string) string {
+	linkStr := "#" + strings.ReplaceAll(strings.ToLower(headerName), " ", "-")
+	return md.Link(headerName, linkStr)
 }
 
 func (e *mdExporter) exportNetwork(net *Network) {
@@ -43,10 +44,25 @@ func (e *mdExporter) exportNetwork(net *Network) {
 
 	if len(net.desc) > 0 {
 		e.w.PlainText(net.desc).LF()
+		e.w.HorizontalRule()
 	}
+
+	e.exportTOC(net)
 
 	for _, bus := range net.Buses() {
 		e.exportBus(bus)
+	}
+}
+
+func (e *mdExporter) exportTOC(net *Network) {
+	for _, bus := range net.Buses() {
+		e.w.BulletList(e.getHeaderLink(bus.name))
+		for _, nodeInt := range bus.Nodes() {
+			e.w.PlainTextf("\t- %s", e.getHeaderLink(nodeInt.node.name))
+			for _, msg := range nodeInt.Messages() {
+				e.w.PlainTextf("\t\t- %s", e.getHeaderLink(msg.name))
+			}
+		}
 	}
 }
 
@@ -55,13 +71,14 @@ func (e *mdExporter) exportBus(bus *Bus) {
 
 	if len(bus.desc) > 0 {
 		e.w.PlainText(bus.desc).LF()
+		e.w.HorizontalRule()
 	}
 
 	baudrateStr := "-"
 	if bus.baudrate != 0 {
 		baudrateStr = md.Bold(strconv.Itoa(bus.baudrate))
 	}
-	e.w.PlainTextf("Baudrate: %s", baudrateStr).LF()
+	e.w.PlainTextf("Baudrate: %s bps", baudrateStr).LF()
 
 	for _, node := range bus.Nodes() {
 		e.exportNode(node)
@@ -69,10 +86,12 @@ func (e *mdExporter) exportBus(bus *Bus) {
 }
 
 func (e *mdExporter) exportNode(node *NodeInterface) {
+	e.w.HorizontalRule()
 	e.w.H3(node.node.name)
 
 	if len(node.node.desc) > 0 {
 		e.w.PlainText(node.node.desc).LF()
+		e.w.HorizontalRule()
 	}
 
 	e.w.PlainTextf("Node ID: %s", md.Bold(fmt.Sprintf("%d", node.node.id))).LF()
@@ -80,15 +99,15 @@ func (e *mdExporter) exportNode(node *NodeInterface) {
 	for _, msg := range node.Messages() {
 		e.exportMessage(msg)
 	}
-
-	e.w.HorizontalRule()
 }
 
 func (e *mdExporter) exportMessage(msg *Message) {
+	e.w.HorizontalRule()
 	e.w.H4(msg.name)
 
 	if len(msg.desc) > 0 {
 		e.w.PlainText(msg.desc).LF()
+		e.w.HorizontalRule()
 	}
 
 	e.w.PlainTextf("CAN-ID: %s", md.Bold(fmt.Sprintf("%d", msg.id))).LF()
@@ -103,7 +122,7 @@ func (e *mdExporter) exportMessage(msg *Message) {
 
 	recStr := "Receivers: "
 	for idx, recInt := range msg.Receivers() {
-		recLink := e.getLink(recInt.node.name)
+		recLink := e.getHeaderLink(recInt.node.name)
 
 		if idx == 0 {
 			recStr += recLink
