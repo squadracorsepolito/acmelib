@@ -26,20 +26,21 @@ func CalculateBusLoad(bus *Bus, defCycleTime int) (float64, error) {
 
 	var headerBits int
 	var trailerBits int
-	var stuffingBits int
+	var headerStuffingBits int
 	switch bus.typ {
 	case BusTypeCAN2A:
 		// start of frame + id + rtr + ide + r0 + dlc
 		headerBits = 19
 		// crc + delim crc + slot ack + delim ack + eof
 		trailerBits = 25
-		// worst case scenario
-		stuffingBits = 19
+		// from wikipedia
+		headerStuffingBits = 34
 	}
 
 	consumedBitsPerSec := float64(0)
 	for _, tmpInt := range bus.nodeInts.getValues() {
 		for _, tmpMsg := range tmpInt.messages.getValues() {
+			stuffingBits := (headerStuffingBits + tmpMsg.sizeByte*8 - 1) / 4
 			msgBits := tmpMsg.sizeByte*8 + headerBits + trailerBits + stuffingBits
 
 			var cycleTime int

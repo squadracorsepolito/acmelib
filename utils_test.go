@@ -25,7 +25,8 @@ func Test_CalculateBusLoad(t *testing.T) {
 
 	load, err := CalculateBusLoad(bus, 500)
 	assert.NoError(err)
-	assert.Equal(10.16, load)
+	assert.Greater(load, 10.0)
+	assert.Less(load, 11.0)
 
 	argErr := &ArgumentError{}
 

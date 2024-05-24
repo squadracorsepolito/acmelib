@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-var defaulCANIDBuilder = NewCANIDBuilder("default CAN-ID builder").UseNodeID(0, 4).UseMessageID(4, 7)
+var defaulCANIDBuilder = NewCANIDBuilder("default CAN-ID builder").UseNodeID(0, 4).UseMessageID(4, 7).UseCAN2A()
 
 // CANID is the CAN-ID of a [Message] within a [Bus].
 // Every message should have a different CAN-ID.
@@ -25,6 +25,8 @@ const (
 	// CANIDBuilderOpKindNodeID represents an operation
 	// that involves the node id.
 	CANIDBuilderOpKindNodeID
+	// CANIDBuilderOpKindBitMask represents a bit masking operation.
+	CANIDBuilderOpKindBitMask
 )
 
 func (bok CANIDBuilderOpKind) String() string {
@@ -35,6 +37,8 @@ func (bok CANIDBuilderOpKind) String() string {
 		return "message-id"
 	case CANIDBuilderOpKindNodeID:
 		return "node-id"
+	case CANIDBuilderOpKindBitMask:
+		return "bit-mask"
 	default:
 		return "unknown"
 	}
@@ -115,6 +119,12 @@ func (b *CANIDBuilder) Calculate(messagePriority MessagePriority, messageID Mess
 	canID := uint32(0)
 
 	for _, op := range b.operations {
+		if op.kind == CANIDBuilderOpKindBitMask {
+			mask := uint32(0xFFFFFFFF) >> uint32(32-op.len)
+			canID &= (mask << uint32(op.from))
+			continue
+		}
+
 		tmpVal := uint32(0)
 		switch op.kind {
 		case CANIDBuilderOpKindMessagePriority:
@@ -164,4 +174,24 @@ func (b *CANIDBuilder) UseNodeID(from, len int) *CANIDBuilder {
 		len:  len,
 	})
 	return b
+}
+
+// UseCAN2A adds a bit mask from 0 with a length of 11,
+// which makes the calculated CAN-ID conformed to the CAN 2.0A.
+func (b *CANIDBuilder) UseCAN2A() *CANIDBuilder {
+	b.operations = append(b.operations, &CANIDBuilderOp{
+		kind: CANIDBuilderOpKindBitMask,
+		from: 0,
+		len:  11,
+	})
+	return b
+}
+
+// UseBitMask adds a bit mask operation from the given index and length.
+func (b *CANIDBuilder) UseBitMask(from, len int) {
+	b.operations = append(b.operations, &CANIDBuilderOp{
+		kind: CANIDBuilderOpKindBitMask,
+		from: from,
+		len:  len,
+	})
 }

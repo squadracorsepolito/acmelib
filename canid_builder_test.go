@@ -9,8 +9,8 @@ import (
 func Test_CANIDBuilder(t *testing.T) {
 	assert := assert.New(t)
 
-	b := NewCANIDBuilder("canid_builder")
-	b.UseMessagePriority(30).UseMessageID(4, 10).UseNodeID(0, 4)
+	b0 := NewCANIDBuilder("canid_builder_0")
+	b0.UseMessagePriority(30).UseMessageID(4, 10).UseNodeID(0, 4)
 
 	msgPriority := MessagePriorityLow
 	msgID := MessageID(0b1111111111)
@@ -20,7 +20,16 @@ func Test_CANIDBuilder(t *testing.T) {
 	expected |= uint32(msgID << 4)
 	expected |= uint32(nodeID)
 
-	res := b.Calculate(msgPriority, msgID, nodeID)
+	res0 := b0.Calculate(msgPriority, msgID, nodeID)
 
-	assert.Equal(expected, uint32(res))
+	assert.Equal(expected, uint32(res0))
+
+	b1 := NewCANIDBuilder("canid_builder_1")
+	b1.UseMessageID(4, 10).UseCAN2A()
+
+	expected = uint32(msgID<<4) & 0b11111111111
+
+	res1 := b1.Calculate(msgPriority, msgID, nodeID)
+
+	assert.Equal(expected, uint32(res1))
 }

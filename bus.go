@@ -267,6 +267,9 @@ func (b *Bus) Baudrate() int {
 
 // SetCANIDBuilder sets the [CANIDBuilder] of the [Bus].
 func (b *Bus) SetCANIDBuilder(canIDBuilder *CANIDBuilder) {
+	if b.canIDBuilder != nil {
+		b.canIDBuilder.removeRef(b.entityID)
+	}
 	b.canIDBuilder = canIDBuilder
 }
 
