@@ -282,7 +282,17 @@ type ValueIndexError struct {
 }
 
 func (e *ValueIndexError) Error() string {
-	return fmt.Sprintf("value index value error; index:%d : %v", e.Index, e.Err)
+	return fmt.Sprintf("value index error; index:%d : %v", e.Index, e.Err)
 }
 
 func (e *ValueIndexError) Unwrap() error { return e.Err }
+
+type AttributeValueError struct {
+	Err error
+}
+
+func (e *AttributeValueError) Error() string {
+	return fmt.Sprintf("attribute value error : %v", e.Err)
+}
+
+func (e *AttributeValueError) Unwrap() error { return e.Err }

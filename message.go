@@ -84,7 +84,6 @@ func (mbo MessageByteOrder) String() string {
 // Message is the representation of data sent by a node thought the bus.
 // It holds a list of signals that are contained in the message payload.
 type Message struct {
-	// *attributeEntity
 	*entity
 	*withAttributes
 
@@ -116,8 +115,7 @@ type Message struct {
 // By default a [MessagePriority] of [MessagePriorityVeryHigh] is used.
 func NewMessage(name string, id MessageID, sizeByte int) *Message {
 	return &Message{
-		// attributeEntity: newAttributeEntity(name, AttributeRefKindMessage),
-		entity:         newEntity(name),
+		entity:         newEntity(name, EntityKindMessage),
 		withAttributes: newWithAttributes(),
 
 		senderNodeInt: nil,
@@ -144,18 +142,6 @@ func NewMessage(name string, id MessageID, sizeByte int) *Message {
 		receivers: newSet[EntityID, *NodeInterface](),
 	}
 }
-
-// func (m *Message) generateID(msgCount int, nodeID NodeID) {
-// 	if m.isStaticID {
-// 		return
-// 	}
-// 	m.id = m.idGenFn(m.priority, msgCount, nodeID)
-// }
-
-// func (m *Message) resetID() {
-// 	m.isStaticID = false
-// 	m.id = 0
-// }
 
 func (m *Message) hasSenderNodeInt() bool {
 	return m.senderNodeInt != nil
@@ -534,24 +520,6 @@ func (m *Message) SizeByte() int {
 	return m.sizeByte
 }
 
-// // CANID returns the message CAN id.
-// func (m *Message) CANID() MessageCANID {
-// 	return m.id
-// }
-
-// // SetCANIDGeneratorFn sets the message CAN id generator function.
-// func (m *Message) SetCANIDGeneratorFn(canIDGeneratorFn MessageCANIDGeneratorFn) {
-// 	m.isStaticID = false
-// 	m.idGenFn = canIDGeneratorFn
-// }
-
-// // SetCANID sets the message CAN id.
-// // When the id is set in this way, the id generator function is not used anymore.
-// func (m *Message) SetCANID(messageCANID MessageCANID) {
-// 	m.isStaticID = true
-// 	m.id = messageCANID
-// }
-
 // SetPriority sets the message priority.
 func (m *Message) SetPriority(priority MessagePriority) {
 	m.priority = priority
@@ -690,4 +658,26 @@ func (m *Message) SetStaticCANID(canID CANID) {
 // HasStaticCANID returns whether the [Message] has a static CAN-ID.
 func (m *Message) HasStaticCANID() bool {
 	return m.hasStaticCANID
+}
+
+func (m *Message) AssignAttribute(attribute Attribute, value any) error {
+	if err := m.addAttributeAssignment(attribute, m, value); err != nil {
+		return m.errorf(err)
+	}
+	return nil
+}
+
+func (m *Message) RemoveAttributeAssignment(attributeEntityID EntityID) error {
+	if err := m.removeAttributeAssignment(attributeEntityID); err != nil {
+		return m.errorf(err)
+	}
+	return nil
+}
+
+func (m *Message) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
+	attAss, err := m.getAttributeAssignment(attributeEntityID)
+	if err != nil {
+		return nil, m.errorf(err)
+	}
+	return attAss, nil
 }

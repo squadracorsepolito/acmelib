@@ -27,7 +27,7 @@ enum SignalSendType {
 }
 
 message Signal {
-    acmelib.v1.EntityWithAttributes entity = 1;
+    acmelib.v1.Entity entity = 1;
 
     SignalKind kind = 2;
     SignalSendType send_type = 3;

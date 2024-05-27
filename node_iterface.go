@@ -33,7 +33,7 @@ func newNodeInterface(number int, node *Node) *NodeInterface {
 		node:   node,
 	}
 
-	ni.entity = newEntity(ni.setName(node.name))
+	ni.entity = newEntity(ni.setName(node.name), EntityKindNodeInterface)
 
 	return ni
 }

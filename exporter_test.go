@@ -125,11 +125,11 @@ func Test_ExportBus(t *testing.T) {
 	enumAtt, err := NewEnumAttribute("enum_att", "VALUE_0", "VALUE_1", "VALUE_2", "VALUE_3")
 	assert.NoError(err)
 
-	bus0.AddAttributeValue(strAtt, "bus0_value")
-	node0Int.node.AddAttributeValue(intAtt, 1)
-	msg0.AddAttributeValue(hexAtt, 1)
-	stdSig0.AddAttributeValue(enumAtt, "VALUE_1")
-	muxSig0.AddAttributeValue(floatAtt, 50.75)
+	bus0.AssignAttribute(strAtt, "bus0_value")
+	node0Int.node.AssignAttribute(intAtt, 1)
+	msg0.AssignAttribute(hexAtt, 1)
+	stdSig0.AssignAttribute(enumAtt, "VALUE_1")
+	muxSig0.AssignAttribute(floatAtt, 50.75)
 
 	// special attributes testing
 	msg2.SetCycleTime(10)

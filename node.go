@@ -16,7 +16,6 @@ func (nid NodeID) String() string {
 // to send messages over a [Bus] through one or more [NodeInterface].
 // It holds a list of interfaces that can send messages on the bus.
 type Node struct {
-	// *attributeEntity
 	*entity
 	*withAttributes
 
@@ -31,8 +30,7 @@ type Node struct {
 // The id must be unique among all nodes within a bus.
 func NewNode(name string, id NodeID, interfaceCount int) *Node {
 	node := &Node{
-		// attributeEntity: newAttributeEntity(name, AttributeRefKindNode),
-		entity:         newEntity(name),
+		entity:         newEntity(name, EntityKindNode),
 		withAttributes: newWithAttributes(),
 
 		interfaces: []*NodeInterface{},
@@ -128,4 +126,26 @@ func (n *Node) Interfaces() []*NodeInterface {
 // ID returns the id of the [Node].
 func (n *Node) ID() NodeID {
 	return n.id
+}
+
+func (n *Node) AssignAttribute(attribute Attribute, value any) error {
+	if err := n.addAttributeAssignment(attribute, n, value); err != nil {
+		return n.errorf(err)
+	}
+	return nil
+}
+
+func (n *Node) RemoveAttributeAssignment(attributeEntityID EntityID) error {
+	if err := n.removeAttributeAssignment(attributeEntityID); err != nil {
+		return n.errorf(err)
+	}
+	return nil
+}
+
+func (n *Node) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
+	attAss, err := n.getAttributeAssignment(attributeEntityID)
+	if err != nil {
+		return nil, n.errorf(err)
+	}
+	return attAss, nil
 }

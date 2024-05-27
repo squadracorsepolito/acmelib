@@ -80,8 +80,12 @@ func (sst SignalSendType) String() string {
 // Signal interface specifies all common methods of
 // [StandardSignal], [EnumSignal], and [MultiplexerSignal1].
 type Signal interface {
+	errorf(err error) error
+
 	// EntityID returns the entity id of the signal.
 	EntityID() EntityID
+	// EntityKind returns the entity kind of the signal.
+	EntityKind() EntityKind
 	// Name returns the name of the signal.
 	Name() string
 	// SetDesc stes the description of the signal.
@@ -91,16 +95,16 @@ type Signal interface {
 	// CreateTime returns the creation time of the signal.
 	CreateTime() time.Time
 
-	// // AddAttributeValue adds to the signal an attribute and its value.
-	// AddAttributeValue(attribute Attribute, value any) error
-	// // RemoveAttributeValue removes from the signal an attribute and its value.
-	// RemoveAttributeValue(attributeEntityID EntityID) error
-	// // RemoveAllAttributeValues removes all attribute and their values from the signal.
-	// RemoveAllAttributeValues()
-	// // AttributeValues returns all attribute and their values from the signal.
-	// AttributeValues() []*AttributeValue
-	// // GetAttributeValue returns the value of an attribute and its value from the signal.
-	// GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error)
+	// AssignAttribute assigns the given attribute/value pair to the signal.
+	AssignAttribute(attribute Attribute, value any) error
+	// RemoveAttributeAssignment removes an attribute assignment from the signal.
+	RemoveAttributeAssignment(attributeEntityID EntityID) error
+	// RemoveAllAttributeAssignments removes all the attribute assignments from the signal.
+	RemoveAllAttributeAssignments()
+	// AttributeAssignments returns a slice of all attribute assignments of the signal.
+	AttributeAssignments() []*AttributeAssignment
+	// GetAttributeAssignment returns an attribute assignment from the signal.
+	GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error)
 
 	stringify(b *strings.Builder, tabs int)
 	String() string
@@ -143,7 +147,6 @@ type Signal interface {
 }
 
 type signal struct {
-	// *attributeEntity
 	*entity
 	*withAttributes
 
@@ -160,8 +163,7 @@ type signal struct {
 
 func newSignal(name string, kind SignalKind) *signal {
 	return &signal{
-		// attributeEntity: newAttributeEntity(name, AttributeRefKindSignal),
-		entity:         newEntity(name),
+		entity:         newEntity(name, EntityKindSignal),
 		withAttributes: newWithAttributes(),
 
 		parentMsg:    nil,
@@ -309,6 +311,28 @@ func (s *signal) UpdateName(newName string) error {
 	s.name = newName
 
 	return nil
+}
+
+func (s *signal) AssignAttribute(attribute Attribute, value any) error {
+	if err := s.addAttributeAssignment(attribute, s, value); err != nil {
+		return s.errorf(err)
+	}
+	return nil
+}
+
+func (s *signal) RemoveAttributeAssignment(attributeEntityID EntityID) error {
+	if err := s.removeAttributeAssignment(attributeEntityID); err != nil {
+		return s.errorf(err)
+	}
+	return nil
+}
+
+func (s *signal) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
+	attAss, err := s.getAttributeAssignment(attributeEntityID)
+	if err != nil {
+		return nil, s.errorf(err)
+	}
+	return attAss, nil
 }
 
 // StandardSignal is the representation of a normal signal that has a [SignalType],

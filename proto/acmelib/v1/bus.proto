@@ -12,7 +12,7 @@ enum BusType {
 }
 
 message Bus {
-    acmelib.v1.EntityWithAttributes entity = 1;
+    acmelib.v1.Entity entity = 1;
 
     repeated acmelib.v1.NodeInterface node_interfaces = 2;
 

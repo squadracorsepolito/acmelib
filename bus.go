@@ -27,7 +27,6 @@ func (bt BusType) String() string {
 // Bus is the virtual representation of physical CAN bus cable.
 // It holds a list of nodes that are connected to it.
 type Bus struct {
-	// *attributeEntity
 	*entity
 	*withAttributes
 
@@ -47,8 +46,7 @@ type Bus struct {
 // By default, the bus is set to be of type CAN 2.0A.
 func NewBus(name string) *Bus {
 	return &Bus{
-		// attributeEntity: newAttributeEntity(name, AttributeRefKindBus),
-		entity:         newEntity(name),
+		entity:         newEntity(name, EntityKindBus),
 		withAttributes: newWithAttributes(),
 
 		parentNetwork: nil,
@@ -74,7 +72,7 @@ func (b *Bus) setParentNetwork(net *Network) {
 
 func (b *Bus) errorf(err error) error {
 	busErr := &EntityError{
-		Kind:     "bus",
+		Kind:     EntityKindBus,
 		EntityID: b.entityID,
 		Name:     b.name,
 		Err:      err,
@@ -298,4 +296,19 @@ func (b *Bus) AssignAttribute(attribute Attribute, value any) error {
 		return b.errorf(err)
 	}
 	return nil
+}
+
+func (b *Bus) RemoveAttributeAssignment(attributeEntityID EntityID) error {
+	if err := b.removeAttributeAssignment(attributeEntityID); err != nil {
+		return b.errorf(err)
+	}
+	return nil
+}
+
+func (b *Bus) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
+	attAss, err := b.getAttributeAssignment(attributeEntityID)
+	if err != nil {
+		return nil, b.errorf(err)
+	}
+	return attAss, nil
 }

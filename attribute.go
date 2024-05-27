@@ -6,84 +6,6 @@ import (
 	"time"
 )
 
-// AttributeValue connects a general [Attribute] to the value associated by an entity.
-type AttributeValue struct {
-	attribute Attribute
-	value     any
-}
-
-func newAttributeValue(att Attribute, val any) *AttributeValue {
-	return &AttributeValue{
-		attribute: att,
-		value:     val,
-	}
-}
-
-func (av *AttributeValue) stringify(b *strings.Builder, tabs int) {
-	b.WriteString(fmt.Sprintf("%sname: %s; type: %s; value: %v\n",
-		getTabString(tabs), av.attribute.Name(), av.attribute.Type(), av.value))
-}
-
-// Attribute returns the [Attribute] of the [AttributeValue].
-func (av *AttributeValue) Attribute() Attribute {
-	return av.attribute
-}
-
-// Value returns the value of the [AttributeValue].
-func (av *AttributeValue) Value() any {
-	return av.value
-}
-
-// AttributeRefKind defines the kind of an [AttributeRef].
-type AttributeRefKind string
-
-const (
-	// AttributeRefKindBus defines a bus reference.
-	AttributeRefKindBus AttributeRefKind = "attribute_ref-bus"
-	// AttributeRefKindNode defines a node reference.
-	AttributeRefKindNode AttributeRefKind = "attribute_ref-node"
-	// AttributeRefKindMessage defines a message reference.
-	AttributeRefKindMessage AttributeRefKind = "attribute_ref-message"
-	// AttributeRefKindSignal defines a signal reference.
-	AttributeRefKindSignal AttributeRefKind = "attribute_ref-signal"
-)
-
-// AttributeRef connects an [Attribute] to an entity and the value
-// the latter has associated to the former.
-// It is useful to connect an attribute to the entities that are using it.
-type AttributeRef struct {
-	entityID EntityID
-	kind     AttributeRefKind
-	value    any
-}
-
-func newAttributeRef(entID EntityID, kind AttributeRefKind, val any) *AttributeRef {
-	return &AttributeRef{
-		entityID: entID,
-		kind:     kind,
-		value:    val,
-	}
-}
-
-func (af *AttributeRef) stringify(b *strings.Builder, tabs int) {
-	b.WriteString(fmt.Sprintf("%skind: %s; entity_id: %s;value: %v\n", getTabString(tabs), af.kind, af.entityID, af.value))
-}
-
-// EntityID returns the entity id of the [AttributeRef]
-func (af *AttributeRef) EntityID() EntityID {
-	return af.entityID
-}
-
-// Kind returns the kind of the [AttributeRef]
-func (af *AttributeRef) Kind() AttributeRefKind {
-	return af.kind
-}
-
-// Value returns the value of the [AttributeRef]
-func (af *AttributeRef) Value() any {
-	return af.value
-}
-
 // AttributeType defines the type of an [Attribute].
 type AttributeType int
 
@@ -117,24 +39,22 @@ func (at AttributeType) String() string {
 // [StringAttribute], [IntegerAttribute], [FloatAttribute], and
 // [EnumAttribute].
 type Attribute interface {
-	// EntityID returns the entity id of an attribute.
+	// EntityID returns the entity id of the attribute.
 	EntityID() EntityID
-	// Name returns the name of an attribute.
+	// Name returns the name of the attribute.
 	Name() string
-	// Desc returns the description of an attribute.
+	// Desc returns the description of the attribute.
 	Desc() string
-	// CreateTime returns the time of creation of an attribute.
+	// CreateTime returns the time of creation of the attribute.
 	CreateTime() time.Time
 
-	// Type returns the kind of an attribute.
+	// Type returns the kind of the attribute.
 	Type() AttributeType
 
 	addRef(*AttributeAssignment)
 	removeRef(EntityID)
-	// addReference(ref *AttributeRef)
-	// removeReference(refID EntityID)
 
-	// References returns a slice of references of an attribute.
+	// References returns a slice of references of the attribute.
 	References() []*AttributeAssignment
 
 	String() string
@@ -151,7 +71,6 @@ type Attribute interface {
 
 type attribute struct {
 	*entity
-	// *withRefs[*AttributeRef]
 	*withRefs[*AttributeAssignment]
 
 	typ AttributeType
@@ -159,8 +78,7 @@ type attribute struct {
 
 func newAttribute(name string, typ AttributeType) *attribute {
 	return &attribute{
-		entity: newEntity(name),
-		// withRefs: newWithRefs[*AttributeRef](),
+		entity:   newEntity(name, EntityKindAttribute),
 		withRefs: newWithRefs[*AttributeAssignment](),
 
 		typ: typ,
@@ -186,23 +104,15 @@ func (a *attribute) stringify(b *strings.Builder, tabs int) {
 		return
 	}
 
-	// b.WriteString(fmt.Sprintf("%sreferences:\n", tabStr))
-	// for _, ref := range a.References() {
-	// 	ref.stringify(b, tabs+1)
-	// }
+	b.WriteString(fmt.Sprintf("%sreferences:\n", tabStr))
+	for _, ref := range a.References() {
+		ref.stringify(b, tabs+1)
+	}
 }
 
 func (a *attribute) Type() AttributeType {
 	return a.typ
 }
-
-// func (a *attribute) addReference(ref *AttributeRef) {
-// 	a.refs.add(ref.entityID, ref)
-// }
-
-// func (a *attribute) removeReference(refID EntityID) {
-// 	a.refs.remove(refID)
-// }
 
 // StringAttribute is an [Attribute] that holds a string value.
 type StringAttribute struct {
@@ -606,4 +516,99 @@ func (ea *EnumAttribute) ToFloat() (*FloatAttribute, error) {
 // ToEnum returns the [EnumAttribute] itself.
 func (ea *EnumAttribute) ToEnum() (*EnumAttribute, error) {
 	return ea, nil
+}
+
+type AttributableEntity interface {
+	errorf(err error) error
+
+	EntityID() EntityID
+	Name() string
+	EntityKind() EntityKind
+
+	AssignAttribute(attribute Attribute, value any) error
+	RemoveAttributeAssignment(attributeEntityID EntityID) error
+	RemoveAllAttributeAssignments()
+	AttributeAssignments() []*AttributeAssignment
+	GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error)
+}
+
+type AttributeAssignment struct {
+	attribute Attribute
+	entity    AttributableEntity
+	value     any
+}
+
+func newAttributeAssignment(att Attribute, ent AttributableEntity, val any) *AttributeAssignment {
+	return &AttributeAssignment{
+		attribute: att,
+		entity:    ent,
+		value:     val,
+	}
+}
+
+func (aa *AttributeAssignment) stringify(b *strings.Builder, tabs int) {
+	tabStr := getTabString(tabs)
+
+	b.WriteString(fmt.Sprintf("%sentity_id: %s; entity_kind: %s; name: %s; value: %v;\n",
+		tabStr, aa.EntityID(), aa.entity.EntityKind(), aa.entity.Name(), aa.value))
+}
+
+func (aa *AttributeAssignment) EntityID() EntityID {
+	return aa.entity.EntityID()
+}
+
+func (aa *AttributeAssignment) Attribute() Attribute {
+	return aa.attribute
+}
+
+func (aa *AttributeAssignment) Value() any {
+	return aa.value
+}
+
+func (aa *AttributeAssignment) Entity() AttributableEntity {
+	return aa.entity
+}
+
+func (aa *AttributeAssignment) ToBusEntity() (*Bus, error) {
+	if aa.entity.EntityKind() == EntityKindBus {
+		return aa.entity.(*Bus), nil
+	}
+
+	return nil, aa.entity.errorf(&ConversionError{
+		From: aa.entity.EntityKind().String(),
+		To:   EntityKindBus.String(),
+	})
+}
+
+func (aa *AttributeAssignment) ToNodeEntity() (*Node, error) {
+	if aa.entity.EntityKind() == EntityKindNode {
+		return aa.entity.(*Node), nil
+	}
+
+	return nil, aa.entity.errorf(&ConversionError{
+		From: aa.entity.EntityKind().String(),
+		To:   EntityKindNode.String(),
+	})
+}
+
+func (aa *AttributeAssignment) ToMessageEntity() (*Message, error) {
+	if aa.entity.EntityKind() == EntityKindMessage {
+		return aa.entity.(*Message), nil
+	}
+
+	return nil, aa.entity.errorf(&ConversionError{
+		From: aa.entity.EntityKind().String(),
+		To:   EntityKindMessage.String(),
+	})
+}
+
+func (aa *AttributeAssignment) ToSignalEntity() (Signal, error) {
+	if aa.entity.EntityKind() == EntityKindSignal {
+		return aa.entity.(Signal), nil
+	}
+
+	return nil, aa.entity.errorf(&ConversionError{
+		From: aa.entity.EntityKind().String(),
+		To:   EntityKindSignal.String(),
+	})
 }
