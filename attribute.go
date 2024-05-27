@@ -129,10 +129,13 @@ type Attribute interface {
 	// Type returns the kind of an attribute.
 	Type() AttributeType
 
-	addReference(ref *AttributeRef)
-	removeReference(refID EntityID)
+	addRef(*AttributeAssignment)
+	removeRef(EntityID)
+	// addReference(ref *AttributeRef)
+	// removeReference(refID EntityID)
+
 	// References returns a slice of references of an attribute.
-	References() []*AttributeRef
+	References() []*AttributeAssignment
 
 	String() string
 
@@ -148,15 +151,17 @@ type Attribute interface {
 
 type attribute struct {
 	*entity
-	*withRefs[*AttributeRef]
+	// *withRefs[*AttributeRef]
+	*withRefs[*AttributeAssignment]
 
 	typ AttributeType
 }
 
 func newAttribute(name string, typ AttributeType) *attribute {
 	return &attribute{
-		entity:   newEntity(name),
-		withRefs: newWithRefs[*AttributeRef](),
+		entity: newEntity(name),
+		// withRefs: newWithRefs[*AttributeRef](),
+		withRefs: newWithRefs[*AttributeAssignment](),
 
 		typ: typ,
 	}
@@ -181,23 +186,23 @@ func (a *attribute) stringify(b *strings.Builder, tabs int) {
 		return
 	}
 
-	b.WriteString(fmt.Sprintf("%sreferences:\n", tabStr))
-	for _, ref := range a.References() {
-		ref.stringify(b, tabs+1)
-	}
+	// b.WriteString(fmt.Sprintf("%sreferences:\n", tabStr))
+	// for _, ref := range a.References() {
+	// 	ref.stringify(b, tabs+1)
+	// }
 }
 
 func (a *attribute) Type() AttributeType {
 	return a.typ
 }
 
-func (a *attribute) addReference(ref *AttributeRef) {
-	a.refs.add(ref.entityID, ref)
-}
+// func (a *attribute) addReference(ref *AttributeRef) {
+// 	a.refs.add(ref.entityID, ref)
+// }
 
-func (a *attribute) removeReference(refID EntityID) {
-	a.refs.remove(refID)
-}
+// func (a *attribute) removeReference(refID EntityID) {
+// 	a.refs.remove(refID)
+// }
 
 // StringAttribute is an [Attribute] that holds a string value.
 type StringAttribute struct {

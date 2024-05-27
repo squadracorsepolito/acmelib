@@ -84,7 +84,9 @@ func (mbo MessageByteOrder) String() string {
 // Message is the representation of data sent by a node thought the bus.
 // It holds a list of signals that are contained in the message payload.
 type Message struct {
-	*attributeEntity
+	// *attributeEntity
+	*entity
+	*withAttributes
 
 	senderNodeInt *NodeInterface
 
@@ -114,7 +116,9 @@ type Message struct {
 // By default a [MessagePriority] of [MessagePriorityVeryHigh] is used.
 func NewMessage(name string, id MessageID, sizeByte int) *Message {
 	return &Message{
-		attributeEntity: newAttributeEntity(name, AttributeRefKindMessage),
+		// attributeEntity: newAttributeEntity(name, AttributeRefKindMessage),
+		entity:         newEntity(name),
+		withAttributes: newWithAttributes(),
 
 		senderNodeInt: nil,
 

@@ -91,16 +91,16 @@ type Signal interface {
 	// CreateTime returns the creation time of the signal.
 	CreateTime() time.Time
 
-	// AddAttributeValue adds to the signal an attribute and its value.
-	AddAttributeValue(attribute Attribute, value any) error
-	// RemoveAttributeValue removes from the signal an attribute and its value.
-	RemoveAttributeValue(attributeEntityID EntityID) error
-	// RemoveAllAttributeValues removes all attribute and their values from the signal.
-	RemoveAllAttributeValues()
-	// AttributeValues returns all attribute and their values from the signal.
-	AttributeValues() []*AttributeValue
-	// GetAttributeValue returns the value of an attribute and its value from the signal.
-	GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error)
+	// // AddAttributeValue adds to the signal an attribute and its value.
+	// AddAttributeValue(attribute Attribute, value any) error
+	// // RemoveAttributeValue removes from the signal an attribute and its value.
+	// RemoveAttributeValue(attributeEntityID EntityID) error
+	// // RemoveAllAttributeValues removes all attribute and their values from the signal.
+	// RemoveAllAttributeValues()
+	// // AttributeValues returns all attribute and their values from the signal.
+	// AttributeValues() []*AttributeValue
+	// // GetAttributeValue returns the value of an attribute and its value from the signal.
+	// GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error)
 
 	stringify(b *strings.Builder, tabs int)
 	String() string
@@ -143,7 +143,9 @@ type Signal interface {
 }
 
 type signal struct {
-	*attributeEntity
+	// *attributeEntity
+	*entity
+	*withAttributes
 
 	parentMsg    *Message
 	parentMuxSig *MultiplexerSignal
@@ -158,7 +160,9 @@ type signal struct {
 
 func newSignal(name string, kind SignalKind) *signal {
 	return &signal{
-		attributeEntity: newAttributeEntity(name, AttributeRefKindSignal),
+		// attributeEntity: newAttributeEntity(name, AttributeRefKindSignal),
+		entity:         newEntity(name),
+		withAttributes: newWithAttributes(),
 
 		parentMsg:    nil,
 		parentMuxSig: nil,

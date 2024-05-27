@@ -16,7 +16,9 @@ func (nid NodeID) String() string {
 // to send messages over a [Bus] through one or more [NodeInterface].
 // It holds a list of interfaces that can send messages on the bus.
 type Node struct {
-	*attributeEntity
+	// *attributeEntity
+	*entity
+	*withAttributes
 
 	interfaces []*NodeInterface
 	intErrNum  int
@@ -29,7 +31,9 @@ type Node struct {
 // The id must be unique among all nodes within a bus.
 func NewNode(name string, id NodeID, interfaceCount int) *Node {
 	node := &Node{
-		attributeEntity: newAttributeEntity(name, AttributeRefKindNode),
+		// attributeEntity: newAttributeEntity(name, AttributeRefKindNode),
+		entity:         newEntity(name),
+		withAttributes: newWithAttributes(),
 
 		interfaces: []*NodeInterface{},
 		intErrNum:  -1,

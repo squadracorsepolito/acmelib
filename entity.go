@@ -122,57 +122,222 @@ func (e *entity) stringify(b *strings.Builder, tabs int) {
 	b.WriteString(fmt.Sprintf("%screate_time: %s\n", tabStr, e.createTime.Format(time.RFC3339)))
 }
 
-type attributeEntity struct {
-	*entity
+// type attributeEntity struct {
+// 	*entity
 
-	attributeValues *set[EntityID, *AttributeValue]
-	attRefKind      AttributeRefKind
+// 	attributeValues *set[EntityID, *AttributeValue]
+// 	attRefKind      AttributeRefKind
+// }
+
+// func newAttributeEntity(name string, attRefKind AttributeRefKind) *attributeEntity {
+// 	return &attributeEntity{
+// 		entity: newEntity(name),
+
+// 		attributeValues: newSet[EntityID, *AttributeValue](),
+// 		attRefKind:      attRefKind,
+// 	}
+// }
+
+// func (ae *attributeEntity) stringify(b *strings.Builder, tabs int) {
+// 	ae.entity.stringify(b, tabs)
+
+// 	if ae.attributeValues.size() == 0 {
+// 		return
+// 	}
+
+// 	tabStr := getTabString(tabs)
+// 	b.WriteString(fmt.Sprintf("%sattribute values:\n", tabStr))
+// 	for _, attVal := range ae.AttributeValues() {
+// 		attVal.stringify(b, tabs+1)
+// 	}
+// }
+
+// // AddAttributeValue adds an [Attribute] to the entity and it assign
+// // the given value to it.
+// // It may return an error if the given value is not valid for the given
+// // [Attribute].
+// func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) error {
+// 	var entKind EntityKind
+// 	switch ae.attRefKind {
+// 	case AttributeRefKindBus:
+// 		entKind = EntityKindBus
+// 	case AttributeRefKindNode:
+// 		entKind = EntityKindNode
+// 	case AttributeRefKindMessage:
+// 		entKind = EntityKindMessage
+// 	case AttributeRefKindSignal:
+// 		entKind = EntityKindSignal
+// 	}
+
+// 	entErr := &EntityError{
+// 		Kind:     entKind,
+// 		EntityID: ae.entityID,
+// 		Name:     ae.name,
+// 	}
+
+// 	switch v := value.(type) {
+// 	case int:
+// 		if attribute.Type() != AttributeTypeInteger {
+// 			entErr.Err = &ArgumentError{
+// 				Name: "value",
+// 				Err:  ErrInvalidType,
+// 			}
+// 			return entErr
+// 		}
+
+// 		intAtt, err := attribute.ToInteger()
+// 		if err != nil {
+// 			panic(err)
+// 		}
+// 		if v < intAtt.min || v > intAtt.max {
+// 			entErr.Err = &ArgumentError{
+// 				Name: "value",
+// 				Err:  ErrOutOfBounds,
+// 			}
+// 			return entErr
+// 		}
+
+// 	case float64:
+// 		if attribute.Type() != AttributeTypeFloat {
+// 			entErr.Err = &ArgumentError{
+// 				Name: "value",
+// 				Err:  ErrInvalidType,
+// 			}
+// 			return entErr
+// 		}
+
+// 		floatAtt, err := attribute.ToFloat()
+// 		if err != nil {
+// 			panic(err)
+// 		}
+// 		if v < floatAtt.min || v > floatAtt.max {
+// 			entErr.Err = &ArgumentError{
+// 				Name: "value",
+// 				Err:  ErrOutOfBounds,
+// 			}
+// 			return entErr
+// 		}
+
+// 	case string:
+// 		switch attribute.Type() {
+// 		case AttributeTypeString:
+// 		case AttributeTypeEnum:
+// 			enumAtt, err := attribute.ToEnum()
+// 			if err != nil {
+// 				panic(err)
+// 			}
+// 			if !enumAtt.values.hasKey(v) {
+// 				entErr.Err = &ArgumentError{
+// 					Name: "value",
+// 					Err:  ErrNotFound,
+// 				}
+// 				return entErr
+// 			}
+
+// 		default:
+// 			entErr.Err = &ArgumentError{
+// 				Name: "value",
+// 				Err:  ErrInvalidType,
+// 			}
+// 			return entErr
+// 		}
+
+// 	default:
+// 		entErr.Err = &ArgumentError{
+// 			Name: "value",
+// 			Err:  ErrInvalidType,
+// 		}
+// 		return entErr
+// 	}
+
+// 	ae.attributeValues.add(attribute.EntityID(), newAttributeValue(attribute, value))
+// 	attribute.addReference(newAttributeRef(ae.entityID, ae.attRefKind, value))
+
+// 	return nil
+// }
+
+// // RemoveAttributeValue removes an [Attribute] with the given entity id from the entity.
+// // It also removes the reference to the entity from the attribute.
+// // It may return an error if the attribute with the given entity id does not exist
+// // in the entity.
+// func (ae *attributeEntity) RemoveAttributeValue(attributeEntityID EntityID) error {
+// 	att, err := ae.attributeValues.getValue(attributeEntityID)
+// 	if err != nil {
+// 		return &RemoveEntityError{
+// 			EntityID: attributeEntityID,
+// 			Err:      err,
+// 		}
+// 	}
+
+// 	ae.attributeValues.remove(attributeEntityID)
+// 	att.attribute.removeReference(ae.entityID)
+
+// 	return nil
+// }
+
+// // RemoveAllAttributeValues removes all [Attributes] from the entity.
+// func (ae *attributeEntity) RemoveAllAttributeValues() {
+// 	for _, attVal := range ae.attributeValues.entries() {
+// 		attVal.attribute.removeReference(ae.entityID)
+// 	}
+
+// 	ae.attributeValues.clear()
+// }
+
+// // AttributeValues returns slice of all the attributes of the entity.
+// func (ae *attributeEntity) AttributeValues() []*AttributeValue {
+// 	attValSlice := ae.attributeValues.getValues()
+// 	slices.SortFunc(attValSlice, func(a, b *AttributeValue) int {
+// 		return strings.Compare(a.attribute.Name(), b.attribute.Name())
+// 	})
+// 	return attValSlice
+// }
+
+// // GetAttributeValue returns the [Attribute] with the given entity id from the entity.
+// // It may return an error if the attribute with the given entity id does not exist
+// // in the entity.
+// func (ae *attributeEntity) GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error) {
+// 	attVal, err := ae.attributeValues.getValue(attributeEntityID)
+// 	if err != nil {
+// 		return nil, &GetEntityError{
+// 			EntityID: attributeEntityID,
+// 			Err:      err,
+// 		}
+// 	}
+// 	return attVal, nil
+// }
+
+//
+//
+//
+
+type withAttributes struct {
+	attributes *set[EntityID, *AttributeAssignment]
 }
 
-func newAttributeEntity(name string, attRefKind AttributeRefKind) *attributeEntity {
-	return &attributeEntity{
-		entity: newEntity(name),
-
-		attributeValues: newSet[EntityID, *AttributeValue](),
-		attRefKind:      attRefKind,
+func newWithAttributes() *withAttributes {
+	return &withAttributes{
+		attributes: newSet[EntityID, *AttributeAssignment](),
 	}
 }
 
-func (ae *attributeEntity) stringify(b *strings.Builder, tabs int) {
-	ae.entity.stringify(b, tabs)
-
-	if ae.attributeValues.size() == 0 {
-		return
-	}
-
-	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%sattribute values:\n", tabStr))
-	for _, attVal := range ae.AttributeValues() {
-		attVal.stringify(b, tabs+1)
-	}
-}
-
-// AddAttributeValue adds an [Attribute] to the entity and it assign
-// the given value to it.
-// It may return an error if the given value is not valid for the given
-// [Attribute].
-func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) error {
-	var entKind EntityKind
-	switch ae.attRefKind {
-	case AttributeRefKindBus:
-		entKind = EntityKindBus
-	case AttributeRefKindNode:
-		entKind = EntityKindNode
-	case AttributeRefKindMessage:
-		entKind = EntityKindMessage
-	case AttributeRefKindSignal:
-		entKind = EntityKindSignal
-	}
+func (wa *withAttributes) addAttributeAssignment(attribute Attribute, ent AttributableEntity, value any) error {
+	// var entKind EntityKind
+	// switch ae.attRefKind {
+	// case AttributeRefKindBus:
+	// 	entKind = EntityKindBus
+	// case AttributeRefKindNode:
+	// 	entKind = EntityKindNode
+	// case AttributeRefKindMessage:
+	// 	entKind = EntityKindMessage
+	// case AttributeRefKindSignal:
+	// 	entKind = EntityKindSignal
+	// }
 
 	entErr := &EntityError{
-		Kind:     entKind,
-		EntityID: ae.entityID,
-		Name:     ae.name,
+		// Kind:     entKind,
+		EntityID: ent.EntityID(),
+		Name:     ent.Name(),
 	}
 
 	switch v := value.(type) {
@@ -250,54 +415,46 @@ func (ae *attributeEntity) AddAttributeValue(attribute Attribute, value any) err
 		return entErr
 	}
 
-	ae.attributeValues.add(attribute.EntityID(), newAttributeValue(attribute, value))
-	attribute.addReference(newAttributeRef(ae.entityID, ae.attRefKind, value))
+	attAss := newAttributeAssignment(attribute, ent, value)
+
+	wa.attributes.add(attribute.EntityID(), attAss)
+	attribute.addRef(attAss)
+
+	// ae.attributeValues.add(attribute.EntityID(), newAttributeValue(attribute, value))
+	// attribute.addReference(newAttributeRef(ae.entityID, ae.attRefKind, value))
 
 	return nil
 }
 
-// RemoveAttributeValue removes an [Attribute] with the given entity id from the entity.
-// It also removes the reference to the entity from the attribute.
-// It may return an error if the attribute with the given entity id does not exist
-// in the entity.
-func (ae *attributeEntity) RemoveAttributeValue(attributeEntityID EntityID) error {
-	att, err := ae.attributeValues.getValue(attributeEntityID)
+func (wa *withAttributes) removeAttributeAssignment(attEntID EntityID) error {
+	attAss, err := wa.attributes.getValue(attEntID)
 	if err != nil {
-		return &RemoveEntityError{
-			EntityID: attributeEntityID,
-			Err:      err,
-		}
+		return err
 	}
 
-	ae.attributeValues.remove(attributeEntityID)
-	att.attribute.removeReference(ae.entityID)
+	wa.attributes.remove(attEntID)
+	attAss.attribute.removeRef(attAss.EntityID())
 
 	return nil
 }
 
-// RemoveAllAttributeValues removes all [Attributes] from the entity.
-func (ae *attributeEntity) RemoveAllAttributeValues() {
-	for _, attVal := range ae.attributeValues.entries() {
-		attVal.attribute.removeReference(ae.entityID)
+func (wa *withAttributes) RemoveAllAttributeAssignments() {
+	for _, attVal := range wa.attributes.entries() {
+		attVal.attribute.removeRef(attVal.EntityID())
 	}
-
-	ae.attributeValues.clear()
+	wa.attributes.clear()
 }
 
-// AttributeValues returns slice of all the attributes of the entity.
-func (ae *attributeEntity) AttributeValues() []*AttributeValue {
-	attValSlice := ae.attributeValues.getValues()
-	slices.SortFunc(attValSlice, func(a, b *AttributeValue) int {
+func (wa *withAttributes) AttributeAssignments() []*AttributeAssignment {
+	attSlice := wa.attributes.getValues()
+	slices.SortFunc(attSlice, func(a, b *AttributeAssignment) int {
 		return strings.Compare(a.attribute.Name(), b.attribute.Name())
 	})
-	return attValSlice
+	return attSlice
 }
 
-// GetAttributeValue returns the [Attribute] with the given entity id from the entity.
-// It may return an error if the attribute with the given entity id does not exist
-// in the entity.
-func (ae *attributeEntity) GetAttributeValue(attributeEntityID EntityID) (*AttributeValue, error) {
-	attVal, err := ae.attributeValues.getValue(attributeEntityID)
+func (wa *withAttributes) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
+	attVal, err := wa.attributes.getValue(attributeEntityID)
 	if err != nil {
 		return nil, &GetEntityError{
 			EntityID: attributeEntityID,
@@ -306,6 +463,10 @@ func (ae *attributeEntity) GetAttributeValue(attributeEntityID EntityID) (*Attri
 	}
 	return attVal, nil
 }
+
+//
+//
+//
 
 type referenceableEntity interface {
 	EntityID() EntityID
