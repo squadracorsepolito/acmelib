@@ -26,7 +26,7 @@ type SignalEnum struct {
 // NewSignalEnum creates a new [SignalEnum] with the given name.
 func NewSignalEnum(name string) *SignalEnum {
 	return &SignalEnum{
-		entity:   newEntity(name),
+		entity:   newEntity(name, EntityKindSignalEnum),
 		withRefs: newWithRefs[*EnumSignal](),
 
 		// refs:     newSet[EntityID, *EnumSignal](),
@@ -312,7 +312,7 @@ type SignalEnumValue struct {
 // NewSignalEnumValue creates a new [SignalEnumValue] with the given name and index.
 func NewSignalEnumValue(name string, index int) *SignalEnumValue {
 	return &SignalEnumValue{
-		entity: newEntity(name),
+		entity: newEntity(name, EntityKindSignalEnumValue),
 
 		parentEnum: nil,
 

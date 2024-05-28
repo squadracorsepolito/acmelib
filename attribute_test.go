@@ -130,3 +130,46 @@ func Test_EnumAttribute(t *testing.T) {
 	_, err = enumAtt.ToFloat()
 	assert.Error(err)
 }
+
+func Test_AttributeAssignment(t *testing.T) {
+	assert := assert.New(t)
+
+	att := NewStringAttribute("att", "")
+
+	bus := NewBus("bus")
+	node := NewNode("node", 1, 1)
+	msg := NewMessage("msg", 1, 1)
+	sig, err := NewStandardSignal("sig", NewFlagSignalType("flag_type"))
+	assert.NoError(err)
+
+	attValues := []string{"bus_att", "node_att", "msg_att", "sig_att"}
+	assert.NoError(bus.AssignAttribute(att, attValues[0]))
+	assert.NoError(node.AssignAttribute(att, attValues[1]))
+	assert.NoError(msg.AssignAttribute(att, attValues[2]))
+	assert.NoError(sig.AssignAttribute(att, attValues[3]))
+
+	assert.Len(att.References(), 4)
+	for _, attAss := range att.References() {
+		switch attAss.entity.EntityKind() {
+		case EntityKindBus:
+			assert.Equal(attValues[0], attAss.Value())
+			_, err := attAss.ToBusEntity()
+			assert.NoError(err)
+
+		case EntityKindNode:
+			assert.Equal(attValues[1], attAss.Value())
+			_, err := attAss.ToNodeEntity()
+			assert.NoError(err)
+
+		case EntityKindMessage:
+			assert.Equal(attValues[2], attAss.Value())
+			_, err := attAss.ToMessageEntity()
+			assert.NoError(err)
+
+		case EntityKindSignal:
+			assert.Equal(attValues[3], attAss.Value())
+			_, err := attAss.ToSignalEntity()
+			assert.NoError(err)
+		}
+	}
+}

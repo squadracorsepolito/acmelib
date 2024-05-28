@@ -3,10 +3,13 @@ syntax = "proto3";
 package acmelib.v1;
 
 import "acmelib/v1/entity.proto";
+import "acmelib/v1/attribute.proto";
 
 message Node {
-    acmelib.v1.EntityWithAttributes entity = 1;
+    acmelib.v1.Entity entity = 1;
 
     uint32 node_id = 2;
     uint32 interface_count = 3;
+    
+    repeated acmelib.v1.AttributeAssignment attribute_assignments = 4;
 }

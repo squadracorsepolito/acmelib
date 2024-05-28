@@ -85,7 +85,7 @@ type CANIDBuilder struct {
 // NewCANIDBuilder creates a new [CANIDBuilder] with the given name.
 func NewCANIDBuilder(name string) *CANIDBuilder {
 	return &CANIDBuilder{
-		entity:   newEntity(name),
+		entity:   newEntity(name, EntityKindCANIDBuilder),
 		withRefs: newWithRefs[*Bus](),
 
 		operations: []*CANIDBuilderOp{},

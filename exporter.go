@@ -84,8 +84,8 @@ func (e *exporter) addDBCComment(comment *dbc.Comment) {
 	e.dbcFile.Comments = append(e.dbcFile.Comments, comment)
 }
 
-func (e *exporter) exportAttributeValue(attVal *AttributeValue, dbcAttKind dbc.AttributeKind, dbcAttVal *dbc.AttributeValue) {
-	att := attVal.attribute
+func (e *exporter) exportAttributeAssignment(attAss *AttributeAssignment, dbcAttKind dbc.AttributeKind, dbcAttVal *dbc.AttributeValue) {
+	att := attAss.attribute
 	attName := clearSpaces(att.Name())
 
 	dbcAttVal.AttributeName = attName
@@ -134,7 +134,7 @@ func (e *exporter) exportAttributeValue(attVal *AttributeValue, dbcAttKind dbc.A
 	switch att.Type() {
 	case AttributeTypeString:
 		dbcAttVal.Type = dbc.AttributeValueString
-		dbcAttVal.ValueString = attVal.value.(string)
+		dbcAttVal.ValueString = attAss.value.(string)
 
 	case AttributeTypeInteger:
 		intAtt, err := att.ToInteger()
@@ -143,16 +143,16 @@ func (e *exporter) exportAttributeValue(attVal *AttributeValue, dbcAttKind dbc.A
 		}
 		if intAtt.isHexFormat {
 			dbcAttVal.Type = dbc.AttributeValueHex
-			dbcAttVal.ValueHex = uint32(attVal.value.(int))
+			dbcAttVal.ValueHex = uint32(attAss.value.(int))
 		} else {
 
 			dbcAttVal.Type = dbc.AttributeValueInt
-			dbcAttVal.ValueInt = attVal.value.(int)
+			dbcAttVal.ValueInt = attAss.value.(int)
 		}
 
 	case AttributeTypeFloat:
 		dbcAttVal.Type = dbc.AttributeValueFloat
-		dbcAttVal.ValueFloat = attVal.value.(float64)
+		dbcAttVal.ValueFloat = attAss.value.(float64)
 
 	case AttributeTypeEnum:
 		enumAtt, err := att.ToEnum()
@@ -162,7 +162,7 @@ func (e *exporter) exportAttributeValue(attVal *AttributeValue, dbcAttKind dbc.A
 		dbcAttVal.Type = dbc.AttributeValueInt
 
 		valIdx := 0
-		strVal := attVal.value.(string)
+		strVal := attAss.value.(string)
 		for idx, val := range enumAtt.Values() {
 			if strVal == val {
 				valIdx = idx
@@ -249,9 +249,9 @@ func (e *exporter) exportBus(bus *Bus) *dbc.File {
 		})
 	}
 
-	for _, attVal := range bus.AttributeValues() {
+	for _, attVal := range bus.AttributeAssignments() {
 		dbcAttVal := new(dbc.AttributeValue)
-		e.exportAttributeValue(attVal, dbc.AttributeGeneral, dbcAttVal)
+		e.exportAttributeAssignment(attVal, dbc.AttributeGeneral, dbcAttVal)
 		e.dbcFile.AttributeValues = append(e.dbcFile.AttributeValues, dbcAttVal)
 	}
 
@@ -278,10 +278,10 @@ func (e *exporter) exportNodeInterfaces(nodeInts []*NodeInterface) {
 			})
 		}
 
-		for _, attVal := range nodeInt.node.AttributeValues() {
+		for _, attVal := range nodeInt.node.AttributeAssignments() {
 			dbcAttVal := new(dbc.AttributeValue)
 			dbcAttVal.NodeName = nodeName
-			e.exportAttributeValue(attVal, dbc.AttributeNode, dbcAttVal)
+			e.exportAttributeAssignment(attVal, dbc.AttributeNode, dbcAttVal)
 			e.dbcFile.AttributeValues = append(e.dbcFile.AttributeValues, dbcAttVal)
 		}
 
@@ -309,23 +309,23 @@ func (e *exporter) exportMessage(msg *Message) {
 
 	dbcMsg.ID = msgID
 
-	attValues := msg.AttributeValues()
+	attAssignments := msg.AttributeAssignments()
 	if msg.cycleTime != 0 {
-		attValues = append(attValues, newAttributeValue(msgCycleTimeAtt, msg.cycleTime))
+		attAssignments = append(attAssignments, newAttributeAssignment(msgCycleTimeAtt, msg, msg.cycleTime))
 	}
 	if msg.delayTime != 0 {
-		attValues = append(attValues, newAttributeValue(msgDelayTimeAtt, msg.delayTime))
+		attAssignments = append(attAssignments, newAttributeAssignment(msgDelayTimeAtt, msg, msg.delayTime))
 	}
 	if msg.startDelayTime != 0 {
-		attValues = append(attValues, newAttributeValue(msgStartDelayTimeAtt, msg.startDelayTime))
+		attAssignments = append(attAssignments, newAttributeAssignment(msgStartDelayTimeAtt, msg, msg.startDelayTime))
 	}
 	if msg.sendType != MessageSendTypeUnset {
-		attValues = append(attValues, newAttributeValue(msgSendTypeAtt, messageSendTypeToDBC(msg.sendType)))
+		attAssignments = append(attAssignments, newAttributeAssignment(msgSendTypeAtt, msg, messageSendTypeToDBC(msg.sendType)))
 	}
-	for _, attVal := range attValues {
+	for _, attAss := range attAssignments {
 		dbcAttVal := new(dbc.AttributeValue)
 		dbcAttVal.MessageID = dbcMsg.ID
-		e.exportAttributeValue(attVal, dbc.AttributeMessage, dbcAttVal)
+		e.exportAttributeAssignment(attAss, dbc.AttributeMessage, dbcAttVal)
 		e.dbcFile.AttributeValues = append(e.dbcFile.AttributeValues, dbcAttVal)
 	}
 
@@ -355,18 +355,18 @@ func (e *exporter) exportSignal(sig Signal, dbcMsgID uint32) {
 		})
 	}
 
-	attValues := sig.AttributeValues()
+	attAssignments := sig.AttributeAssignments()
 	if sig.StartValue() != 0 {
-		attValues = append(attValues, newAttributeValue(sigStartValueAtt, sig.StartValue()))
+		attAssignments = append(attAssignments, newAttributeAssignment(sigStartValueAtt, sig, sig.StartValue()))
 	}
 	if sig.SendType() != SignalSendTypeUnset {
-		attValues = append(attValues, newAttributeValue(sigSendTypeAtt, signalSendTypeToDBC(sig.SendType())))
+		attAssignments = append(attAssignments, newAttributeAssignment(sigSendTypeAtt, sig, signalSendTypeToDBC(sig.SendType())))
 	}
-	for _, attVal := range attValues {
+	for _, attAss := range attAssignments {
 		dbcAttVal := new(dbc.AttributeValue)
 		dbcAttVal.MessageID = dbcMsgID
 		dbcAttVal.SignalName = sigName
-		e.exportAttributeValue(attVal, dbc.AttributeSignal, dbcAttVal)
+		e.exportAttributeAssignment(attAss, dbc.AttributeSignal, dbcAttVal)
 		e.dbcFile.AttributeValues = append(e.dbcFile.AttributeValues, dbcAttVal)
 	}
 

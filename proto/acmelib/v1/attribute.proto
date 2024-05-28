@@ -47,21 +47,14 @@ message EnumAttribute {
     repeated string values = 2;
 }
 
-enum AttributeRefKind {
-    ATTRIBUTE_REF_KIND_UNSPECIFIED = 0;
-    ATTRIBUTE_REF_KIND_BUS = 1;
-    ATTRIBUTE_REF_KIND_NODE = 2;
-    ATTRIBUTE_REF_KIND_MESSAGE = 3;
-    ATTRIBUTE_REF_KIND_SIGNAL = 4;
-}
-
-message AttributeRef {
+message AttributeAssignment {
     string entity_id = 1;
-    AttributeRefKind kind = 2;
+    acmelib.v1.EntityKind entity_kind = 2;
+    string attribute_entity_id = 3;
 
     oneof value {
-        string value_string = 3;
-        int32 value_int = 4;
-        double value_double = 5;
-    } 
+        string value_string = 4;
+        int32 value_int = 5;
+        double value_double = 6;
+    }
 }

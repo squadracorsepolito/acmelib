@@ -7,6 +7,7 @@ import "acmelib/v1/signal_type.proto";
 import "acmelib/v1/signal_unit.proto";
 import "acmelib/v1/signal_enum.proto";
 import "acmelib/v1/signal_payload.proto";
+import "acmelib/v1/attribute.proto";
 
 enum SignalKind {
     SIGNAL_KIND_UNSPECIFIED = 0;
@@ -27,7 +28,7 @@ enum SignalSendType {
 }
 
 message Signal {
-    acmelib.v1.EntityWithAttributes entity = 1;
+    acmelib.v1.Entity entity = 1;
 
     SignalKind kind = 2;
     SignalSendType send_type = 3;
@@ -67,5 +68,7 @@ message MultiplexerSignal {
     uint32 group_size = 4;
 
     repeated acmelib.v1.SignalPayload groups = 5;
+    
+    repeated acmelib.v1.AttributeAssignment attribute_assignments = 6;
 }
 

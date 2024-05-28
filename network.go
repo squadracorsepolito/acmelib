@@ -19,7 +19,7 @@ type Network struct {
 // NewNetwork returns a new [Network] with the given name.
 func NewNetwork(name string) *Network {
 	return &Network{
-		entity: newEntity(name),
+		entity: newEntity(name, EntityKindNetwork),
 
 		buses:    newSet[EntityID, *Bus](),
 		busNames: newSet[string, EntityID](),

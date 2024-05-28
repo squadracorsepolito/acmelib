@@ -224,13 +224,13 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 
 		switch dbcAttVal.AttributeKind {
 		case dbc.AttributeGeneral:
-			if err := i.bus.AddAttributeValue(att, value); err != nil {
+			if err := i.bus.AssignAttribute(att, value); err != nil {
 				return i.errorf(dbcAttVal, err)
 			}
 
 		case dbc.AttributeNode:
 			if node, ok := i.nodeInts[dbcAttVal.NodeName]; ok {
-				if err := node.node.AddAttributeValue(att, value); err != nil {
+				if err := node.node.AssignAttribute(att, value); err != nil {
 					return i.errorf(dbcAttVal, err)
 				}
 			}
@@ -256,7 +256,7 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 					break
 				}
 
-				if err := msg.AddAttributeValue(att, value); err != nil {
+				if err := msg.AssignAttribute(att, value); err != nil {
 					return i.errorf(dbcAttVal, err)
 				}
 			}
@@ -276,7 +276,7 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 					break
 				}
 
-				if err := sig.AddAttributeValue(att, value); err != nil {
+				if err := sig.AssignAttribute(att, value); err != nil {
 					return i.errorf(dbcAttVal, err)
 				}
 			}
