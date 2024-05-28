@@ -27,12 +27,12 @@ const (
 	EntityKindSignal
 	// EntityKindSignalType represents a [SignalType] entity.
 	EntityKindSignalType
+	// EntityKindSignalUnit represents a [SignalUnit] entity.
+	EntityKindSignalUnit
 	// EntityKindSignalEnum represents a [SignalEnum] entity.
 	EntityKindSignalEnum
 	// EntityKindSignalEnumValue represents a [SignalEnumValue] entity.
 	EntityKindSignalEnumValue
-	// EntityKindSignalUnit represents a [SignalUnit] entity.
-	EntityKindSignalUnit
 	// EntityKindAttribute represents a [Attribute] entity.
 	EntityKindAttribute
 	// EntityKindCANIDBuilder represents a [CANIDBuilder] entity.
@@ -150,12 +150,12 @@ func (e *entity) stringify(b *strings.Builder, tabs int) {
 }
 
 type withAttributes struct {
-	attributes *set[EntityID, *AttributeAssignment]
+	attAssignments *set[EntityID, *AttributeAssignment]
 }
 
 func newWithAttributes() *withAttributes {
 	return &withAttributes{
-		attributes: newSet[EntityID, *AttributeAssignment](),
+		attAssignments: newSet[EntityID, *AttributeAssignment](),
 	}
 }
 
@@ -216,33 +216,35 @@ func (wa *withAttributes) addAttributeAssignment(attribute Attribute, ent Attrib
 
 	attAss := newAttributeAssignment(attribute, ent, val)
 
-	wa.attributes.add(attribute.EntityID(), attAss)
+	wa.attAssignments.add(attribute.EntityID(), attAss)
 	attribute.addRef(attAss)
 
 	return nil
 }
 
 func (wa *withAttributes) removeAttributeAssignment(attEntID EntityID) error {
-	attAss, err := wa.attributes.getValue(attEntID)
+	attAss, err := wa.attAssignments.getValue(attEntID)
 	if err != nil {
 		return err
 	}
 
-	wa.attributes.remove(attEntID)
+	wa.attAssignments.remove(attEntID)
 	attAss.attribute.removeRef(attAss.EntityID())
 
 	return nil
 }
 
+// RemoveAllAttributeAssignments removes all the attribute assignments from the entity.
 func (wa *withAttributes) RemoveAllAttributeAssignments() {
-	for _, attVal := range wa.attributes.entries() {
+	for _, attVal := range wa.attAssignments.entries() {
 		attVal.attribute.removeRef(attVal.EntityID())
 	}
-	wa.attributes.clear()
+	wa.attAssignments.clear()
 }
 
+// AttributeAssignments returns a slice of all attribute assignments of the entity.
 func (wa *withAttributes) AttributeAssignments() []*AttributeAssignment {
-	attSlice := wa.attributes.getValues()
+	attSlice := wa.attAssignments.getValues()
 	slices.SortFunc(attSlice, func(a, b *AttributeAssignment) int {
 		return strings.Compare(a.attribute.Name(), b.attribute.Name())
 	})
@@ -250,12 +252,9 @@ func (wa *withAttributes) AttributeAssignments() []*AttributeAssignment {
 }
 
 func (wa *withAttributes) getAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
-	attVal, err := wa.attributes.getValue(attributeEntityID)
+	attVal, err := wa.attAssignments.getValue(attributeEntityID)
 	if err != nil {
-		return nil, &GetEntityError{
-			EntityID: attributeEntityID,
-			Err:      err,
-		}
+		return nil, err
 	}
 	return attVal, nil
 }

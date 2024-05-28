@@ -287,6 +287,8 @@ func (e *ValueIndexError) Error() string {
 
 func (e *ValueIndexError) Unwrap() error { return e.Err }
 
+// AttributeValueError is returned when an attribute value is invalid.
+// The Err field contains the cause.
 type AttributeValueError struct {
 	Err error
 }

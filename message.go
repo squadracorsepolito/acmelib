@@ -660,6 +660,10 @@ func (m *Message) HasStaticCANID() bool {
 	return m.hasStaticCANID
 }
 
+// AssignAttribute assigns the given attribute/value pair to the [Message].
+//
+// It returns an [ArgumentError] if the attribute is nil,
+// or an [AttributeValueError] if the value does not conform to the attribute.
 func (m *Message) AssignAttribute(attribute Attribute, value any) error {
 	if err := m.addAttributeAssignment(attribute, m, value); err != nil {
 		return m.errorf(err)
@@ -667,6 +671,10 @@ func (m *Message) AssignAttribute(attribute Attribute, value any) error {
 	return nil
 }
 
+// RemoveAttributeAssignment removes the [AttributeAssignment]
+// with the given attribute entity id from the [Message].
+//
+// It returns an [ErrNotFound] if the provided attribute entity id is not found.
 func (m *Message) RemoveAttributeAssignment(attributeEntityID EntityID) error {
 	if err := m.removeAttributeAssignment(attributeEntityID); err != nil {
 		return m.errorf(err)
@@ -674,6 +682,10 @@ func (m *Message) RemoveAttributeAssignment(attributeEntityID EntityID) error {
 	return nil
 }
 
+// GetAttributeAssignment returns the [AttributeAssignment]
+// with the given attribute entity id from the [Message].
+//
+// It returns an [ErrNotFound] if the provided attribute entity id is not found.
 func (m *Message) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
 	attAss, err := m.getAttributeAssignment(attributeEntityID)
 	if err != nil {

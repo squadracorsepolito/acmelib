@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_attributeEntity_AddAttributeValue(t *testing.T) {
+func Test_withAttributes_AddAttributeValue(t *testing.T) {
 	assert := assert.New(t)
 
 	dummyEnt := NewBus("dummy_bus")
@@ -69,7 +69,7 @@ func Test_attributeEntity_AddAttributeValue(t *testing.T) {
 	}
 }
 
-func Test_attributeEntity_RemoveAttributeValue(t *testing.T) {
+func Test_withAttributes_RemoveAttributeValue(t *testing.T) {
 	assert := assert.New(t)
 
 	dummyEnt := NewBus("dummy_bus")
@@ -99,7 +99,7 @@ func Test_attributeEntity_RemoveAttributeValue(t *testing.T) {
 	assert.Error(e.removeAttributeAssignment("dummy-id"))
 }
 
-func Test_attributeEntity_RemoveAllAttributeValues(t *testing.T) {
+func Test_withAttributes_RemoveAllAttributeValues(t *testing.T) {
 	assert := assert.New(t)
 
 	dummyEnt := NewBus("dummy_bus")

@@ -4,20 +4,26 @@ package acmelib.v1;
 
 import "google/protobuf/timestamp.proto";
 
-message Entity {
-    string entity_id = 1;
-    string name = 2;
-    string desc = 3;
-    google.protobuf.Timestamp create_time = 4;
-    repeated AttributeValue attribute_values = 5;
+enum EntityKind {
+    ENTITY_KIND_UNSPECIFIED = 0;
+    ENTITY_KIND_NETWORK = 1;
+    ENTITY_KIND_BUS = 2;
+    ENTITY_KIND_NODE = 3;
+    ENTITY_KIND_NODE_INTERFACE = 4;
+    ENTITY_KIND_MESSAGE = 5;
+    ENTITY_KIND_SIGNAL = 6;
+    ENTITY_KIND_SIGNAL_TYPE = 7;
+    ENTITY_KIND_SIGNAL_UNIT = 8;
+    ENTITY_KIND_SIGNAL_ENUM = 9;
+    ENTITY_KIND_SIGNAL_ENUM_VALUE = 10;
+    ENTITY_KIND_ATTRIBUTE = 11;
+    ENTITY_KIND_CANID_BUILDER = 12;
 }
 
-message AttributeValue {
-    string attribute_entity_id = 1;
-
-    oneof value {
-        string value_string = 2;
-        int32 value_int = 3;
-        double value_double = 4;
-    } 
+message Entity {
+    string entity_id = 1;
+    EntityKind entity_kind = 2;
+    string name = 3;
+    string desc = 4;
+    google.protobuf.Timestamp create_time = 5;
 }

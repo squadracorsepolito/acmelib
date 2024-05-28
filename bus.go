@@ -291,6 +291,10 @@ func (b *Bus) Type() BusType {
 	return b.typ
 }
 
+// AssignAttribute assigns the given attribute/value pair to the [Bus].
+//
+// It returns an [ArgumentError] if the attribute is nil,
+// or an [AttributeValueError] if the value does not conform to the attribute.
 func (b *Bus) AssignAttribute(attribute Attribute, value any) error {
 	if err := b.addAttributeAssignment(attribute, b, value); err != nil {
 		return b.errorf(err)
@@ -298,6 +302,10 @@ func (b *Bus) AssignAttribute(attribute Attribute, value any) error {
 	return nil
 }
 
+// RemoveAttributeAssignment removes the [AttributeAssignment]
+// with the given attribute entity id from the [Bus].
+//
+// It returns an [ErrNotFound] if the provided attribute entity id is not found.
 func (b *Bus) RemoveAttributeAssignment(attributeEntityID EntityID) error {
 	if err := b.removeAttributeAssignment(attributeEntityID); err != nil {
 		return b.errorf(err)
@@ -305,6 +313,10 @@ func (b *Bus) RemoveAttributeAssignment(attributeEntityID EntityID) error {
 	return nil
 }
 
+// GetAttributeAssignment returns the [AttributeAssignment]
+// with the given attribute entity id from the [Bus].
+//
+// It returns an [ErrNotFound] if the provided attribute entity id is not found.
 func (b *Bus) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
 	attAss, err := b.getAttributeAssignment(attributeEntityID)
 	if err != nil {

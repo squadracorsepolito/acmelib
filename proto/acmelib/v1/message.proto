@@ -5,6 +5,7 @@ package acmelib.v1;
 import "acmelib/v1/entity.proto";
 import "acmelib/v1/signal_payload.proto";
 import "acmelib/v1/signal.proto";
+import "acmelib/v1/attribute.proto";
 
 enum MessagePriority {
     MESSAGE_PRIORITY_UNSPECIFIED = 0;
@@ -49,4 +50,6 @@ message Message {
     uint32 start_delay_time = 13;
 
     repeated string receiver_ids = 14;
+    
+    repeated acmelib.v1.AttributeAssignment attribute_assignments = 15;
 }

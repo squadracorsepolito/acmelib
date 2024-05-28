@@ -128,6 +128,10 @@ func (n *Node) ID() NodeID {
 	return n.id
 }
 
+// AssignAttribute assigns the given attribute/value pair to the [Node].
+//
+// It returns an [ArgumentError] if the attribute is nil,
+// or an [AttributeValueError] if the value does not conform to the attribute.
 func (n *Node) AssignAttribute(attribute Attribute, value any) error {
 	if err := n.addAttributeAssignment(attribute, n, value); err != nil {
 		return n.errorf(err)
@@ -135,6 +139,10 @@ func (n *Node) AssignAttribute(attribute Attribute, value any) error {
 	return nil
 }
 
+// RemoveAttributeAssignment removes the [AttributeAssignment]
+// with the given attribute entity id from the [Node].
+//
+// It returns an [ErrNotFound] if the provided attribute entity id is not found.
 func (n *Node) RemoveAttributeAssignment(attributeEntityID EntityID) error {
 	if err := n.removeAttributeAssignment(attributeEntityID); err != nil {
 		return n.errorf(err)
@@ -142,6 +150,10 @@ func (n *Node) RemoveAttributeAssignment(attributeEntityID EntityID) error {
 	return nil
 }
 
+// GetAttributeAssignment returns the [AttributeAssignment]
+// with the given attribute entity id from the [Node].
+//
+// It returns an [ErrNotFound] if the provided attribute entity id is not found.
 func (n *Node) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
 	attAss, err := n.getAttributeAssignment(attributeEntityID)
 	if err != nil {

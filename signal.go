@@ -97,13 +97,15 @@ type Signal interface {
 
 	// AssignAttribute assigns the given attribute/value pair to the signal.
 	AssignAttribute(attribute Attribute, value any) error
-	// RemoveAttributeAssignment removes an attribute assignment from the signal.
+	// RemoveAttributeAssignment removes the attribute assignment
+	// with the given attribute entity id from the Signal.
 	RemoveAttributeAssignment(attributeEntityID EntityID) error
 	// RemoveAllAttributeAssignments removes all the attribute assignments from the signal.
 	RemoveAllAttributeAssignments()
 	// AttributeAssignments returns a slice of all attribute assignments of the signal.
 	AttributeAssignments() []*AttributeAssignment
-	// GetAttributeAssignment returns an attribute assignment from the signal.
+	// GetAttributeAssignment returns the attribute assignment
+	// with the given attribute entity id from the signal.
 	GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error)
 
 	stringify(b *strings.Builder, tabs int)
@@ -313,13 +315,6 @@ func (s *signal) UpdateName(newName string) error {
 	return nil
 }
 
-func (s *signal) AssignAttribute(attribute Attribute, value any) error {
-	if err := s.addAttributeAssignment(attribute, s, value); err != nil {
-		return s.errorf(err)
-	}
-	return nil
-}
-
 func (s *signal) RemoveAttributeAssignment(attributeEntityID EntityID) error {
 	if err := s.removeAttributeAssignment(attributeEntityID); err != nil {
 		return s.errorf(err)
@@ -459,6 +454,17 @@ func (ss *StandardSignal) Unit() *SignalUnit {
 	return ss.unit
 }
 
+// AssignAttribute assigns the given attribute/value pair to the [StandardSignal].
+//
+// It returns an [ArgumentError] if the attribute is nil,
+// or an [AttributeValueError] if the value does not conform to the attribute.
+func (ss *StandardSignal) AssignAttribute(attribute Attribute, value any) error {
+	if err := ss.addAttributeAssignment(attribute, ss, value); err != nil {
+		return ss.errorf(err)
+	}
+	return nil
+}
+
 // EnumSignal is a signal that holds a [SignalEnum].
 type EnumSignal struct {
 	*signal
@@ -555,5 +561,16 @@ func (es *EnumSignal) SetEnum(enum *SignalEnum) error {
 
 	enum.addRef(es)
 
+	return nil
+}
+
+// AssignAttribute assigns the given attribute/value pair to the [EnumSignal].
+//
+// It returns an [ArgumentError] if the attribute is nil,
+// or an [AttributeValueError] if the value does not conform to the attribute.
+func (es *EnumSignal) AssignAttribute(attribute Attribute, value any) error {
+	if err := es.addAttributeAssignment(attribute, es, value); err != nil {
+		return es.errorf(err)
+	}
 	return nil
 }

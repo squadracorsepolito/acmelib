@@ -576,3 +576,14 @@ func (ms *MultiplexerSignal) GetGroupCountSize() int {
 func (ms *MultiplexerSignal) GroupSize() int {
 	return ms.groupSize
 }
+
+// AssignAttribute assigns the given attribute/value pair to the [MultiplexerSignal].
+//
+// It returns an [ArgumentError] if the attribute is nil,
+// or an [AttributeValueError] if the value does not conform to the attribute.
+func (ms *MultiplexerSignal) AssignAttribute(attribute Attribute, value any) error {
+	if err := ms.addAttributeAssignment(attribute, ms, value); err != nil {
+		return ms.errorf(err)
+	}
+	return nil
+}

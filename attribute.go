@@ -518,20 +518,33 @@ func (ea *EnumAttribute) ToEnum() (*EnumAttribute, error) {
 	return ea, nil
 }
 
+// AttributableEntity represents an entity that can hold attributes.
 type AttributableEntity interface {
 	errorf(err error) error
 
+	// EntityID returns the unique identifier of the entity.
 	EntityID() EntityID
-	Name() string
+	// EntityKind returns the kind of the entity.
 	EntityKind() EntityKind
+	// Name returns the name of the entity.
+	Name() string
 
+	// AssignAttribute assigns the given attribute/value pair to the entity.
 	AssignAttribute(attribute Attribute, value any) error
+	// RemoveAttributeAssignment removes the attribute assignment
+	// with the given attribute entity id from the entity.
 	RemoveAttributeAssignment(attributeEntityID EntityID) error
+	// RemoveAllAttributeAssignments removes all the attribute assignments from the entity.
 	RemoveAllAttributeAssignments()
+	// AttributeAssignments returns a slice of all attribute assignments of the entity.
 	AttributeAssignments() []*AttributeAssignment
+	// GetAttributeAssignment returns the attribute assignment
+	// with the given attribute entity id from the entity.
 	GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error)
 }
 
+// AttributeAssignment represents a link between an [Attribute] and an [AttributableEntity]
+// with an assigned value.
 type AttributeAssignment struct {
 	attribute Attribute
 	entity    AttributableEntity
@@ -553,22 +566,30 @@ func (aa *AttributeAssignment) stringify(b *strings.Builder, tabs int) {
 		tabStr, aa.EntityID(), aa.entity.EntityKind(), aa.entity.Name(), aa.value))
 }
 
+// EntityID returns the entity id of the [AttributableEntity] of the [AttributeAssignment].
 func (aa *AttributeAssignment) EntityID() EntityID {
 	return aa.entity.EntityID()
 }
 
+// Attribute returns the [Attribute] of the [AttributeAssignment].
 func (aa *AttributeAssignment) Attribute() Attribute {
 	return aa.attribute
 }
 
+// Value returns the value of the [AttributeAssignment].
 func (aa *AttributeAssignment) Value() any {
 	return aa.value
 }
 
+// Entity returns the [AttributableEntity] of the [AttributeAssignment].
 func (aa *AttributeAssignment) Entity() AttributableEntity {
 	return aa.entity
 }
 
+// ToBusEntity returns the [AttributableEntity] as a [Bus].
+//
+// It returns a [ConversionError] if the kind of the entity is not equal to
+// [EntityKindBus].
 func (aa *AttributeAssignment) ToBusEntity() (*Bus, error) {
 	if aa.entity.EntityKind() == EntityKindBus {
 		return aa.entity.(*Bus), nil
@@ -580,6 +601,10 @@ func (aa *AttributeAssignment) ToBusEntity() (*Bus, error) {
 	})
 }
 
+// ToNodeEntity returns the [AttributableEntity] as a [Node].
+//
+// It returns a [ConversionError] if the kind of the entity is not equal to
+// [EntityKindNode].
 func (aa *AttributeAssignment) ToNodeEntity() (*Node, error) {
 	if aa.entity.EntityKind() == EntityKindNode {
 		return aa.entity.(*Node), nil
@@ -591,6 +616,10 @@ func (aa *AttributeAssignment) ToNodeEntity() (*Node, error) {
 	})
 }
 
+// ToMessageEntity returns the [AttributableEntity] as a [Message].
+//
+// It returns a [ConversionError] if the kind of the entity is not equal to
+// [EntityKindMessage].
 func (aa *AttributeAssignment) ToMessageEntity() (*Message, error) {
 	if aa.entity.EntityKind() == EntityKindMessage {
 		return aa.entity.(*Message), nil
@@ -602,6 +631,10 @@ func (aa *AttributeAssignment) ToMessageEntity() (*Message, error) {
 	})
 }
 
+// ToSignalEntity returns the [AttributableEntity] as a [Signal].
+//
+// It returns a [ConversionError] if the kind of the entity is not equal to
+// [EntityKindSignal].
 func (aa *AttributeAssignment) ToSignalEntity() (Signal, error) {
 	if aa.entity.EntityKind() == EntityKindSignal {
 		return aa.entity.(Signal), nil
