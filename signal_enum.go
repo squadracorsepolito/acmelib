@@ -178,6 +178,11 @@ func (se *SignalEnum) stringify(b *strings.Builder, tabs int) {
 		enumVal.stringify(b, tabs+1)
 		b.WriteRune('\n')
 	}
+
+	refCount := se.ReferenceCount()
+	if refCount > 0 {
+		b.WriteString(fmt.Sprintf("%sreference_count: %d\n", tabStr, refCount))
+	}
 }
 
 func (se *SignalEnum) String() string {

@@ -62,6 +62,11 @@ func (su *SignalUnit) stringify(b *strings.Builder, tabs int) {
 
 	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, su.kind))
 	b.WriteString(fmt.Sprintf("%ssymbol: %s\n", tabStr, su.symbol))
+
+	refCount := su.ReferenceCount()
+	if refCount > 0 {
+		b.WriteString(fmt.Sprintf("%sreference_count: %d\n", tabStr, refCount))
+	}
 }
 
 func (su *SignalUnit) String() string {

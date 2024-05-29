@@ -101,6 +101,11 @@ func (b *CANIDBuilder) stringify(builder *strings.Builder, tabs int) {
 	for _, op := range b.operations {
 		op.stringify(builder, tabs+1)
 	}
+
+	refCount := b.ReferenceCount()
+	if refCount > 0 {
+		builder.WriteString(fmt.Sprintf("%sreference_count: %d\n", tabStr, refCount))
+	}
 }
 
 func (b *CANIDBuilder) String() string {

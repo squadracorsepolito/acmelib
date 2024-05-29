@@ -131,6 +131,11 @@ func (st *SignalType) stringify(b *strings.Builder, tabs int) {
 
 	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, st.kind))
 	b.WriteString(fmt.Sprintf("%ssize: %d; signed: %t; min: %g; max: %g; scale: %g; offset: %g\n", tabStr, st.size, st.signed, st.min, st.max, st.scale, st.offset))
+
+	refCount := st.ReferenceCount()
+	if refCount > 0 {
+		b.WriteString(fmt.Sprintf("%sreference_count: %d\n", tabStr, refCount))
+	}
 }
 
 func (st *SignalType) String() string {
