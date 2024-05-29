@@ -34,6 +34,8 @@ BS_:
 
 BU_: node_0 rec_node_0
 
+VAL_TABLE_ enum 0 "VALUE_0" 1 "VALUE_1" 15 "VALUE_15";
+
 BO_ 16 msg_0 : 8 node_0
 	SG_ std_sig_0 : 0|4@1+ (1,0) [0|15] "degC" Vector__XXX
 	SG_ mux_sig_0 M : 4|2@1+ (1,0) [0|3] "" Vector__XXX

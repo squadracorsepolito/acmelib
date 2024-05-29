@@ -35,7 +35,9 @@ type importer struct {
 	signals  map[string]Signal
 
 	flagSigType *SignalType
-	signalEnums map[string]*SignalEnum
+
+	signalEnumRegistry []*SignalEnum
+	signalEnums        map[string]*SignalEnum
 
 	dbcExtMuxes map[string]*dbc.ExtendedMux
 }
@@ -53,7 +55,9 @@ func newImporter() *importer {
 		signals:  make(map[string]Signal),
 
 		flagSigType: NewFlagSignalType("flag"),
-		signalEnums: make(map[string]*SignalEnum),
+
+		signalEnumRegistry: []*SignalEnum{},
+		signalEnums:        make(map[string]*SignalEnum),
 
 		dbcExtMuxes: make(map[string]*dbc.ExtendedMux),
 	}
@@ -72,6 +76,12 @@ func (i *importer) importFile(dbcFile *dbc.File) (*Bus, error) {
 	i.bus = bus
 
 	i.importComments(dbcFile.Comments)
+
+	for _, dbcValTable := range dbcFile.ValueTables {
+		if err := i.importValueTable(dbcValTable); err != nil {
+			return nil, err
+		}
+	}
 
 	for _, dbcValEnc := range dbcFile.ValueEncodings {
 		if err := i.importValueEncoding(dbcValEnc); err != nil {
@@ -287,17 +297,60 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 	return nil
 }
 
+func (i *importer) importValueTable(dbcValTable *dbc.ValueTable) error {
+	sigEnum := NewSignalEnum(dbcValTable.Name)
+
+	for _, dbcVal := range dbcValTable.Values {
+		if err := sigEnum.AddValue(NewSignalEnumValue(dbcVal.Name, int(dbcVal.ID))); err != nil {
+			return i.errorf(dbcVal, err)
+		}
+	}
+
+	i.signalEnumRegistry = append(i.signalEnumRegistry, sigEnum)
+
+	return nil
+}
+
 func (i *importer) importValueEncoding(dbcValEnc *dbc.ValueEncoding) error {
 	if dbcValEnc.Kind != dbc.ValueEncodingSignal {
 		return nil
 	}
 
-	sigName := dbcValEnc.SignalName
-	sigEnum := NewSignalEnum(fmt.Sprintf("%s_Enum", sigName))
-	for _, dbcVal := range dbcValEnc.Values {
-		if err := sigEnum.AddValue(NewSignalEnumValue(dbcVal.Name, int(dbcVal.ID))); err != nil {
-			return i.errorf(dbcVal, err)
+	values := dbcValEnc.Values
+	slices.SortFunc(values, func(a, b *dbc.ValueDescription) int { return int(a.ID) - int(b.ID) })
+
+	sigEnum := new(SignalEnum)
+	inRegistry := false
+	for _, tmpSigEnum := range i.signalEnumRegistry {
+		if len(values) != tmpSigEnum.values.size() {
+			continue
 		}
+
+		for idx, tmpVal := range tmpSigEnum.Values() {
+			if tmpVal.name != values[idx].Name || tmpVal.index != int(values[idx].ID) {
+				break
+			}
+
+			if idx == (len(values) - 1) {
+				inRegistry = true
+			}
+		}
+
+		if inRegistry {
+			sigEnum = tmpSigEnum
+			break
+		}
+	}
+
+	sigName := dbcValEnc.SignalName
+	if !inRegistry {
+		sigEnum = NewSignalEnum(fmt.Sprintf("%s_Enum", sigName))
+		for _, dbcVal := range dbcValEnc.Values {
+			if err := sigEnum.AddValue(NewSignalEnumValue(dbcVal.Name, int(dbcVal.ID))); err != nil {
+				return i.errorf(dbcVal, err)
+			}
+		}
+
 	}
 
 	i.signalEnums[i.getSignalKey(dbcValEnc.MessageID, sigName)] = sigEnum

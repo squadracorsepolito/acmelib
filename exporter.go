@@ -65,6 +65,8 @@ type exporter struct {
 	nodeAttNames map[string]bool
 	msgAttNames  map[string]bool
 	sigAttNames  map[string]bool
+
+	sigEnums map[EntityID]*SignalEnum
 }
 
 func newExporter() *exporter {
@@ -77,6 +79,8 @@ func newExporter() *exporter {
 		nodeAttNames: make(map[string]bool),
 		msgAttNames:  make(map[string]bool),
 		sigAttNames:  make(map[string]bool),
+
+		sigEnums: make(map[EntityID]*SignalEnum),
 	}
 }
 
@@ -260,6 +264,10 @@ func (e *exporter) exportBus(bus *Bus) *dbc.File {
 	}
 
 	e.exportNodeInterfaces(bus.Nodes())
+
+	for _, sigEnum := range e.sigEnums {
+		e.exportSignalEnum(sigEnum)
+	}
 
 	return e.dbcFile
 }
@@ -464,15 +472,28 @@ func (e *exporter) exportEnumSignal(enumSig *EnumSignal, dbcMsgID uint32, dbcSig
 	dbcValEnc.Kind = dbc.ValueEncodingSignal
 	dbcValEnc.MessageID = dbcMsgID
 	dbcValEnc.SignalName = clearSpaces(enumSig.Name())
-
-	for _, val := range enumSig.enum.Values() {
-		dbcValEnc.Values = append(dbcValEnc.Values, &dbc.ValueDescription{
-			ID:   uint32(val.index),
-			Name: val.name,
-		})
-	}
+	dbcValEnc.Values = e.getDBCValueDescription(enumSig.enum.Values())
 
 	e.dbcFile.ValueEncodings = append(e.dbcFile.ValueEncodings, dbcValEnc)
+	e.sigEnums[enumSig.enum.entityID] = enumSig.enum
+}
+
+func (e *exporter) getDBCValueDescription(enumValues []*SignalEnumValue) []*dbc.ValueDescription {
+	dbcValDesc := make([]*dbc.ValueDescription, len(enumValues))
+	for idx, val := range enumValues {
+		dbcValDesc[idx] = &dbc.ValueDescription{
+			ID:   uint32(val.index),
+			Name: val.name,
+		}
+	}
+	return dbcValDesc
+}
+
+func (e *exporter) exportSignalEnum(enum *SignalEnum) {
+	e.dbcFile.ValueTables = append(e.dbcFile.ValueTables, &dbc.ValueTable{
+		Name:   enum.name,
+		Values: e.getDBCValueDescription(enum.Values()),
+	})
 }
 
 func (e *exporter) exportMultiplexerSignal(muxSig *MultiplexerSignal, dbcMsgID uint32, dbcSig *dbc.Signal) {
