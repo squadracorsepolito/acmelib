@@ -96,18 +96,18 @@ BO_ 259 BMS_LV_status: 4 BMS_LV
 	SG_ LV_CELL_5_isUV : 12|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ LV_CELL_6_isOV : 13|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ LV_CELL_6_isUV : 14|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_00_isOT : 15|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_01_isOT : 16|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_02_isOT : 17|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_03_isOT : 18|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_04_isOT : 19|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_05_isOT : 20|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_06_isOT : 21|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_07_isOT : 22|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_08_isOT : 23|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_09_isOT : 24|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_10_isOT : 25|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ LV_TEMP_SENS_11_isOT : 26|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_00_isOT : 15|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_01_isOT : 16|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_02_isOT : 17|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_03_isOT : 18|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_04_isOT : 19|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_05_isOT : 20|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_06_isOT : 21|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_07_isOT : 22|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_08_isOT : 23|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_09_isOT : 24|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_10_isOT : 25|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_11_isOT : 26|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
 BO_ 260 BMS_LV_lvCellNTCResistance0: 8 BMS_LV
 	SG_ LV_CELL_NTC_00_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
@@ -141,7 +141,7 @@ BO_ 1280 DSPACE_motorStatus: 1 DSPACE
 BO_ 49 SB_FRONT_sdcStatus: 1 SB_FRONT
 	SG_ SDC_POST_INERTIA_isActive : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ SDC_POST_BOTS_isActive : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ SDC_POST_COCKPIT_isActive : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_POST_CP_PUSH_BTN_isActive : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
 BO_ 1024 SB_FRONT_ntcResistance: 8 SB_FRONT
 	SG_ JACKET_FL_NTC_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
@@ -172,7 +172,7 @@ BO_ 50 SB_REAR_dischargeStatus: 1 SB_REAR
 BO_ 5 SB_FRONT_analog: 8 SB_FRONT
 	SG_ APPS_0_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
 	SG_ APPS_1_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
-	SG_ STEERING_SENS_voltage : 32|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ STEERING_RME_voltage : 32|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
 	SG_ BRAKE_PRESS_FRONT_voltage : 48|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
 
 BO_ 16 SB_FRONT_potentiometer: 4 SB_FRONT
@@ -212,14 +212,22 @@ BO_ 512 DSPACE_peripheralsCTRL: 2 DSPACE
 BO_ 519 DASH_peripheralsStatus: 1 DASH
 	SG_ TSAC_FAN_pwmStatus : 0|4@1+ (1,0) [0|10] "%" DSPACE, SCANNER
 
-BO_ 39 DSPACE_timeDate: 1 DSPACE
-	SG_ year : 0|8@1+ (1,0) [0|255] "" DASH, SCANNER, SB_FRONT, SB_REAR, TLB_BAT
+BO_ 39 DSPACE_datetime: 5 DSPACE
+	SG_ DATETIME_year : 0|8@1+ (1,0) [0|255] "" DASH, SCANNER, SB_FRONT, SB_REAR, TLB_BAT
+	SG_ DATETIME_month : 8|4@1+ (1,0) [0|11] "" DASH, SCANNER, SB_FRONT, SB_REAR, TLB_BAT
+	SG_ DATETIME_day : 12|5@1+ (1,0) [1|31] "" DASH, SCANNER, SB_FRONT, SB_REAR, TLB_BAT
+	SG_ DATETIME_hours : 17|5@1+ (1,0) [0|23] "h" DASH, SCANNER, SB_FRONT, SB_REAR, TLB_BAT
+	SG_ DATETIME_minutes : 22|6@1+ (1,0) [0|59] "min" DASH, SCANNER, SB_FRONT, SB_REAR, TLB_BAT
+	SG_ DATETIME_seconds : 28|6@1+ (1,0) [0|59] "sec" DASH, SCANNER, SB_FRONT, SB_REAR, TLB_BAT
 
 BO_ 18 TLB_BAT_sdcStatus: 3 TLB_BAT
 	SG_ SDC_TSAC_INIT_IN_isActive : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ SDC_TSAC_INIT_OUT_isActive : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ SDC_POST_AMS_IMD_RELAY_isActive : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ SDC_TSAC_FINAL_IN_isActive : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+
+
+
 
 
 
@@ -320,18 +328,18 @@ CM_ SG_ 259 LV_CELL_5_isOV "States whether the LV cell #5 is in overvoltage.";
 CM_ SG_ 259 LV_CELL_5_isUV "States whether the LV cell #5 is in undervoltage.";
 CM_ SG_ 259 LV_CELL_6_isOV "States whether the LV cell #6 is in overvoltage.";
 CM_ SG_ 259 LV_CELL_6_isUV "States whether the LV cell #6 is in undervoltage.";
-CM_ SG_ 259 LV_TEMP_SENS_00_isOT "States whether the LV cell temperature sensor #0 detects an over temperature.";
-CM_ SG_ 259 LV_TEMP_SENS_01_isOT "States whether the LV cell temperature sensor #1 detects an over temperature.";
-CM_ SG_ 259 LV_TEMP_SENS_02_isOT "States whether the LV cell temperature sensor #2 detects an over temperature.";
-CM_ SG_ 259 LV_TEMP_SENS_03_isOT "States whether the LV cell temperature sensor #3 detects an over temperature.";
-CM_ SG_ 259 LV_TEMP_SENS_04_isOT "States whether the LV cell temperature sensor #4 detects an over temperature.";
-CM_ SG_ 259 LV_TEMP_SENS_05_isOT "States whether the LV cell temperature sensor #5 detects an over temperature.";
-CM_ SG_ 259 LV_TEMP_SENS_06_isOT "States whether the LV cell temperature sensor #6 detects an over temperature.";
-CM_ SG_ 259 LV_TEMP_SENS_07_isOT "States whether the LV cell temperature sensor #7 detects an over temperature.";
-CM_ SG_ 259 LV_TEMP_SENS_08_isOT "States whether the LV cell temperature sensor #8 detects an over temperature.";
-CM_ SG_ 259 LV_TEMP_SENS_09_isOT "States whether the LV cell temperature sensor #9 detects an over temperature.";
-CM_ SG_ 259 LV_TEMP_SENS_10_isOT "States whether the LV cell temperature sensor #10 detects an over temperature.";
-CM_ SG_ 259 LV_TEMP_SENS_11_isOT "States whether the LV cell temperature sensor #11 detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_00_isOT "States whether the LV cell temperature sensor #0 (NTC) detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_01_isOT "States whether the LV cell temperature sensor #1 (NTC) detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_02_isOT "States whether the LV cell temperature sensor #2 (NTC) detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_03_isOT "States whether the LV cell temperature sensor #3 (NTC) detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_04_isOT "States whether the LV cell temperature sensor #4 (NTC) detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_05_isOT "States whether the LV cell temperature sensor #5 (NTC) detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_06_isOT "States whether the LV cell temperature sensor #6 (NTC) detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_07_isOT "States whether the LV cell temperature sensor #7 (NTC) detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_08_isOT "States whether the LV cell temperature sensor #8 (NTC) detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_09_isOT "States whether the LV cell temperature sensor #9 (NTC) detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_10_isOT "States whether the LV cell temperature sensor #10 (NTC) detects an over temperature.";
+CM_ SG_ 259 LV_CELL_NTC_11_isOT "States whether the LV cell temperature sensor #11 (NTC) detects an over temperature.";
 
 CM_ SG_ 260 LV_CELL_NTC_00_resistance "The resistance of the NTC #0 in the battery pack expressed in Ohm.";
 CM_ SG_ 260 LV_CELL_NTC_01_resistance "The resistance of the NTC #1 in the battery pack expressed in Ohm.";
@@ -347,6 +355,10 @@ CM_ SG_ 261 LV_CELL_NTC_10_resistance "The resistance of the NTC #10 in the batt
 CM_ SG_ 261 LV_CELL_NTC_11_resistance "The resistance of the NTC #11 in the battery pack expressed in Ohm.";
 
 CM_ SG_ 38 RTD_CMD "The RTD command.";
+CM_ SG_ 38 BTN_0_isPressed "States whether the button #0 of the dashboard is pressed.";
+CM_ SG_ 38 BTN_1_isPressed "States whether the button #0 of the dashboard is pressed.";
+CM_ SG_ 38 BTN_2_isPressed "States whether the button #0 of the dashboard is pressed.";
+CM_ SG_ 38 BTN_3_isPressed "States whether the button #0 of the dashboard is pressed.";
 
 CM_ SG_ 1280 MOTOR_FL_isON "States whether the front left motor is ON.";
 CM_ SG_ 1280 MOTOR_FR_isON "States whether the front right motor is ON.";
@@ -355,7 +367,7 @@ CM_ SG_ 1280 MOTOR_RR_isON "States whether the rear right motor is ON.";
 
 CM_ SG_ 49 SDC_POST_INERTIA_isActive "States whether the SDC post inertia switch is active.";
 CM_ SG_ 49 SDC_POST_BOTS_isActive "States whether the SDC post BOTS is active.";
-CM_ SG_ 49 SDC_POST_COCKPIT_isActive "States whether the SDC post cockpit push button is active.";
+CM_ SG_ 49 SDC_POST_CP_PUSH_BTN_isActive "States whether the SDC post cockpit push button is active.";
 
 CM_ SG_ 1024 JACKET_FL_NTC_resistance "The resistance of the front left jacket NTC expressed in Ohm.";
 CM_ SG_ 1024 JACKET_FR_NTC_resistance "The resistance of the front right jacket NTC expressed in Ohm.";
@@ -381,7 +393,7 @@ CM_ SG_ 50 DISCHARGE_isOpen "States whether the discharge is open.";
 
 CM_ SG_ 5 APPS_0_voltage "The voltage of the APPS #0 expressed in mV.";
 CM_ SG_ 5 APPS_1_voltage "The voltage of the APPS #1 expressed in mV.";
-CM_ SG_ 5 STEERING_SENS_voltage "The voltage of the steering hall-effect sensor expressed in mV.";
+CM_ SG_ 5 STEERING_RME_voltage "The voltage of the steering RME (rotary magnetic encoder) sensor expressed in mV.";
 CM_ SG_ 5 BRAKE_PRESS_FRONT_voltage "The voltage of the front brake pressure sensor expressed in mV.";
 
 CM_ SG_ 16 LPPS_DAMPER_FL_voltage "The voltage of the linear potentiometer position sensor on the front left damper expressed in mV.";
@@ -400,6 +412,21 @@ CM_ SG_ 255 LV_RELAY_forcedState "The command to force the LV relay open (0) or 
 CM_ SG_ 519 TSAC_FAN_pwmStatus "The percentage of the duty cycle of the TSAC fan.";
 
 CM_ SG_ 512 BRAKE_LIGHT_activeCMD "The command to turn on the brake light (1 active).";
+
+CM_ SG_ 1300 APPS_0_voltageRangeMin "The APPS #0 minimum range expressed in mV.";
+CM_ SG_ 1300 APPS_0_voltageRangeMax "The APPS #0 maximum range expressed in mV.";
+CM_ SG_ 1300 APPS_1_voltageRangeMin "The APPS #1 minimum range expressed in mV.";
+CM_ SG_ 1300 APPS_1_voltageRangeMax "The APPS #1 maximum range expressed in mV.";
+
+CM_ SG_ 1301 ROT_SWITCH_0_position "The position (0-10) of the rotary switch #0 of the dashboard.";
+CM_ SG_ 1301 ROT_SWITCH_1_position "The position (0-10) of the rotary switch #1 of the dashboard.";
+
+CM_ SG_ 39 DATETIME_year "The current year expressed as an offset from 1970.";
+CM_ SG_ 39 DATETIME_month "The current month of the year (0 = January, 11 = December).";
+CM_ SG_ 39 DATETIME_day "The current day of the month, from 1 to 31.";
+CM_ SG_ 39 DATETIME_hours "The current hours of the day.";
+CM_ SG_ 39 DATETIME_minutes "The current minutes of the hour.";
+CM_ SG_ 39 DATETIME_seconds "The current seconds of the minute.";
 
 
 

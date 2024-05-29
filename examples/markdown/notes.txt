@@ -1,14 +1,1 @@
-LV_TEMP_SENS_XX_isOT to LV_CELL_NTC_XX_isOT !
 risolution ntc ?
-
-comments for dash btn_isPressed !
-comments for APPS_X_voltageMinRange !
-comments for ROT_SWITCH_X_position !
-
-brake light ctrl on enum !
-
-steering sens voltage new name !
-
-DSPACE time and date !
-
-cockpit to cockpitPushButton !
