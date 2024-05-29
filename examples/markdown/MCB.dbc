@@ -226,6 +226,27 @@ BO_ 18 TLB_BAT_sdcStatus: 3 TLB_BAT
 	SG_ SDC_POST_AMS_IMD_RELAY_isActive : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ SDC_TSAC_FINAL_IN_isActive : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
+BO_ 19 TLB_BAT_status: 3 TLB_BAT
+	SG_ TSAL_isGreen : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ AIR_POS_isClosed : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ AIR_NEG_isClosed : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ PRECHARGE_RLY_isClosed : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ DC_BUS_isOver60V : 4|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+
+	SG_ IntentionalState_AIRPos : 5|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ IntentionalState_AIRNeg : 6|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ IntentionalState_RelayPrecharge : 7|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+
+	SG_ SCS_Short2GND_AirPos : 8|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SCS_Short2GND_AirNeg : 9|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SCS_isAnyShort2GND_Present : 10|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+
+	SG_ ANY_IMP_isPresent : 11|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ AIR_POS_IMP_isPresent : 12|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ AIR_NEG_IMP_isPresent : 13|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ PRECHARGE_RLY_IMP_isPresent : 14|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ DC_BUS_IMP_isPresent : 15|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ ANY_IMP_isLatched : 16|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
 
 
@@ -234,9 +255,7 @@ BO_ 18 TLB_BAT_sdcStatus: 3 TLB_BAT
 
 
 
-
-
-BO_ 19 TLB_Battery_TSALStatus: 3 TLB_BAT
+BO_ 19999 OLD_TLB_Battery_TSALStatus: 3 TLB_BAT
 	SG_ TSAL_isGreenON : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ TSAL_isAIRPosClosed : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ TSAL_IsAIRNegClosed : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
@@ -254,12 +273,6 @@ BO_ 19 TLB_Battery_TSALStatus: 3 TLB_BAT
 	SG_ Imp_isRelayPrechargeImp_Present : 14|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ Imp_isDCBusVoltageImp_Present : 15|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ Imp_isAnyImp_Latched : 16|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-
-
-
-
-
-
 
 
 
@@ -428,9 +441,17 @@ CM_ SG_ 39 DATETIME_hours "The current hours of the day.";
 CM_ SG_ 39 DATETIME_minutes "The current minutes of the hour.";
 CM_ SG_ 39 DATETIME_seconds "The current seconds of the minute.";
 
-
-
-
+CM_ SG_ 19 TSAL_isGreen "States whether the TSAL is green.";
+CM_ SG_ 19 AIR_POS_isClosed "States whether the positive AIR is closed.";
+CM_ SG_ 19 AIR_NEG_isClosed "States whether the negative AIR is closed.";
+CM_ SG_ 19 PRECHARGE_RLY_isClosed "States whether the precharge relay is closed.";
+CM_ SG_ 19 DC_BUS_isOver60V "States whether the DC bus volatge is over 60V.";
+CM_ SG_ 19 ANY_IMP_isPresent "States whether any implausibility is present.";
+CM_ SG_ 19 AIR_POS_IMP_isPresent "States whether an implausibility from the positive AIR is present.";
+CM_ SG_ 19 AIR_NEG_IMP_isPresent "States whether an implausibility from the negative AIR is present.";
+CM_ SG_ 19 PRECHARGE_RLY_IMP_isPresent "States whether an implausibility from the precharge relay is present.";
+CM_ SG_ 19 DC_BUS_IMP_isPresent "States whether an implausibility from the DC bus is present.";
+CM_ SG_ 19 ANY_IMP_isLatched "States whether any implausibility is latched.";
 
 
 
