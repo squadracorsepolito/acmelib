@@ -57,7 +57,7 @@ func (e *mdExporter) exportNetwork(net *Network) {
 func (e *mdExporter) exportTOC(net *Network) {
 	for _, bus := range net.Buses() {
 		e.w.BulletList(e.getHeaderLink(bus.name))
-		for _, nodeInt := range bus.Nodes() {
+		for _, nodeInt := range bus.NodeInterfaces() {
 			e.w.PlainTextf("\t- %s", e.getHeaderLink(nodeInt.node.name))
 			for _, msg := range nodeInt.Messages() {
 				e.w.PlainTextf("\t\t- %s", e.getHeaderLink(msg.name))
@@ -80,7 +80,7 @@ func (e *mdExporter) exportBus(bus *Bus) {
 	}
 	e.w.PlainTextf("Baudrate: %s bps", baudrateStr).LF()
 
-	for _, node := range bus.Nodes() {
+	for _, node := range bus.NodeInterfaces() {
 		e.exportNode(node)
 	}
 }

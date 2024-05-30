@@ -35,6 +35,9 @@ type importer struct {
 	signals  map[string]Signal
 
 	flagSigType *SignalType
+	signalTypes map[string]*SignalType
+
+	signalUnits map[string]*SignalUnit
 
 	signalEnumRegistry []*SignalEnum
 	signalEnums        map[string]*SignalEnum
@@ -55,6 +58,9 @@ func newImporter() *importer {
 		signals:  make(map[string]Signal),
 
 		flagSigType: NewFlagSignalType("flag"),
+		signalTypes: make(map[string]*SignalType),
+
+		signalUnits: make(map[string]*SignalUnit),
 
 		signalEnumRegistry: []*SignalEnum{},
 		signalEnums:        make(map[string]*SignalEnum),
@@ -69,6 +75,14 @@ func (i *importer) errorf(dbcLoc dbcFileLocator, err error) error {
 
 func (i *importer) getSignalKey(dbcMsgID uint32, sigName string) string {
 	return fmt.Sprintf("%d_%s", dbcMsgID, sigName)
+}
+
+func (i *importer) getSignalTypeKey(dbcSig *dbc.Signal) string {
+	signStr := "u"
+	if dbcSig.ValueType == dbc.SignalSigned {
+		signStr = "s"
+	}
+	return fmt.Sprintf("%s%d_%g-%g_%g_%g", signStr, dbcSig.Size, dbcSig.Min, dbcSig.Max, dbcSig.Factor, dbcSig.Offset)
 }
 
 func (i *importer) importFile(dbcFile *dbc.File) (*Bus, error) {
@@ -654,27 +668,9 @@ func (i *importer) importSignal(dbcSig *dbc.Signal, dbcMsgID uint32) (Signal, er
 		sig = enumSig
 
 	} else {
-		signed := false
-		if dbcSig.ValueType == dbc.SignalSigned {
-			signed = true
-		}
-
-		sigSize := int(dbcSig.Size)
-		var sigType *SignalType
-		if sigSize == 1 && dbcSig.ValueType == dbc.SignalUnsigned {
-			sigType = i.flagSigType
-		} else {
-			tmpSigType, err := NewIntegerSignalType(fmt.Sprintf("%s_Type", sigName), sigSize, signed)
-			if err != nil {
-				return nil, i.errorf(dbcSig, err)
-			}
-
-			tmpSigType.SetMin(dbcSig.Min)
-			tmpSigType.SetMax(dbcSig.Max)
-			tmpSigType.SetScale(dbcSig.Factor)
-			tmpSigType.SetOffset(dbcSig.Offset)
-
-			sigType = tmpSigType
+		sigType, err := i.importSignalType(dbcSig)
+		if err != nil {
+			return nil, err
 		}
 
 		stdSig, err := NewStandardSignal(sigName, sigType)
@@ -682,8 +678,15 @@ func (i *importer) importSignal(dbcSig *dbc.Signal, dbcMsgID uint32) (Signal, er
 			return nil, i.errorf(dbcSig, err)
 		}
 
-		if dbcSig.Unit != "" {
-			stdSig.SetUnit(NewSignalUnit(fmt.Sprintf("%s_Unit", sigName), SignalUnitKindCustom, dbcSig.Unit))
+		symbol := dbcSig.Unit
+		if symbol != "" {
+			if sigUnit, ok := i.signalUnits[symbol]; ok {
+				stdSig.SetUnit(sigUnit)
+			} else {
+				sigUnit := NewSignalUnit(symbol, SignalUnitKindCustom, symbol)
+				stdSig.SetUnit(sigUnit)
+				i.signalUnits[symbol] = sigUnit
+			}
 		}
 
 		sig = stdSig
@@ -696,4 +699,35 @@ func (i *importer) importSignal(dbcSig *dbc.Signal, dbcMsgID uint32) (Signal, er
 	i.signals[sigKey] = sig
 
 	return sig, nil
+}
+
+func (i *importer) importSignalType(dbcSig *dbc.Signal) (*SignalType, error) {
+	signed := false
+	if dbcSig.ValueType == dbc.SignalSigned {
+		signed = true
+	}
+
+	sigSize := int(dbcSig.Size)
+	if sigSize == 1 && !signed {
+		return i.flagSigType, nil
+	}
+
+	sigTypeKey := i.getSignalTypeKey(dbcSig)
+	if sigType, ok := i.signalTypes[sigTypeKey]; ok {
+		return sigType, nil
+	}
+
+	sigType, err := NewIntegerSignalType(sigTypeKey, sigSize, signed)
+	if err != nil {
+		return nil, i.errorf(dbcSig, err)
+	}
+
+	sigType.SetMin(dbcSig.Min)
+	sigType.SetMax(dbcSig.Max)
+	sigType.SetScale(dbcSig.Factor)
+	sigType.SetOffset(dbcSig.Offset)
+
+	i.signalTypes[sigTypeKey] = sigType
+
+	return sigType, nil
 }

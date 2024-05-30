@@ -39,4 +39,21 @@ func Test_ImportDBCFile(t *testing.T) {
 	fileStr := strings.ReplaceAll(fileBuf.String(), "\n", "")
 
 	assert.Equal(expectedFileStr, fileStr)
+
+	// testing signal types aggregation
+	sigTypeIDs := make(map[EntityID]bool)
+	for _, tmpNodeInt := range bus.NodeInterfaces() {
+		for _, tmpMsg := range tmpNodeInt.Messages() {
+			for _, sig := range tmpMsg.signals.getValues() {
+				if sig.Kind() != SignalKindStandard {
+					continue
+				}
+
+				stdSig, err := sig.ToStandard()
+				assert.NoError(err)
+				sigTypeIDs[stdSig.Type().EntityID()] = true
+			}
+		}
+	}
+	assert.Len(sigTypeIDs, 1)
 }

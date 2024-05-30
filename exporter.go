@@ -263,7 +263,7 @@ func (e *exporter) exportBus(bus *Bus) *dbc.File {
 		Baudrate: uint32(bus.baudrate),
 	}
 
-	e.exportNodeInterfaces(bus.Nodes())
+	e.exportNodeInterfaces(bus.NodeInterfaces())
 
 	for _, sigEnum := range e.sigEnums {
 		e.exportSignalEnum(sigEnum)

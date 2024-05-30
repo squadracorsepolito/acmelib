@@ -121,7 +121,7 @@ func (b *Bus) stringify(builder *strings.Builder, tabs int) {
 	}
 
 	builder.WriteString(fmt.Sprintf("%sattached_node_interfaces:\n", tabStr))
-	for _, nodeInt := range b.Nodes() {
+	for _, nodeInt := range b.NodeInterfaces() {
 		nodeInt.stringify(builder, tabs+1)
 		builder.WriteRune('\n')
 	}
@@ -230,8 +230,8 @@ func (b *Bus) RemoveAllNodeInterfaces() {
 	b.nodeIDs.clear()
 }
 
-// Nodes returns a slice of all nodes in the [Bus] sorted by node id.
-func (b *Bus) Nodes() []*NodeInterface {
+// NodeInterfaces returns a slice of all node interfaces connected to the [Bus] sorted by node id.
+func (b *Bus) NodeInterfaces() []*NodeInterface {
 	nodeSlice := b.nodeInts.getValues()
 	slices.SortFunc(nodeSlice, func(a, b *NodeInterface) int { return int(a.node.id) - int(b.node.id) })
 	return nodeSlice

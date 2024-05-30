@@ -21,7 +21,7 @@ func Test_Bus_AddNodeInterface(t *testing.T) {
 	assert.NoError(bus.AddNodeInterface(node2))
 	expectedIDs := []NodeID{0, 1, 2}
 	expectedNames := []string{"node_0", "node_1", "node_2"}
-	for idx, tmpNode := range bus.Nodes() {
+	for idx, tmpNode := range bus.NodeInterfaces() {
 		assert.Equal(expectedIDs[idx], tmpNode.node.ID())
 		assert.Equal(expectedNames[idx], tmpNode.node.Name())
 	}
@@ -54,7 +54,7 @@ func Test_Bus_RemoveNodeInterface(t *testing.T) {
 	assert.NoError(bus.RemoveNodeInterface(node2.EntityID()))
 	expectedIDs := []NodeID{0, 1, 3}
 	expectedNames := []string{"node_0", "node_1", "node_3"}
-	for idx, tmpNode := range bus.Nodes() {
+	for idx, tmpNode := range bus.NodeInterfaces() {
 		assert.Equal(expectedIDs[idx], tmpNode.node.ID())
 		assert.Equal(expectedNames[idx], tmpNode.node.Name())
 	}
@@ -80,7 +80,7 @@ func Test_Bus_RemoveAllNodeInterfaces(t *testing.T) {
 
 	bus.RemoveAllNodeInterfaces()
 
-	assert.Equal(0, len(bus.Nodes()))
+	assert.Equal(0, len(bus.NodeInterfaces()))
 }
 
 func Test_Bus_UpdateName(t *testing.T) {
