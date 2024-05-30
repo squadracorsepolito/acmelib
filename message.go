@@ -510,6 +510,24 @@ func (m *Message) GetSignal(signalEntityID EntityID) (Signal, error) {
 	return sig, nil
 }
 
+// GetSignalByName returns the [Signal] with the given name.
+//
+// It returns an [ErrNotFound] wrapped by a [NameError]
+// if the name does not match any signal.
+func (m *Message) GetSignalByName(name string) (Signal, error) {
+	id, err := m.signalNames.getValue(name)
+	if err != nil {
+		return nil, m.errorf(&NameError{Err: err})
+	}
+
+	sig, err := m.signals.getValue(id)
+	if err != nil {
+		panic(err)
+	}
+
+	return sig, nil
+}
+
 // SignalNames returns a slice of all signal names in the [Message].
 func (m *Message) SignalNames() []string {
 	return m.signalNames.getKeys()

@@ -189,7 +189,7 @@ BO_ 1026 SB_REAR_analog: 6 SB_REAR
 	SG_ BRAKE_PRESS_REAR_voltage : 32|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
 
 BO_ 255 DASH_lvRelayOverride: 2 DASH
-	SG_ BMS_LV_diagPWD : 0|15@1+ (1,0) [0|65535] "" BMS_LV
+	SG_ BMS_LV_diagPWD : 0|15@1+ (1,0) [0|32768] "" BMS_LV
 	SG_ LV_RELAY_forcedState : 15|1@1+ (1,0) [0|1] "closed" BMS_LV 
 
 BO_ 1300 DASH_appsRangeLimits: 8 DASH

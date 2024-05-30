@@ -1,6 +1,9 @@
 package acmelib
 
-import "strings"
+import (
+	"math"
+	"strings"
+)
 
 const maxSize = 64
 
@@ -23,6 +26,10 @@ func calcValueFromSize(size int) int {
 		return 1
 	}
 	return 1 << size
+}
+
+func isDecimal(val float64) bool {
+	return math.Mod(val, 1.0) != 0
 }
 
 func clearSpaces(str string) string {

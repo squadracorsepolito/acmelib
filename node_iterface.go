@@ -182,6 +182,24 @@ func (ni *NodeInterface) RemoveAllMessages() {
 	ni.messageIDs.clear()
 }
 
+// GetMessageByName returns the [Message] with the given name.
+//
+// It returns an [ErrNotFound] wrapped by a [NameError]
+// if the name does not match any message.
+func (ni *NodeInterface) GetMessageByName(name string) (*Message, error) {
+	id, err := ni.messageNames.getValue(name)
+	if err != nil {
+		return nil, ni.errorf(&NameError{Err: err})
+	}
+
+	msg, err := ni.messages.getValue(id)
+	if err != nil {
+		panic(err)
+	}
+
+	return msg, nil
+}
+
 // Messages returns a slice of messages sended by the [NodeInterface].
 func (ni *NodeInterface) Messages() []*Message {
 	msgSlice := ni.messages.getValues()

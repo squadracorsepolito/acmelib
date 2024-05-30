@@ -57,7 +57,7 @@ func newImporter() *importer {
 		messages: make(map[MessageID]*Message),
 		signals:  make(map[string]Signal),
 
-		flagSigType: NewFlagSignalType("flag"),
+		flagSigType: NewFlagSignalType("flag_t"),
 		signalTypes: make(map[string]*SignalType),
 
 		signalUnits: make(map[string]*SignalUnit),
@@ -717,9 +717,19 @@ func (i *importer) importSignalType(dbcSig *dbc.Signal) (*SignalType, error) {
 		return sigType, nil
 	}
 
-	sigType, err := NewIntegerSignalType(sigTypeKey, sigSize, signed)
-	if err != nil {
-		return nil, i.errorf(dbcSig, err)
+	sigType := new(SignalType)
+	if isDecimal(dbcSig.Factor) || isDecimal(dbcSig.Max) || isDecimal(dbcSig.Min) || isDecimal(dbcSig.Offset) {
+		decSigType, err := NewDecimalSignalType(sigTypeKey, sigSize, signed)
+		if err != nil {
+			return nil, i.errorf(dbcSig, err)
+		}
+		sigType = decSigType
+	} else {
+		intSigType, err := NewIntegerSignalType(sigTypeKey, sigSize, signed)
+		if err != nil {
+			return nil, i.errorf(dbcSig, err)
+		}
+		sigType = intSigType
 	}
 
 	sigType.SetMin(dbcSig.Min)

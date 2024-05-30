@@ -3,10 +3,12 @@ package acmelib
 import (
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 
 	md "github.com/nao1215/markdown"
+	"golang.org/x/exp/maps"
 )
 
 // ExportToMarkdown exports the given [Network] to a markdown document.
@@ -22,6 +24,9 @@ type mdExporter struct {
 	w *md.Markdown
 
 	sigTableRow []string
+
+	sigTypes map[EntityID]*SignalType
+	sigUnits map[EntityID]*SignalUnit
 }
 
 func newMDExporter(mdWriter *md.Markdown) *mdExporter {
@@ -29,11 +34,15 @@ func newMDExporter(mdWriter *md.Markdown) *mdExporter {
 		w: mdWriter,
 
 		sigTableRow: []string{},
+
+		sigTypes: make(map[EntityID]*SignalType),
+		sigUnits: make(map[EntityID]*SignalUnit),
 	}
 }
 
 func (e *mdExporter) getHeaderLink(headerName string) string {
 	linkStr := "#" + strings.ReplaceAll(strings.ToLower(headerName), " ", "-")
+	linkStr = strings.ReplaceAll(linkStr, "`", "")
 	return md.Link(headerName, linkStr)
 }
 
@@ -52,6 +61,14 @@ func (e *mdExporter) exportNetwork(net *Network) {
 	for _, bus := range net.Buses() {
 		e.exportBus(bus)
 	}
+
+	sigTypes := maps.Values(e.sigTypes)
+	slices.SortFunc(sigTypes, func(a, b *SignalType) int { return a.size - b.size })
+	e.exportSignalTypes(sigTypes)
+
+	sigUnits := maps.Values(e.sigUnits)
+	slices.SortFunc(sigUnits, func(a, b *SignalUnit) int { return strings.Compare(a.name, b.name) })
+	e.exportSignalUnits(sigUnits)
 }
 
 func (e *mdExporter) exportTOC(net *Network) {
@@ -64,6 +81,9 @@ func (e *mdExporter) exportTOC(net *Network) {
 			}
 		}
 	}
+
+	e.w.BulletList(e.getHeaderLink("Signal Types"))
+	e.w.BulletList(e.getHeaderLink("Signal Units"))
 }
 
 func (e *mdExporter) exportBus(bus *Bus) {
@@ -134,7 +154,7 @@ func (e *mdExporter) exportMessage(msg *Message) {
 	e.w.PlainText(recStr).LF()
 
 	sigTable := md.TableSet{
-		Header: []string{"Name", "Start Bit", "Size", "Min", "Max", "Offset", "Scale", "Unit", "Description"},
+		Header: []string{"Name", "Start Bit", "Size", "Type", "Min", "Max", "Offset", "Scale", "Unit", "Description"},
 		Rows:   [][]string{},
 	}
 	for _, sig := range msg.Signals() {
@@ -183,6 +203,10 @@ func (e *mdExporter) exportSignal(sig Signal) {
 }
 
 func (e *mdExporter) exportStandardSignal(stdSig *StandardSignal) {
+	sigType := stdSig.typ
+	e.sigTypes[sigType.entityID] = sigType
+	e.sigTableRow = append(e.sigTableRow, md.Link(md.Code(sigType.name), "#signal-types"))
+
 	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.typ.min))
 
 	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.typ.max))
@@ -193,7 +217,9 @@ func (e *mdExporter) exportStandardSignal(stdSig *StandardSignal) {
 
 	unitSymbol := "-"
 	if stdSig.unit != nil {
-		unitSymbol = stdSig.unit.symbol
+		sigUnit := stdSig.unit
+		unitSymbol = md.Link(md.Code(sigUnit.symbol), "#signal-units")
+		e.sigUnits[sigUnit.entityID] = sigUnit
 	}
 	e.sigTableRow = append(e.sigTableRow, unitSymbol)
 }
@@ -202,6 +228,8 @@ func (e *mdExporter) exportEnumSignal(enumSig *EnumSignal) {
 	e.sigTableRow = append(e.sigTableRow, "0")
 
 	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%d", enumSig.GetSize()))
+
+	e.sigTableRow = append(e.sigTableRow, "-")
 
 	e.sigTableRow = append(e.sigTableRow, "0")
 
@@ -220,4 +248,53 @@ func (e *mdExporter) exportMultiplexerSignal(_ *MultiplexerSignal) {
 	e.sigTableRow = append(e.sigTableRow, "-")
 
 	e.sigTableRow = append(e.sigTableRow, "-")
+
+	e.sigTableRow = append(e.sigTableRow, "-")
+}
+
+func (e *mdExporter) exportSignalTypes(sigTypes []*SignalType) {
+	e.w.H2("Signal Types")
+	e.w.PlainText("The list of all the signal types used in the network.").LF()
+
+	sigTypeTable := md.TableSet{
+		Header: []string{"Name", "Kind", "Size", "Signed", "Min", "Max", "Scale", "Offset", "Description"},
+		Rows:   [][]string{},
+	}
+	for _, tmpSigType := range sigTypes {
+		desc := "-"
+		if len(tmpSigType.desc) > 0 {
+			desc = tmpSigType.desc
+		}
+
+		sizeStr := fmt.Sprintf("%d", tmpSigType.size)
+		signedStr := fmt.Sprintf("%t", tmpSigType.signed)
+		minStr := fmt.Sprintf("%g", tmpSigType.min)
+		maxStr := fmt.Sprintf("%g", tmpSigType.max)
+		scaleStr := fmt.Sprintf("%g", tmpSigType.scale)
+		offsetStr := fmt.Sprintf("%g", tmpSigType.offset)
+
+		row := []string{tmpSigType.name, md.Code(tmpSigType.kind.String()), sizeStr, md.Code(signedStr), minStr, maxStr, scaleStr, offsetStr, desc}
+		sigTypeTable.Rows = append(sigTypeTable.Rows, row)
+	}
+	e.w.CustomTable(sigTypeTable, md.TableOptions{AutoWrapText: false, AutoFormatHeaders: false})
+}
+
+func (e *mdExporter) exportSignalUnits(sigUnits []*SignalUnit) {
+	e.w.H2("Signal Units")
+	e.w.PlainText("The list of all the signal units used in the network.").LF()
+
+	sigUnitTable := md.TableSet{
+		Header: []string{"Name", "Kind", "Symbol", "Description"},
+		Rows:   [][]string{},
+	}
+	for _, tmpSigUnit := range sigUnits {
+		desc := "-"
+		if len(tmpSigUnit.desc) > 0 {
+			desc = tmpSigUnit.desc
+		}
+
+		row := []string{tmpSigUnit.name, tmpSigUnit.kind.String(), tmpSigUnit.symbol, desc}
+		sigUnitTable.Rows = append(sigUnitTable.Rows, row)
+	}
+	e.w.CustomTable(sigUnitTable, md.TableOptions{AutoWrapText: false, AutoFormatHeaders: false})
 }

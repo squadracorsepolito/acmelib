@@ -116,12 +116,12 @@ func NewIntegerSignalType(name string, size int, signed bool) (*SignalType, erro
 }
 
 // NewDecimalSignalType creates a new [SignalType] of kind [SignalTypeKindDecimal]
-// with the given name and size.
+// with the given name, size and signed.
 // It may return an error if the size is negative.
-func NewDecimalSignalType(name string, size int) (*SignalType, error) {
+func NewDecimalSignalType(name string, size int, signed bool) (*SignalType, error) {
 	min := (1<<size - 1) - 1
 	max := -(1<<size - 1)
-	return newSignalType(name, SignalTypeKindDecimal, size, true, float64(min), float64(max), 1, 0)
+	return newSignalType(name, SignalTypeKindDecimal, size, signed, float64(min), float64(max), 1, 0)
 }
 
 func (st *SignalType) stringify(b *strings.Builder, tabs int) {
@@ -142,6 +142,11 @@ func (st *SignalType) String() string {
 	builder := new(strings.Builder)
 	st.stringify(builder, 0)
 	return builder.String()
+}
+
+// SetName sets the [SignalType] name to the given one.
+func (st *SignalType) SetName(name string) {
+	st.name = name
 }
 
 // Kind returns the kind of the [SignalType].
