@@ -23,20 +23,18 @@ func ExportToMarkdown(network *Network, w io.Writer) error {
 type mdExporter struct {
 	w *md.Markdown
 
-	sigTableRow []string
-
 	sigTypes map[EntityID]*SignalType
 	sigUnits map[EntityID]*SignalUnit
+	sigEnums map[EntityID]*SignalEnum
 }
 
 func newMDExporter(mdWriter *md.Markdown) *mdExporter {
 	return &mdExporter{
 		w: mdWriter,
 
-		sigTableRow: []string{},
-
 		sigTypes: make(map[EntityID]*SignalType),
 		sigUnits: make(map[EntityID]*SignalUnit),
+		sigEnums: make(map[EntityID]*SignalEnum),
 	}
 }
 
@@ -69,6 +67,14 @@ func (e *mdExporter) exportNetwork(net *Network) {
 	sigUnits := maps.Values(e.sigUnits)
 	slices.SortFunc(sigUnits, func(a, b *SignalUnit) int { return strings.Compare(a.name, b.name) })
 	e.exportSignalUnits(sigUnits)
+
+	sigEnums := maps.Values(e.sigEnums)
+	slices.SortFunc(sigEnums, func(a, b *SignalEnum) int { return strings.Compare(a.name, b.name) })
+	e.w.H2("Signal Enums")
+	e.w.PlainText("The list of all the signal enums used in the network.").LF()
+	for _, tmpSigEnum := range sigEnums {
+		e.exportSignalEnum(tmpSigEnum)
+	}
 }
 
 func (e *mdExporter) exportTOC(net *Network) {
@@ -84,6 +90,7 @@ func (e *mdExporter) exportTOC(net *Network) {
 
 	e.w.BulletList(e.getHeaderLink("Signal Types"))
 	e.w.BulletList(e.getHeaderLink("Signal Units"))
+	e.w.BulletList(e.getHeaderLink("Signal Enums"))
 }
 
 func (e *mdExporter) exportBus(bus *Bus) {
@@ -154,23 +161,24 @@ func (e *mdExporter) exportMessage(msg *Message) {
 	e.w.PlainText(recStr).LF()
 
 	sigTable := md.TableSet{
-		Header: []string{"Name", "Start Bit", "Size", "Type", "Min", "Max", "Offset", "Scale", "Unit", "Description"},
+		Header: []string{"Name", "Start Bit", "Size", "Type", "Min", "Max", "Unit", "Description"},
 		Rows:   [][]string{},
 	}
 	for _, sig := range msg.Signals() {
-		e.exportSignal(sig)
-		sigTable.Rows = append(sigTable.Rows, e.sigTableRow)
-		e.sigTableRow = []string{}
+		sigRows := e.exportSignal(sig)
+		for _, tmpSigRow := range sigRows {
+			sigTable.Rows = append(sigTable.Rows, tmpSigRow)
+		}
 	}
 	e.w.CustomTable(sigTable, md.TableOptions{AutoWrapText: false, AutoFormatHeaders: false})
 }
 
-func (e *mdExporter) exportSignal(sig Signal) {
-	e.sigTableRow = append(e.sigTableRow, sig.Name())
+func (e *mdExporter) exportSignal(sig Signal) (resRows [][]string) {
+	sigRow := []string{}
 
-	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%d", sig.GetStartBit()))
-
-	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%d", sig.GetSize()))
+	sigRow = append(sigRow, sig.Name())
+	sigRow = append(sigRow, fmt.Sprintf("%d", sig.GetStartBit()))
+	sigRow = append(sigRow, fmt.Sprintf("%d", sig.GetSize()))
 
 	switch sig.Kind() {
 	case SignalKindStandard:
@@ -178,42 +186,38 @@ func (e *mdExporter) exportSignal(sig Signal) {
 		if err != nil {
 			panic(err)
 		}
-		e.exportStandardSignal(stdSig)
+		sigRow = append(sigRow, e.exportStandardSignal(stdSig)...)
+		resRows = append(resRows, sigRow)
 
 	case SignalKindEnum:
 		enumSig, err := sig.ToEnum()
 		if err != nil {
 			panic(err)
 		}
-		e.exportEnumSignal(enumSig)
+		sigRow = append(sigRow, e.exportEnumSignal(enumSig)...)
+		resRows = append(resRows, sigRow)
 
 	case SignalKindMultiplexer:
 		muxSig, err := sig.ToMultiplexer()
 		if err != nil {
 			panic(err)
 		}
-		e.exportMultiplexerSignal(muxSig)
+		muxSigRows := e.exportMultiplexerSignal(muxSig)
+		for _, tmpRow := range muxSigRows {
+			resRows = append(resRows, tmpRow)
+		}
 	}
 
-	desc := sig.Desc()
-	if len(desc) == 0 {
-		desc = "-"
-	}
-	e.sigTableRow = append(e.sigTableRow, desc)
+	return resRows
 }
 
-func (e *mdExporter) exportStandardSignal(stdSig *StandardSignal) {
+func (e *mdExporter) exportStandardSignal(stdSig *StandardSignal) (resRow []string) {
 	sigType := stdSig.typ
 	e.sigTypes[sigType.entityID] = sigType
-	e.sigTableRow = append(e.sigTableRow, md.Link(md.Code(sigType.name), "#signal-types"))
+	resRow = append(resRow, md.Link(md.Code(sigType.name), "#signal-types"))
 
-	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.typ.min))
-
-	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.typ.max))
-
-	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.typ.offset))
-
-	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%g", stdSig.typ.scale))
+	resRow = append(resRow, fmt.Sprintf("%g", stdSig.typ.min))
+	resRow = append(resRow, fmt.Sprintf("%g", stdSig.typ.max))
 
 	unitSymbol := "-"
 	if stdSig.unit != nil {
@@ -221,35 +225,64 @@ func (e *mdExporter) exportStandardSignal(stdSig *StandardSignal) {
 		unitSymbol = md.Link(md.Code(sigUnit.symbol), "#signal-units")
 		e.sigUnits[sigUnit.entityID] = sigUnit
 	}
-	e.sigTableRow = append(e.sigTableRow, unitSymbol)
+	resRow = append(resRow, unitSymbol)
+
+	desc := stdSig.desc
+	if len(desc) == 0 {
+		desc = "-"
+	}
+	resRow = append(resRow, desc)
+
+	return resRow
 }
 
-func (e *mdExporter) exportEnumSignal(enumSig *EnumSignal) {
-	e.sigTableRow = append(e.sigTableRow, "0")
+func (e *mdExporter) exportEnumSignal(enumSig *EnumSignal) (resRow []string) {
+	sigEnum := enumSig.enum
+	e.sigEnums[sigEnum.entityID] = sigEnum
+	resRow = append(resRow, e.getHeaderLink(sigEnum.name))
 
-	e.sigTableRow = append(e.sigTableRow, fmt.Sprintf("%d", enumSig.GetSize()))
+	resRow = append(resRow, "0")
+	resRow = append(resRow, fmt.Sprintf("%d", sigEnum.maxIndex))
+	resRow = append(resRow, "-")
 
-	e.sigTableRow = append(e.sigTableRow, "-")
+	desc := enumSig.desc
+	if len(desc) == 0 {
+		desc = "-"
+	}
+	resRow = append(resRow, desc)
 
-	e.sigTableRow = append(e.sigTableRow, "0")
-
-	e.sigTableRow = append(e.sigTableRow, "1")
-
-	e.sigTableRow = append(e.sigTableRow, "-")
+	return resRow
 }
 
-func (e *mdExporter) exportMultiplexerSignal(_ *MultiplexerSignal) {
-	e.sigTableRow = append(e.sigTableRow, "-")
+func (e *mdExporter) exportMultiplexerSignal(muxSig *MultiplexerSignal) (resRows [][]string) {
+	muxSigRow := []string{}
+	muxSigRow = append(muxSigRow, md.Code("multiplexer"))
 
-	e.sigTableRow = append(e.sigTableRow, "-")
+	muxSigRow = append(muxSigRow, "0")
+	muxSigRow = append(muxSigRow, fmt.Sprintf("%d", muxSig.groupCount))
+	muxSigRow = append(muxSigRow, "-")
 
-	e.sigTableRow = append(e.sigTableRow, "-")
+	desc := muxSig.desc
+	if len(desc) == 0 {
+		desc = "-"
+	}
+	muxSigRow = append(muxSigRow, desc)
 
-	e.sigTableRow = append(e.sigTableRow, "-")
+	resRows = append(resRows, muxSigRow)
 
-	e.sigTableRow = append(e.sigTableRow, "-")
+	for groupID, group := range muxSig.GetSignalGroups() {
+		tmpCol := fmt.Sprintf("- %d -", groupID)
+		resRows = append(resRows, []string{tmpCol, tmpCol, tmpCol, tmpCol, tmpCol, tmpCol, tmpCol, tmpCol})
 
-	e.sigTableRow = append(e.sigTableRow, "-")
+		for _, tmpSig := range group {
+			sigRows := e.exportSignal(tmpSig)
+			for _, tmpSigRow := range sigRows {
+				resRows = append(resRows, tmpSigRow)
+			}
+		}
+	}
+
+	return resRows
 }
 
 func (e *mdExporter) exportSignalTypes(sigTypes []*SignalType) {
@@ -257,7 +290,7 @@ func (e *mdExporter) exportSignalTypes(sigTypes []*SignalType) {
 	e.w.PlainText("The list of all the signal types used in the network.").LF()
 
 	sigTypeTable := md.TableSet{
-		Header: []string{"Name", "Kind", "Size", "Signed", "Min", "Max", "Scale", "Offset", "Description"},
+		Header: []string{"Name", "Size", "Kind", "Signed", "Min", "Max", "Scale", "Offset", "Description"},
 		Rows:   [][]string{},
 	}
 	for _, tmpSigType := range sigTypes {
@@ -273,7 +306,7 @@ func (e *mdExporter) exportSignalTypes(sigTypes []*SignalType) {
 		scaleStr := fmt.Sprintf("%g", tmpSigType.scale)
 		offsetStr := fmt.Sprintf("%g", tmpSigType.offset)
 
-		row := []string{tmpSigType.name, md.Code(tmpSigType.kind.String()), sizeStr, md.Code(signedStr), minStr, maxStr, scaleStr, offsetStr, desc}
+		row := []string{tmpSigType.name, sizeStr, md.Code(tmpSigType.kind.String()), md.Code(signedStr), minStr, maxStr, scaleStr, offsetStr, desc}
 		sigTypeTable.Rows = append(sigTypeTable.Rows, row)
 	}
 	e.w.CustomTable(sigTypeTable, md.TableOptions{AutoWrapText: false, AutoFormatHeaders: false})
@@ -297,4 +330,28 @@ func (e *mdExporter) exportSignalUnits(sigUnits []*SignalUnit) {
 		sigUnitTable.Rows = append(sigUnitTable.Rows, row)
 	}
 	e.w.CustomTable(sigUnitTable, md.TableOptions{AutoWrapText: false, AutoFormatHeaders: false})
+}
+
+func (e *mdExporter) exportSignalEnum(sigEnum *SignalEnum) {
+	e.w.HorizontalRule()
+	e.w.H4(sigEnum.name)
+
+	if len(sigEnum.desc) > 0 {
+		e.w.PlainText(sigEnum.desc).LF()
+		e.w.HorizontalRule()
+	}
+
+	valueTable := md.TableSet{
+		Header: []string{"Name", "Index", "Description"},
+		Rows:   [][]string{},
+	}
+	for _, tmpVal := range sigEnum.Values() {
+		desc := "-"
+		if len(tmpVal.desc) > 0 {
+			desc = tmpVal.desc
+		}
+		row := []string{tmpVal.name, fmt.Sprintf("%d", tmpVal.index), desc}
+		valueTable.Rows = append(valueTable.Rows, row)
+	}
+	e.w.CustomTable(valueTable, md.TableOptions{AutoWrapText: false, AutoFormatHeaders: false})
 }
