@@ -32,7 +32,7 @@ NS_ :
 
 BS_ :
 
-BU_ : BMS_LV DASH DSPACE SB_FRONT SB_REAR TLB_BAT SCANNER
+BU_ : DIAG_TOOL BMS_LV DASH DSPACE SB_FRONT SB_REAR TLB_BAT SCANNER
 
 BO_ 20 BMS_LV_hello: 3 BMS_LV
 	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
@@ -288,6 +288,7 @@ BO_ 19999 OLD_TLB_Battery_TSALStatus: 3 TLB_BAT
 
 
 
+CM_ BU_ DIAG_TOOL "The diagnostic tool connected through the CSC.";
 CM_ BU_ BMS_LV "The battery-management-system low-voltage.";
 CM_ BU_ DASH "The dashboard ECU.";
 CM_ BU_ DSPACE "An automotive ECU.";

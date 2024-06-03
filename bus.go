@@ -32,7 +32,8 @@ type Bus struct {
 
 	parentNetwork *Network
 
-	canIDBuilder *CANIDBuilder
+	canIDBuilder      *CANIDBuilder
+	isDefCANIDBuilder bool
 
 	nodeInts  *set[EntityID, *NodeInterface]
 	nodeNames *set[string, EntityID]
@@ -51,7 +52,8 @@ func NewBus(name string) *Bus {
 
 		parentNetwork: nil,
 
-		canIDBuilder: defaulCANIDBuilder,
+		canIDBuilder:      defaulCANIDBuilder,
+		isDefCANIDBuilder: true,
 
 		nodeInts:  newSet[EntityID, *NodeInterface](),
 		nodeNames: newSet[string, EntityID](),
@@ -273,6 +275,7 @@ func (b *Bus) SetCANIDBuilder(canIDBuilder *CANIDBuilder) {
 		b.canIDBuilder.removeRef(b.entityID)
 	}
 	b.canIDBuilder = canIDBuilder
+	b.isDefCANIDBuilder = false
 }
 
 // CANIDBuilder returns the [CANIDBuilder] of the [Bus].

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -76,6 +77,34 @@ func main() {
 	modifySignalTypeName(dspaceInt, "DSPACE_datetime", "DATETIME_hours", "hours_t")
 	modifySignalTypeName(dspaceInt, "DSPACE_datetime", "DATETIME_minutes", "minutes_t")
 	modifySignalTypeName(dspaceInt, "DSPACE_rtdACK", "RTD_FSM_STATE", "rtd_fsm_t")
+
+	// adding xpc tx/rx
+
+	expMsgID := acmelib.MessageID(10)
+	for _, nodeInt := range mcb.NodeInterfaces() {
+		nodeName := nodeInt.Node().Name()
+
+		msgName := fmt.Sprintf("%s_xcp", nodeName)
+		tmpMsg := acmelib.NewMessage(msgName, expMsgID, 8)
+		checkErr(nodeInt.AddMessage(tmpMsg))
+
+		msgDesc := ""
+		if nodeInt.Node().ID() == 0 {
+			for idx, rec := range mcb.NodeInterfaces() {
+				if idx == 0 {
+					continue
+				}
+				tmpMsg.AddReceiver(rec)
+			}
+
+			msgDesc = "The message used to flash a board."
+		} else {
+			tmpMsg.AddReceiver(mcb.NodeInterfaces()[0])
+			msgDesc = "The message used to notify a board is flashed."
+		}
+
+		tmpMsg.SetDesc(msgDesc)
+	}
 
 	// calculte bus load
 	mcb.SetBaudrate(1_000_000)

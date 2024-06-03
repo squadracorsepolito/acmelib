@@ -32,13 +32,15 @@ message Signal {
 
     SignalKind kind = 2;
     SignalSendType send_type = 3;
-    double start_value = 4;
+    int64 start_value = 4;
 
     oneof signal {
         StandardSignal standard = 5;
         EnumSignal enum = 6;
         MultiplexerSignal multiplexer = 7;
     }
+    
+    repeated acmelib.v1.AttributeAssignment attribute_assignments = 8;
 }
 
 message StandardSignal {
@@ -68,7 +70,5 @@ message MultiplexerSignal {
     uint32 group_size = 4;
 
     repeated acmelib.v1.SignalPayload groups = 5;
-    
-    repeated acmelib.v1.AttributeAssignment attribute_assignments = 6;
 }
 
