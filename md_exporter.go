@@ -137,7 +137,12 @@ func (e *mdExporter) exportMessage(msg *Message) {
 		e.w.HorizontalRule()
 	}
 
-	e.w.PlainTextf("CAN-ID: %s", md.Bold(fmt.Sprintf("%d", msg.id))).LF()
+	if msg.hasStaticCANID {
+		e.w.PlainTextf("CAN-ID: %s (static)", md.Bold(fmt.Sprintf("%d", msg.staticCANID))).LF()
+	} else {
+		e.w.PlainTextf("Message ID: %s", md.Bold(fmt.Sprintf("%d", msg.id))).LF()
+		e.w.PlainTextf("CAN-ID: %s (generated)", md.Bold(fmt.Sprintf("%d", msg.GetCANID()))).LF()
+	}
 	e.w.PlainTextf("Size: %s bytes", md.Bold(fmt.Sprintf("%d", msg.sizeByte))).LF()
 	e.w.PlainTextf("Byte Order: %s", md.Bold(msg.byteOrder.String())).LF()
 
@@ -159,6 +164,10 @@ func (e *mdExporter) exportMessage(msg *Message) {
 		recStr += fmt.Sprintf(", %s", recLink)
 	}
 	e.w.PlainText(recStr).LF()
+
+	if len(msg.Signals()) == 0 {
+		return
+	}
 
 	sigTable := md.TableSet{
 		Header: []string{"Name", "Start Bit", "Size", "Type", "Min", "Max", "Unit", "Description"},

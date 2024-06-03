@@ -100,7 +100,7 @@ func main() {
 			msgDesc = "The message used to flash a board."
 		} else {
 			tmpMsg.AddReceiver(mcb.NodeInterfaces()[0])
-			msgDesc = "The message used to notify a board is flashed."
+			msgDesc = "The message used to notify the diagnostic tool that the board is flashed."
 		}
 
 		tmpMsg.SetDesc(msgDesc)
