@@ -79,7 +79,6 @@ func main() {
 	modifySignalTypeName(dspaceInt, "DSPACE_rtdACK", "RTD_FSM_STATE", "rtd_fsm_t")
 
 	// adding xpc tx/rx
-
 	expMsgID := acmelib.MessageID(10)
 	for _, nodeInt := range mcb.NodeInterfaces() {
 		nodeName := nodeInt.Node().Name()

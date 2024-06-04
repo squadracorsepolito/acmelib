@@ -1,9 +1,93 @@
 package acmelib
 
 import (
+	"io"
+
 	acmelibv1 "github.com/squadracorsepolito/acmelib/proto/gen/go/acmelib/v1"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/encoding/prototext"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+// SaveEncoding defines the encoding used to save a [Network].
+type SaveEncoding uint
+
+const (
+	// SaveEncodingWire defines a wire encoding.
+	SaveEncodingWire SaveEncoding = 1 << iota
+	// SaveEncodingJSON defines a JSON encoding.
+	SaveEncodingJSON
+	// SaveEncodingText defines a text encoding.
+	SaveEncodingText
+)
+
+// SaveNetwork saves the given [Network] to the [io.Writer] specified
+// by the encoding. It is possible to select more than one encoding by
+// using the "|" operator.
+//
+// It returns an [ArgumentError] that wraps an [ErrIsNil] if the selected
+// writer is nil, or a proto/protojson/prototext error if marshal function fails.
+func SaveNetwork(network *Network, encoding SaveEncoding, wWire, wJSON, wText io.Writer) error {
+	saver := newSaver()
+	protoNet := saver.saveNetwork(network)
+
+	if encoding&SaveEncodingWire == SaveEncodingWire {
+		if wWire == nil {
+			return &ArgumentError{
+				Name: "wWire",
+				Err:  ErrIsNil,
+			}
+		}
+
+		data, err := proto.Marshal(protoNet)
+		if err != nil {
+			return err
+		}
+		_, err = wWire.Write(data)
+		if err != nil {
+			return err
+		}
+	}
+
+	if encoding&SaveEncodingJSON == SaveEncodingJSON {
+		if wJSON == nil {
+			return &ArgumentError{
+				Name: "wJSON",
+				Err:  ErrIsNil,
+			}
+		}
+
+		data, err := protojson.MarshalOptions{Multiline: true}.Marshal(protoNet)
+		if err != nil {
+			return err
+		}
+		_, err = wJSON.Write(data)
+		if err != nil {
+			return err
+		}
+	}
+
+	if encoding&SaveEncodingText == SaveEncodingText {
+		if wText == nil {
+			return &ArgumentError{
+				Name: "wText",
+				Err:  ErrIsNil,
+			}
+		}
+
+		data, err := prototext.MarshalOptions{Multiline: true}.Marshal(protoNet)
+		if err != nil {
+			return err
+		}
+		_, err = wText.Write(data)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 type saver struct {
 	refCANIDBuilders map[EntityID]*CANIDBuilder
@@ -93,6 +177,14 @@ func (s *saver) saveNetwork(net *Network) *acmelibv1.Network {
 		pNet.SignalUnits = append(pNet.SignalUnits, s.saveSignalUnit(sigUnit))
 	}
 
+	for _, sigEnum := range s.refSigEnums {
+		pNet.SignalEnums = append(pNet.SignalEnums, s.saveSignalEnum(sigEnum))
+	}
+
+	for _, att := range s.refAttributes {
+		pNet.Attributes = append(pNet.Attributes, s.saveAttribute(att))
+	}
+
 	return pNet
 }
 
@@ -115,7 +207,7 @@ func (s *saver) saveAttributeAssignments(attAss []*AttributeAssignment) []*acmel
 			}
 		case AttributeTypeInteger:
 			pTmpAttAss.Value = &acmelibv1.AttributeAssignment_ValueInt{
-				ValueInt: tmpAttAss.value.(int32),
+				ValueInt: int32(tmpAttAss.value.(int)),
 			}
 		case AttributeTypeFloat:
 			pTmpAttAss.Value = &acmelibv1.AttributeAssignment_ValueDouble{
@@ -367,16 +459,23 @@ func (s *saver) saveSignal(sig Signal) *acmelibv1.Signal {
 		if err != nil {
 			panic(err)
 		}
-		s.saveEnumSignal(enumSig)
+
 		pKind = acmelibv1.SignalKind_SIGNAL_KIND_ENUM
+		pSig.Entity = s.saveEntity(enumSig.entity)
+		pSig.Signal = &acmelibv1.Signal_Enum{
+			Enum: s.saveEnumSignal(enumSig),
+		}
 
 	case SignalKindMultiplexer:
 		muxSig, err := sig.ToMultiplexer()
 		if err != nil {
 			panic(err)
 		}
-		s.saveMultiplexerSignal(muxSig)
 		pKind = acmelibv1.SignalKind_SIGNAL_KIND_MULTIPLEXER
+		pSig.Entity = s.saveEntity(muxSig.entity)
+		pSig.Signal = &acmelibv1.Signal_Multiplexer{
+			Multiplexer: s.saveMultiplexerSignal(muxSig),
+		}
 	}
 	pSig.Kind = pKind
 
@@ -420,12 +519,53 @@ func (s *saver) saveStandardSignal(stdSig *StandardSignal) *acmelibv1.StandardSi
 	return pStdSig
 }
 
-func (s *saver) saveEnumSignal(enumSig *EnumSignal) {
+func (s *saver) saveEnumSignal(enumSig *EnumSignal) *acmelibv1.EnumSignal {
+	pEnumSig := new(acmelibv1.EnumSignal)
 
+	if enumSig.enum.ReferenceCount() > 1 {
+		entID := enumSig.enum.entityID
+		pEnumSig.Enum = &acmelibv1.EnumSignal_EnumEntityId{
+			EnumEntityId: entID.String(),
+		}
+		s.refSigEnums[entID] = enumSig.enum
+
+		return pEnumSig
+	}
+
+	pEnumSig.Enum = &acmelibv1.EnumSignal_EmbeddedEnum{
+		EmbeddedEnum: s.saveSignalEnum(enumSig.enum),
+	}
+
+	return pEnumSig
 }
 
-func (s *saver) saveMultiplexerSignal(muxSig *MultiplexerSignal) {
+func (s *saver) saveMultiplexerSignal(muxSig *MultiplexerSignal) *acmelibv1.MultiplexerSignal {
+	pMuxSig := new(acmelibv1.MultiplexerSignal)
 
+	pMuxSig.GroupCount = uint32(muxSig.groupCount)
+	pMuxSig.GroupSize = uint32(muxSig.groupSize)
+
+	insFixedSignal := make(map[EntityID]bool)
+	for groupID, group := range muxSig.GetSignalGroups() {
+		for _, muxedSig := range group {
+			entID := muxedSig.EntityID()
+
+			if muxSig.fixedSignals.hasKey(entID) {
+				if _, ok := insFixedSignal[entID]; ok {
+					continue
+				}
+
+				insFixedSignal[entID] = true
+				pMuxSig.FixedSignalEntityIds = append(pMuxSig.FixedSignalEntityIds, entID.String())
+			}
+
+			pMuxSig.Signals = append(pMuxSig.Signals, s.saveSignal(muxedSig))
+		}
+
+		pMuxSig.Groups = append(pMuxSig.Groups, s.saveSignalPayload(muxSig.groups[groupID]))
+	}
+
+	return pMuxSig
 }
 
 func (s *saver) saveSignalType(sigType *SignalType) *acmelibv1.SignalType {
@@ -477,4 +617,124 @@ func (s *saver) saveSignalUnit(sigUnit *SignalUnit) *acmelibv1.SignalUnit {
 	pSigUnit.Symbol = sigUnit.symbol
 
 	return pSigUnit
+}
+
+func (s *saver) saveSignalEnum(sigEnum *SignalEnum) *acmelibv1.SignalEnum {
+	pSigEnum := new(acmelibv1.SignalEnum)
+
+	pSigEnum.Entity = s.saveEntity(sigEnum.entity)
+
+	for _, val := range sigEnum.Values() {
+		pSigEnum.Values = append(pSigEnum.Values, s.saveSignalENumValue(val))
+	}
+
+	if sigEnum.minSize != 0 {
+		pSigEnum.MinSize = uint32(sigEnum.minSize)
+	}
+
+	return pSigEnum
+}
+
+func (s *saver) saveSignalENumValue(val *SignalEnumValue) *acmelibv1.SignalEnumValue {
+	pVal := new(acmelibv1.SignalEnumValue)
+
+	pVal.Entity = s.saveEntity(val.entity)
+	pVal.Index = uint32(val.index)
+
+	return pVal
+}
+
+func (s *saver) saveAttribute(att Attribute) *acmelibv1.Attribute {
+	pAtt := new(acmelibv1.Attribute)
+
+	switch att.Type() {
+	case AttributeTypeString:
+		strAtt, err := att.ToString()
+		if err != nil {
+			panic(err)
+		}
+
+		pAtt.Type = acmelibv1.AttributeType_ATTRIBUTE_TYPE_STRING
+		pAtt.Entity = s.saveEntity(strAtt.entity)
+		pAtt.Attribute = &acmelibv1.Attribute_StringAttribute{
+			StringAttribute: s.saveStringAttribute(strAtt),
+		}
+
+	case AttributeTypeInteger:
+		intAtt, err := att.ToInteger()
+		if err != nil {
+			panic(err)
+		}
+
+		pAtt.Type = acmelibv1.AttributeType_ATTRIBUTE_TYPE_INTEGER
+		pAtt.Entity = s.saveEntity(intAtt.entity)
+		pAtt.Attribute = &acmelibv1.Attribute_IntegerAttribute{
+			IntegerAttribute: s.saveIntegerAttribute(intAtt),
+		}
+
+	case AttributeTypeFloat:
+		floatAtt, err := att.ToFloat()
+		if err != nil {
+			panic(err)
+		}
+
+		pAtt.Type = acmelibv1.AttributeType_ATTRIBUTE_TYPE_FLOAT
+		pAtt.Entity = s.saveEntity(floatAtt.entity)
+		pAtt.Attribute = &acmelibv1.Attribute_FloatAttribute{
+			FloatAttribute: s.saveFloatAttribute(floatAtt),
+		}
+
+	case AttributeTypeEnum:
+		enumAtt, err := att.ToEnum()
+		if err != nil {
+			panic(err)
+		}
+
+		pAtt.Type = acmelibv1.AttributeType_ATTRIBUTE_TYPE_ENUM
+		pAtt.Entity = s.saveEntity(enumAtt.entity)
+		pAtt.Attribute = &acmelibv1.Attribute_EnumAttribute{
+			EnumAttribute: s.saveEnumAttribute(enumAtt),
+		}
+	}
+
+	return pAtt
+}
+
+func (s *saver) saveStringAttribute(strAtt *StringAttribute) *acmelibv1.StringAttribute {
+	pStrAtt := new(acmelibv1.StringAttribute)
+	pStrAtt.DefValue = strAtt.defValue
+	return pStrAtt
+}
+
+func (s *saver) saveIntegerAttribute(intAtt *IntegerAttribute) *acmelibv1.IntegerAttribute {
+	pIntAtt := new(acmelibv1.IntegerAttribute)
+
+	pIntAtt.DefValue = int32(intAtt.defValue)
+	pIntAtt.Min = int32(intAtt.min)
+	pIntAtt.Max = int32(intAtt.max)
+	pIntAtt.IsHexFormat = intAtt.isHexFormat
+
+	return pIntAtt
+}
+
+func (s *saver) saveFloatAttribute(floatAtt *FloatAttribute) *acmelibv1.FloatAttribute {
+	pFloatAtt := new(acmelibv1.FloatAttribute)
+
+	pFloatAtt.DefValue = floatAtt.defValue
+	pFloatAtt.Min = floatAtt.min
+	pFloatAtt.Max = floatAtt.max
+
+	return pFloatAtt
+}
+
+func (s *saver) saveEnumAttribute(enumAtt *EnumAttribute) *acmelibv1.EnumAttribute {
+	pEnumAtt := new(acmelibv1.EnumAttribute)
+
+	pEnumAtt.DefValue = enumAtt.defValue
+
+	for _, val := range enumAtt.Values() {
+		pEnumAtt.Values = append(pEnumAtt.Values, val)
+	}
+
+	return pEnumAtt
 }
