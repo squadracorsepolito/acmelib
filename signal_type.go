@@ -48,7 +48,7 @@ type SignalType struct {
 	offset float64
 }
 
-func newSignalType(name string, kind SignalTypeKind, size int, signed bool, min, max, scale, offset float64) (*SignalType, error) {
+func newSignalTypeFromEntity(ent *entity, kind SignalTypeKind, size int, signed bool, min, max, scale, offset float64) (*SignalType, error) {
 	if size < 0 {
 		return nil, &ArgumentError{
 			Name: "size",
@@ -64,7 +64,7 @@ func newSignalType(name string, kind SignalTypeKind, size int, signed bool, min,
 	}
 
 	return &SignalType{
-		entity:   newEntity(name, EntityKindSignalType),
+		entity:   ent,
 		withRefs: newWithRefs[*StandardSignal](),
 
 		kind:   kind,
@@ -75,6 +75,10 @@ func newSignalType(name string, kind SignalTypeKind, size int, signed bool, min,
 		scale:  scale,
 		offset: offset,
 	}, nil
+}
+
+func newSignalType(name string, kind SignalTypeKind, size int, signed bool, min, max, scale, offset float64) (*SignalType, error) {
+	return newSignalTypeFromEntity(newEntity(name, EntityKindSignalType), kind, size, signed, min, max, scale, offset)
 }
 
 // NewCustomSignalType creates a new [SignalType] of kind [SignalTypeKindCustom]

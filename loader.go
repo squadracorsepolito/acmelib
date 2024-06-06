@@ -1,6 +1,8 @@
 package acmelib
 
-import acmelibv1 "github.com/squadracorsepolito/acmelib/proto/gen/go/acmelib/v1"
+import (
+	acmelibv1 "github.com/squadracorsepolito/acmelib/proto/gen/go/acmelib/v1"
+)
 
 type loader struct {
 	refNodes map[string]*Node
@@ -9,6 +11,16 @@ type loader struct {
 func newLoader() *loader {
 	return &loader{
 		refNodes: make(map[string]*Node),
+	}
+}
+
+func (l *loader) getEntity(pEnt *acmelibv1.Entity, entKind EntityKind) *entity {
+	return &entity{
+		entityID:   EntityID(pEnt.EntityId),
+		name:       pEnt.Name,
+		desc:       pEnt.Desc,
+		entityKind: entKind,
+		createTime: pEnt.CreateTime.AsTime(),
 	}
 }
 
@@ -85,28 +97,32 @@ func (l *loader) loadSignal(pSig *acmelibv1.Signal) (Signal, error) {
 }
 
 func (l *loader) loadStandardSignal(pSig *acmelibv1.Signal) (*StandardSignal, error) {
-	pStdSig := pSig.GetStandard()
+	// pStdSig := pSig.GetStandard()
 
 	return nil, nil
 }
 
 func (l *loader) loadSignalType(pSigType *acmelibv1.SignalType) (*SignalType, error) {
+	var kind SignalTypeKind
 	switch pSigType.Kind {
 	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_CUSTOM:
-		sigType, err := NewCustomSignalType(pSigType.Entity.Name, int(pSigType.Size), pSigType.Signed, pSigType.Min, pSigType.Max, pSigType.Scale, pSigType.Offset)
-		if err != nil {
-			return nil, err
-		}
-		if len(pSigType.Entity.Desc) > 0 {
-			sigType.SetDesc(pSigType.Entity.Desc)
-		}
+		kind = SignalTypeKindCustom
 
 	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_FLAG:
+		kind = SignalTypeKindFlag
 
 	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_INTEGER:
+		kind = SignalTypeKindInteger
 
 	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_DECIMAL:
+		kind = SignalTypeKindDecimal
 	}
 
-	return nil, nil
+	sigType, err := newSignalType("", kind, int(pSigType.Size), pSigType.Signed, pSigType.Min, pSigType.Max, pSigType.Scale, pSigType.Offset)
+	if err != nil {
+		return nil, err
+	}
+	sigType.entity = l.getEntity(pSigType.Entity, EntityKindSignalType)
+
+	return sigType, nil
 }
