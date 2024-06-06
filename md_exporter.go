@@ -137,12 +137,22 @@ func (e *mdExporter) exportMessage(msg *Message) {
 		e.w.HorizontalRule()
 	}
 
+	var canID CANID
+	prefixStr := "(static)"
 	if msg.hasStaticCANID {
-		e.w.PlainTextf("CAN-ID: %s (static)", md.Bold(fmt.Sprintf("%d", msg.staticCANID))).LF()
+		canID = msg.staticCANID
 	} else {
-		e.w.PlainTextf("Message ID: %s", md.Bold(fmt.Sprintf("%d", msg.id))).LF()
-		e.w.PlainTextf("CAN-ID: %s (generated)", md.Bold(fmt.Sprintf("%d", msg.GetCANID()))).LF()
+		canID = msg.GetCANID()
+		prefixStr = "(generated)"
 	}
+	decCANIDStr := fmt.Sprintf("%d", canID)
+	hexCANIIDStr := "0x" + strconv.FormatUint(uint64(canID), 16)
+	e.w.PlainTextf("CAN-ID %s: %s (dec), %s (hex)", prefixStr, md.Bold(decCANIDStr), md.Bold(hexCANIIDStr)).LF()
+
+	if !msg.hasStaticCANID {
+		e.w.PlainTextf("Message ID: %s", md.Bold(fmt.Sprintf("%d", msg.id))).LF()
+	}
+
 	e.w.PlainTextf("Size: %s bytes", md.Bold(fmt.Sprintf("%d", msg.sizeByte))).LF()
 	e.w.PlainTextf("Byte Order: %s", md.Bold(msg.byteOrder.String())).LF()
 
