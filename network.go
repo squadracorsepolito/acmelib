@@ -16,14 +16,18 @@ type Network struct {
 	busNames *set[string, EntityID]
 }
 
-// NewNetwork returns a new [Network] with the given name.
-func NewNetwork(name string) *Network {
+func newNetworkFromEntity(ent *entity) *Network {
 	return &Network{
-		entity: newEntity(name, EntityKindNetwork),
+		entity: ent,
 
 		buses:    newSet[EntityID, *Bus](),
 		busNames: newSet[string, EntityID](),
 	}
+}
+
+// NewNetwork returns a new [Network] with the given name.
+func NewNetwork(name string) *Network {
+	return newNetworkFromEntity(newEntity(name, EntityKindNetwork))
 }
 
 func (n *Network) errorf(err error) error {

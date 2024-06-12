@@ -144,7 +144,18 @@ func Test_SaveNetwork(t *testing.T) {
 	jsonBuf := new(bytes.Buffer)
 	textBuf := new(bytes.Buffer)
 
+	// wireBuf, err := os.Create("./testdata/expected.binpb")
+	// assert.NoError(err)
+	// jsonBuf, err := os.Create("./testdata/expected.json")
+	// assert.NoError(err)
+	// textBuf, err := os.Create("./testdata/expected.txtpb")
+	// assert.NoError(err)
+
 	assert.NoError(SaveNetwork(net, SaveEncodingWire|SaveEncodingJSON|SaveEncodingText, wireBuf, jsonBuf, textBuf))
+
+	// wireBuf.Close()
+	// jsonBuf.Close()
+	// textBuf.Close()
 
 	assert.Error(SaveNetwork(net, SaveEncodingWire, nil, jsonBuf, textBuf))
 	assert.Error(SaveNetwork(net, SaveEncodingWire|SaveEncodingJSON, wireBuf, nil, textBuf))

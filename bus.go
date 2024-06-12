@@ -43,11 +43,9 @@ type Bus struct {
 	typ      BusType
 }
 
-// NewBus creates a new [Bus] with the given name and description.
-// By default, the bus is set to be of type CAN 2.0A.
-func NewBus(name string) *Bus {
+func newBusFromEntity(ent *entity) *Bus {
 	return &Bus{
-		entity:         newEntity(name, EntityKindBus),
+		entity:         ent,
 		withAttributes: newWithAttributes(),
 
 		parentNetwork: nil,
@@ -62,6 +60,12 @@ func NewBus(name string) *Bus {
 		baudrate: 0,
 		typ:      BusTypeCAN2A,
 	}
+}
+
+// NewBus creates a new [Bus] with the given name and description.
+// By default, the bus is set to be of type CAN 2.0A.
+func NewBus(name string) *Bus {
+	return newBusFromEntity(newEntity(name, EntityKindBus))
 }
 
 func (b *Bus) hasParentNetwork() bool {
@@ -173,28 +177,22 @@ func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 		}
 	}
 
-	addNodeIntErr := &AddEntityError{
-		EntityID: nodeInterface.entityID,
-		Name:     nodeInterface.name,
-	}
-
 	node := nodeInterface.node
 
 	if err := b.verifyNodeName(node.name); err != nil {
-		addNodeIntErr.Err = err
-		return b.errorf(addNodeIntErr)
+		return b.errorf(err)
 	}
 
 	if err := b.verifyNodeID(node.id); err != nil {
-		addNodeIntErr.Err = err
-		return b.errorf(addNodeIntErr)
+		return b.errorf(err)
 	}
 
 	nodeInterface.parentBus = b
+	nodeEntID := node.entityID
 
-	b.nodeInts.add(nodeInterface.entityID, nodeInterface)
-	b.nodeNames.add(node.name, nodeInterface.entityID)
-	b.nodeIDs.add(node.id, nodeInterface.entityID)
+	b.nodeInts.add(nodeEntID, nodeInterface)
+	b.nodeNames.add(node.name, nodeEntID)
+	b.nodeIDs.add(node.id, nodeEntID)
 
 	return nil
 }

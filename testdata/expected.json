@@ -1,52 +1,47 @@
 {
   "entity": {
-    "entityId": "RzNmZg1lTd_PSPyZFEihd",
+    "entityId": "VzN_prL7X2PwVZzlk4Rv7",
     "entityKind": "ENTITY_KIND_NETWORK",
     "name": "net",
-    "createTime": "2024-06-04T09:46:21.652165200Z"
+    "createTime": "2024-06-11T16:10:24.995675100Z"
   },
   "buses": [
     {
       "entity": {
-        "entityId": "xEHSB1BgmlPPMq_AJojNr",
+        "entityId": "wBcgsZc3TF2nGZ54HDN5W",
         "entityKind": "ENTITY_KIND_BUS",
         "name": "bus_0",
         "desc": "bus0 description",
-        "createTime": "2024-06-04T09:46:21.652165200Z"
+        "createTime": "2024-06-11T16:10:24.995675100Z"
       },
       "nodeInterfaces": [
         {
-          "entity": {
-            "entityId": "7ycWix7-4H2VuXWvdz5eY",
-            "entityKind": "ENTITY_KIND_NODE_INTERFACE",
-            "name": "node_0/int0",
-            "createTime": "2024-06-04T09:46:21.652165200Z"
-          },
+          "nodeEntityId": "BwJj_JeXxc5s2xExjmN1O",
           "messages": [
             {
               "entity": {
-                "entityId": "TlqWW5Mbr1dZAE9M4l_EB",
+                "entityId": "AAeGEPg6K7m2PZZ8wdtlm",
                 "entityKind": "ENTITY_KIND_MESSAGE",
                 "name": "msg_0",
-                "createTime": "2024-06-04T09:46:21.652165200Z"
+                "createTime": "2024-06-11T16:10:24.995675100Z"
               },
               "signals": [
                 {
                   "entity": {
-                    "entityId": "hQCyVBaTRMWe5gj7R49-U",
+                    "entityId": "jp9iufBF0FlXZf-XRFjF-",
                     "entityKind": "ENTITY_KIND_SIGNAL",
                     "name": "std_sig_0",
-                    "createTime": "2024-06-04T09:46:21.652165200Z"
+                    "createTime": "2024-06-11T16:10:24.995675100Z"
                   },
                   "kind": "SIGNAL_KIND_STANDARD",
                   "standard": {
-                    "typeEntityId": "hmkVlwrc4JXsCwsh9vm_d",
+                    "typeEntityId": "IQIQtFb6iAI0vSPUDPlB4",
                     "embeddedUnit": {
                       "entity": {
-                        "entityId": "uZsTDbLcG6pHe_V7su3DY",
+                        "entityId": "fsnYfedEyHwG8Rz2roF7q",
                         "entityKind": "ENTITY_KIND_SIGNAL_UNIT",
                         "name": "deg_celsius",
-                        "createTime": "2024-06-04T09:46:21.652165200Z"
+                        "createTime": "2024-06-11T16:10:24.995675100Z"
                       },
                       "kind": "SIGNAL_UNIT_KIND_TEMPERATURE",
                       "symbol": "degC"
@@ -54,86 +49,86 @@
                   },
                   "attributeAssignments": [
                     {
-                      "entityId": "hQCyVBaTRMWe5gj7R49-U",
+                      "entityId": "jp9iufBF0FlXZf-XRFjF-",
                       "entityKind": "ENTITY_KIND_SIGNAL",
-                      "attributeEntityId": "a2JJeIoF1V8aVNCr-Q25y",
+                      "attributeEntityId": "5_mn9syreNdX8gWuALEYZ",
                       "valueString": "VALUE_1"
                     }
                   ]
                 },
                 {
                   "entity": {
-                    "entityId": "-I-ceY52xK356gVn4fmQY",
+                    "entityId": "h1iVcSWHZmoOvGKJ6WV-b",
                     "entityKind": "ENTITY_KIND_SIGNAL",
                     "name": "mux_sig_0",
-                    "createTime": "2024-06-04T09:46:21.652165200Z"
+                    "createTime": "2024-06-11T16:10:24.995675100Z"
                   },
                   "kind": "SIGNAL_KIND_MULTIPLEXER",
                   "multiplexer": {
                     "signals": [
                       {
                         "entity": {
-                          "entityId": "wggTYLd9MdYhXHeqrSE1F",
+                          "entityId": "cyrzIZXrRJJSOwxlxfYg6",
                           "entityKind": "ENTITY_KIND_SIGNAL",
                           "name": "fixed_sig",
-                          "createTime": "2024-06-04T09:46:21.652165200Z"
+                          "createTime": "2024-06-11T16:10:24.995675100Z"
                         },
                         "kind": "SIGNAL_KIND_STANDARD",
                         "standard": {
-                          "typeEntityId": "hmkVlwrc4JXsCwsh9vm_d"
+                          "typeEntityId": "IQIQtFb6iAI0vSPUDPlB4"
                         }
                       },
                       {
                         "entity": {
-                          "entityId": "FSvdthJM6nJ1fmNb0DAJ8",
+                          "entityId": "iPwVKnZCvrBBBdSchE54H",
                           "entityKind": "ENTITY_KIND_SIGNAL",
                           "name": "multi_group_sig_0",
-                          "createTime": "2024-06-04T09:46:21.652165200Z"
+                          "createTime": "2024-06-11T16:10:24.995675100Z"
                         },
                         "kind": "SIGNAL_KIND_STANDARD",
                         "standard": {
-                          "typeEntityId": "hmkVlwrc4JXsCwsh9vm_d"
+                          "typeEntityId": "IQIQtFb6iAI0vSPUDPlB4"
                         }
                       },
                       {
                         "entity": {
-                          "entityId": "PRv1jwR_KyQwqWuR9UFJX",
+                          "entityId": "p21Tb8wyTm9CvCzTpduCL",
                           "entityKind": "ENTITY_KIND_SIGNAL",
                           "name": "one_group_sig_0",
-                          "createTime": "2024-06-04T09:46:21.652165200Z"
+                          "createTime": "2024-06-11T16:10:24.995675100Z"
                         },
                         "kind": "SIGNAL_KIND_STANDARD",
                         "standard": {
-                          "typeEntityId": "hmkVlwrc4JXsCwsh9vm_d"
+                          "typeEntityId": "IQIQtFb6iAI0vSPUDPlB4"
                         }
                       },
                       {
                         "entity": {
-                          "entityId": "FSvdthJM6nJ1fmNb0DAJ8",
+                          "entityId": "iPwVKnZCvrBBBdSchE54H",
                           "entityKind": "ENTITY_KIND_SIGNAL",
                           "name": "multi_group_sig_0",
-                          "createTime": "2024-06-04T09:46:21.652165200Z"
+                          "createTime": "2024-06-11T16:10:24.995675100Z"
                         },
                         "kind": "SIGNAL_KIND_STANDARD",
                         "standard": {
-                          "typeEntityId": "hmkVlwrc4JXsCwsh9vm_d"
+                          "typeEntityId": "IQIQtFb6iAI0vSPUDPlB4"
                         }
                       },
                       {
                         "entity": {
-                          "entityId": "FSvdthJM6nJ1fmNb0DAJ8",
+                          "entityId": "iPwVKnZCvrBBBdSchE54H",
                           "entityKind": "ENTITY_KIND_SIGNAL",
                           "name": "multi_group_sig_0",
-                          "createTime": "2024-06-04T09:46:21.652165200Z"
+                          "createTime": "2024-06-11T16:10:24.995675100Z"
                         },
                         "kind": "SIGNAL_KIND_STANDARD",
                         "standard": {
-                          "typeEntityId": "hmkVlwrc4JXsCwsh9vm_d"
+                          "typeEntityId": "IQIQtFb6iAI0vSPUDPlB4"
                         }
                       }
                     ],
                     "fixedSignalEntityIds": [
-                      "wggTYLd9MdYhXHeqrSE1F"
+                      "cyrzIZXrRJJSOwxlxfYg6"
                     ],
                     "groupCount": 4,
                     "groupSize": 16,
@@ -141,10 +136,10 @@
                       {
                         "refs": [
                           {
-                            "signalEntityId": "wggTYLd9MdYhXHeqrSE1F"
+                            "signalEntityId": "cyrzIZXrRJJSOwxlxfYg6"
                           },
                           {
-                            "signalEntityId": "FSvdthJM6nJ1fmNb0DAJ8",
+                            "signalEntityId": "iPwVKnZCvrBBBdSchE54H",
                             "relStartBit": 4
                           }
                         ]
@@ -152,10 +147,10 @@
                       {
                         "refs": [
                           {
-                            "signalEntityId": "wggTYLd9MdYhXHeqrSE1F"
+                            "signalEntityId": "cyrzIZXrRJJSOwxlxfYg6"
                           },
                           {
-                            "signalEntityId": "PRv1jwR_KyQwqWuR9UFJX",
+                            "signalEntityId": "p21Tb8wyTm9CvCzTpduCL",
                             "relStartBit": 4
                           }
                         ]
@@ -163,10 +158,10 @@
                       {
                         "refs": [
                           {
-                            "signalEntityId": "wggTYLd9MdYhXHeqrSE1F"
+                            "signalEntityId": "cyrzIZXrRJJSOwxlxfYg6"
                           },
                           {
-                            "signalEntityId": "FSvdthJM6nJ1fmNb0DAJ8",
+                            "signalEntityId": "iPwVKnZCvrBBBdSchE54H",
                             "relStartBit": 4
                           }
                         ]
@@ -174,10 +169,10 @@
                       {
                         "refs": [
                           {
-                            "signalEntityId": "wggTYLd9MdYhXHeqrSE1F"
+                            "signalEntityId": "cyrzIZXrRJJSOwxlxfYg6"
                           },
                           {
-                            "signalEntityId": "FSvdthJM6nJ1fmNb0DAJ8",
+                            "signalEntityId": "iPwVKnZCvrBBBdSchE54H",
                             "relStartBit": 4
                           }
                         ]
@@ -186,9 +181,9 @@
                   },
                   "attributeAssignments": [
                     {
-                      "entityId": "-I-ceY52xK356gVn4fmQY",
+                      "entityId": "h1iVcSWHZmoOvGKJ6WV-b",
                       "entityKind": "ENTITY_KIND_SIGNAL",
-                      "attributeEntityId": "CWA4iUXtTmg9pTdsHGfmL",
+                      "attributeEntityId": "khRU9loiGxl-yz1qbCzKI",
                       "valueDouble": 50.75
                     }
                   ]
@@ -197,10 +192,10 @@
               "payload": {
                 "refs": [
                   {
-                    "signalEntityId": "hQCyVBaTRMWe5gj7R49-U"
+                    "signalEntityId": "jp9iufBF0FlXZf-XRFjF-"
                   },
                   {
-                    "signalEntityId": "-I-ceY52xK356gVn4fmQY",
+                    "signalEntityId": "h1iVcSWHZmoOvGKJ6WV-b",
                     "relStartBit": 4
                   }
                 ]
@@ -211,82 +206,82 @@
               "byteOrder": "MESSAGE_BYTE_ORDER_LITTLE_ENDIAN",
               "attributeAssignments": [
                 {
-                  "entityId": "TlqWW5Mbr1dZAE9M4l_EB",
+                  "entityId": "AAeGEPg6K7m2PZZ8wdtlm",
                   "entityKind": "ENTITY_KIND_MESSAGE",
-                  "attributeEntityId": "vgUa60ARwriLD8xhODbeb",
+                  "attributeEntityId": "_YSD6eBNlWIM6DjxKYavN",
                   "valueInt": 1
                 }
               ]
             },
             {
               "entity": {
-                "entityId": "DXfp_UYslw3I28TbpwUkp",
+                "entityId": "rKW5Gir4IZL-uKPwgAD4B",
                 "entityKind": "ENTITY_KIND_MESSAGE",
                 "name": "msg_1",
                 "desc": "msg1 description",
-                "createTime": "2024-06-04T09:46:21.652165200Z"
+                "createTime": "2024-06-11T16:10:24.995675100Z"
               },
               "signals": [
                 {
                   "entity": {
-                    "entityId": "DiETOwOb-SCyxddzAv3tN",
+                    "entityId": "YuWjHEcS4Xr9-zfOu2Qo2",
                     "entityKind": "ENTITY_KIND_SIGNAL",
                     "name": "mux_sig_1",
                     "desc": "mux1 description",
-                    "createTime": "2024-06-04T09:46:21.652165200Z"
+                    "createTime": "2024-06-11T16:10:24.996183600Z"
                   },
                   "kind": "SIGNAL_KIND_MULTIPLEXER",
                   "multiplexer": {
                     "signals": [
                       {
                         "entity": {
-                          "entityId": "6FB6Ma14M4bh2l18xaG2F",
+                          "entityId": "kN-ADbbylAxQKPz8IjxeA",
                           "entityKind": "ENTITY_KIND_SIGNAL",
                           "name": "one_group_sig_1",
-                          "createTime": "2024-06-04T09:46:21.652165200Z"
+                          "createTime": "2024-06-11T16:10:24.996193800Z"
                         },
                         "kind": "SIGNAL_KIND_STANDARD",
                         "standard": {
-                          "typeEntityId": "hmkVlwrc4JXsCwsh9vm_d"
+                          "typeEntityId": "IQIQtFb6iAI0vSPUDPlB4"
                         }
                       },
                       {
                         "entity": {
-                          "entityId": "msG4llXMO6oxXcHkzn5I9",
+                          "entityId": "Jaf9IHUPpnNtmT6VDMA8F",
                           "entityKind": "ENTITY_KIND_SIGNAL",
                           "name": "nested_mux sig_1",
-                          "createTime": "2024-06-04T09:46:21.652165200Z"
+                          "createTime": "2024-06-11T16:10:24.996193800Z"
                         },
                         "kind": "SIGNAL_KIND_MULTIPLEXER",
                         "multiplexer": {
                           "signals": [
                             {
                               "entity": {
-                                "entityId": "Ka-HyiqvlQb_Zpjsb9dUQ",
+                                "entityId": "_VcgeT5q5aZMzORtK-e7s",
                                 "entityKind": "ENTITY_KIND_SIGNAL",
                                 "name": "one_group_sig_2",
-                                "createTime": "2024-06-04T09:46:21.652165200Z"
+                                "createTime": "2024-06-11T16:10:24.996240900Z"
                               },
                               "kind": "SIGNAL_KIND_STANDARD",
                               "standard": {
-                                "typeEntityId": "hmkVlwrc4JXsCwsh9vm_d"
+                                "typeEntityId": "IQIQtFb6iAI0vSPUDPlB4"
                               }
                             },
                             {
                               "entity": {
-                                "entityId": "9emLL4SYeZlc3ugLIWsAz",
+                                "entityId": "4EjRHWIic-kPd-xeo7ulr",
                                 "entityKind": "ENTITY_KIND_SIGNAL",
                                 "name": "multi_group sig_1",
-                                "createTime": "2024-06-04T09:46:21.652165200Z"
+                                "createTime": "2024-06-11T16:10:24.996240900Z"
                               },
                               "kind": "SIGNAL_KIND_STANDARD",
                               "standard": {
-                                "typeEntityId": "hmkVlwrc4JXsCwsh9vm_d"
+                                "typeEntityId": "IQIQtFb6iAI0vSPUDPlB4"
                               }
                             }
                           ],
                           "fixedSignalEntityIds": [
-                            "9emLL4SYeZlc3ugLIWsAz"
+                            "4EjRHWIic-kPd-xeo7ulr"
                           ],
                           "groupCount": 2,
                           "groupSize": 8,
@@ -294,10 +289,10 @@
                             {
                               "refs": [
                                 {
-                                  "signalEntityId": "Ka-HyiqvlQb_Zpjsb9dUQ"
+                                  "signalEntityId": "_VcgeT5q5aZMzORtK-e7s"
                                 },
                                 {
-                                  "signalEntityId": "9emLL4SYeZlc3ugLIWsAz",
+                                  "signalEntityId": "4EjRHWIic-kPd-xeo7ulr",
                                   "relStartBit": 4
                                 }
                               ]
@@ -305,7 +300,7 @@
                             {
                               "refs": [
                                 {
-                                  "signalEntityId": "9emLL4SYeZlc3ugLIWsAz",
+                                  "signalEntityId": "4EjRHWIic-kPd-xeo7ulr",
                                   "relStartBit": 4
                                 }
                               ]
@@ -320,14 +315,14 @@
                       {
                         "refs": [
                           {
-                            "signalEntityId": "6FB6Ma14M4bh2l18xaG2F"
+                            "signalEntityId": "kN-ADbbylAxQKPz8IjxeA"
                           }
                         ]
                       },
                       {
                         "refs": [
                           {
-                            "signalEntityId": "msG4llXMO6oxXcHkzn5I9"
+                            "signalEntityId": "Jaf9IHUPpnNtmT6VDMA8F"
                           }
                         ]
                       },
@@ -340,7 +335,7 @@
               "payload": {
                 "refs": [
                   {
-                    "signalEntityId": "DiETOwOb-SCyxddzAv3tN"
+                    "signalEntityId": "YuWjHEcS4Xr9-zfOu2Qo2"
                   }
                 ]
               },
@@ -351,53 +346,53 @@
             },
             {
               "entity": {
-                "entityId": "OUXLXiksCJsg2nkx6FE2D",
+                "entityId": "9efIOLJ-55ui49LTenZjH",
                 "entityKind": "ENTITY_KIND_MESSAGE",
                 "name": "msg_2",
-                "createTime": "2024-06-04T09:46:21.652165200Z"
+                "createTime": "2024-06-11T16:10:24.996254100Z"
               },
               "signals": [
                 {
                   "entity": {
-                    "entityId": "ILYhD78OtXGfflyWHNSek",
+                    "entityId": "sTLl5CjeI_1Khp3dvXzoN",
                     "entityKind": "ENTITY_KIND_SIGNAL",
                     "name": "enum_sig_0",
-                    "createTime": "2024-06-04T09:46:21.652165200Z"
+                    "createTime": "2024-06-11T16:10:24.996254100Z"
                   },
                   "kind": "SIGNAL_KIND_ENUM",
                   "sendType": "SIGNAL_SEND_TYPE_ON_CHANGE_WITH_REPETITION",
                   "enum": {
                     "embeddedEnum": {
                       "entity": {
-                        "entityId": "wM_HrNWbuMN8J0l5_cPte",
+                        "entityId": "eFMYPrEbTda_yfUtUtf34",
                         "entityKind": "ENTITY_KIND_SIGNAL_ENUM",
                         "name": "enum",
-                        "createTime": "2024-06-04T09:46:21.652165200Z"
+                        "createTime": "2024-06-11T16:10:24.996254100Z"
                       },
                       "values": [
                         {
                           "entity": {
-                            "entityId": "Y2zw3grg0PtSwXLkpUT8s",
+                            "entityId": "Dq-IZaeu3DKLVAFjkgabg",
                             "entityKind": "ENTITY_KIND_SIGNAL_ENUM_VALUE",
                             "name": "VALUE_0",
-                            "createTime": "2024-06-04T09:46:21.652165200Z"
+                            "createTime": "2024-06-11T16:10:24.996254100Z"
                           }
                         },
                         {
                           "entity": {
-                            "entityId": "VI27ojR1tfqYT2JCF2tCI",
+                            "entityId": "PIn5kQJjglz3yefTEwPL_",
                             "entityKind": "ENTITY_KIND_SIGNAL_ENUM_VALUE",
                             "name": "VALUE_1",
-                            "createTime": "2024-06-04T09:46:21.652165200Z"
+                            "createTime": "2024-06-11T16:10:24.996254100Z"
                           },
                           "index": 1
                         },
                         {
                           "entity": {
-                            "entityId": "9SbXrYx-62Bz9rhhg3iYt",
+                            "entityId": "nSp5Mgj3nFpGlYJ1QGLKB",
                             "entityKind": "ENTITY_KIND_SIGNAL_ENUM_VALUE",
                             "name": "VALUE_15",
-                            "createTime": "2024-06-04T09:46:21.652165200Z"
+                            "createTime": "2024-06-11T16:10:24.996254100Z"
                           },
                           "index": 15
                         }
@@ -410,7 +405,7 @@
               "payload": {
                 "refs": [
                   {
-                    "signalEntityId": "ILYhD78OtXGfflyWHNSek"
+                    "signalEntityId": "sTLl5CjeI_1Khp3dvXzoN"
                   }
                 ]
               },
@@ -423,49 +418,49 @@
               "delayTime": 20,
               "startDelayTime": 30,
               "receiverIds": [
-                "v2zaO8rdTmK5jpjFx6l55"
+                "XLbTAuVe1Hs7y5X_LAi6N"
               ]
             },
             {
               "entity": {
-                "entityId": "zZOYdTNYdx_vE70D51-Jy",
+                "entityId": "6HTThPy5PzN6qv7QMEX5d",
                 "entityKind": "ENTITY_KIND_MESSAGE",
                 "name": "msg_3",
-                "createTime": "2024-06-04T09:46:21.652165200Z"
+                "createTime": "2024-06-11T16:10:24.996254100Z"
               },
               "signals": [
                 {
                   "entity": {
-                    "entityId": "abix4wSJttIR_QFIOXcUc",
+                    "entityId": "p40yFcNG3yoilXQFatw3b",
                     "entityKind": "ENTITY_KIND_SIGNAL",
                     "name": "std_sig_1",
-                    "createTime": "2024-06-04T09:46:21.652165200Z"
+                    "createTime": "2024-06-11T16:10:24.996254100Z"
                   },
                   "kind": "SIGNAL_KIND_STANDARD",
                   "standard": {
-                    "typeEntityId": "hmkVlwrc4JXsCwsh9vm_d"
+                    "typeEntityId": "IQIQtFb6iAI0vSPUDPlB4"
                   }
                 },
                 {
                   "entity": {
-                    "entityId": "qRFMl31gEagbZLPl2X5Je",
+                    "entityId": "otDs41HShjYt0wPiqTRfl",
                     "entityKind": "ENTITY_KIND_SIGNAL",
                     "name": "std_sig_2",
-                    "createTime": "2024-06-04T09:46:21.652165200Z"
+                    "createTime": "2024-06-11T16:10:24.996254100Z"
                   },
                   "kind": "SIGNAL_KIND_STANDARD",
                   "standard": {
-                    "typeEntityId": "hmkVlwrc4JXsCwsh9vm_d"
+                    "typeEntityId": "IQIQtFb6iAI0vSPUDPlB4"
                   }
                 }
               ],
               "payload": {
                 "refs": [
                   {
-                    "signalEntityId": "abix4wSJttIR_QFIOXcUc"
+                    "signalEntityId": "p40yFcNG3yoilXQFatw3b"
                   },
                   {
-                    "signalEntityId": "qRFMl31gEagbZLPl2X5Je",
+                    "signalEntityId": "otDs41HShjYt0wPiqTRfl",
                     "relStartBit": 4
                   }
                 ]
@@ -475,63 +470,60 @@
               "priority": "MESSAGE_PRIORITY_VERY_HIGH",
               "byteOrder": "MESSAGE_BYTE_ORDER_BIG_ENDIAN"
             }
-          ],
-          "embeddedNode": {
-            "entity": {
-              "entityId": "yF-eLe-Oh_iJdEdsXTRAi",
-              "entityKind": "ENTITY_KIND_NODE",
-              "name": "node_0",
-              "desc": "node0 description",
-              "createTime": "2024-06-04T09:46:21.652165200Z"
-            },
-            "interfaceCount": 1,
-            "attributeAssignments": [
-              {
-                "entityId": "yF-eLe-Oh_iJdEdsXTRAi",
-                "entityKind": "ENTITY_KIND_NODE",
-                "attributeEntityId": "TSEg6bEGJyGjP_1fyAm6F",
-                "valueInt": 1
-              }
-            ]
-          }
+          ]
         },
         {
-          "entity": {
-            "entityId": "v2zaO8rdTmK5jpjFx6l55",
-            "entityKind": "ENTITY_KIND_NODE_INTERFACE",
-            "name": "rec_node_0/int0",
-            "createTime": "2024-06-04T09:46:21.652165200Z"
-          },
-          "embeddedNode": {
-            "entity": {
-              "entityId": "waqQ2TVjApOaMKQ2-8N85",
-              "entityKind": "ENTITY_KIND_NODE",
-              "name": "rec_node_0",
-              "createTime": "2024-06-04T09:46:21.652165200Z"
-            },
-            "nodeId": 1,
-            "interfaceCount": 1
-          }
+          "nodeEntityId": "XLbTAuVe1Hs7y5X_LAi6N"
         }
       ],
       "type": "BUS_TYPE_CAN_2A",
       "attributeAssignments": [
         {
-          "entityId": "xEHSB1BgmlPPMq_AJojNr",
+          "entityId": "wBcgsZc3TF2nGZ54HDN5W",
           "entityKind": "ENTITY_KIND_BUS",
-          "attributeEntityId": "HrSsbRsOfO7u2_FdJseJ5",
+          "attributeEntityId": "kba_sJ_WE6j8CQbZ-v9ND",
           "valueString": "bus0_value"
         }
       ]
     }
   ],
+  "nodes": [
+    {
+      "entity": {
+        "entityId": "BwJj_JeXxc5s2xExjmN1O",
+        "entityKind": "ENTITY_KIND_NODE",
+        "name": "node_0",
+        "desc": "node0 description",
+        "createTime": "2024-06-11T16:10:24.995675100Z"
+      },
+      "interfaceCount": 1,
+      "attributeAssignments": [
+        {
+          "entityId": "BwJj_JeXxc5s2xExjmN1O",
+          "entityKind": "ENTITY_KIND_NODE",
+          "attributeEntityId": "SolAAAgJqDjtlXwm22vYf",
+          "valueInt": 1
+        }
+      ]
+    },
+    {
+      "entity": {
+        "entityId": "XLbTAuVe1Hs7y5X_LAi6N",
+        "entityKind": "ENTITY_KIND_NODE",
+        "name": "rec_node_0",
+        "createTime": "2024-06-11T16:10:24.995675100Z"
+      },
+      "nodeId": 1,
+      "interfaceCount": 1
+    }
+  ],
   "signalTypes": [
     {
       "entity": {
-        "entityId": "hmkVlwrc4JXsCwsh9vm_d",
+        "entityId": "IQIQtFb6iAI0vSPUDPlB4",
         "entityKind": "ENTITY_KIND_SIGNAL_TYPE",
         "name": "4_bits",
-        "createTime": "2024-06-04T09:46:21.652165200Z"
+        "createTime": "2024-06-11T16:10:24.995675100Z"
       },
       "kind": "SIGNAL_TYPE_KIND_INTEGER",
       "size": 4,
@@ -542,20 +534,20 @@
   "attributes": [
     {
       "entity": {
-        "entityId": "HrSsbRsOfO7u2_FdJseJ5",
+        "entityId": "kba_sJ_WE6j8CQbZ-v9ND",
         "entityKind": "ENTITY_KIND_ATTRIBUTE",
         "name": "str_att",
-        "createTime": "2024-06-04T09:46:21.652165200Z"
+        "createTime": "2024-06-11T16:10:24.996254100Z"
       },
       "type": "ATTRIBUTE_TYPE_STRING",
       "stringAttribute": {}
     },
     {
       "entity": {
-        "entityId": "vgUa60ARwriLD8xhODbeb",
+        "entityId": "_YSD6eBNlWIM6DjxKYavN",
         "entityKind": "ENTITY_KIND_ATTRIBUTE",
         "name": "hex_att",
-        "createTime": "2024-06-04T09:46:21.652673400Z"
+        "createTime": "2024-06-11T16:10:24.996254100Z"
       },
       "type": "ATTRIBUTE_TYPE_INTEGER",
       "integerAttribute": {
@@ -565,10 +557,10 @@
     },
     {
       "entity": {
-        "entityId": "a2JJeIoF1V8aVNCr-Q25y",
+        "entityId": "5_mn9syreNdX8gWuALEYZ",
         "entityKind": "ENTITY_KIND_ATTRIBUTE",
         "name": "enum_att",
-        "createTime": "2024-06-04T09:46:21.652695500Z"
+        "createTime": "2024-06-11T16:10:24.996254100Z"
       },
       "type": "ATTRIBUTE_TYPE_ENUM",
       "enumAttribute": {
@@ -583,10 +575,10 @@
     },
     {
       "entity": {
-        "entityId": "CWA4iUXtTmg9pTdsHGfmL",
+        "entityId": "khRU9loiGxl-yz1qbCzKI",
         "entityKind": "ENTITY_KIND_ATTRIBUTE",
         "name": "float_att",
-        "createTime": "2024-06-04T09:46:21.652695500Z"
+        "createTime": "2024-06-11T16:10:24.996254100Z"
       },
       "type": "ATTRIBUTE_TYPE_FLOAT",
       "floatAttribute": {
@@ -596,10 +588,10 @@
     },
     {
       "entity": {
-        "entityId": "TSEg6bEGJyGjP_1fyAm6F",
+        "entityId": "SolAAAgJqDjtlXwm22vYf",
         "entityKind": "ENTITY_KIND_ATTRIBUTE",
         "name": "int_att",
-        "createTime": "2024-06-04T09:46:21.652673400Z"
+        "createTime": "2024-06-11T16:10:24.996254100Z"
       },
       "type": "ATTRIBUTE_TYPE_INTEGER",
       "integerAttribute": {

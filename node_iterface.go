@@ -9,8 +9,6 @@ import (
 
 // NodeInterface represents an interface between a [Bus] and a [Node].
 type NodeInterface struct {
-	*entity
-
 	parentBus *Bus
 
 	messages     *set[EntityID, *Message]
@@ -22,7 +20,7 @@ type NodeInterface struct {
 }
 
 func newNodeInterface(number int, node *Node) *NodeInterface {
-	ni := &NodeInterface{
+	return &NodeInterface{
 		parentBus: nil,
 
 		messages:     newSet[EntityID, *Message](),
@@ -32,10 +30,6 @@ func newNodeInterface(number int, node *Node) *NodeInterface {
 		number: number,
 		node:   node,
 	}
-
-	ni.entity = newEntity(ni.setName(node.name), EntityKindNodeInterface)
-
-	return ni
 }
 
 func (ni *NodeInterface) setName(nodeName string) string {
@@ -47,23 +41,13 @@ func (ni *NodeInterface) hasParentBus() bool {
 }
 
 func (ni *NodeInterface) errorf(err error) error {
-	nodeIntErr := &EntityError{
-		Kind:     EntityKindNode,
-		EntityID: ni.entityID,
-		Name:     ni.name,
-		Err:      err,
-	}
-
 	if ni.hasParentBus() {
-		return ni.parentBus.errorf(nodeIntErr)
+		return ni.parentBus.errorf(err)
 	}
-
-	return nodeIntErr
+	return err
 }
 
 func (ni *NodeInterface) stringify(b *strings.Builder, tabs int) {
-	ni.entity.stringify(b, tabs)
-
 	tabStr := getTabString(tabs)
 
 	b.WriteString(fmt.Sprintf("%snumber: %d\n", tabStr, ni.number))

@@ -1,6 +1,8 @@
 package acmelib
 
 import (
+	"time"
+
 	acmelibv1 "github.com/squadracorsepolito/acmelib/proto/gen/go/acmelib/v1"
 )
 
@@ -15,22 +17,24 @@ func newLoader() *loader {
 }
 
 func (l *loader) getEntity(pEnt *acmelibv1.Entity, entKind EntityKind) *entity {
+	var cTime time.Time
+	if pEnt.CreateTime.IsValid() {
+		cTime = pEnt.CreateTime.AsTime()
+	} else {
+		cTime = time.Now()
+	}
+
 	return &entity{
 		entityID:   EntityID(pEnt.EntityId),
 		name:       pEnt.Name,
 		desc:       pEnt.Desc,
 		entityKind: entKind,
-		createTime: pEnt.CreateTime.AsTime(),
+		createTime: cTime,
 	}
 }
 
 func (l *loader) loadNetwork(pNet *acmelibv1.Network) (*Network, error) {
-	net := NewNetwork(pNet.Entity.Name)
-	if len(pNet.Entity.Desc) > 0 {
-		net.SetDesc(pNet.Entity.Desc)
-	}
-	net.entityID = EntityID(pNet.Entity.EntityId)
-	net.createTime = pNet.Entity.CreateTime.AsTime()
+	net := newNetworkFromEntity(l.getEntity(pNet.Entity, EntityKindNetwork))
 
 	for _, pNode := range pNet.Nodes {
 		node, err := l.loadNode(pNode)
@@ -52,35 +56,54 @@ func (l *loader) loadNetwork(pNet *acmelibv1.Network) (*Network, error) {
 }
 
 func (l *loader) loadNode(pNode *acmelibv1.Node) (*Node, error) {
-	node := NewNode(pNode.Entity.Name, NodeID(pNode.NodeId), int(pNode.InterfaceCount))
-	if len(pNode.Entity.Desc) > 0 {
-		node.SetDesc(pNode.Entity.Desc)
-	}
+	node := newNodeFromEntity(l.getEntity(pNode.Entity, EntityKindNode), NodeID(pNode.NodeId), int(pNode.InterfaceCount))
 	return node, nil
 }
 
 func (l *loader) loadBus(pBus *acmelibv1.Bus) (*Bus, error) {
-	bus := NewBus(pBus.Entity.Name)
-	if len(pBus.Entity.Desc) > 0 {
-		bus.SetDesc(pBus.Entity.Desc)
+	bus := newBusFromEntity(l.getEntity(pBus.Entity, EntityKindBus))
+
+	for _, pNodeInt := range pBus.NodeInterfaces {
+		nodeInt, err := l.loadNodeInterface(pNodeInt)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := bus.AddNodeInterface(nodeInt); err != nil {
+			return nil, err
+		}
 	}
-	bus.entityID = EntityID(pBus.Entity.EntityId)
-	bus.createTime = pBus.Entity.CreateTime.AsTime()
 
 	return bus, nil
 }
 
 func (l *loader) loadNodeInterface(pNodeInt *acmelibv1.NodeInterface) (*NodeInterface, error) {
-	return nil, nil
+	node, ok := l.refNodes[pNodeInt.NodeEntityId]
+	if !ok {
+		return nil, ErrNotFound
+	}
+
+	nodeInt, err := node.GetInterface(int(pNodeInt.Number))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, pMsg := range pNodeInt.Messages {
+		msg, err := l.loadMessage(pMsg)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := nodeInt.AddMessage(msg); err != nil {
+			return nil, err
+		}
+	}
+
+	return nodeInt, nil
 }
 
 func (l *loader) loadMessage(pMsg *acmelibv1.Message) (*Message, error) {
-	msg := NewMessage(pMsg.Entity.Name, MessageID(pMsg.MessageId), int(pMsg.SizeByte))
-	if len(pMsg.Entity.Desc) > 0 {
-		msg.SetDesc(pMsg.Entity.Desc)
-	}
-	msg.entityID = EntityID(pMsg.Entity.EntityId)
-	msg.createTime = pMsg.Entity.CreateTime.AsTime()
+	msg := newMessageFromEntity(l.getEntity(pMsg.Entity, EntityKindMessage), MessageID(pMsg.MessageId), int(pMsg.SizeByte))
 
 	return msg, nil
 }

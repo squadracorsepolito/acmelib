@@ -51,7 +51,7 @@ func Test_Bus_RemoveNodeInterface(t *testing.T) {
 	assert.NoError(bus.AddNodeInterface(node3))
 
 	// should remove without problems node2
-	assert.NoError(bus.RemoveNodeInterface(node2.EntityID()))
+	assert.NoError(bus.RemoveNodeInterface(node2.Node().EntityID()))
 	expectedIDs := []NodeID{0, 1, 3}
 	expectedNames := []string{"node_0", "node_1", "node_3"}
 	for idx, tmpNode := range bus.NodeInterfaces() {

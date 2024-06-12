@@ -26,26 +26,30 @@ type Node struct {
 	interfaceCount int
 }
 
-// NewNode creates a new [Node] with the given name, id and count of interfaces.
-// The id must be unique among all nodes within a bus.
-func NewNode(name string, id NodeID, interfaceCount int) *Node {
+func newNodeFromEntity(ent *entity, id NodeID, intCount int) *Node {
 	node := &Node{
-		entity:         newEntity(name, EntityKindNode),
+		entity:         ent,
 		withAttributes: newWithAttributes(),
 
 		interfaces: []*NodeInterface{},
 		intErrNum:  -1,
 
 		id:             id,
-		interfaceCount: interfaceCount,
+		interfaceCount: intCount,
 	}
 
-	node.interfaces = make([]*NodeInterface, interfaceCount)
-	for i := 0; i < interfaceCount; i++ {
+	node.interfaces = make([]*NodeInterface, intCount)
+	for i := 0; i < intCount; i++ {
 		node.interfaces[i] = newNodeInterface(i, node)
 	}
 
 	return node
+}
+
+// NewNode creates a new [Node] with the given name, id and count of interfaces.
+// The id must be unique among all nodes within a bus.
+func NewNode(name string, id NodeID, interfaceCount int) *Node {
+	return newNodeFromEntity(newEntity(name, EntityKindNode), id, interfaceCount)
 }
 
 func (n *Node) errorf(err error) error {
@@ -89,7 +93,6 @@ func (n *Node) UpdateName(newName string) error {
 	}
 
 	buses := []*Bus{}
-	intEntIDs := []EntityID{}
 	for _, tmpInt := range n.interfaces {
 		if !tmpInt.hasParentBus() {
 			continue
@@ -102,15 +105,10 @@ func (n *Node) UpdateName(newName string) error {
 		}
 
 		buses = append(buses, tmpBus)
-		intEntIDs = append(intEntIDs, tmpInt.entityID)
 	}
 
-	for idx, tmpBus := range buses {
-		tmpBus.nodeNames.modifyKey(n.name, newName, intEntIDs[idx])
-	}
-
-	for _, tmpInt := range n.interfaces {
-		tmpInt.name = tmpInt.setName(newName)
+	for _, tmpBus := range buses {
+		tmpBus.nodeNames.modifyKey(n.name, newName, n.entityID)
 	}
 
 	n.name = newName
@@ -121,6 +119,31 @@ func (n *Node) UpdateName(newName string) error {
 // Interfaces returns a slice with all the interfaces of the [Node].
 func (n *Node) Interfaces() []*NodeInterface {
 	return n.interfaces
+}
+
+func (n *Node) GetInterface(interfaceNumber int) (*NodeInterface, error) {
+	if interfaceNumber < 0 {
+		return nil, &ArgumentError{
+			Name: "interfaceNumber",
+			Err:  ErrIsNegative,
+		}
+	}
+
+	if interfaceNumber == 0 {
+		return nil, &ArgumentError{
+			Name: "interfaceNumber",
+			Err:  ErrIsZero,
+		}
+	}
+
+	if interfaceNumber >= n.interfaceCount {
+		return nil, &ArgumentError{
+			Name: "interfaceNumber",
+			Err:  ErrOutOfBounds,
+		}
+	}
+
+	return n.interfaces[interfaceNumber], nil
 }
 
 // ID returns the id of the [Node].

@@ -111,11 +111,9 @@ type Message struct {
 	receivers *set[EntityID, *NodeInterface]
 }
 
-// NewMessage creates a new [Message] with the given name, id and size in bytes.
-// By default a [MessagePriority] of [MessagePriorityVeryHigh] is used.
-func NewMessage(name string, id MessageID, sizeByte int) *Message {
+func newMessageFromEntity(ent *entity, id MessageID, sizeByte int) *Message {
 	return &Message{
-		entity:         newEntity(name, EntityKindMessage),
+		entity:         ent,
 		withAttributes: newWithAttributes(),
 
 		senderNodeInt: nil,
@@ -141,6 +139,12 @@ func NewMessage(name string, id MessageID, sizeByte int) *Message {
 
 		receivers: newSet[EntityID, *NodeInterface](),
 	}
+}
+
+// NewMessage creates a new [Message] with the given name, id and size in bytes.
+// By default a [MessagePriority] of [MessagePriorityVeryHigh] is used.
+func NewMessage(name string, id MessageID, sizeByte int) *Message {
+	return newMessageFromEntity(newEntity(name, EntityKindMessage), id, sizeByte)
 }
 
 func (m *Message) hasSenderNodeInt() bool {
@@ -250,7 +254,7 @@ func (m *Message) stringify(b *strings.Builder, tabs int) {
 	if m.receivers.size() > 0 {
 		b.WriteString(fmt.Sprintf("%sreceivers:\n", tabStr))
 		for _, rec := range m.Receivers() {
-			b.WriteString(fmt.Sprintf("%s\tname: %s; node_id: %d; entity_id: %s\n", tabStr, rec.Name(), rec.node.id, rec.entityID))
+			b.WriteString(fmt.Sprintf("%s\tname: %s; node_id: %d; entity_id: %s\n", tabStr, rec.node.name, rec.node.id, rec.node.entityID))
 		}
 	}
 
@@ -590,7 +594,7 @@ func (m *Message) StartDelayTime() int {
 
 // AddReceiver adds a receiver to the [Message].
 func (m *Message) AddReceiver(receiver *NodeInterface) {
-	m.receivers.add(receiver.entityID, receiver)
+	m.receivers.add(receiver.node.entityID, receiver)
 }
 
 // RemoveReceiver removes a receiver from the [Message].
@@ -602,7 +606,7 @@ func (m *Message) RemoveReceiver(receiverEntityID EntityID) {
 func (m *Message) Receivers() []*NodeInterface {
 	recSlice := m.receivers.getValues()
 	slices.SortFunc(recSlice, func(a, b *NodeInterface) int {
-		return strings.Compare(a.name, b.name)
+		return strings.Compare(a.node.name, b.node.name)
 	})
 	return recSlice
 }

@@ -4,6 +4,7 @@ package acmelib.v1;
 
 import "acmelib/v1/entity.proto";
 import "acmelib/v1/attribute.proto";
+import "acmelib/v1/message.proto";
 
 message Node {
     acmelib.v1.Entity entity = 1;
@@ -12,4 +13,10 @@ message Node {
     uint32 interface_count = 3;
     
     repeated acmelib.v1.AttributeAssignment attribute_assignments = 4;
+}
+
+message NodeInterface {
+    int32 number = 1;
+    string node_entity_id = 2;
+    repeated acmelib.v1.Message messages = 3;
 }

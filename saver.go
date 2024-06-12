@@ -117,8 +117,6 @@ func (s *saver) getEntityKind(ek EntityKind) acmelibv1.EntityKind {
 		return acmelibv1.EntityKind_ENTITY_KIND_BUS
 	case EntityKindNode:
 		return acmelibv1.EntityKind_ENTITY_KIND_NODE
-	case EntityKindNodeInterface:
-		return acmelibv1.EntityKind_ENTITY_KIND_NODE_INTERFACE
 	case EntityKindMessage:
 		return acmelibv1.EntityKind_ENTITY_KIND_MESSAGE
 	case EntityKindSignal:
@@ -312,25 +310,14 @@ func (s *saver) saveNode(node *Node) *acmelibv1.Node {
 func (s *saver) saveNodeInterface(nodeInt *NodeInterface) *acmelibv1.NodeInterface {
 	pNodeint := new(acmelibv1.NodeInterface)
 
-	pNodeint.Entity = s.saveEntity(nodeInt.entity)
 	pNodeint.Number = int32(nodeInt.number)
+
+	nodeEntID := nodeInt.node.entityID
+	s.refNodes[nodeEntID] = nodeInt.node
+	pNodeint.NodeEntityId = nodeEntID.String()
 
 	for _, msg := range nodeInt.Messages() {
 		pNodeint.Messages = append(pNodeint.Messages, s.saveMessage(msg))
-	}
-
-	if nodeInt.node.interfaceCount > 1 {
-		entID := nodeInt.node.entityID
-		pNodeint.Node = &acmelibv1.NodeInterface_NodeEntityId{
-			NodeEntityId: entID.String(),
-		}
-		s.refNodes[entID] = nodeInt.node
-
-		return pNodeint
-	}
-
-	pNodeint.Node = &acmelibv1.NodeInterface_EmbeddedNode{
-		EmbeddedNode: s.saveNode(nodeInt.node),
 	}
 
 	return pNodeint
@@ -395,7 +382,7 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 	pMsg.StartDelayTime = uint32(msg.startDelayTime)
 
 	for _, rec := range msg.Receivers() {
-		pMsg.ReceiverIds = append(pMsg.ReceiverIds, rec.entityID.String())
+		pMsg.ReceiverIds = append(pMsg.ReceiverIds, rec.node.entityID.String())
 	}
 
 	return pMsg

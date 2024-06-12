@@ -19,8 +19,6 @@ const (
 	EntityKindBus
 	// EntityKindNode represents a [Node] entity.
 	EntityKindNode
-	// EntityKindNodeInterface represents a [NodeInterface] entity.
-	EntityKindNodeInterface
 	// EntityKindMessage represents a [Message] entity.
 	EntityKindMessage
 	// EntityKindSignal represents a [Signal] entity.
@@ -46,8 +44,6 @@ func (ek EntityKind) String() string {
 	case EntityKindBus:
 		return "bus"
 	case EntityKindNode:
-		return "node"
-	case EntityKindNodeInterface:
 		return "node-interface"
 	case EntityKindMessage:
 		return "message"
