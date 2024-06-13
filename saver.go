@@ -244,19 +244,9 @@ func (s *saver) saveBus(bus *Bus) *acmelibv1.Bus {
 		return pBus
 	}
 
-	if bus.canIDBuilder.ReferenceCount() > 0 {
-		entID := bus.canIDBuilder.entityID
-		pBus.CanidBuilder = &acmelibv1.Bus_CanidBuilderEntityId{
-			CanidBuilderEntityId: entID.String(),
-		}
-		s.refCANIDBuilders[entID] = bus.canIDBuilder
-
-		return pBus
-	}
-
-	pBus.CanidBuilder = &acmelibv1.Bus_EmbeddedCanidBuilder{
-		EmbeddedCanidBuilder: s.saveCANIDBuilder(bus.canIDBuilder),
-	}
+	entID := bus.canIDBuilder.entityID
+	s.refCANIDBuilders[entID] = bus.canIDBuilder
+	pBus.CanidBuilderEntityId = string(entID)
 
 	return pBus
 }
@@ -472,36 +462,17 @@ func (s *saver) saveSignal(sig Signal) *acmelibv1.Signal {
 func (s *saver) saveStandardSignal(stdSig *StandardSignal) *acmelibv1.StandardSignal {
 	pStdSig := new(acmelibv1.StandardSignal)
 
-	if stdSig.typ.ReferenceCount() > 1 {
-		entID := stdSig.typ.entityID
-		pStdSig.Type = &acmelibv1.StandardSignal_TypeEntityId{
-			TypeEntityId: entID.String(),
-		}
-		s.refSigTypes[entID] = stdSig.typ
-
-	} else {
-		pStdSig.Type = &acmelibv1.StandardSignal_EmbeddedType{
-			EmbeddedType: s.saveSignalType(stdSig.typ),
-		}
-	}
+	typeEntID := stdSig.typ.entityID
+	s.refSigTypes[typeEntID] = stdSig.typ
+	pStdSig.TypeEntityId = string(typeEntID)
 
 	if stdSig.unit == nil {
 		return pStdSig
 	}
 
-	if stdSig.unit.ReferenceCount() > 1 {
-		entID := stdSig.unit.entityID
-		pStdSig.Type = &acmelibv1.StandardSignal_TypeEntityId{
-			TypeEntityId: entID.String(),
-		}
-		s.refSigUnits[entID] = stdSig.unit
-
-		return pStdSig
-	}
-
-	pStdSig.Unit = &acmelibv1.StandardSignal_EmbeddedUnit{
-		EmbeddedUnit: s.saveSignalUnit(stdSig.unit),
-	}
+	unitEntID := stdSig.unit.entityID
+	s.refSigUnits[unitEntID] = stdSig.unit
+	pStdSig.UnitEntityId = string(unitEntID)
 
 	return pStdSig
 }
@@ -509,19 +480,9 @@ func (s *saver) saveStandardSignal(stdSig *StandardSignal) *acmelibv1.StandardSi
 func (s *saver) saveEnumSignal(enumSig *EnumSignal) *acmelibv1.EnumSignal {
 	pEnumSig := new(acmelibv1.EnumSignal)
 
-	if enumSig.enum.ReferenceCount() > 1 {
-		entID := enumSig.enum.entityID
-		pEnumSig.Enum = &acmelibv1.EnumSignal_EnumEntityId{
-			EnumEntityId: entID.String(),
-		}
-		s.refSigEnums[entID] = enumSig.enum
-
-		return pEnumSig
-	}
-
-	pEnumSig.Enum = &acmelibv1.EnumSignal_EmbeddedEnum{
-		EmbeddedEnum: s.saveSignalEnum(enumSig.enum),
-	}
+	entID := enumSig.enum.entityID
+	s.refSigEnums[entID] = enumSig.enum
+	pEnumSig.EnumEntityId = string(entID)
 
 	return pEnumSig
 }

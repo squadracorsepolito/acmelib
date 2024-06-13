@@ -4,7 +4,6 @@ package acmelib.v1;
 
 import "acmelib/v1/entity.proto";
 import "acmelib/v1/node.proto";
-import "acmelib/v1/canid_builder.proto";
 import "acmelib/v1/attribute.proto";
 
 enum BusType {
@@ -20,10 +19,7 @@ message Bus {
     uint32 baudrate = 3;
     BusType type = 4;
 
-    oneof canid_builder {
-        acmelib.v1.CANIDBuilder embedded_canid_builder = 5;
-        string canid_builder_entity_id = 6;
-    }
+    string canid_builder_entity_id = 5;
 
-    repeated acmelib.v1.AttributeAssignment attribute_assignments = 7;
+    repeated acmelib.v1.AttributeAssignment attribute_assignments = 6;
 }

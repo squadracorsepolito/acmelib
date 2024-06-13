@@ -3,9 +3,6 @@ syntax = "proto3";
 package acmelib.v1;
 
 import "acmelib/v1/entity.proto";
-import "acmelib/v1/signal_type.proto";
-import "acmelib/v1/signal_unit.proto";
-import "acmelib/v1/signal_enum.proto";
 import "acmelib/v1/signal_payload.proto";
 import "acmelib/v1/attribute.proto";
 
@@ -44,22 +41,12 @@ message Signal {
 }
 
 message StandardSignal {
-    oneof type {
-        acmelib.v1.SignalType embedded_type = 1;
-        string type_entity_id = 2;
-    }
-    
-    oneof unit {
-        acmelib.v1.SignalUnit embedded_unit = 3;
-        string unit_entity_id = 4;
-    }
+    string type_entity_id = 1;
+    string unit_entity_id = 2;
 }
 
 message EnumSignal {
-    oneof enum{
-        acmelib.v1.SignalEnum embedded_enum = 1;
-        string enum_entity_id = 2;
-    }
+    string enum_entity_id = 1;
 }
 
 message MultiplexerSignal {
