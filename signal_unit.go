@@ -43,16 +43,20 @@ type SignalUnit struct {
 	symbol string
 }
 
-// NewSignalUnit creates a new [SignalUnit] with the given name,
-// kind, and symbol.
-func NewSignalUnit(name string, kind SignalUnitKind, symbol string) *SignalUnit {
+func newSignalUnitFromEntity(ent *entity, kind SignalUnitKind, symbol string) *SignalUnit {
 	return &SignalUnit{
-		entity:   newEntity(name, EntityKindSignalUnit),
+		entity:   ent,
 		withRefs: newWithRefs[*StandardSignal](),
 
 		kind:   kind,
 		symbol: symbol,
 	}
+}
+
+// NewSignalUnit creates a new [SignalUnit] with the given name,
+// kind, and symbol.
+func NewSignalUnit(name string, kind SignalUnitKind, symbol string) *SignalUnit {
+	return newSignalUnitFromEntity(newEntity(name, EntityKindSignalUnit), kind, symbol)
 }
 
 func (su *SignalUnit) stringify(b *strings.Builder, tabs int) {

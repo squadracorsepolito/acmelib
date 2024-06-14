@@ -23,13 +23,11 @@ type SignalEnum struct {
 	minSize  int
 }
 
-// NewSignalEnum creates a new [SignalEnum] with the given name.
-func NewSignalEnum(name string) *SignalEnum {
+func newSignalEnumFromEntity(ent *entity) *SignalEnum {
 	return &SignalEnum{
-		entity:   newEntity(name, EntityKindSignalEnum),
+		entity:   ent,
 		withRefs: newWithRefs[*EnumSignal](),
 
-		// refs:     newSet[EntityID, *EnumSignal](),
 		parErrID: "",
 
 		values:       newSet[EntityID, *SignalEnumValue](),
@@ -39,6 +37,11 @@ func NewSignalEnum(name string) *SignalEnum {
 		maxIndex: 0,
 		minSize:  1,
 	}
+}
+
+// NewSignalEnum creates a new [SignalEnum] with the given name.
+func NewSignalEnum(name string) *SignalEnum {
+	return newSignalEnumFromEntity(newEntity(name, EntityKindSignalEnum))
 }
 
 func (se *SignalEnum) errorf(err error) error {
@@ -314,15 +317,19 @@ type SignalEnumValue struct {
 	index int
 }
 
-// NewSignalEnumValue creates a new [SignalEnumValue] with the given name and index.
-func NewSignalEnumValue(name string, index int) *SignalEnumValue {
+func newSignalEnumValueFromEntity(ent *entity, index int) *SignalEnumValue {
 	return &SignalEnumValue{
-		entity: newEntity(name, EntityKindSignalEnumValue),
+		entity: ent,
 
 		parentEnum: nil,
 
 		index: index,
 	}
+}
+
+// NewSignalEnumValue creates a new [SignalEnumValue] with the given name and index.
+func NewSignalEnumValue(name string, index int) *SignalEnumValue {
+	return newSignalEnumValueFromEntity(newEntity(name, EntityKindSignalEnumValue), index)
 }
 
 func (sev *SignalEnumValue) hasParentEnum() bool {

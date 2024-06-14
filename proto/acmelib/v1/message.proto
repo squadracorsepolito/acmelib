@@ -3,7 +3,6 @@ syntax = "proto3";
 package acmelib.v1;
 
 import "acmelib/v1/entity.proto";
-import "acmelib/v1/signal_payload.proto";
 import "acmelib/v1/signal.proto";
 import "acmelib/v1/attribute.proto";
 

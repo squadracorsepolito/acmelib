@@ -1,7 +1,7 @@
 package acmelib
 
 import (
-	"os"
+	"bytes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -140,24 +140,24 @@ func Test_SaveNetwork(t *testing.T) {
 
 	net := initTestNetwork(assert)
 
-	// wireBuf := new(bytes.Buffer)
-	// jsonBuf := new(bytes.Buffer)
-	// textBuf := new(bytes.Buffer)
+	wireBuf := new(bytes.Buffer)
+	jsonBuf := new(bytes.Buffer)
+	textBuf := new(bytes.Buffer)
 
-	wireBuf, err := os.Create("./testdata/expected.binpb")
-	assert.NoError(err)
-	jsonBuf, err := os.Create("./testdata/expected.json")
-	assert.NoError(err)
-	textBuf, err := os.Create("./testdata/expected.txtpb")
-	assert.NoError(err)
+	// wireBuf, err := os.Create("./testdata/expected.binpb")
+	// assert.NoError(err)
+	// jsonBuf, err := os.Create("./testdata/expected.json")
+	// assert.NoError(err)
+	// textBuf, err := os.Create("./testdata/expected.txtpb")
+	// assert.NoError(err)
 
 	assert.NoError(SaveNetwork(net, SaveEncodingWire|SaveEncodingJSON|SaveEncodingText, wireBuf, jsonBuf, textBuf))
 
-	wireBuf.Close()
-	jsonBuf.Close()
-	textBuf.Close()
+	// wireBuf.Close()
+	// jsonBuf.Close()
+	// textBuf.Close()
 
-	// assert.Error(SaveNetwork(net, SaveEncodingWire, nil, jsonBuf, textBuf))
-	// assert.Error(SaveNetwork(net, SaveEncodingWire|SaveEncodingJSON, wireBuf, nil, textBuf))
-	// assert.Error(SaveNetwork(net, SaveEncodingWire|SaveEncodingJSON|SaveEncodingText, wireBuf, jsonBuf, nil))
+	assert.Error(SaveNetwork(net, SaveEncodingWire, nil, jsonBuf, textBuf))
+	assert.Error(SaveNetwork(net, SaveEncodingWire|SaveEncodingJSON, wireBuf, nil, textBuf))
+	assert.Error(SaveNetwork(net, SaveEncodingWire|SaveEncodingJSON|SaveEncodingText, wireBuf, jsonBuf, nil))
 }

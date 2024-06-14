@@ -76,13 +76,17 @@ type attribute struct {
 	typ AttributeType
 }
 
-func newAttribute(name string, typ AttributeType) *attribute {
+func newAttributeFromEntity(ent *entity, typ AttributeType) *attribute {
 	return &attribute{
-		entity:   newEntity(name, EntityKindAttribute),
+		entity:   ent,
 		withRefs: newWithRefs[*AttributeAssignment](),
 
 		typ: typ,
 	}
+}
+
+func newAttribute(name string, typ AttributeType) *attribute {
+	return newAttributeFromEntity(newEntity(name, EntityKindAttribute), typ)
 }
 
 func (a *attribute) errorf(err error) error {
@@ -121,14 +125,18 @@ type StringAttribute struct {
 	defValue string
 }
 
-// NewStringAttribute creates a new [StringAttribute] with the given name,
-// and default value.
-func NewStringAttribute(name, defValue string) *StringAttribute {
+func newStringAttributeFromBase(base *attribute, defValue string) *StringAttribute {
 	return &StringAttribute{
-		attribute: newAttribute(name, AttributeTypeString),
+		attribute: base,
 
 		defValue: defValue,
 	}
+}
+
+// NewStringAttribute creates a new [StringAttribute] with the given name,
+// and default value.
+func NewStringAttribute(name, defValue string) *StringAttribute {
+	return newStringAttributeFromBase(newAttribute(name, AttributeTypeString), defValue)
 }
 
 func (sa *StringAttribute) stringify(b *strings.Builder, tabs int) {
@@ -187,11 +195,7 @@ type IntegerAttribute struct {
 	isHexFormat bool
 }
 
-// NewIntegerAttribute creates a new [IntegerAttribute] with the given name,
-// default value, min, and max.
-// It may return an error if the default value is out of the min/max range,
-// or if the min value is greater then the max value.
-func NewIntegerAttribute(name string, defValue, min, max int) (*IntegerAttribute, error) {
+func newIntegerAttributeFromBase(base *attribute, defValue, min, max int) (*IntegerAttribute, error) {
 	if min > max {
 		return nil, &ArgumentError{
 			Name: "min",
@@ -214,7 +218,7 @@ func NewIntegerAttribute(name string, defValue, min, max int) (*IntegerAttribute
 	}
 
 	return &IntegerAttribute{
-		attribute: newAttribute(name, AttributeTypeInteger),
+		attribute: base,
 
 		defValue: defValue,
 		min:      min,
@@ -222,6 +226,14 @@ func NewIntegerAttribute(name string, defValue, min, max int) (*IntegerAttribute
 
 		isHexFormat: false,
 	}, nil
+}
+
+// NewIntegerAttribute creates a new [IntegerAttribute] with the given name,
+// default value, min, and max.
+// It may return an error if the default value is out of the min/max range,
+// or if the min value is greater then the max value.
+func NewIntegerAttribute(name string, defValue, min, max int) (*IntegerAttribute, error) {
+	return newIntegerAttributeFromBase(newAttribute(name, AttributeTypeInteger), defValue, min, max)
 }
 
 func (ia *IntegerAttribute) stringify(b *strings.Builder, tabs int) {
@@ -301,11 +313,7 @@ type FloatAttribute struct {
 	max      float64
 }
 
-// NewFloatAttribute creates a new [FloatAttribute] with the given name,
-// default value, min, and max.
-// It may return an error if the default value is out of the min/max range,
-// or if the min value is greater then the max value.
-func NewFloatAttribute(name string, defValue, min, max float64) (*FloatAttribute, error) {
+func newFloatAttributeFromBase(base *attribute, defValue, min, max float64) (*FloatAttribute, error) {
 	if min > max {
 		return nil, &ArgumentError{
 			Name: "min",
@@ -328,12 +336,20 @@ func NewFloatAttribute(name string, defValue, min, max float64) (*FloatAttribute
 	}
 
 	return &FloatAttribute{
-		attribute: newAttribute(name, AttributeTypeFloat),
+		attribute: base,
 
 		defValue: defValue,
 		min:      min,
 		max:      max,
 	}, nil
+}
+
+// NewFloatAttribute creates a new [FloatAttribute] with the given name,
+// default value, min, and max.
+// It may return an error if the default value is out of the min/max range,
+// or if the min value is greater then the max value.
+func NewFloatAttribute(name string, defValue, min, max float64) (*FloatAttribute, error) {
+	return newFloatAttributeFromBase(newAttribute(name, AttributeTypeFloat), defValue, min, max)
 }
 
 func (fa *FloatAttribute) stringify(b *strings.Builder, tabs int) {
@@ -402,10 +418,7 @@ type EnumAttribute struct {
 	values   *set[string, int]
 }
 
-// NewEnumAttribute creates a new [EnumAttribute] with the given name and values.
-// The first value is always selected as the default one.
-// It may return an error if no values are passed.
-func NewEnumAttribute(name string, values ...string) (*EnumAttribute, error) {
+func newEnumAttributeFromBase(base *attribute, values ...string) (*EnumAttribute, error) {
 	if len(values) == 0 {
 		return nil, &ArgumentError{
 			Name: "values",
@@ -425,11 +438,18 @@ func NewEnumAttribute(name string, values ...string) (*EnumAttribute, error) {
 	}
 
 	return &EnumAttribute{
-		attribute: newAttribute(name, AttributeTypeEnum),
+		attribute: base,
 
 		defValue: values[0],
 		values:   valSet,
 	}, nil
+}
+
+// NewEnumAttribute creates a new [EnumAttribute] with the given name and values.
+// The first value is always selected as the default one.
+// It may return an error if no values are passed.
+func NewEnumAttribute(name string, values ...string) (*EnumAttribute, error) {
+	return newEnumAttributeFromBase(newAttribute(name, AttributeTypeEnum), values...)
 }
 
 func (ea *EnumAttribute) stringify(b *strings.Builder, tabs int) {

@@ -6,9 +6,7 @@ import "acmelib/v1/entity.proto";
 import "acmelib/v1/bus.proto";
 import "acmelib/v1/canid_builder.proto";
 import "acmelib/v1/node.proto";
-import "acmelib/v1/signal_type.proto";
-import "acmelib/v1/signal_unit.proto";
-import "acmelib/v1/signal_enum.proto";
+import "acmelib/v1/signal.proto";
 import "acmelib/v1/attribute.proto";
 
 message Network {

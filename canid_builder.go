@@ -51,6 +51,14 @@ type CANIDBuilderOp struct {
 	len  int
 }
 
+func newCANIDBuilderOp(kind CANIDBuilderOpKind, from, len int) *CANIDBuilderOp {
+	return &CANIDBuilderOp{
+		kind: kind,
+		from: from,
+		len:  len,
+	}
+}
+
 func (bo *CANIDBuilderOp) stringify(b *strings.Builder, tabs int) {
 	tabStr := getTabString(tabs)
 
@@ -82,14 +90,18 @@ type CANIDBuilder struct {
 	operations []*CANIDBuilderOp
 }
 
-// NewCANIDBuilder creates a new [CANIDBuilder] with the given name.
-func NewCANIDBuilder(name string) *CANIDBuilder {
+func newCANIDBuilderFromEntity(ent *entity) *CANIDBuilder {
 	return &CANIDBuilder{
-		entity:   newEntity(name, EntityKindCANIDBuilder),
+		entity:   ent,
 		withRefs: newWithRefs[*Bus](),
 
 		operations: []*CANIDBuilderOp{},
 	}
+}
+
+// NewCANIDBuilder creates a new [CANIDBuilder] with the given name.
+func NewCANIDBuilder(name string) *CANIDBuilder {
+	return newCANIDBuilderFromEntity(newEntity(name, EntityKindCANIDBuilder))
 }
 
 func (b *CANIDBuilder) stringify(builder *strings.Builder, tabs int) {
@@ -153,50 +165,31 @@ func (b *CANIDBuilder) Calculate(messagePriority MessagePriority, messageID Mess
 // UseMessagePriority adds an operation that involves the message priority from the given index.
 // The length of the operation is fixed (2 bits).
 func (b *CANIDBuilder) UseMessagePriority(from int) *CANIDBuilder {
-	b.operations = append(b.operations, &CANIDBuilderOp{
-		kind: CANIDBuilderOpKindMessagePriority,
-		from: from,
-		len:  2,
-	})
+	b.operations = append(b.operations, newCANIDBuilderOp(CANIDBuilderOpKindMessagePriority, from, 2))
 	return b
 }
 
 // UseMessageID adds an operation that involves the message id from the given index and length.
 func (b *CANIDBuilder) UseMessageID(from, len int) *CANIDBuilder {
-	b.operations = append(b.operations, &CANIDBuilderOp{
-		kind: CANIDBuilderOpKindMessageID,
-		from: from,
-		len:  len,
-	})
+	b.operations = append(b.operations, newCANIDBuilderOp(CANIDBuilderOpKindMessageID, from, len))
 	return b
 }
 
 // UseNodeID adds an operation that involves the node id from the given index and length.
 func (b *CANIDBuilder) UseNodeID(from, len int) *CANIDBuilder {
-	b.operations = append(b.operations, &CANIDBuilderOp{
-		kind: CANIDBuilderOpKindNodeID,
-		from: from,
-		len:  len,
-	})
+	b.operations = append(b.operations, newCANIDBuilderOp(CANIDBuilderOpKindNodeID, from, len))
 	return b
 }
 
 // UseCAN2A adds a bit mask from 0 with a length of 11,
 // which makes the calculated CAN-ID conformed to the CAN 2.0A.
 func (b *CANIDBuilder) UseCAN2A() *CANIDBuilder {
-	b.operations = append(b.operations, &CANIDBuilderOp{
-		kind: CANIDBuilderOpKindBitMask,
-		from: 0,
-		len:  11,
-	})
+	b.operations = append(b.operations, newCANIDBuilderOp(CANIDBuilderOpKindBitMask, 0, 11))
 	return b
 }
 
 // UseBitMask adds a bit mask operation from the given index and length.
-func (b *CANIDBuilder) UseBitMask(from, len int) {
-	b.operations = append(b.operations, &CANIDBuilderOp{
-		kind: CANIDBuilderOpKindBitMask,
-		from: from,
-		len:  len,
-	})
+func (b *CANIDBuilder) UseBitMask(from, len int) *CANIDBuilder {
+	b.operations = append(b.operations, newCANIDBuilderOp(CANIDBuilderOpKindBitMask, from, len))
+	return b
 }

@@ -7,12 +7,22 @@ import (
 )
 
 type loader struct {
-	refNodes map[string]*Node
+	refCANIDBuilders map[string]*CANIDBuilder
+	refNodes         map[string]*Node
+	refSigTypes      map[string]*SignalType
+	refSigUnits      map[string]*SignalUnit
+	refSigEnums      map[string]*SignalEnum
+	refAttributes    map[string]Attribute
 }
 
 func newLoader() *loader {
 	return &loader{
-		refNodes: make(map[string]*Node),
+		refCANIDBuilders: make(map[string]*CANIDBuilder),
+		refNodes:         make(map[string]*Node),
+		refSigTypes:      make(map[string]*SignalType),
+		refSigUnits:      make(map[string]*SignalUnit),
+		refSigEnums:      make(map[string]*SignalEnum),
+		refAttributes:    make(map[string]Attribute),
 	}
 }
 
@@ -36,12 +46,36 @@ func (l *loader) getEntity(pEnt *acmelibv1.Entity, entKind EntityKind) *entity {
 func (l *loader) loadNetwork(pNet *acmelibv1.Network) (*Network, error) {
 	net := newNetworkFromEntity(l.getEntity(pNet.Entity, EntityKindNetwork))
 
+	for _, pBuilder := range pNet.CanidBuilders {
+		l.refCANIDBuilders[pBuilder.Entity.EntityId] = l.loadCANIDBuilder(pBuilder)
+	}
+
 	for _, pNode := range pNet.Nodes {
 		node, err := l.loadNode(pNode)
 		if err != nil {
 			return nil, err
 		}
-		l.refNodes[node.entityID.String()] = node
+		l.refNodes[pNode.Entity.EntityId] = node
+	}
+
+	for _, pSigType := range pNet.SignalTypes {
+		sigType, err := l.loadSignalType(pSigType)
+		if err != nil {
+			return nil, err
+		}
+		l.refSigTypes[pSigType.Entity.EntityId] = sigType
+	}
+
+	for _, pSigUnit := range pNet.SignalUnits {
+		l.refSigUnits[pSigUnit.Entity.EntityId] = l.loadSignalUnit(pSigUnit)
+	}
+
+	for _, pSigEnum := range pNet.SignalEnums {
+		sigEnum, err := l.loadSignalEnum(pSigEnum)
+		if err != nil {
+			return nil, err
+		}
+		l.refSigEnums[pSigEnum.Entity.EntityId] = sigEnum
 	}
 
 	for _, pBus := range pNet.Buses {
@@ -53,6 +87,31 @@ func (l *loader) loadNetwork(pNet *acmelibv1.Network) (*Network, error) {
 	}
 
 	return net, nil
+}
+
+func (l *loader) loadCANIDBuilder(pBuilder *acmelibv1.CANIDBuilder) *CANIDBuilder {
+	builder := newCANIDBuilderFromEntity(l.getEntity(pBuilder.Entity, EntityKindCANIDBuilder))
+
+	for _, pBuilderOp := range pBuilder.Operations {
+		builder.operations = append(builder.operations, l.loadCANIDBuilderOp(pBuilderOp))
+	}
+
+	return builder
+}
+
+func (l *loader) loadCANIDBuilderOp(pBuilderOp *acmelibv1.CANIDBuilderOp) *CANIDBuilderOp {
+	var kind CANIDBuilderOpKind
+	switch pBuilderOp.Kind {
+	case acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_MESSAGE_PRIORITY:
+		kind = CANIDBuilderOpKindMessagePriority
+	case acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_MESSAGE_ID:
+		kind = CANIDBuilderOpKindMessageID
+	case acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_NODE_ID:
+		kind = CANIDBuilderOpKindNodeID
+	case acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_BIT_MASK:
+		kind = CANIDBuilderOpKindBitMask
+	}
+	return newCANIDBuilderOp(kind, int(pBuilderOp.From), int(pBuilderOp.Len))
 }
 
 func (l *loader) loadNode(pNode *acmelibv1.Node) (*Node, error) {
@@ -130,22 +189,56 @@ func (l *loader) loadSignalType(pSigType *acmelibv1.SignalType) (*SignalType, er
 	switch pSigType.Kind {
 	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_CUSTOM:
 		kind = SignalTypeKindCustom
-
 	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_FLAG:
 		kind = SignalTypeKindFlag
-
 	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_INTEGER:
 		kind = SignalTypeKindInteger
-
 	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_DECIMAL:
 		kind = SignalTypeKindDecimal
 	}
 
-	sigType, err := newSignalType("", kind, int(pSigType.Size), pSigType.Signed, pSigType.Min, pSigType.Max, pSigType.Scale, pSigType.Offset)
-	if err != nil {
-		return nil, err
-	}
-	sigType.entity = l.getEntity(pSigType.Entity, EntityKindSignalType)
+	ent := l.getEntity(pSigType.Entity, EntityKindSignalType)
+	return newSignalTypeFromEntity(ent, kind, int(pSigType.Size), pSigType.Signed, pSigType.Min, pSigType.Max, pSigType.Scale, pSigType.Offset)
+}
 
-	return sigType, nil
+func (l *loader) loadSignalUnit(pSigUnit *acmelibv1.SignalUnit) *SignalUnit {
+	var kind SignalUnitKind
+	switch pSigUnit.Kind {
+	case acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_CUSTOM:
+		kind = SignalUnitKindCustom
+	case acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_TEMPERATURE:
+		kind = SignalUnitKindTemperature
+	case acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_ELECTRICAL:
+		kind = SignalUnitKindElectrical
+	case acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_POWER:
+		kind = SignalUnitKindPower
+	}
+	return newSignalUnitFromEntity(l.getEntity(pSigUnit.Entity, EntityKindSignalUnit), kind, pSigUnit.Symbol)
+}
+
+func (l *loader) loadSignalEnum(pSigEnum *acmelibv1.SignalEnum) (*SignalEnum, error) {
+	enum := newSignalEnumFromEntity(l.getEntity(pSigEnum.Entity, EntityKindSignalEnum))
+
+	for _, pVal := range pSigEnum.Values {
+		val := l.loadSignalEnumValue(pVal)
+		if err := enum.AddValue(val); err != nil {
+			return nil, err
+		}
+	}
+
+	if pSigEnum.MinSize != 0 {
+		enum.minSize = int(pSigEnum.MinSize)
+	}
+
+	return enum, nil
+}
+
+func (l *loader) loadSignalEnumValue(pVal *acmelibv1.SignalEnumValue) *SignalEnumValue {
+	return newSignalEnumValueFromEntity(l.getEntity(pVal.Entity, EntityKindSignalEnumValue), int(pVal.Index))
+}
+
+func (l *loader) loadAttribute(pAtt *acmelibv1.Attribute) (Attribute, error) {
+	var att Attribute
+
+	return att, nil
 }

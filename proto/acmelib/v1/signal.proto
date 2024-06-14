@@ -3,7 +3,6 @@ syntax = "proto3";
 package acmelib.v1;
 
 import "acmelib/v1/entity.proto";
-import "acmelib/v1/signal_payload.proto";
 import "acmelib/v1/attribute.proto";
 
 enum SignalKind {
@@ -59,3 +58,59 @@ message MultiplexerSignal {
     repeated acmelib.v1.SignalPayload groups = 5;
 }
 
+message SignalEnum {
+    acmelib.v1.Entity entity = 1;
+
+    repeated SignalEnumValue values = 2;
+    uint32 min_size = 3;
+}
+
+message SignalEnumValue {
+    acmelib.v1.Entity entity = 1;
+
+    uint32 index = 2;
+}
+
+enum SignalTypeKind {
+    SIGNAL_TYPE_KIND_UNSPECIFIED = 0;
+    SIGNAL_TYPE_KIND_CUSTOM = 1;
+    SIGNAL_TYPE_KIND_FLAG = 2;
+    SIGNAL_TYPE_KIND_INTEGER = 3;
+    SIGNAL_TYPE_KIND_DECIMAL = 4;
+}
+
+message SignalType {
+    acmelib.v1.Entity entity = 1;
+
+    SignalTypeKind kind = 2;
+    uint32 size = 3;
+    bool signed = 4;
+    double min = 5;
+    double max = 6;
+    double scale = 7;
+    double offset = 8;
+}
+
+enum SignalUnitKind {
+    SIGNAL_UNIT_KIND_UNSPECIFIED = 0;
+    SIGNAL_UNIT_KIND_CUSTOM = 1;
+    SIGNAL_UNIT_KIND_TEMPERATURE = 2;
+    SIGNAL_UNIT_KIND_ELECTRICAL = 3;
+    SIGNAL_UNIT_KIND_POWER = 4;
+}
+
+message SignalUnit {
+    acmelib.v1.Entity entity = 1;
+
+    SignalUnitKind kind = 2;
+    string symbol = 3;
+}
+
+message SignalPayloadRef {
+    string signal_entity_id = 1;
+    uint32 rel_start_bit = 2;
+}
+
+message SignalPayload {
+    repeated SignalPayloadRef refs = 1;
+}
