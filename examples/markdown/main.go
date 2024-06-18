@@ -79,30 +79,30 @@ func main() {
 	modifySignalTypeName(dspaceInt, "DSPACE_rtdACK", "RTD_FSM_STATE", "rtd_fsm_t")
 
 	// adding xpc tx/rx
-	expMsgID := acmelib.MessageID(10)
+	diagTool := mcb.NodeInterfaces()[0]
+	xcpRXMsgID := acmelib.MessageID(10)
+	xcpTXCANID := acmelib.CANID(100)
 	for _, nodeInt := range mcb.NodeInterfaces() {
-		nodeName := nodeInt.Node().Name()
-
-		msgName := fmt.Sprintf("%s_xcp", nodeName)
-		tmpMsg := acmelib.NewMessage(msgName, expMsgID, 8)
-		checkErr(nodeInt.AddMessage(tmpMsg))
-
-		msgDesc := ""
 		if nodeInt.Node().ID() == 0 {
-			for idx, rec := range mcb.NodeInterfaces() {
-				if idx == 0 {
-					continue
-				}
-				tmpMsg.AddReceiver(rec)
-			}
-
-			msgDesc = "The message used to flash a board."
-		} else {
-			tmpMsg.AddReceiver(mcb.NodeInterfaces()[0])
-			msgDesc = "The message used to notify the diagnostic tool that the board is flashed."
+			continue
 		}
 
-		tmpMsg.SetDesc(msgDesc)
+		nodeName := nodeInt.Node().Name()
+
+		msgRXName := fmt.Sprintf("%s_xcpRX", nodeName)
+		tmpRXMsg := acmelib.NewMessage(msgRXName, xcpRXMsgID, 8)
+		checkErr(nodeInt.AddMessage(tmpRXMsg))
+		tmpRXMsg.AddReceiver(diagTool)
+		tmpRXMsg.SetDesc("The message used to notify the diagnostic tool that the board is flashed.")
+
+		msgTXName := fmt.Sprintf("%s_xcpTX", nodeName)
+		tmpTXMsg := acmelib.NewMessage(msgTXName, 0, 8)
+		tmpTXMsg.SetStaticCANID(xcpTXCANID)
+		checkErr(diagTool.AddMessage(tmpTXMsg))
+		tmpTXMsg.AddReceiver(nodeInt)
+		tmpTXMsg.SetDesc(fmt.Sprintf("The message used to flash the %s.", nodeName))
+
+		xcpTXCANID++
 	}
 
 	// calculte bus load
@@ -118,6 +118,11 @@ func main() {
 	if err := acmelib.ExportToMarkdown(sc24, mdFile); err != nil {
 		panic(err)
 	}
+
+	dbcFile, err := os.Create("mcb_parsed.dbc")
+	checkErr(err)
+	defer dbcFile.Close()
+	acmelib.ExportBus(dbcFile, mcb)
 }
 
 func checkErr(err error) {
