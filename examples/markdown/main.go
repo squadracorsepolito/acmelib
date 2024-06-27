@@ -78,6 +78,17 @@ func main() {
 	modifySignalTypeName(dspaceInt, "DSPACE_datetime", "DATETIME_minutes", "minutes_t")
 	modifySignalTypeName(dspaceInt, "DSPACE_rtdACK", "RTD_FSM_STATE", "rtd_fsm_t")
 
+	extraNode := acmelib.NewNode("EXTRA_NODE", 8, 1)
+	unknownIRMsg := acmelib.NewMessage("unknown_ir", 0x70, 8)
+	extraNodeInt := extraNode.Interfaces()[0]
+	checkErr(mcb.AddNodeInterface(extraNodeInt))
+	checkErr(extraNodeInt.AddMessage(unknownIRMsg))
+
+	dbcFile, err := os.Create("mcb_parsed.dbc")
+	checkErr(err)
+	defer dbcFile.Close()
+	acmelib.ExportBus(dbcFile, mcb)
+
 	// adding xpc tx/rx
 	diagTool := mcb.NodeInterfaces()[0]
 	xcpRXMsgID := acmelib.MessageID(10)
@@ -85,6 +96,10 @@ func main() {
 	for _, nodeInt := range mcb.NodeInterfaces() {
 		if nodeInt.Node().ID() == 0 {
 			continue
+		}
+
+		if nodeInt.Node().ID() == 8 {
+			break
 		}
 
 		nodeName := nodeInt.Node().Name()
@@ -119,10 +134,6 @@ func main() {
 		panic(err)
 	}
 
-	dbcFile, err := os.Create("mcb_parsed.dbc")
-	checkErr(err)
-	defer dbcFile.Close()
-	acmelib.ExportBus(dbcFile, mcb)
 }
 
 func checkErr(err error) {
