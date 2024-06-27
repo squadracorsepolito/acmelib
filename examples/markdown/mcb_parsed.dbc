@@ -245,25 +245,6 @@ BO_ 24 TLB_BAT_hello : 3 TLB_BAT
 	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 
-BO_ 19999 OLD_TLB_Battery_TSALStatus : 3 TLB_BAT
-	SG_ TSAL_isGreenON : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ TSAL_isAIRPosClosed : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ TSAL_IsAIRNegClosed : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ TSAL_IsRelayPrechargeClosed : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ TSAL_isDCBusOver60V : 4|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ IntentionalState_AIRPos : 5|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ IntentionalState_AIRNeg : 6|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ IntentionalState_RelayPrecharge : 7|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ SCS_Short2GND_AirPos : 8|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ SCS_Short2GND_AirNeg : 9|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ SCS_isAnyShort2GND_Present : 10|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ Imp_isAnyImp_Present : 11|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ Imp_isAIRPosImp_Present : 12|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ Imp_isAIRNegImp_Present : 13|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ Imp_isRelayPrechargeImp_Present : 14|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ Imp_isDCBusVoltageImp_Present : 15|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-	SG_ Imp_isAnyImp_Latched : 16|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
-
 BO_ 1800 unknown_ir : 8 EXTRA_NODE
 
 
