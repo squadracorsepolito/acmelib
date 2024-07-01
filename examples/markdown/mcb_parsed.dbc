@@ -248,22 +248,22 @@ BO_ 24 TLB_BAT_hello : 3 TLB_BAT
 BO_ 1800 unknown_ir : 8 EXTRA_NODE
 
 BO_ 1816 TPMS_front : 8 TPMS
-	SG_ TIRE_FL_sensID : 0|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
-	SG_ TIRE_FL_status : 8|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_FL_sensID : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_FL_status : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 	SG_ TIRE_FL_temperature : 16|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
 	SG_ TIRE_FL_pressure : 24|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
-	SG_ TIRE_FR_sensID : 32|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
-	SG_ TIRE_FR_status : 40|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_FR_sensID : 32|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_FR_status : 40|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 	SG_ TIRE_FR_temperature : 48|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
 	SG_ TIRE_FR_pressure : 56|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
 
 BO_ 1832 TPMS_rear : 8 TPMS
-	SG_ TIRE_RL_sensID : 0|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
-	SG_ TIRE_RL_status : 8|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_RL_sensID : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_RL_status : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 	SG_ TIRE_RL_temperature : 16|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
 	SG_ TIRE_RL_pressure : 24|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
-	SG_ TIRE_RR_sensID : 32|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
-	SG_ TIRE_RR_status : 40|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_RR_sensID : 32|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_RR_status : 40|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 	SG_ TIRE_RR_temperature : 48|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
 	SG_ TIRE_RR_pressure : 56|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
 
