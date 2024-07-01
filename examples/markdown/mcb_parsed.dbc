@@ -344,7 +344,7 @@ CM_ BU_ DSPACE "An automotive ECU.";
 CM_ SG_ 25 FW_majorVersion "The firmware major version of the dSpace.";
 CM_ SG_ 25 FW_minorVersion "The firmware minor version of the dSpace.";
 CM_ SG_ 25 FW_patchVersion "The firmware patch version of the dSpace.";
-CM_ SG_ 37 DSPACE_FSM_state "The state of the dspace RTD state machine\n0 = Idle (waiting for push)\n1 = Precharge (1st push)\n2 = TS ON\n3 = RTD requested (2nd push)\n4 = RTD\n5 = Turn OFF\n-1 = Reboot/discharge";
+CM_ SG_ 37 DSPACE_FSM_state "The state of the dspace RTD state machine. 0 = Idle (waiting for push); 1 = Precharge (1st push); 2 = TS ON; 3 = RTD requested (2nd push); 4 = RTD\n5 = Turn OFF; -1 = Reboot/discharge";
 CM_ SG_ 39 DATETIME_year "The current year expressed as an offset from 1970.";
 CM_ SG_ 39 DATETIME_month "The current month of the year (0 = January, 11 = December).";
 CM_ SG_ 39 DATETIME_day "The current day of the month, from 1 to 31.";

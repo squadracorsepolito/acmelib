@@ -425,7 +425,7 @@ CM_ SG_ 19 PRECHARGE_RLY_IMP_isPresent "States whether an implausibility from th
 CM_ SG_ 19 DC_BUS_IMP_isPresent "States whether an implausibility from the DC bus is present.";
 CM_ SG_ 19 ANY_IMP_isLatched "States whether any implausibility is latched.";
 
-CM_ SG_ 37 DSPACE_FSM_state "The state of the dspace RTD state machine\n0 = Idle (waiting for push)\n1 = Precharge (1st push)\n2 = TS ON\n3 = RTD requested (2nd push)\n4 = RTD\n5 = Turn OFF\n-1 = Reboot/discharge";
+CM_ SG_ 37 DSPACE_FSM_state "The state of the dspace RTD state machine. 0 = Idle (waiting for push); 1 = Precharge (1st push); 2 = TS ON; 3 = RTD requested (2nd push); 4 = RTD\n5 = Turn OFF; -1 = Reboot/discharge";
 
 
 BA_DEF_ BO_ "GenMsgCycleTime" INT 0 1000;

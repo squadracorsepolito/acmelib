@@ -179,7 +179,7 @@ func tpms(mcb *acmelib.Bus, scanner, dspace *acmelib.NodeInterface) *acmelib.Nod
 
 	statusSigType, err := acmelib.NewDecimalSignalType("tire_sens_status_t", 8, false)
 	checkErr(err)
-	statusSigType.SetDesc("Bit #2: 0 if battery voltage > 2.2V, otherwise 1\nBit #3: 0 if wheel spinning, 1 otherwise")
+	statusSigType.SetDesc("Bit #2: 0 if battery voltage > 2.2V, otherwise 1; Bit #3: 0 if wheel spinning, 1 otherwise")
 
 	tempSigType, err := acmelib.NewIntegerSignalType("tire_temp_t", 8, false)
 	checkErr(err)
