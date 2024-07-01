@@ -32,7 +32,7 @@ NS_:
 
 BS_:
 
-BU_: DIAG_TOOL BMS_LV DASH DSPACE SB_FRONT SB_REAR TLB_BAT SCANNER EXTRA_NODE
+BU_: DIAG_TOOL BMS_LV DASH DSPACE SB_FRONT SB_REAR TLB_BAT SCANNER EXTRA_NODE TPMS
 
 BO_ 20 BMS_LV_hello : 3 BMS_LV
 	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
@@ -134,8 +134,8 @@ BO_ 25 DSPACE_hello : 3 DSPACE
 	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
 
-BO_ 37 DSPACE_rtdACK : 1 DSPACE
-	SG_ RTD_FSM_STATE : 0|8@1- (1,0) [-1|6] "" DASH, SCANNER
+BO_ 37 DSPACE_status : 1 DSPACE
+	SG_ DSPACE_FSM_state : 0|8@1- (1,0) [-1|6] "" DASH, SCANNER
 
 BO_ 39 DSPACE_datetime : 5 DSPACE
 	SG_ DATETIME_year : 0|8@1+ (1,0) [0|255] "" DASH, SB_FRONT, SB_REAR, SCANNER, TLB_BAT
@@ -247,6 +247,26 @@ BO_ 24 TLB_BAT_hello : 3 TLB_BAT
 
 BO_ 1800 unknown_ir : 8 EXTRA_NODE
 
+BO_ 1816 TPMS_front : 8 TPMS
+	SG_ TIRE_FL_sensID : 0|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_FL_status : 8|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_FL_temperature : 16|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
+	SG_ TIRE_FL_pressure : 24|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
+	SG_ TIRE_FR_sensID : 32|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_FR_status : 40|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_FR_temperature : 48|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
+	SG_ TIRE_FR_pressure : 56|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
+
+BO_ 1832 TPMS_rear : 8 TPMS
+	SG_ TIRE_RL_sensID : 0|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_RL_status : 8|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_RL_temperature : 16|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
+	SG_ TIRE_RL_pressure : 24|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
+	SG_ TIRE_RR_sensID : 32|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_RR_status : 40|8@1+ (1,0) [254|-255] "" DSPACE, SCANNER
+	SG_ TIRE_RR_temperature : 48|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
+	SG_ TIRE_RR_pressure : 56|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
+
 
 CM_ BU_ DIAG_TOOL "The diagnostic tool connected through the CSC.";
 CM_ BU_ BMS_LV "The battery-management-system low-voltage.";
@@ -324,6 +344,7 @@ CM_ BU_ DSPACE "An automotive ECU.";
 CM_ SG_ 25 FW_majorVersion "The firmware major version of the dSpace.";
 CM_ SG_ 25 FW_minorVersion "The firmware minor version of the dSpace.";
 CM_ SG_ 25 FW_patchVersion "The firmware patch version of the dSpace.";
+CM_ SG_ 37 DSPACE_FSM_state "The state of the dspace RTD state machine\n0 = Idle (waiting for push)\n1 = Precharge (1st push)\n2 = TS ON\n3 = RTD requested (2nd push)\n4 = RTD\n5 = Turn OFF\n-1 = Reboot/discharge";
 CM_ SG_ 39 DATETIME_year "The current year expressed as an offset from 1970.";
 CM_ SG_ 39 DATETIME_month "The current month of the year (0 = January, 11 = December).";
 CM_ SG_ 39 DATETIME_day "The current day of the month, from 1 to 31.";
@@ -390,6 +411,23 @@ CM_ SG_ 19 ANY_IMP_isLatched "States whether any implausibility is latched.";
 CM_ SG_ 24 FW_majorVersion "The firmware major version of the TLB battery.";
 CM_ SG_ 24 FW_minorVersion "The firmware minor version of the TLB battery.";
 CM_ SG_ 24 FW_patchVersion "The firmware patch version of the TLB battery.";
+CM_ BU_ TPMS "The tire pressure monitoring system.";
+CM_ SG_ 1816 TIRE_FL_sensID "The sensor id of the front left tire.";
+CM_ SG_ 1816 TIRE_FL_status "The status the front left tire.";
+CM_ SG_ 1816 TIRE_FL_temperature "The temperature of the front left tire.";
+CM_ SG_ 1816 TIRE_FL_pressure "The pressure of the front left tire.";
+CM_ SG_ 1816 TIRE_FR_sensID "The sensor id of the front right tire.";
+CM_ SG_ 1816 TIRE_FR_status "The status the front right tire.";
+CM_ SG_ 1816 TIRE_FR_temperature "The temperature of the front right tire.";
+CM_ SG_ 1816 TIRE_FR_pressure "The pressure of the front right tire.";
+CM_ SG_ 1832 TIRE_RL_sensID "The sensor id of the rear left tire.";
+CM_ SG_ 1832 TIRE_RL_status "The status the rear left tire.";
+CM_ SG_ 1832 TIRE_RL_temperature "The temperature of the rear left tire.";
+CM_ SG_ 1832 TIRE_RL_pressure "The pressure of the rear left tire.";
+CM_ SG_ 1832 TIRE_RR_sensID "The sensor id of the rear right tire.";
+CM_ SG_ 1832 TIRE_RR_status "The status the rear right tire.";
+CM_ SG_ 1832 TIRE_RR_temperature "The temperature of the rear right tire.";
+CM_ SG_ 1832 TIRE_RR_pressure "The pressure of the rear right tire.";
 
 BA_DEF_ BO_ "GenMsgCycleTime" INT 0 3600000;
 

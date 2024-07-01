@@ -202,8 +202,8 @@ BO_ 1301 DASH_rotarySwitchState: 1 DASH
 	SG_ ROT_SWITCH_0_position : 0|4@1+ (1,0) [0|10] "" DSPACE, SCANNER
 	SG_ ROT_SWITCH_1_position : 4|4@1+ (1,0) [0|10] "" DSPACE, SCANNER
 
-BO_ 37 DSPACE_rtdACK: 1 DSPACE
-	SG_ RTD_FSM_STATE : 0|8@1- (1,0) [-1|6] "" DASH, SCANNER
+BO_ 37 DSPACE_status: 1 DSPACE
+	SG_ DSPACE_FSM_state : 0|8@1- (1,0) [-1|6] "" DASH, SCANNER
 
 BO_ 512 DSPACE_peripheralsCTRL: 2 DSPACE
 	SG_ BRAKE_LIGHT_activeCMD : 0|1@1+ (1,0) [0|1] "" SB_REAR, SCANNER
@@ -425,7 +425,7 @@ CM_ SG_ 19 PRECHARGE_RLY_IMP_isPresent "States whether an implausibility from th
 CM_ SG_ 19 DC_BUS_IMP_isPresent "States whether an implausibility from the DC bus is present.";
 CM_ SG_ 19 ANY_IMP_isLatched "States whether any implausibility is latched.";
 
-
+CM_ SG_ 37 DSPACE_FSM_state "The state of the dspace RTD state machine\n0 = Idle (waiting for push)\n1 = Precharge (1st push)\n2 = TS ON\n3 = RTD requested (2nd push)\n4 = RTD\n5 = Turn OFF\n-1 = Reboot/discharge";
 
 
 BA_DEF_ BO_ "GenMsgCycleTime" INT 0 1000;
