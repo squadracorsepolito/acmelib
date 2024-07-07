@@ -121,7 +121,8 @@ func (e *mdExporter) exportNode(node *NodeInterface) {
 		e.w.HorizontalRule()
 	}
 
-	e.w.PlainTextf("Node ID: %s", md.Bold(fmt.Sprintf("%d", node.node.id))).LF()
+	hexNodeIIDStr := "0x" + strconv.FormatUint(uint64(node.node.id), 16)
+	e.w.PlainTextf("Node ID: %s (dec), %s (hex)", md.Bold(fmt.Sprintf("%d", node.node.id)), md.Bold(hexNodeIIDStr)).LF()
 
 	for _, msg := range node.Messages() {
 		e.exportMessage(msg)
@@ -150,7 +151,8 @@ func (e *mdExporter) exportMessage(msg *Message) {
 	e.w.PlainTextf("CAN-ID %s: %s (dec), %s (hex)", prefixStr, md.Bold(decCANIDStr), md.Bold(hexCANIIDStr)).LF()
 
 	if !msg.hasStaticCANID {
-		e.w.PlainTextf("Message ID: %s", md.Bold(fmt.Sprintf("%d", msg.id))).LF()
+		hexMsgIIDStr := "0x" + strconv.FormatUint(uint64(msg.id), 16)
+		e.w.PlainTextf("Message ID: %s (dec), %s (hex)", md.Bold(fmt.Sprintf("%d", msg.id)), md.Bold(hexMsgIIDStr)).LF()
 	}
 
 	e.w.PlainTextf("Size: %s bytes", md.Bold(fmt.Sprintf("%d", msg.sizeByte))).LF()

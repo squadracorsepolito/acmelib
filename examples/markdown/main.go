@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 
 	"github.com/squadracorsepolito/acmelib"
 )
@@ -90,15 +91,10 @@ func main() {
 	// adding tpms
 	tpms(mcb, scannerInt, dspaceInt)
 
-	dbcFile, err := os.Create("mcb_parsed.dbc")
-	checkErr(err)
-	defer dbcFile.Close()
-	acmelib.ExportBus(dbcFile, mcb)
-
 	// adding xpc tx/rx
 	diagTool := mcb.NodeInterfaces()[0]
 	xcpRXMsgID := acmelib.MessageID(10)
-	xcpTXCANID := acmelib.CANID(100)
+	xcpTXCANID := acmelib.CANID(0x700)
 	for _, nodeInt := range mcb.NodeInterfaces() {
 		if nodeInt.Node().ID() == 0 {
 			continue
@@ -116,7 +112,7 @@ func main() {
 		tmpRXMsg.AddReceiver(diagTool)
 		tmpRXMsg.SetDesc("The message used to notify the diagnostic tool that the board is flashed.")
 
-		msgTXName := fmt.Sprintf("%s_xcpTX", nodeName)
+		msgTXName := fmt.Sprintf("DIAG_TOOL_%s_xcpTX", nodeName)
 		tmpTXMsg := acmelib.NewMessage(msgTXName, 0, 8)
 		tmpTXMsg.SetStaticCANID(xcpTXCANID)
 		checkErr(diagTool.AddMessage(tmpTXMsg))
@@ -132,6 +128,13 @@ func main() {
 	checkErr(err)
 	log.Print("BUS LOAD: ", busLoad)
 
+	parseMessageIDs(mcb)
+
+	dbcFile, err := os.Create("mcb_parsed.dbc")
+	checkErr(err)
+	defer dbcFile.Close()
+	acmelib.ExportBus(dbcFile, mcb)
+
 	mdFile, err := os.Create("SC24.md")
 	checkErr(err)
 	defer mdFile.Close()
@@ -139,7 +142,6 @@ func main() {
 	if err := acmelib.ExportToMarkdown(sc24, mdFile); err != nil {
 		panic(err)
 	}
-
 }
 
 func checkErr(err error) {
@@ -283,4 +285,43 @@ func tpms(mcb *acmelib.Bus, scanner, dspace *acmelib.NodeInterface) *acmelib.Nod
 	rearMsg.AddReceiver(scanner)
 
 	return tpms
+}
+
+func parseMessageIDs(mcb *acmelib.Bus) {
+	messages := []*acmelib.Message{}
+	for _, nodeInt := range mcb.NodeInterfaces() {
+		if nodeInt.Node().ID() == 0 || nodeInt.Node().ID() >= 8 {
+			continue
+		}
+
+		for _, tmpMsg := range nodeInt.Messages() {
+			if tmpMsg.Name() == fmt.Sprintf("%s_hello", nodeInt.Node().Name()) {
+				checkErr(tmpMsg.UpdateID(1))
+				continue
+			}
+
+			messages = append(messages, tmpMsg)
+		}
+	}
+
+	slices.SortFunc(messages, func(a, b *acmelib.Message) int {
+		cycA := a.CycleTime()
+		cycB := b.CycleTime()
+
+		if cycA != 0 && cycB == 0 {
+			return -1
+		}
+
+		if cycA == 0 && cycB != 0 {
+			return 1
+		}
+
+		return cycA - cycB
+	})
+
+	tmpMsgID := acmelib.MessageID(16)
+	for _, tmpMsg := range messages {
+		checkErr(tmpMsg.UpdateID(tmpMsgID))
+		tmpMsgID++
+	}
 }
