@@ -321,9 +321,44 @@ func parseMessageIDs(mcb *acmelib.Bus) {
 
 	tmpMsgID := acmelib.MessageID(16)
 	for _, tmpMsg := range messages {
-		log.Print(tmpMsg.Name(), " ", tmpMsg.ID())
 		checkErr(tmpMsg.UpdateID(tmpMsgID))
 		tmpMsgID++
-		log.Print("\t-> ", tmpMsg.ID())
+		fmt.Printf("%q: %d,\n", tmpMsg.Name(), tmpMsg.ID())
 	}
+}
+
+var ids = map[string]acmelib.MessageID{
+	"SB_FRONT_analog":             16,
+	"TLB_BAT_status":              17,
+	"TLB_BAT_sdcStatus":           18,
+	"SB_REAR_analog":              19,
+	"SB_REAR_ntcResistance":       20,
+	"SB_REAR_sdcStatus":           21,
+	"SB_REAR_potentiometer":       22,
+	"SB_FRONT_ntcResistance":      23,
+	"SB_FRONT_sdcStatus":          24,
+	"SB_FRONT_potentiometer":      25,
+	"DASH_buttonState":            26,
+	"DASH_rotarySwitchState":      27,
+	"BMS_LV_lvCellVoltage0":       28,
+	"BMS_LV_lvCellVoltage1":       29,
+	"BMS_LV_lvBatGeneral":         30,
+	"DSPACE_peripheralsCTRL":      31,
+	"BMS_LV_status":               32,
+	"BMS_LV_lvCellNTCResistance1": 33,
+	"BMS_LV_lvCellNTCResistance0": 34,
+	"BMS_LV_xcpRX":                35,
+	"SB_REAR_dischargeStatus":     36,
+	"DASH_appsRangeLimits":        37,
+	"DASH_xcpRX":                  38,
+	"SB_REAR_xcpRX":               39,
+	"SB_FRONT_xcpRX":              40,
+	"DASH_peripheralsStatus":      41,
+	"DASH_lvRelayOverride":        42,
+	"DSPACE_motorStatus":          43,
+	"DSPACE_datetime":             44,
+	"TLB_BAT_xcpRX":               45,
+	"DSPACE_status":               46,
+	"DSPACE_xcpRX":                47,
+	"SCANNER_xcpRX":               48,
 }
