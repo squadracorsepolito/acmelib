@@ -622,7 +622,7 @@ func (m *Message) ByteOrder() MessageByteOrder {
 //
 // It may return an error if the new message id is already used within a [NodeInterface].
 func (m *Message) UpdateID(newID MessageID) error {
-	if m.id == newID {
+	if m.id == newID && !m.hasStaticCANID {
 		return nil
 	}
 

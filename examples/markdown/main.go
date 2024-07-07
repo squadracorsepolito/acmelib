@@ -321,7 +321,9 @@ func parseMessageIDs(mcb *acmelib.Bus) {
 
 	tmpMsgID := acmelib.MessageID(16)
 	for _, tmpMsg := range messages {
+		log.Print(tmpMsg.Name(), " ", tmpMsg.ID())
 		checkErr(tmpMsg.UpdateID(tmpMsgID))
 		tmpMsgID++
+		log.Print("\t-> ", tmpMsg.ID())
 	}
 }

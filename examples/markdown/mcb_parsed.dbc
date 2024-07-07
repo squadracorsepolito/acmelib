@@ -263,7 +263,7 @@ BO_ 278 TLB_BAT_status : 3 TLB_BAT
 	SG_ DC_BUS_IMP_isPresent : 15|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ ANY_IMP_isLatched : 16|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 
-BO_ 18 TLB_BAT_sdcStatus : 3 TLB_BAT
+BO_ 294 TLB_BAT_sdcStatus : 3 TLB_BAT
 	SG_ SDC_TSAC_INIT_IN_isActive : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ SDC_TSAC_INIT_OUT_isActive : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
 	SG_ SDC_POST_AMS_IMD_RELAY_isActive : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
@@ -499,5 +499,5 @@ BA_ "GenMsgCycleTime" BO_ 341 10;
 BA_ "GenMsgCycleTime" BO_ 357 10;
 BA_ "GenMsgCycleTime" BO_ 22 10;
 BA_ "GenMsgCycleTime" BO_ 278 10;
-BA_ "GenMsgCycleTime" BO_ 18 10;
+BA_ "GenMsgCycleTime" BO_ 294 10;
 
