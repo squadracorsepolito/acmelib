@@ -241,6 +241,7 @@ func (s *scanner) scanSpace() *token {
 
 func (s *scanner) scanNumber() *token {
 	firstCh := s.lastReadCh
+	prevCh := firstCh
 	hasMore := false
 	isRange := false
 
@@ -254,6 +255,12 @@ loop:
 			return s.scanHexNumber()
 
 		case !isNumber(ch) && ch != '.':
+			if ch == 'e' || ch == 'E' {
+				if prevCh != '-' && prevCh != '+' && prevCh != '.' {
+					return s.scanExpNumber()
+				}
+			}
+
 			if ch == '-' && isNumber(firstCh) && !isRange {
 				nextCh := s.peek()
 				if isNumber(nextCh) {
@@ -267,8 +274,13 @@ loop:
 			break loop
 
 		default:
+			if ch == '.' && (prevCh == '-' || prevCh == '+') {
+				break loop
+			}
+
 			hasMore = true
 			s.read()
+			prevCh = ch
 		}
 	}
 
@@ -301,6 +313,51 @@ func (s *scanner) scanHexNumber() *token {
 			break
 		}
 
+		s.read()
+	}
+
+	return s.emitToken(tokenNumber)
+}
+
+func (s *scanner) scanExpNumber() *token {
+	ch := s.peek()
+	if ch != '-' && ch != '+' && !isNumber(ch) {
+		s.read()
+		return s.emitErrorToken("invalid exponential number")
+	}
+
+	if ch == '-' || ch == '+' {
+		foundExp := false
+		for {
+			ch = s.peek()
+
+			if !isNumber(ch) {
+				if foundExp {
+					break
+				}
+
+				s.read()
+				s.read()
+				return s.emitErrorToken("invalid exponential number")
+			}
+
+			if !foundExp {
+				foundExp = true
+				s.read()
+			}
+
+			s.read()
+		}
+
+		return s.emitToken(tokenNumber)
+	}
+
+	s.read()
+	for {
+		ch = s.peek()
+		if !isNumber(ch) {
+			break
+		}
 		s.read()
 	}
 

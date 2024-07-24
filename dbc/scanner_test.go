@@ -54,12 +54,18 @@ func Test_scanner_scanNumber(t *testing.T) {
 		1+ 1- 1-1 1-1-
 		0x1 0x1-
 		32@0- @0-
+		1E10 1e-10 -1e+10 E10 e10
+		+0.5E10 -0.5e10
+		-e10 -.E10 1e 1e+
 	`
 
 	expectedTokens := []tokenKind{tokenNumber, tokenPunct, tokenPunct, tokenNumber, tokenNumber,
 		tokenNumber, tokenPunct, tokenNumber, tokenPunct, tokenNumberRange, tokenNumberRange, tokenPunct,
 		tokenNumber, tokenNumber, tokenPunct,
 		tokenNumber, tokenPunct, tokenNumber, tokenPunct, tokenPunct, tokenNumber, tokenPunct,
+		tokenNumber, tokenNumber, tokenNumber, tokenIdent, tokenIdent,
+		tokenNumber, tokenNumber,
+		tokenPunct, tokenIdent, tokenPunct, tokenError, tokenIdent, tokenError, tokenError,
 	}
 
 	s := newScanner(bytes.NewBufferString(file))
