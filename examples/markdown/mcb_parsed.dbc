@@ -1,0 +1,503 @@
+VERSION "_"
+
+NS_:
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	VAL_TABLE_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SIG_GROUP_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: DIAG_TOOL BMS_LV DASH DSPACE SB_FRONT SB_REAR TLB_BAT SCANNER EXTRA_NODE TPMS
+
+BO_ 1792 DIAG_TOOL_BMS_LV_xcpTX : 8 DIAG_TOOL
+
+BO_ 1793 DIAG_TOOL_DASH_xcpTX : 8 DIAG_TOOL
+
+BO_ 1794 DIAG_TOOL_DSPACE_xcpTX : 8 DIAG_TOOL
+
+BO_ 1795 DIAG_TOOL_SB_FRONT_xcpTX : 8 DIAG_TOOL
+
+BO_ 1796 DIAG_TOOL_SB_REAR_xcpTX : 8 DIAG_TOOL
+
+BO_ 1797 DIAG_TOOL_TLB_BAT_xcpTX : 8 DIAG_TOOL
+
+BO_ 1798 DIAG_TOOL_SCANNER_xcpTX : 8 DIAG_TOOL
+
+BO_ 17 BMS_LV_hello : 3 BMS_LV
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+
+BO_ 449 BMS_LV_lvCellVoltage0 : 8 BMS_LV
+	SG_ LV_CELL_0_voltage : 0|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+	SG_ LV_CELL_1_voltage : 16|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+	SG_ LV_CELL_2_voltage : 32|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+	SG_ LV_CELL_3_voltage : 48|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+
+BO_ 465 BMS_LV_lvCellVoltage1 : 6 BMS_LV
+	SG_ LV_CELL_4_voltage : 0|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+	SG_ LV_CELL_5_voltage : 16|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+	SG_ LV_CELL_6_voltage : 32|16@1+ (0.038,2000) [0|2490.33] "mV" DSPACE, SCANNER
+
+BO_ 481 BMS_LV_lvBatGeneral : 6 BMS_LV
+	SG_ LV_BAT_currentSensVoltage : 0|16@1+ (0.076,0) [0|4980.66] "mV" DSPACE, SCANNER
+	SG_ LV_BAT_voltage : 16|16@1+ (0.267,14000) [0|17497.845] "mV" DSPACE, SCANNER
+	SG_ LV_BAT_summedVoltage : 32|16@1+ (0.267,14000) [0|17497.845] "mV" DSPACE, SCANNER
+
+BO_ 513 BMS_LV_status : 4 BMS_LV
+	SG_ LV_RELAY_isClosed : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_0_isOV : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_0_isUV : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_1_isOV : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_1_isUV : 4|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_2_isOV : 5|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_2_isUV : 6|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_3_isOV : 7|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_3_isUV : 8|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_4_isOV : 9|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_4_isUV : 10|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_5_isOV : 11|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_5_isUV : 12|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_6_isOV : 13|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_6_isUV : 14|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_00_isOT : 15|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_01_isOT : 16|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_02_isOT : 17|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_03_isOT : 18|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_04_isOT : 19|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_05_isOT : 20|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_06_isOT : 21|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_07_isOT : 22|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_08_isOT : 23|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_09_isOT : 24|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_10_isOT : 25|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_11_isOT : 26|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+
+BO_ 529 BMS_LV_lvCellNTCResistance1 : 8 BMS_LV
+	SG_ LV_CELL_NTC_06_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_07_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_08_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_09_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_10_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_11_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+
+BO_ 545 BMS_LV_lvCellNTCResistance0 : 8 BMS_LV
+	SG_ LV_CELL_NTC_00_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_01_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_02_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_03_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_04_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ LV_CELL_NTC_05_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+
+BO_ 561 BMS_LV_xcpRX : 8 BMS_LV
+
+BO_ 18 DASH_hello : 3 DASH
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+
+BO_ 418 DASH_buttonState : 2 DASH
+	SG_ RTD_CMD : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ BTN_0_isPressed : 8|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ BTN_1_isPressed : 9|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ BTN_2_isPressed : 10|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ BTN_3_isPressed : 11|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+
+BO_ 434 DASH_rotarySwitchState : 1 DASH
+	SG_ ROT_SWITCH_0_position : 0|4@1+ (1,0) [0|10] "" DSPACE, SCANNER
+	SG_ ROT_SWITCH_1_position : 4|4@1+ (1,0) [0|10] "" DSPACE, SCANNER
+
+BO_ 594 DASH_appsRangeLimits : 8 DASH
+	SG_ APPS_0_voltageRangeMin : 0|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ APPS_0_voltageRangeMax : 16|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ APPS_1_voltageRangeMin : 32|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ APPS_1_voltageRangeMax : 48|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+
+BO_ 610 DASH_xcpRX : 8 DASH
+
+BO_ 658 DASH_peripheralsStatus : 1 DASH
+	SG_ TSAC_FAN_pwmStatus : 0|4@1+ (1,0) [0|10] "%" DSPACE, SCANNER
+
+BO_ 674 DASH_lvRelayOverride : 2 DASH
+	SG_ BMS_LV_diagPWD : 0|15@1+ (1,0) [0|32768] "" BMS_LV
+	SG_ LV_RELAY_forcedState : 15|1@1+ (1,0) [0|1] "closed" BMS_LV
+
+BO_ 19 DSPACE_hello : 3 DSPACE
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+
+BO_ 499 DSPACE_peripheralsCTRL : 2 DSPACE
+	SG_ BRAKE_LIGHT_activeCMD : 0|1@1+ (1,0) [0|1] "" DASH, SB_REAR, SCANNER
+	SG_ RAD_FAN_pwmCtrl : 8|8@1+ (1,0) [0|255] "%" DASH, SB_REAR, SCANNER
+
+BO_ 691 DSPACE_motorStatus : 1 DSPACE
+	SG_ MOTOR_FL_isON : 0|1@1+ (1,0) [0|1] "" SCANNER
+	SG_ MOTOR_FR_isON : 1|1@1+ (1,0) [0|1] "" SCANNER
+	SG_ MOTOR_RL_isON : 2|1@1+ (1,0) [0|1] "" SCANNER
+	SG_ MOTOR_RR_isON : 3|1@1+ (1,0) [0|1] "" SCANNER
+
+BO_ 707 DSPACE_datetime : 5 DSPACE
+	SG_ DATETIME_year : 0|8@1+ (1,0) [0|255] "" DASH, SB_FRONT, SB_REAR, SCANNER, TLB_BAT
+	SG_ DATETIME_month : 8|4@1+ (1,0) [0|11] "" DASH, SB_FRONT, SB_REAR, SCANNER, TLB_BAT
+	SG_ DATETIME_day : 12|5@1+ (1,0) [1|31] "" DASH, SB_FRONT, SB_REAR, SCANNER, TLB_BAT
+	SG_ DATETIME_hours : 17|5@1+ (1,0) [0|23] "h" DASH, SB_FRONT, SB_REAR, SCANNER, TLB_BAT
+	SG_ DATETIME_minutes : 22|6@1+ (1,0) [0|59] "min" DASH, SB_FRONT, SB_REAR, SCANNER, TLB_BAT
+	SG_ DATETIME_seconds : 28|6@1+ (1,0) [0|59] "sec" DASH, SB_FRONT, SB_REAR, SCANNER, TLB_BAT
+
+BO_ 739 DSPACE_status : 1 DSPACE
+	SG_ DSPACE_FSM_state : 0|8@1- (1,0) [-1|6] "" DASH, SCANNER
+
+BO_ 755 DSPACE_xcpRX : 8 DSPACE
+
+BO_ 20 SB_FRONT_hello : 3 SB_FRONT
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+
+BO_ 260 SB_FRONT_analog : 8 SB_FRONT
+	SG_ APPS_0_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ APPS_1_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ STEERING_RME_voltage : 32|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ BRAKE_PRESS_FRONT_voltage : 48|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+
+BO_ 372 SB_FRONT_ntcResistance : 8 SB_FRONT
+	SG_ JACKET_FL_NTC_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ JACKET_FR_NTC_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ COLDPLATE_L_NTC_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ COLDPLATE_R_NTC_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ SPARE_NTC_0_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ SPARE_NTC_1_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+
+BO_ 388 SB_FRONT_sdcStatus : 1 SB_FRONT
+	SG_ SDC_POST_INERTIA_isActive : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_POST_BOTS_isActive : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_POST_CP_PUSH_BTN_isActive : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+
+BO_ 404 SB_FRONT_potentiometer : 4 SB_FRONT
+	SG_ LPPS_DAMPER_FL_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ LPPS_DAMPER_FR_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+
+BO_ 644 SB_FRONT_xcpRX : 8 SB_FRONT
+
+BO_ 21 SB_REAR_hello : 3 SB_REAR
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+
+BO_ 309 SB_REAR_analog : 6 SB_REAR
+	SG_ COOL_PRESS_LEFT_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ COOL_PRESS_RIGHT_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ BRAKE_PRESS_REAR_voltage : 32|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+
+BO_ 325 SB_REAR_ntcResistance : 8 SB_REAR
+	SG_ JACKET_RL_NTC_resistance : 0|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ JACKET_RR_NTC_resistance : 10|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ RAD_RL_IN_NTC_resistance : 20|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ RAD_RL_OUT_NTC_resistance : 30|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ RAD_RR_IN_NTC_resistance : 40|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+	SG_ RAD_RR_OUT_NTC_resistance : 50|10@1+ (31.25,1000) [0|31968.75] "Ohm" DSPACE, SCANNER
+
+BO_ 341 SB_REAR_sdcStatus : 1 SB_REAR
+	SG_ SDC_POST_BSPD_isClosed : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_PRE_PUSH_BTNS_isClosed : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_POST_DC_BUS_isClosed : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_POST_INV_FR_isClosed : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ BSPD_hasError : 4|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+
+BO_ 357 SB_REAR_potentiometer : 4 SB_REAR
+	SG_ LPPS_DAMPER_RL_voltage : 0|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+	SG_ LPPS_DAMPER_RR_voltage : 16|16@1+ (1,0) [0|65535] "mV" DSPACE, SCANNER
+
+BO_ 581 SB_REAR_dischargeStatus : 1 SB_REAR
+	SG_ DISCHARGE_isOpen : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+
+BO_ 629 SB_REAR_xcpRX : 8 SB_REAR
+
+BO_ 22 TLB_BAT_hello : 3 TLB_BAT
+	SG_ FW_majorVersion : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_minorVersion : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ FW_patchVersion : 16|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+
+BO_ 278 TLB_BAT_status : 3 TLB_BAT
+	SG_ TSAL_isGreen : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ AIR_POS_isClosed : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ AIR_NEG_isClosed : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ PRECHARGE_RLY_isClosed : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ DC_BUS_isOver60V : 4|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ IntentionalState_AIRPos : 5|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ IntentionalState_AIRNeg : 6|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ IntentionalState_RelayPrecharge : 7|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SCS_Short2GND_AirPos : 8|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SCS_Short2GND_AirNeg : 9|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SCS_isAnyShort2GND_Present : 10|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ ANY_IMP_isPresent : 11|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ AIR_POS_IMP_isPresent : 12|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ AIR_NEG_IMP_isPresent : 13|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ PRECHARGE_RLY_IMP_isPresent : 14|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ DC_BUS_IMP_isPresent : 15|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ ANY_IMP_isLatched : 16|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+
+BO_ 294 TLB_BAT_sdcStatus : 3 TLB_BAT
+	SG_ SDC_TSAC_INIT_IN_isActive : 0|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_TSAC_INIT_OUT_isActive : 1|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_POST_AMS_IMD_RELAY_isActive : 2|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+	SG_ SDC_TSAC_FINAL_IN_isActive : 3|1@1+ (1,0) [0|1] "" DSPACE, SCANNER
+
+BO_ 726 TLB_BAT_xcpRX : 8 TLB_BAT
+
+BO_ 775 SCANNER_xcpRX : 8 SCANNER
+
+BO_ 1800 unknown_ir : 8 EXTRA_NODE
+
+BO_ 1816 TPMS_front : 8 TPMS
+	SG_ TIRE_FL_sensID : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_FL_status : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_FL_temperature : 16|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
+	SG_ TIRE_FL_pressure : 24|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
+	SG_ TIRE_FR_sensID : 32|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_FR_status : 40|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_FR_temperature : 48|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
+	SG_ TIRE_FR_pressure : 56|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
+
+BO_ 1832 TPMS_rear : 8 TPMS
+	SG_ TIRE_RL_sensID : 0|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_RL_status : 8|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_RL_temperature : 16|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
+	SG_ TIRE_RL_pressure : 24|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
+	SG_ TIRE_RR_sensID : 32|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_RR_status : 40|8@1+ (1,0) [0|255] "" DSPACE, SCANNER
+	SG_ TIRE_RR_temperature : 48|8@1+ (1,0) [10|170] "degC" DSPACE, SCANNER
+	SG_ TIRE_RR_pressure : 56|8@1+ (1,0) [1|254] "mB" DSPACE, SCANNER
+
+
+CM_ BU_ DIAG_TOOL "The diagnostic tool connected through the CSC.";
+CM_ BO_ 1792 "The message used to flash the BMS_LV.";
+CM_ BO_ 1793 "The message used to flash the DASH.";
+CM_ BO_ 1794 "The message used to flash the DSPACE.";
+CM_ BO_ 1795 "The message used to flash the SB_FRONT.";
+CM_ BO_ 1796 "The message used to flash the SB_REAR.";
+CM_ BO_ 1797 "The message used to flash the TLB_BAT.";
+CM_ BO_ 1798 "The message used to flash the SCANNER.";
+CM_ BU_ BMS_LV "The battery-management-system low-voltage.";
+CM_ SG_ 17 FW_majorVersion "The firmware major version of the BMS LV.";
+CM_ SG_ 17 FW_minorVersion "The firmware minor version of the BMS LV.";
+CM_ SG_ 17 FW_patchVersion "The firmware patch version of the BMS LV.";
+CM_ SG_ 449 LV_CELL_0_voltage "The voltage of the LV cell #0 expressed in mV.";
+CM_ SG_ 449 LV_CELL_1_voltage "The voltage of the LV cell #1 expressed in mV.";
+CM_ SG_ 449 LV_CELL_2_voltage "The voltage of the LV cell #2 expressed in mV.";
+CM_ SG_ 449 LV_CELL_3_voltage "The voltage of the LV cell #3 expressed in mV.";
+CM_ SG_ 465 LV_CELL_4_voltage "The voltage of the LV cell #4 expressed in mV.";
+CM_ SG_ 465 LV_CELL_5_voltage "The voltage of the LV cell #4 expressed in mV.";
+CM_ SG_ 465 LV_CELL_6_voltage "The voltage of the LV cell #4 expressed in mV.";
+CM_ SG_ 481 LV_BAT_currentSensVoltage "The voltage returned by the current sensor of the LV battery expressed in mV.";
+CM_ SG_ 481 LV_BAT_voltage "The total read voltage of the LV battery pack expressed in mV.";
+CM_ SG_ 481 LV_BAT_summedVoltage "The total voltage of the LV battery pack calculated by summing each cell voltage expressed in mV.";
+CM_ SG_ 513 LV_RELAY_isClosed "States whether the LV relay is closed.";
+CM_ SG_ 513 LV_CELL_0_isOV "States whether the LV cell #0 is in overvoltage.";
+CM_ SG_ 513 LV_CELL_0_isUV "States whether the LV cell #0 is in undervoltage.";
+CM_ SG_ 513 LV_CELL_1_isOV "States whether the LV cell #1 is in overvoltage.";
+CM_ SG_ 513 LV_CELL_1_isUV "States whether the LV cell #1 is in undervoltage.";
+CM_ SG_ 513 LV_CELL_2_isOV "States whether the LV cell #2 is in overvoltage.";
+CM_ SG_ 513 LV_CELL_2_isUV "States whether the LV cell #2 is in undervoltage.";
+CM_ SG_ 513 LV_CELL_3_isOV "States whether the LV cell #3 is in overvoltage.";
+CM_ SG_ 513 LV_CELL_3_isUV "States whether the LV cell #3 is in undervoltage.";
+CM_ SG_ 513 LV_CELL_4_isOV "States whether the LV cell #4 is in overvoltage.";
+CM_ SG_ 513 LV_CELL_4_isUV "States whether the LV cell #4 is in undervoltage.";
+CM_ SG_ 513 LV_CELL_5_isOV "States whether the LV cell #5 is in overvoltage.";
+CM_ SG_ 513 LV_CELL_5_isUV "States whether the LV cell #5 is in undervoltage.";
+CM_ SG_ 513 LV_CELL_6_isOV "States whether the LV cell #6 is in overvoltage.";
+CM_ SG_ 513 LV_CELL_6_isUV "States whether the LV cell #6 is in undervoltage.";
+CM_ SG_ 513 LV_CELL_NTC_00_isOT "States whether the LV cell temperature sensor #0 (NTC) detects an over temperature.";
+CM_ SG_ 513 LV_CELL_NTC_01_isOT "States whether the LV cell temperature sensor #1 (NTC) detects an over temperature.";
+CM_ SG_ 513 LV_CELL_NTC_02_isOT "States whether the LV cell temperature sensor #2 (NTC) detects an over temperature.";
+CM_ SG_ 513 LV_CELL_NTC_03_isOT "States whether the LV cell temperature sensor #3 (NTC) detects an over temperature.";
+CM_ SG_ 513 LV_CELL_NTC_04_isOT "States whether the LV cell temperature sensor #4 (NTC) detects an over temperature.";
+CM_ SG_ 513 LV_CELL_NTC_05_isOT "States whether the LV cell temperature sensor #5 (NTC) detects an over temperature.";
+CM_ SG_ 513 LV_CELL_NTC_06_isOT "States whether the LV cell temperature sensor #6 (NTC) detects an over temperature.";
+CM_ SG_ 513 LV_CELL_NTC_07_isOT "States whether the LV cell temperature sensor #7 (NTC) detects an over temperature.";
+CM_ SG_ 513 LV_CELL_NTC_08_isOT "States whether the LV cell temperature sensor #8 (NTC) detects an over temperature.";
+CM_ SG_ 513 LV_CELL_NTC_09_isOT "States whether the LV cell temperature sensor #9 (NTC) detects an over temperature.";
+CM_ SG_ 513 LV_CELL_NTC_10_isOT "States whether the LV cell temperature sensor #10 (NTC) detects an over temperature.";
+CM_ SG_ 513 LV_CELL_NTC_11_isOT "States whether the LV cell temperature sensor #11 (NTC) detects an over temperature.";
+CM_ SG_ 529 LV_CELL_NTC_06_resistance "The resistance of the NTC #6 in the battery pack expressed in Ohm.";
+CM_ SG_ 529 LV_CELL_NTC_07_resistance "The resistance of the NTC #7 in the battery pack expressed in Ohm.";
+CM_ SG_ 529 LV_CELL_NTC_08_resistance "The resistance of the NTC #8 in the battery pack expressed in Ohm.";
+CM_ SG_ 529 LV_CELL_NTC_09_resistance "The resistance of the NTC #9 in the battery pack expressed in Ohm.";
+CM_ SG_ 529 LV_CELL_NTC_10_resistance "The resistance of the NTC #10 in the battery pack expressed in Ohm.";
+CM_ SG_ 529 LV_CELL_NTC_11_resistance "The resistance of the NTC #11 in the battery pack expressed in Ohm.";
+CM_ SG_ 545 LV_CELL_NTC_00_resistance "The resistance of the NTC #0 in the battery pack expressed in Ohm.";
+CM_ SG_ 545 LV_CELL_NTC_01_resistance "The resistance of the NTC #1 in the battery pack expressed in Ohm.";
+CM_ SG_ 545 LV_CELL_NTC_02_resistance "The resistance of the NTC #2 in the battery pack expressed in Ohm.";
+CM_ SG_ 545 LV_CELL_NTC_03_resistance "The resistance of the NTC #3 in the battery pack expressed in Ohm.";
+CM_ SG_ 545 LV_CELL_NTC_04_resistance "The resistance of the NTC #4 in the battery pack expressed in Ohm.";
+CM_ SG_ 545 LV_CELL_NTC_05_resistance "The resistance of the NTC #5 in the battery pack expressed in Ohm.";
+CM_ BO_ 561 "The message used to notify the diagnostic tool that the board is flashed.";
+CM_ BU_ DASH "The dashboard ECU.";
+CM_ SG_ 18 FW_majorVersion "The firmware major version of the dashboard.";
+CM_ SG_ 18 FW_minorVersion "The firmware minor version of the dashboard.";
+CM_ SG_ 18 FW_patchVersion "The firmware patch version of the dashboard.";
+CM_ SG_ 418 RTD_CMD "The RTD command.";
+CM_ SG_ 418 BTN_0_isPressed "States whether the button #0 of the dashboard is pressed.";
+CM_ SG_ 418 BTN_1_isPressed "States whether the button #1 of the dashboard is pressed.";
+CM_ SG_ 418 BTN_2_isPressed "States whether the button #2 of the dashboard is pressed.";
+CM_ SG_ 418 BTN_3_isPressed "States whether the button #3 of the dashboard is pressed.";
+CM_ SG_ 434 ROT_SWITCH_0_position "The position (0-10) of the rotary switch #0 of the dashboard.";
+CM_ SG_ 434 ROT_SWITCH_1_position "The position (0-10) of the rotary switch #1 of the dashboard.";
+CM_ SG_ 594 APPS_0_voltageRangeMin "The APPS #0 minimum range expressed in mV.";
+CM_ SG_ 594 APPS_0_voltageRangeMax "The APPS #0 maximum range expressed in mV.";
+CM_ SG_ 594 APPS_1_voltageRangeMin "The APPS #1 minimum range expressed in mV.";
+CM_ SG_ 594 APPS_1_voltageRangeMax "The APPS #1 maximum range expressed in mV.";
+CM_ BO_ 610 "The message used to notify the diagnostic tool that the board is flashed.";
+CM_ SG_ 658 TSAC_FAN_pwmStatus "The percentage of the duty cycle of the TSAC fan.";
+CM_ SG_ 674 BMS_LV_diagPWD "The password to enter diagnostic mode of the BMS_LV.";
+CM_ SG_ 674 LV_RELAY_forcedState "The command to force the LV relay open (0) or closed (1).";
+CM_ BU_ DSPACE "An automotive ECU.";
+CM_ SG_ 19 FW_majorVersion "The firmware major version of the dSpace.";
+CM_ SG_ 19 FW_minorVersion "The firmware minor version of the dSpace.";
+CM_ SG_ 19 FW_patchVersion "The firmware patch version of the dSpace.";
+CM_ SG_ 499 BRAKE_LIGHT_activeCMD "The command to turn on the brake light (1 active).";
+CM_ SG_ 691 MOTOR_FL_isON "States whether the front left motor is ON.";
+CM_ SG_ 691 MOTOR_FR_isON "States whether the front right motor is ON.";
+CM_ SG_ 691 MOTOR_RL_isON "States whether the rear left motor is ON.";
+CM_ SG_ 691 MOTOR_RR_isON "States whether the rear right motor is ON.";
+CM_ SG_ 707 DATETIME_year "The current year expressed as an offset from 1970.";
+CM_ SG_ 707 DATETIME_month "The current month of the year (0 = January, 11 = December).";
+CM_ SG_ 707 DATETIME_day "The current day of the month, from 1 to 31.";
+CM_ SG_ 707 DATETIME_hours "The current hours of the day.";
+CM_ SG_ 707 DATETIME_minutes "The current minutes of the hour.";
+CM_ SG_ 707 DATETIME_seconds "The current seconds of the minute.";
+CM_ SG_ 739 DSPACE_FSM_state "The state of the dspace RTD state machine. 0 = Idle (waiting for push); 1 = Precharge (1st push); 2 = TS ON; 3 = RTD requested (2nd push); 4 = RTD\n5 = Turn OFF; -1 = Reboot/discharge";
+CM_ BO_ 755 "The message used to notify the diagnostic tool that the board is flashed.";
+CM_ BU_ SB_FRONT "The sensorboard front ECU.";
+CM_ SG_ 20 FW_majorVersion "The firmware major version of the front sensorboard.";
+CM_ SG_ 20 FW_minorVersion "The firmware minor version of the front sensorboard.";
+CM_ SG_ 20 FW_patchVersion "The firmware patch version of the front sensorboard.";
+CM_ SG_ 260 APPS_0_voltage "The voltage of the APPS #0 expressed in mV.";
+CM_ SG_ 260 APPS_1_voltage "The voltage of the APPS #1 expressed in mV.";
+CM_ SG_ 260 STEERING_RME_voltage "The voltage of the steering RME (rotary magnetic encoder) sensor expressed in mV.";
+CM_ SG_ 260 BRAKE_PRESS_FRONT_voltage "The voltage of the front brake pressure sensor expressed in mV.";
+CM_ SG_ 372 JACKET_FL_NTC_resistance "The resistance of the front left jacket NTC expressed in Ohm.";
+CM_ SG_ 372 JACKET_FR_NTC_resistance "The resistance of the front right jacket NTC expressed in Ohm.";
+CM_ SG_ 372 COLDPLATE_L_NTC_resistance "The resistance of the left coldplate NTC expressed in Ohm.";
+CM_ SG_ 372 COLDPLATE_R_NTC_resistance "The resistance of the right coldplate NTC expressed in Ohm.";
+CM_ SG_ 372 SPARE_NTC_0_resistance "The resistance of the spare NTC #0 expressed in Ohm.";
+CM_ SG_ 372 SPARE_NTC_1_resistance "The resistance of the spare NTC #1 expressed in Ohm.";
+CM_ SG_ 388 SDC_POST_INERTIA_isActive "States whether the SDC post inertia switch is active.";
+CM_ SG_ 388 SDC_POST_BOTS_isActive "States whether the SDC post BOTS is active.";
+CM_ SG_ 388 SDC_POST_CP_PUSH_BTN_isActive "States whether the SDC post cockpit push button is active.";
+CM_ SG_ 404 LPPS_DAMPER_FL_voltage "The voltage of the linear potentiometer position sensor on the front left damper expressed in mV.";
+CM_ SG_ 404 LPPS_DAMPER_FR_voltage "The voltage of the linear potentiometer position sensor on the front right damper expressed in mV.";
+CM_ BO_ 644 "The message used to notify the diagnostic tool that the board is flashed.";
+CM_ BU_ SB_REAR "The sensorboard rear ECU.";
+CM_ SG_ 21 FW_majorVersion "The firmware major version of the rear sensorboard.";
+CM_ SG_ 21 FW_minorVersion "The firmware minor version of the rear sensorboard.";
+CM_ SG_ 21 FW_patchVersion "The firmware patch version of the rear sensorboard.";
+CM_ SG_ 309 COOL_PRESS_LEFT_voltage "The voltage of the left cooling pressure sensor expressed in mV.";
+CM_ SG_ 309 COOL_PRESS_RIGHT_voltage "The voltage of the right cooling pressure sensor expressed in mV.";
+CM_ SG_ 309 BRAKE_PRESS_REAR_voltage "The voltage of the rear brake pressure sensor expressed in mV.";
+CM_ SG_ 325 JACKET_RL_NTC_resistance "The resistance of the rear left jacket NTC expressed in Ohm.";
+CM_ SG_ 325 JACKET_RR_NTC_resistance "The resistance of the rear right jacket NTC expressed in Ohm.";
+CM_ SG_ 325 RAD_RL_IN_NTC_resistance "The resistance of the rear left IN radiator NTC expressed in Ohm.";
+CM_ SG_ 325 RAD_RL_OUT_NTC_resistance "The resistance of the rear left OUT radiator NTC expressed in Ohm.";
+CM_ SG_ 325 RAD_RR_IN_NTC_resistance "The resistance of the rear right IN radiator NTC expressed in Ohm.";
+CM_ SG_ 325 RAD_RR_OUT_NTC_resistance "The resistance of the rear right OUT radiator NTC expressed in Ohm.";
+CM_ SG_ 341 SDC_POST_BSPD_isClosed "States whether the SDC post BSPD is closed.";
+CM_ SG_ 341 SDC_PRE_PUSH_BTNS_isClosed "States whether the SDC per push buttons (hoop right/left) is closed.";
+CM_ SG_ 341 SDC_POST_DC_BUS_isClosed "States whether the SDC post DC bus (inverter mono) is closed.";
+CM_ SG_ 341 SDC_POST_INV_FR_isClosed "States whether the SDC post inverter front right is closed.";
+CM_ SG_ 341 BSPD_hasError "States whether the BSPD has an error.";
+CM_ SG_ 357 LPPS_DAMPER_RL_voltage "The voltage of the linear potentiometer position sensor on the rear left damper expressed in mV.";
+CM_ SG_ 357 LPPS_DAMPER_RR_voltage "The voltage of the linear potentiometer position sensor on the rear left damper expressed in mV.";
+CM_ SG_ 581 DISCHARGE_isOpen "States whether the discharge is open.";
+CM_ BO_ 629 "The message used to notify the diagnostic tool that the board is flashed.";
+CM_ BU_ TLB_BAT "The tsal-latch-board battery ECU.";
+CM_ SG_ 22 FW_majorVersion "The firmware major version of the TLB battery.";
+CM_ SG_ 22 FW_minorVersion "The firmware minor version of the TLB battery.";
+CM_ SG_ 22 FW_patchVersion "The firmware patch version of the TLB battery.";
+CM_ SG_ 278 TSAL_isGreen "States whether the TSAL is green.";
+CM_ SG_ 278 AIR_POS_isClosed "States whether the positive AIR is closed.";
+CM_ SG_ 278 AIR_NEG_isClosed "States whether the negative AIR is closed.";
+CM_ SG_ 278 PRECHARGE_RLY_isClosed "States whether the precharge relay is closed.";
+CM_ SG_ 278 DC_BUS_isOver60V "States whether the DC bus volatge is over 60V.";
+CM_ SG_ 278 ANY_IMP_isPresent "States whether any implausibility is present.";
+CM_ SG_ 278 AIR_POS_IMP_isPresent "States whether an implausibility from the positive AIR is present.";
+CM_ SG_ 278 AIR_NEG_IMP_isPresent "States whether an implausibility from the negative AIR is present.";
+CM_ SG_ 278 PRECHARGE_RLY_IMP_isPresent "States whether an implausibility from the precharge relay is present.";
+CM_ SG_ 278 DC_BUS_IMP_isPresent "States whether an implausibility from the DC bus is present.";
+CM_ SG_ 278 ANY_IMP_isLatched "States whether any implausibility is latched.";
+CM_ BO_ 726 "The message used to notify the diagnostic tool that the board is flashed.";
+CM_ BO_ 775 "The message used to notify the diagnostic tool that the board is flashed.";
+CM_ BU_ TPMS "The tire pressure monitoring system.";
+CM_ SG_ 1816 TIRE_FL_sensID "The sensor id of the front left tire.";
+CM_ SG_ 1816 TIRE_FL_status "The status the front left tire.";
+CM_ SG_ 1816 TIRE_FL_temperature "The temperature of the front left tire.";
+CM_ SG_ 1816 TIRE_FL_pressure "The pressure of the front left tire.";
+CM_ SG_ 1816 TIRE_FR_sensID "The sensor id of the front right tire.";
+CM_ SG_ 1816 TIRE_FR_status "The status the front right tire.";
+CM_ SG_ 1816 TIRE_FR_temperature "The temperature of the front right tire.";
+CM_ SG_ 1816 TIRE_FR_pressure "The pressure of the front right tire.";
+CM_ SG_ 1832 TIRE_RL_sensID "The sensor id of the rear left tire.";
+CM_ SG_ 1832 TIRE_RL_status "The status the rear left tire.";
+CM_ SG_ 1832 TIRE_RL_temperature "The temperature of the rear left tire.";
+CM_ SG_ 1832 TIRE_RL_pressure "The pressure of the rear left tire.";
+CM_ SG_ 1832 TIRE_RR_sensID "The sensor id of the rear right tire.";
+CM_ SG_ 1832 TIRE_RR_status "The status the rear right tire.";
+CM_ SG_ 1832 TIRE_RR_temperature "The temperature of the rear right tire.";
+CM_ SG_ 1832 TIRE_RR_pressure "The pressure of the rear right tire.";
+
+BA_DEF_ BO_ "GenMsgCycleTime" INT 0 3600000;
+
+BA_DEF_DEF_ "GenMsgCycleTime" 0;
+
+BA_ "GenMsgCycleTime" BO_ 17 10;
+BA_ "GenMsgCycleTime" BO_ 449 100;
+BA_ "GenMsgCycleTime" BO_ 465 100;
+BA_ "GenMsgCycleTime" BO_ 481 100;
+BA_ "GenMsgCycleTime" BO_ 513 100;
+BA_ "GenMsgCycleTime" BO_ 529 2000;
+BA_ "GenMsgCycleTime" BO_ 545 2000;
+BA_ "GenMsgCycleTime" BO_ 18 10;
+BA_ "GenMsgCycleTime" BO_ 418 100;
+BA_ "GenMsgCycleTime" BO_ 434 100;
+BA_ "GenMsgCycleTime" BO_ 19 10;
+BA_ "GenMsgCycleTime" BO_ 499 100;
+BA_ "GenMsgCycleTime" BO_ 20 10;
+BA_ "GenMsgCycleTime" BO_ 260 10;
+BA_ "GenMsgCycleTime" BO_ 372 10;
+BA_ "GenMsgCycleTime" BO_ 388 10;
+BA_ "GenMsgCycleTime" BO_ 404 10;
+BA_ "GenMsgCycleTime" BO_ 21 10;
+BA_ "GenMsgCycleTime" BO_ 309 10;
+BA_ "GenMsgCycleTime" BO_ 325 10;
+BA_ "GenMsgCycleTime" BO_ 341 10;
+BA_ "GenMsgCycleTime" BO_ 357 10;
+BA_ "GenMsgCycleTime" BO_ 22 10;
+BA_ "GenMsgCycleTime" BO_ 278 10;
+BA_ "GenMsgCycleTime" BO_ 294 10;
+

@@ -93,6 +93,8 @@ func (w *writer) writeFile(ast *File) {
 
 	if ast.BitTiming != nil {
 		w.writeBitTiming(ast.BitTiming)
+	} else {
+		w.writeBitTiming(&BitTiming{})
 	}
 
 	if ast.Nodes != nil {

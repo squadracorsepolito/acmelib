@@ -259,10 +259,6 @@ func (e *exporter) exportBus(bus *Bus) *dbc.File {
 		e.dbcFile.AttributeValues = append(e.dbcFile.AttributeValues, dbcAttVal)
 	}
 
-	e.dbcFile.BitTiming = &dbc.BitTiming{
-		Baudrate: uint32(bus.baudrate),
-	}
-
 	e.exportNodeInterfaces(bus.NodeInterfaces())
 
 	for _, sigEnum := range e.sigEnums {

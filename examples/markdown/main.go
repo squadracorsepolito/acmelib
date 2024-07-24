@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 
 	"github.com/squadracorsepolito/acmelib"
 )
@@ -76,33 +77,49 @@ func main() {
 	modifySignalTypeName(dspaceInt, "DSPACE_datetime", "DATETIME_day", "day_t")
 	modifySignalTypeName(dspaceInt, "DSPACE_datetime", "DATETIME_hours", "hours_t")
 	modifySignalTypeName(dspaceInt, "DSPACE_datetime", "DATETIME_minutes", "minutes_t")
-	modifySignalTypeName(dspaceInt, "DSPACE_rtdACK", "RTD_FSM_STATE", "rtd_fsm_t")
+	modifySignalTypeName(dspaceInt, "DSPACE_status", "DSPACE_FSM_state", "rtd_fsm_t")
+
+	extraNode := acmelib.NewNode("EXTRA_NODE", 8, 1)
+	unknownIRMsg := acmelib.NewMessage("unknown_ir", 0x70, 8)
+	extraNodeInt := extraNode.Interfaces()[0]
+	checkErr(mcb.AddNodeInterface(extraNodeInt))
+	checkErr(extraNodeInt.AddMessage(unknownIRMsg))
+
+	scannerInt, err := mcb.GetNodeInterfaceByNodeName("SCANNER")
+	checkErr(err)
+
+	// adding tpms
+	tpms(mcb, scannerInt, dspaceInt)
 
 	// adding xpc tx/rx
-	expMsgID := acmelib.MessageID(10)
+	diagTool := mcb.NodeInterfaces()[0]
+	xcpRXMsgID := acmelib.MessageID(10)
+	xcpTXCANID := acmelib.CANID(0x700)
 	for _, nodeInt := range mcb.NodeInterfaces() {
-		nodeName := nodeInt.Node().Name()
-
-		msgName := fmt.Sprintf("%s_xcp", nodeName)
-		tmpMsg := acmelib.NewMessage(msgName, expMsgID, 8)
-		checkErr(nodeInt.AddMessage(tmpMsg))
-
-		msgDesc := ""
 		if nodeInt.Node().ID() == 0 {
-			for idx, rec := range mcb.NodeInterfaces() {
-				if idx == 0 {
-					continue
-				}
-				tmpMsg.AddReceiver(rec)
-			}
-
-			msgDesc = "The message used to flash a board."
-		} else {
-			tmpMsg.AddReceiver(mcb.NodeInterfaces()[0])
-			msgDesc = "The message used to notify the diagnostic tool that the board is flashed."
+			continue
 		}
 
-		tmpMsg.SetDesc(msgDesc)
+		if nodeInt.Node().ID() == 8 {
+			break
+		}
+
+		nodeName := nodeInt.Node().Name()
+
+		msgRXName := fmt.Sprintf("%s_xcpRX", nodeName)
+		tmpRXMsg := acmelib.NewMessage(msgRXName, xcpRXMsgID, 8)
+		checkErr(nodeInt.AddMessage(tmpRXMsg))
+		tmpRXMsg.AddReceiver(diagTool)
+		tmpRXMsg.SetDesc("The message used to notify the diagnostic tool that the board is flashed.")
+
+		msgTXName := fmt.Sprintf("DIAG_TOOL_%s_xcpTX", nodeName)
+		tmpTXMsg := acmelib.NewMessage(msgTXName, 0, 8)
+		tmpTXMsg.SetStaticCANID(xcpTXCANID)
+		checkErr(diagTool.AddMessage(tmpTXMsg))
+		tmpTXMsg.AddReceiver(nodeInt)
+		tmpTXMsg.SetDesc(fmt.Sprintf("The message used to flash the %s.", nodeName))
+
+		xcpTXCANID++
 	}
 
 	// calculte bus load
@@ -110,6 +127,13 @@ func main() {
 	busLoad, err := acmelib.CalculateBusLoad(mcb, 1000)
 	checkErr(err)
 	log.Print("BUS LOAD: ", busLoad)
+
+	parseMessageIDs(mcb)
+
+	dbcFile, err := os.Create("mcb_parsed.dbc")
+	checkErr(err)
+	defer dbcFile.Close()
+	acmelib.ExportBus(dbcFile, mcb)
 
 	mdFile, err := os.Create("SC24.md")
 	checkErr(err)
@@ -144,4 +168,197 @@ func modifySignalType(nodeInt *acmelib.NodeInterface, msgName, sigName string, n
 	tmpStdSig, err := tmpSig.ToStandard()
 	checkErr(err)
 	tmpStdSig.SetType(newType)
+}
+
+func tpms(mcb *acmelib.Bus, scanner, dspace *acmelib.NodeInterface) *acmelib.Node {
+	tpms := acmelib.NewNode("TPMS", 9, 1)
+	tpms.SetDesc("The tire pressure monitoring system.")
+	tpmsInt := tpms.Interfaces()[0]
+	checkErr(mcb.AddNodeInterface(tpmsInt))
+
+	idSigType, err := acmelib.NewIntegerSignalType("tire_sens_id_t", 8, false)
+	checkErr(err)
+
+	statusSigType, err := acmelib.NewIntegerSignalType("tire_sens_status_t", 8, false)
+	checkErr(err)
+	statusSigType.SetDesc("Bit #2: 0 if battery voltage > 2.2V, otherwise 1; Bit #3: 0 if wheel spinning, 1 otherwise")
+
+	tempSigType, err := acmelib.NewIntegerSignalType("tire_temp_t", 8, false)
+	checkErr(err)
+	tempSigType.SetMin(0x0a)
+	tempSigType.SetMax(0xaa)
+
+	tempUnit := acmelib.NewSignalUnit("temp_celsius", acmelib.SignalUnitKindTemperature, "degC")
+
+	pressSigType, err := acmelib.NewDecimalSignalType("tire_press_t", 8, false)
+	checkErr(err)
+	pressSigType.SetMin(0x01)
+	pressSigType.SetMax(0xfe)
+
+	pressUnit := acmelib.NewSignalUnit("press_milli_bar", acmelib.SignalUnitKindCustom, "mB")
+
+	frontMsg := acmelib.NewMessage("TPMS_front", 0x718, 8)
+	frontMsg.SetStaticCANID(0x718)
+	tmpSig, err := acmelib.NewStandardSignal("TIRE_FL_sensID", idSigType)
+	checkErr(err)
+	tmpSig.SetDesc("The sensor id of the front left tire.")
+	checkErr(frontMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_FL_status", statusSigType)
+	checkErr(err)
+	tmpSig.SetDesc("The status the front left tire.")
+	checkErr(frontMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_FL_temperature", tempSigType)
+	checkErr(err)
+	tmpSig.SetUnit(tempUnit)
+	tmpSig.SetDesc("The temperature of the front left tire.")
+	checkErr(frontMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_FL_pressure", pressSigType)
+	checkErr(err)
+	tmpSig.SetUnit(pressUnit)
+	tmpSig.SetDesc("The pressure of the front left tire.")
+	checkErr(frontMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_FR_sensID", idSigType)
+	checkErr(err)
+	tmpSig.SetDesc("The sensor id of the front right tire.")
+	checkErr(frontMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_FR_status", statusSigType)
+	checkErr(err)
+	tmpSig.SetDesc("The status the front right tire.")
+	checkErr(frontMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_FR_temperature", tempSigType)
+	checkErr(err)
+	tmpSig.SetUnit(tempUnit)
+	tmpSig.SetDesc("The temperature of the front right tire.")
+	checkErr(frontMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_FR_pressure", pressSigType)
+	checkErr(err)
+	tmpSig.SetUnit(pressUnit)
+	tmpSig.SetDesc("The pressure of the front right tire.")
+	checkErr(frontMsg.AppendSignal(tmpSig))
+
+	rearMsg := acmelib.NewMessage("TPMS_rear", 0x728, 8)
+	rearMsg.SetStaticCANID(0x728)
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_RL_sensID", idSigType)
+	checkErr(err)
+	tmpSig.SetDesc("The sensor id of the rear left tire.")
+	checkErr(rearMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_RL_status", statusSigType)
+	checkErr(err)
+	tmpSig.SetDesc("The status the rear left tire.")
+	checkErr(rearMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_RL_temperature", tempSigType)
+	checkErr(err)
+	tmpSig.SetUnit(tempUnit)
+	tmpSig.SetDesc("The temperature of the rear left tire.")
+	checkErr(rearMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_RL_pressure", pressSigType)
+	checkErr(err)
+	tmpSig.SetUnit(pressUnit)
+	tmpSig.SetDesc("The pressure of the rear left tire.")
+	checkErr(rearMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_RR_sensID", idSigType)
+	checkErr(err)
+	tmpSig.SetDesc("The sensor id of the rear right tire.")
+	checkErr(rearMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_RR_status", statusSigType)
+	checkErr(err)
+	tmpSig.SetDesc("The status the rear right tire.")
+	checkErr(rearMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_RR_temperature", tempSigType)
+	checkErr(err)
+	tmpSig.SetUnit(tempUnit)
+	tmpSig.SetDesc("The temperature of the rear right tire.")
+	checkErr(rearMsg.AppendSignal(tmpSig))
+	tmpSig, err = acmelib.NewStandardSignal("TIRE_RR_pressure", pressSigType)
+	checkErr(err)
+	tmpSig.SetUnit(pressUnit)
+	tmpSig.SetDesc("The pressure of the rear right tire.")
+	checkErr(rearMsg.AppendSignal(tmpSig))
+
+	checkErr(tpmsInt.AddMessage(frontMsg))
+	checkErr(tpmsInt.AddMessage(rearMsg))
+
+	frontMsg.AddReceiver(dspace)
+	frontMsg.AddReceiver(scanner)
+
+	rearMsg.AddReceiver(dspace)
+	rearMsg.AddReceiver(scanner)
+
+	return tpms
+}
+
+func parseMessageIDs(mcb *acmelib.Bus) {
+	messages := []*acmelib.Message{}
+	for _, nodeInt := range mcb.NodeInterfaces() {
+		if nodeInt.Node().ID() == 0 || nodeInt.Node().ID() >= 8 {
+			continue
+		}
+
+		for _, tmpMsg := range nodeInt.Messages() {
+			if tmpMsg.Name() == fmt.Sprintf("%s_hello", nodeInt.Node().Name()) {
+				checkErr(tmpMsg.UpdateID(1))
+				continue
+			}
+
+			messages = append(messages, tmpMsg)
+		}
+	}
+
+	slices.SortFunc(messages, func(a, b *acmelib.Message) int {
+		cycA := a.CycleTime()
+		cycB := b.CycleTime()
+
+		if cycA != 0 && cycB == 0 {
+			return -1
+		}
+
+		if cycA == 0 && cycB != 0 {
+			return 1
+		}
+
+		return cycA - cycB
+	})
+
+	tmpMsgID := acmelib.MessageID(16)
+	for _, tmpMsg := range messages {
+		checkErr(tmpMsg.UpdateID(tmpMsgID))
+		tmpMsgID++
+		fmt.Printf("%q: %d,\n", tmpMsg.Name(), tmpMsg.ID())
+	}
+}
+
+var ids = map[string]acmelib.MessageID{
+	"SB_FRONT_analog":             16,
+	"TLB_BAT_status":              17,
+	"TLB_BAT_sdcStatus":           18,
+	"SB_REAR_analog":              19,
+	"SB_REAR_ntcResistance":       20,
+	"SB_REAR_sdcStatus":           21,
+	"SB_REAR_potentiometer":       22,
+	"SB_FRONT_ntcResistance":      23,
+	"SB_FRONT_sdcStatus":          24,
+	"SB_FRONT_potentiometer":      25,
+	"DASH_buttonState":            26,
+	"DASH_rotarySwitchState":      27,
+	"BMS_LV_lvCellVoltage0":       28,
+	"BMS_LV_lvCellVoltage1":       29,
+	"BMS_LV_lvBatGeneral":         30,
+	"DSPACE_peripheralsCTRL":      31,
+	"BMS_LV_status":               32,
+	"BMS_LV_lvCellNTCResistance1": 33,
+	"BMS_LV_lvCellNTCResistance0": 34,
+	"BMS_LV_xcpRX":                35,
+	"SB_REAR_dischargeStatus":     36,
+	"DASH_appsRangeLimits":        37,
+	"DASH_xcpRX":                  38,
+	"SB_REAR_xcpRX":               39,
+	"SB_FRONT_xcpRX":              40,
+	"DASH_peripheralsStatus":      41,
+	"DASH_lvRelayOverride":        42,
+	"DSPACE_motorStatus":          43,
+	"DSPACE_datetime":             44,
+	"TLB_BAT_xcpRX":               45,
+	"DSPACE_status":               46,
+	"DSPACE_xcpRX":                47,
+	"SCANNER_xcpRX":               48,
 }
