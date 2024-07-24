@@ -1,628 +1,625 @@
-entity:  {
-  entity_id:  "6f0XLLPvjO375bpZvZWc_"
-  entity_kind:  ENTITY_KIND_NETWORK
-  name:  "net"
-  create_time:  {
-    seconds:  1718376529
-    nanos:  769516700
+entity: {
+  entity_id: "i0nvUEWK4BERd1m5weKpW"
+  entity_kind: ENTITY_KIND_NETWORK
+  name: "net"
+  create_time: {
+    seconds: 1721816474
+    nanos: 617554400
   }
 }
-buses:  {
-  entity:  {
-    entity_id:  "tehm5V-UUv26L0BGGF7K2"
-    entity_kind:  ENTITY_KIND_BUS
-    name:  "bus_0"
-    desc:  "bus0 description"
-    create_time:  {
-      seconds:  1718376529
-      nanos:  769516700
+buses: {
+  entity: {
+    entity_id: "LdbPy46pKO076S4a0W23T"
+    entity_kind: ENTITY_KIND_BUS
+    name: "bus_0"
+    desc: "bus0 description"
+    create_time: {
+      seconds: 1721816474
+      nanos: 617554400
     }
   }
-  node_interfaces:  {
-    node_entity_id:  "XJW3ACPt9K9Q_993QeII2"
-    messages:  {
-      entity:  {
-        entity_id:  "RCitQmha0WICleq3qG5MU"
-        entity_kind:  ENTITY_KIND_MESSAGE
-        name:  "msg_0"
-        create_time:  {
-          seconds:  1718376529
-          nanos:  769516700
+  node_interfaces: {
+    node_entity_id: "XkWlADVU352JK3EI0zpKf"
+    messages: {
+      entity: {
+        entity_id: "aUu045aotyOMSm5XhXriY"
+        entity_kind: ENTITY_KIND_MESSAGE
+        name: "msg_0"
+        create_time: {
+          seconds: 1721816474
+          nanos: 617554400
         }
       }
-      signals:  {
-        entity:  {
-          entity_id:  "cuZaz3nXx36gebqeMgCk7"
-          entity_kind:  ENTITY_KIND_SIGNAL
-          name:  "std_sig_0"
-          create_time:  {
-            seconds:  1718376529
-            nanos:  770025300
+      signals: {
+        entity: {
+          entity_id: "1WR9s7vcVd7wt3H-jzrYm"
+          entity_kind: ENTITY_KIND_SIGNAL
+          name: "std_sig_0"
+          create_time: {
+            seconds: 1721816474
+            nanos: 617554400
           }
         }
-        kind:  SIGNAL_KIND_STANDARD
-        standard:  {
-          type_entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
-          unit_entity_id:  "QJ5OY1yl_1kcDkumya8HX"
+        kind: SIGNAL_KIND_STANDARD
+        standard: {
+          type_entity_id: "7DQ4AOS_IzfY43BZPC6L7"
+          unit_entity_id: "Cq7vnt6VHWTgnuY6Zw6qO"
         }
-        attribute_assignments:  {
-          entity_id:  "cuZaz3nXx36gebqeMgCk7"
-          entity_kind:  ENTITY_KIND_SIGNAL
-          attribute_entity_id:  "BO61C7kytvHpW_JL81HPp"
-          value_string:  "VALUE_1"
-        }
-      }
-      signals:  {
-        entity:  {
-          entity_id:  "q3OK2X-l2YBn4WUfaD8Sh"
-          entity_kind:  ENTITY_KIND_SIGNAL
-          name:  "mux_sig_0"
-          create_time:  {
-            seconds:  1718376529
-            nanos:  770049000
-          }
-        }
-        kind:  SIGNAL_KIND_MULTIPLEXER
-        multiplexer:  {
-          signals:  {
-            entity:  {
-              entity_id:  "sIwJ4uZF2FM5jE8bgcdVz"
-              entity_kind:  ENTITY_KIND_SIGNAL
-              name:  "fixed_sig"
-              create_time:  {
-                seconds:  1718376529
-                nanos:  770049000
-              }
-            }
-            kind:  SIGNAL_KIND_STANDARD
-            standard:  {
-              type_entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
-            }
-          }
-          signals:  {
-            entity:  {
-              entity_id:  "DLw8yoLUT39uznkCnzq4u"
-              entity_kind:  ENTITY_KIND_SIGNAL
-              name:  "multi_group_sig_0"
-              create_time:  {
-                seconds:  1718376529
-                nanos:  770049000
-              }
-            }
-            kind:  SIGNAL_KIND_STANDARD
-            standard:  {
-              type_entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
-            }
-          }
-          signals:  {
-            entity:  {
-              entity_id:  "zere4ZQEUceWaBP1SX8uH"
-              entity_kind:  ENTITY_KIND_SIGNAL
-              name:  "one_group_sig_0"
-              create_time:  {
-                seconds:  1718376529
-                nanos:  770049000
-              }
-            }
-            kind:  SIGNAL_KIND_STANDARD
-            standard:  {
-              type_entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
-            }
-          }
-          signals:  {
-            entity:  {
-              entity_id:  "DLw8yoLUT39uznkCnzq4u"
-              entity_kind:  ENTITY_KIND_SIGNAL
-              name:  "multi_group_sig_0"
-              create_time:  {
-                seconds:  1718376529
-                nanos:  770049000
-              }
-            }
-            kind:  SIGNAL_KIND_STANDARD
-            standard:  {
-              type_entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
-            }
-          }
-          signals:  {
-            entity:  {
-              entity_id:  "DLw8yoLUT39uznkCnzq4u"
-              entity_kind:  ENTITY_KIND_SIGNAL
-              name:  "multi_group_sig_0"
-              create_time:  {
-                seconds:  1718376529
-                nanos:  770049000
-              }
-            }
-            kind:  SIGNAL_KIND_STANDARD
-            standard:  {
-              type_entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
-            }
-          }
-          fixed_signal_entity_ids:  "sIwJ4uZF2FM5jE8bgcdVz"
-          group_count:  4
-          group_size:  16
-          groups:  {
-            refs:  {
-              signal_entity_id:  "sIwJ4uZF2FM5jE8bgcdVz"
-            }
-            refs:  {
-              signal_entity_id:  "DLw8yoLUT39uznkCnzq4u"
-              rel_start_bit:  4
-            }
-          }
-          groups:  {
-            refs:  {
-              signal_entity_id:  "sIwJ4uZF2FM5jE8bgcdVz"
-            }
-            refs:  {
-              signal_entity_id:  "zere4ZQEUceWaBP1SX8uH"
-              rel_start_bit:  4
-            }
-          }
-          groups:  {
-            refs:  {
-              signal_entity_id:  "sIwJ4uZF2FM5jE8bgcdVz"
-            }
-            refs:  {
-              signal_entity_id:  "DLw8yoLUT39uznkCnzq4u"
-              rel_start_bit:  4
-            }
-          }
-          groups:  {
-            refs:  {
-              signal_entity_id:  "sIwJ4uZF2FM5jE8bgcdVz"
-            }
-            refs:  {
-              signal_entity_id:  "DLw8yoLUT39uznkCnzq4u"
-              rel_start_bit:  4
-            }
-          }
-        }
-        attribute_assignments:  {
-          entity_id:  "q3OK2X-l2YBn4WUfaD8Sh"
-          entity_kind:  ENTITY_KIND_SIGNAL
-          attribute_entity_id:  "2y0KOXPJcQ_HSxUURzVFs"
-          value_double:  50.75
+        attribute_assignments: {
+          entity_id: "1WR9s7vcVd7wt3H-jzrYm"
+          attribute_entity_id: "M3wEooPwGG0z9e1DD1-Da"
+          value_string: "VALUE_1"
         }
       }
-      payload:  {
-        refs:  {
-          signal_entity_id:  "cuZaz3nXx36gebqeMgCk7"
+      signals: {
+        entity: {
+          entity_id: "UZYLp4reObfa4ldHaHbGu"
+          entity_kind: ENTITY_KIND_SIGNAL
+          name: "mux_sig_0"
+          create_time: {
+            seconds: 1721816474
+            nanos: 617554400
+          }
         }
-        refs:  {
-          signal_entity_id:  "q3OK2X-l2YBn4WUfaD8Sh"
-          rel_start_bit:  4
+        kind: SIGNAL_KIND_MULTIPLEXER
+        multiplexer: {
+          signals: {
+            entity: {
+              entity_id: "7_db1tPiDk2KwfMZamJLP"
+              entity_kind: ENTITY_KIND_SIGNAL
+              name: "fixed_sig"
+              create_time: {
+                seconds: 1721816474
+                nanos: 617554400
+              }
+            }
+            kind: SIGNAL_KIND_STANDARD
+            standard: {
+              type_entity_id: "7DQ4AOS_IzfY43BZPC6L7"
+            }
+          }
+          signals: {
+            entity: {
+              entity_id: "EBXSdCu9snHNM0gVkUxb7"
+              entity_kind: ENTITY_KIND_SIGNAL
+              name: "multi_group_sig_0"
+              create_time: {
+                seconds: 1721816474
+                nanos: 617554400
+              }
+            }
+            kind: SIGNAL_KIND_STANDARD
+            standard: {
+              type_entity_id: "7DQ4AOS_IzfY43BZPC6L7"
+            }
+          }
+          signals: {
+            entity: {
+              entity_id: "v_5lXqTJj4IPGCcdWYbMD"
+              entity_kind: ENTITY_KIND_SIGNAL
+              name: "one_group_sig_0"
+              create_time: {
+                seconds: 1721816474
+                nanos: 617554400
+              }
+            }
+            kind: SIGNAL_KIND_STANDARD
+            standard: {
+              type_entity_id: "7DQ4AOS_IzfY43BZPC6L7"
+            }
+          }
+          signals: {
+            entity: {
+              entity_id: "EBXSdCu9snHNM0gVkUxb7"
+              entity_kind: ENTITY_KIND_SIGNAL
+              name: "multi_group_sig_0"
+              create_time: {
+                seconds: 1721816474
+                nanos: 617554400
+              }
+            }
+            kind: SIGNAL_KIND_STANDARD
+            standard: {
+              type_entity_id: "7DQ4AOS_IzfY43BZPC6L7"
+            }
+          }
+          signals: {
+            entity: {
+              entity_id: "EBXSdCu9snHNM0gVkUxb7"
+              entity_kind: ENTITY_KIND_SIGNAL
+              name: "multi_group_sig_0"
+              create_time: {
+                seconds: 1721816474
+                nanos: 617554400
+              }
+            }
+            kind: SIGNAL_KIND_STANDARD
+            standard: {
+              type_entity_id: "7DQ4AOS_IzfY43BZPC6L7"
+            }
+          }
+          fixed_signal_entity_ids: "7_db1tPiDk2KwfMZamJLP"
+          group_count: 4
+          group_size: 16
+          groups: {
+            refs: {
+              signal_entity_id: "7_db1tPiDk2KwfMZamJLP"
+            }
+            refs: {
+              signal_entity_id: "EBXSdCu9snHNM0gVkUxb7"
+              rel_start_bit: 4
+            }
+          }
+          groups: {
+            refs: {
+              signal_entity_id: "7_db1tPiDk2KwfMZamJLP"
+            }
+            refs: {
+              signal_entity_id: "v_5lXqTJj4IPGCcdWYbMD"
+              rel_start_bit: 4
+            }
+          }
+          groups: {
+            refs: {
+              signal_entity_id: "7_db1tPiDk2KwfMZamJLP"
+            }
+            refs: {
+              signal_entity_id: "EBXSdCu9snHNM0gVkUxb7"
+              rel_start_bit: 4
+            }
+          }
+          groups: {
+            refs: {
+              signal_entity_id: "7_db1tPiDk2KwfMZamJLP"
+            }
+            refs: {
+              signal_entity_id: "EBXSdCu9snHNM0gVkUxb7"
+              rel_start_bit: 4
+            }
+          }
+        }
+        attribute_assignments: {
+          entity_id: "UZYLp4reObfa4ldHaHbGu"
+          attribute_entity_id: "dOmXVnOz3mv7Mo0V1BXaf"
+          value_double: 50.75
         }
       }
-      size_byte:  8
-      message_id:  1
-      priority:  MESSAGE_PRIORITY_VERY_HIGH
-      byte_order:  MESSAGE_BYTE_ORDER_LITTLE_ENDIAN
-      attribute_assignments:  {
-        entity_id:  "RCitQmha0WICleq3qG5MU"
-        entity_kind:  ENTITY_KIND_MESSAGE
-        attribute_entity_id:  "qMYsYozihbFdngzNWr2F5"
-        value_int:  1
+      payload: {
+        refs: {
+          signal_entity_id: "1WR9s7vcVd7wt3H-jzrYm"
+        }
+        refs: {
+          signal_entity_id: "UZYLp4reObfa4ldHaHbGu"
+          rel_start_bit: 4
+        }
+      }
+      size_byte: 8
+      message_id: 1
+      priority: MESSAGE_PRIORITY_VERY_HIGH
+      byte_order: MESSAGE_BYTE_ORDER_LITTLE_ENDIAN
+      attribute_assignments: {
+        entity_id: "aUu045aotyOMSm5XhXriY"
+        attribute_entity_id: "G_Aw7c_7lReNDFMlXzA-f"
+        value_int: 1
       }
     }
-    messages:  {
-      entity:  {
-        entity_id:  "P-tL1E97YDaUx2n1xeqjW"
-        entity_kind:  ENTITY_KIND_MESSAGE
-        name:  "msg_1"
-        desc:  "msg1 description"
-        create_time:  {
-          seconds:  1718376529
-          nanos:  770049000
+    messages: {
+      entity: {
+        entity_id: "xscXUzRSLGWCWF_UrVTSM"
+        entity_kind: ENTITY_KIND_MESSAGE
+        name: "msg_1"
+        desc: "msg1 description"
+        create_time: {
+          seconds: 1721816474
+          nanos: 617554400
         }
       }
-      signals:  {
-        entity:  {
-          entity_id:  "rwNxGhmojrB1T_fl9UGTv"
-          entity_kind:  ENTITY_KIND_SIGNAL
-          name:  "mux_sig_1"
-          desc:  "mux1 description"
-          create_time:  {
-            seconds:  1718376529
-            nanos:  770049000
+      signals: {
+        entity: {
+          entity_id: "QW3lXvR8m5ZXhMKdMeLyN"
+          entity_kind: ENTITY_KIND_SIGNAL
+          name: "mux_sig_1"
+          desc: "mux1 description"
+          create_time: {
+            seconds: 1721816474
+            nanos: 617554400
           }
         }
-        kind:  SIGNAL_KIND_MULTIPLEXER
-        multiplexer:  {
-          signals:  {
-            entity:  {
-              entity_id:  "XoxjtCo3_LnZ2N6dhuwqh"
-              entity_kind:  ENTITY_KIND_SIGNAL
-              name:  "one_group_sig_1"
-              create_time:  {
-                seconds:  1718376529
-                nanos:  770049000
+        kind: SIGNAL_KIND_MULTIPLEXER
+        multiplexer: {
+          signals: {
+            entity: {
+              entity_id: "5nsmlzDE9zefmXpifHLvx"
+              entity_kind: ENTITY_KIND_SIGNAL
+              name: "one_group_sig_1"
+              create_time: {
+                seconds: 1721816474
+                nanos: 617554400
               }
             }
-            kind:  SIGNAL_KIND_STANDARD
-            standard:  {
-              type_entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
+            kind: SIGNAL_KIND_STANDARD
+            standard: {
+              type_entity_id: "7DQ4AOS_IzfY43BZPC6L7"
             }
           }
-          signals:  {
-            entity:  {
-              entity_id:  "gKTMC3Ps4qxtgLxlVYwXo"
-              entity_kind:  ENTITY_KIND_SIGNAL
-              name:  "nested_mux sig_1"
-              create_time:  {
-                seconds:  1718376529
-                nanos:  770049000
+          signals: {
+            entity: {
+              entity_id: "UPHHUYWeUEW-rlCgP4xaQ"
+              entity_kind: ENTITY_KIND_SIGNAL
+              name: "nested_mux sig_1"
+              create_time: {
+                seconds: 1721816474
+                nanos: 617554400
               }
             }
-            kind:  SIGNAL_KIND_MULTIPLEXER
-            multiplexer:  {
-              signals:  {
-                entity:  {
-                  entity_id:  "IrxH7cXngdTNtizTtyY5E"
-                  entity_kind:  ENTITY_KIND_SIGNAL
-                  name:  "one_group_sig_2"
-                  create_time:  {
-                    seconds:  1718376529
-                    nanos:  770049000
+            kind: SIGNAL_KIND_MULTIPLEXER
+            multiplexer: {
+              signals: {
+                entity: {
+                  entity_id: "W_g7YaAM4Z-kBBhaF8SXi"
+                  entity_kind: ENTITY_KIND_SIGNAL
+                  name: "one_group_sig_2"
+                  create_time: {
+                    seconds: 1721816474
+                    nanos: 617554400
                   }
                 }
-                kind:  SIGNAL_KIND_STANDARD
-                standard:  {
-                  type_entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
+                kind: SIGNAL_KIND_STANDARD
+                standard: {
+                  type_entity_id: "7DQ4AOS_IzfY43BZPC6L7"
                 }
               }
-              signals:  {
-                entity:  {
-                  entity_id:  "y95Llvt2ZUbpowGmQ2pAM"
-                  entity_kind:  ENTITY_KIND_SIGNAL
-                  name:  "multi_group sig_1"
-                  create_time:  {
-                    seconds:  1718376529
-                    nanos:  770049000
+              signals: {
+                entity: {
+                  entity_id: "HoANdHwPJ9C6d-7_Zx5HD"
+                  entity_kind: ENTITY_KIND_SIGNAL
+                  name: "multi_group sig_1"
+                  create_time: {
+                    seconds: 1721816474
+                    nanos: 617554400
                   }
                 }
-                kind:  SIGNAL_KIND_STANDARD
-                standard:  {
-                  type_entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
+                kind: SIGNAL_KIND_STANDARD
+                standard: {
+                  type_entity_id: "7DQ4AOS_IzfY43BZPC6L7"
                 }
               }
-              fixed_signal_entity_ids:  "y95Llvt2ZUbpowGmQ2pAM"
-              group_count:  2
-              group_size:  8
-              groups:  {
-                refs:  {
-                  signal_entity_id:  "IrxH7cXngdTNtizTtyY5E"
+              fixed_signal_entity_ids: "HoANdHwPJ9C6d-7_Zx5HD"
+              group_count: 2
+              group_size: 8
+              groups: {
+                refs: {
+                  signal_entity_id: "W_g7YaAM4Z-kBBhaF8SXi"
                 }
-                refs:  {
-                  signal_entity_id:  "y95Llvt2ZUbpowGmQ2pAM"
-                  rel_start_bit:  4
+                refs: {
+                  signal_entity_id: "HoANdHwPJ9C6d-7_Zx5HD"
+                  rel_start_bit: 4
                 }
               }
-              groups:  {
-                refs:  {
-                  signal_entity_id:  "y95Llvt2ZUbpowGmQ2pAM"
-                  rel_start_bit:  4
+              groups: {
+                refs: {
+                  signal_entity_id: "HoANdHwPJ9C6d-7_Zx5HD"
+                  rel_start_bit: 4
                 }
               }
             }
           }
-          group_count:  4
-          group_size:  16
-          groups:  {
-            refs:  {
-              signal_entity_id:  "XoxjtCo3_LnZ2N6dhuwqh"
+          group_count: 4
+          group_size: 16
+          groups: {
+            refs: {
+              signal_entity_id: "5nsmlzDE9zefmXpifHLvx"
             }
           }
-          groups:  {
-            refs:  {
-              signal_entity_id:  "gKTMC3Ps4qxtgLxlVYwXo"
+          groups: {
+            refs: {
+              signal_entity_id: "UPHHUYWeUEW-rlCgP4xaQ"
             }
           }
-          groups:  {}
-          groups:  {}
+          groups: {}
+          groups: {}
         }
       }
-      payload:  {
-        refs:  {
-          signal_entity_id:  "rwNxGhmojrB1T_fl9UGTv"
+      payload: {
+        refs: {
+          signal_entity_id: "QW3lXvR8m5ZXhMKdMeLyN"
         }
       }
-      size_byte:  8
-      message_id:  2
-      priority:  MESSAGE_PRIORITY_VERY_HIGH
-      byte_order:  MESSAGE_BYTE_ORDER_LITTLE_ENDIAN
+      size_byte: 8
+      message_id: 2
+      priority: MESSAGE_PRIORITY_VERY_HIGH
+      byte_order: MESSAGE_BYTE_ORDER_LITTLE_ENDIAN
     }
-    messages:  {
-      entity:  {
-        entity_id:  "azBBzYahqW37Tdh69xiw0"
-        entity_kind:  ENTITY_KIND_MESSAGE
-        name:  "msg_2"
-        create_time:  {
-          seconds:  1718376529
-          nanos:  770049000
+    messages: {
+      entity: {
+        entity_id: "ZpQ92GET29V5nJvoe8i5b"
+        entity_kind: ENTITY_KIND_MESSAGE
+        name: "msg_2"
+        create_time: {
+          seconds: 1721816474
+          nanos: 617554400
         }
       }
-      signals:  {
-        entity:  {
-          entity_id:  "k6M4ItsdoCHAMKaGgvGD-"
-          entity_kind:  ENTITY_KIND_SIGNAL
-          name:  "enum_sig_0"
-          create_time:  {
-            seconds:  1718376529
-            nanos:  770049000
+      signals: {
+        entity: {
+          entity_id: "G7JLREWya1tIVzPeSnxOq"
+          entity_kind: ENTITY_KIND_SIGNAL
+          name: "enum_sig_0"
+          create_time: {
+            seconds: 1721816474
+            nanos: 617554400
           }
         }
-        kind:  SIGNAL_KIND_ENUM
-        send_type:  SIGNAL_SEND_TYPE_ON_CHANGE_WITH_REPETITION
-        enum:  {
-          enum_entity_id:  "qJD1Zx-rMDmwabRmt-J6c"
+        kind: SIGNAL_KIND_ENUM
+        send_type: SIGNAL_SEND_TYPE_ON_CHANGE_WITH_REPETITION
+        enum: {
+          enum_entity_id: "9-GoQWooTV5nTGJpg7m11"
         }
       }
-      payload:  {
-        refs:  {
-          signal_entity_id:  "k6M4ItsdoCHAMKaGgvGD-"
+      payload: {
+        refs: {
+          signal_entity_id: "G7JLREWya1tIVzPeSnxOq"
         }
       }
-      size_byte:  8
-      message_id:  3
-      priority:  MESSAGE_PRIORITY_VERY_HIGH
-      byte_order:  MESSAGE_BYTE_ORDER_LITTLE_ENDIAN
-      cycle_time:  10
-      send_type:  MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE_AND_TRIGGERED
-      delay_time:  20
-      start_delay_time:  30
-      receiver_ids:  "8taAketQ_3mpNn8HuXurC"
+      size_byte: 8
+      message_id: 3
+      priority: MESSAGE_PRIORITY_VERY_HIGH
+      byte_order: MESSAGE_BYTE_ORDER_LITTLE_ENDIAN
+      cycle_time: 10
+      send_type: MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE_AND_TRIGGERED
+      delay_time: 20
+      start_delay_time: 30
+      receivers: {
+        node_entity_id: "WrRW7ljSSf2DTXxuV-S04"
+      }
     }
-    messages:  {
-      entity:  {
-        entity_id:  "hLWvE0GDpyJPJXybZfS0s"
-        entity_kind:  ENTITY_KIND_MESSAGE
-        name:  "msg_3"
-        create_time:  {
-          seconds:  1718376529
-          nanos:  770049000
+    messages: {
+      entity: {
+        entity_id: "V71780esVs7NoSCmFvfXa"
+        entity_kind: ENTITY_KIND_MESSAGE
+        name: "msg_3"
+        create_time: {
+          seconds: 1721816474
+          nanos: 617554400
         }
       }
-      signals:  {
-        entity:  {
-          entity_id:  "AKYQxShxxIT10qgp6NNSU"
-          entity_kind:  ENTITY_KIND_SIGNAL
-          name:  "std_sig_1"
-          create_time:  {
-            seconds:  1718376529
-            nanos:  770049000
+      signals: {
+        entity: {
+          entity_id: "nKh5UgKeg8bCl6HWMoSDw"
+          entity_kind: ENTITY_KIND_SIGNAL
+          name: "std_sig_1"
+          create_time: {
+            seconds: 1721816474
+            nanos: 617554400
           }
         }
-        kind:  SIGNAL_KIND_STANDARD
-        standard:  {
-          type_entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
+        kind: SIGNAL_KIND_STANDARD
+        standard: {
+          type_entity_id: "7DQ4AOS_IzfY43BZPC6L7"
         }
       }
-      signals:  {
-        entity:  {
-          entity_id:  "exvoN-Wv9a-m577A0bFIq"
-          entity_kind:  ENTITY_KIND_SIGNAL
-          name:  "std_sig_2"
-          create_time:  {
-            seconds:  1718376529
-            nanos:  770049000
+      signals: {
+        entity: {
+          entity_id: "ObWzWFmXg3mY2ShxlJzA0"
+          entity_kind: ENTITY_KIND_SIGNAL
+          name: "std_sig_2"
+          create_time: {
+            seconds: 1721816474
+            nanos: 617554400
           }
         }
-        kind:  SIGNAL_KIND_STANDARD
-        standard:  {
-          type_entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
+        kind: SIGNAL_KIND_STANDARD
+        standard: {
+          type_entity_id: "7DQ4AOS_IzfY43BZPC6L7"
         }
       }
-      payload:  {
-        refs:  {
-          signal_entity_id:  "AKYQxShxxIT10qgp6NNSU"
+      payload: {
+        refs: {
+          signal_entity_id: "nKh5UgKeg8bCl6HWMoSDw"
         }
-        refs:  {
-          signal_entity_id:  "exvoN-Wv9a-m577A0bFIq"
-          rel_start_bit:  4
+        refs: {
+          signal_entity_id: "ObWzWFmXg3mY2ShxlJzA0"
+          rel_start_bit: 4
         }
       }
-      size_byte:  1
-      message_id:  4
-      priority:  MESSAGE_PRIORITY_VERY_HIGH
-      byte_order:  MESSAGE_BYTE_ORDER_BIG_ENDIAN
+      size_byte: 1
+      message_id: 4
+      priority: MESSAGE_PRIORITY_VERY_HIGH
+      byte_order: MESSAGE_BYTE_ORDER_BIG_ENDIAN
     }
   }
-  node_interfaces:  {
-    node_entity_id:  "8taAketQ_3mpNn8HuXurC"
+  node_interfaces: {
+    node_entity_id: "WrRW7ljSSf2DTXxuV-S04"
   }
-  type:  BUS_TYPE_CAN_2A
-  attribute_assignments:  {
-    entity_id:  "tehm5V-UUv26L0BGGF7K2"
-    entity_kind:  ENTITY_KIND_BUS
-    attribute_entity_id:  "CNETatAJk8gpLv3aisl0Y"
-    value_string:  "bus0_value"
+  type: BUS_TYPE_CAN_2A
+  attribute_assignments: {
+    entity_id: "LdbPy46pKO076S4a0W23T"
+    attribute_entity_id: "U-yPXXHmdUry1M0xVXPGG"
+    value_string: "bus0_value"
   }
 }
-nodes:  {
-  entity:  {
-    entity_id:  "XJW3ACPt9K9Q_993QeII2"
-    entity_kind:  ENTITY_KIND_NODE
-    name:  "node_0"
-    desc:  "node0 description"
-    create_time:  {
-      seconds:  1718376529
-      nanos:  769516700
+nodes: {
+  entity: {
+    entity_id: "XkWlADVU352JK3EI0zpKf"
+    entity_kind: ENTITY_KIND_NODE
+    name: "node_0"
+    desc: "node0 description"
+    create_time: {
+      seconds: 1721816474
+      nanos: 617554400
     }
   }
-  interface_count:  1
-  attribute_assignments:  {
-    entity_id:  "XJW3ACPt9K9Q_993QeII2"
-    entity_kind:  ENTITY_KIND_NODE
-    attribute_entity_id:  "8NXWCcpDD7DWNaea2IpJL"
-    value_int:  1
+  interface_count: 1
+  attribute_assignments: {
+    entity_id: "XkWlADVU352JK3EI0zpKf"
+    attribute_entity_id: "yfdGPobNvlEtByaxjVGqy"
+    value_int: 1
   }
 }
-nodes:  {
-  entity:  {
-    entity_id:  "8taAketQ_3mpNn8HuXurC"
-    entity_kind:  ENTITY_KIND_NODE
-    name:  "rec_node_0"
-    create_time:  {
-      seconds:  1718376529
-      nanos:  769516700
+nodes: {
+  entity: {
+    entity_id: "WrRW7ljSSf2DTXxuV-S04"
+    entity_kind: ENTITY_KIND_NODE
+    name: "rec_node_0"
+    create_time: {
+      seconds: 1721816474
+      nanos: 617554400
     }
   }
-  node_id:  1
-  interface_count:  1
+  node_id: 1
+  interface_count: 1
 }
-signal_types:  {
-  entity:  {
-    entity_id:  "Z2S_e0UcNneH5mZGlaRjw"
-    entity_kind:  ENTITY_KIND_SIGNAL_TYPE
-    name:  "4_bits"
-    create_time:  {
-      seconds:  1718376529
-      nanos:  769516700
+signal_types: {
+  entity: {
+    entity_id: "7DQ4AOS_IzfY43BZPC6L7"
+    entity_kind: ENTITY_KIND_SIGNAL_TYPE
+    name: "4_bits"
+    create_time: {
+      seconds: 1721816474
+      nanos: 617554400
     }
   }
-  kind:  SIGNAL_TYPE_KIND_INTEGER
-  size:  4
-  max:  15
-  scale:  1
+  kind: SIGNAL_TYPE_KIND_INTEGER
+  size: 4
+  max: 15
+  scale: 1
 }
-signal_units:  {
-  entity:  {
-    entity_id:  "QJ5OY1yl_1kcDkumya8HX"
-    entity_kind:  ENTITY_KIND_SIGNAL_UNIT
-    name:  "deg_celsius"
-    create_time:  {
-      seconds:  1718376529
-      nanos:  770049000
+signal_units: {
+  entity: {
+    entity_id: "Cq7vnt6VHWTgnuY6Zw6qO"
+    entity_kind: ENTITY_KIND_SIGNAL_UNIT
+    name: "deg_celsius"
+    create_time: {
+      seconds: 1721816474
+      nanos: 617554400
     }
   }
-  kind:  SIGNAL_UNIT_KIND_TEMPERATURE
-  symbol:  "degC"
+  kind: SIGNAL_UNIT_KIND_TEMPERATURE
+  symbol: "degC"
 }
-signal_enums:  {
-  entity:  {
-    entity_id:  "qJD1Zx-rMDmwabRmt-J6c"
-    entity_kind:  ENTITY_KIND_SIGNAL_ENUM
-    name:  "enum"
-    create_time:  {
-      seconds:  1718376529
-      nanos:  770049000
+signal_enums: {
+  entity: {
+    entity_id: "9-GoQWooTV5nTGJpg7m11"
+    entity_kind: ENTITY_KIND_SIGNAL_ENUM
+    name: "enum"
+    create_time: {
+      seconds: 1721816474
+      nanos: 617554400
     }
   }
-  values:  {
-    entity:  {
-      entity_id:  "kQaNd7s5mRnhesa_gxUhE"
-      entity_kind:  ENTITY_KIND_SIGNAL_ENUM_VALUE
-      name:  "VALUE_0"
-      create_time:  {
-        seconds:  1718376529
-        nanos:  770049000
+  values: {
+    entity: {
+      entity_id: "LfVykDoCiHL5Y7S7xBIyq"
+      entity_kind: ENTITY_KIND_SIGNAL_ENUM_VALUE
+      name: "VALUE_0"
+      create_time: {
+        seconds: 1721816474
+        nanos: 617554400
       }
     }
   }
-  values:  {
-    entity:  {
-      entity_id:  "cB65cQFpxXjTxLNz3d8U5"
-      entity_kind:  ENTITY_KIND_SIGNAL_ENUM_VALUE
-      name:  "VALUE_1"
-      create_time:  {
-        seconds:  1718376529
-        nanos:  770049000
+  values: {
+    entity: {
+      entity_id: "H65d19_zzMWt2qb9_kwOb"
+      entity_kind: ENTITY_KIND_SIGNAL_ENUM_VALUE
+      name: "VALUE_1"
+      create_time: {
+        seconds: 1721816474
+        nanos: 617554400
       }
     }
-    index:  1
+    index: 1
   }
-  values:  {
-    entity:  {
-      entity_id:  "mUPKCDEqUcT9wsoe4DUv1"
-      entity_kind:  ENTITY_KIND_SIGNAL_ENUM_VALUE
-      name:  "VALUE_15"
-      create_time:  {
-        seconds:  1718376529
-        nanos:  770049000
+  values: {
+    entity: {
+      entity_id: "FTmQnASfJuJCHvpSgIXTE"
+      entity_kind: ENTITY_KIND_SIGNAL_ENUM_VALUE
+      name: "VALUE_15"
+      create_time: {
+        seconds: 1721816474
+        nanos: 617554400
       }
     }
-    index:  15
+    index: 15
   }
-  min_size:  1
+  min_size: 1
 }
-attributes:  {
-  entity:  {
-    entity_id:  "8NXWCcpDD7DWNaea2IpJL"
-    entity_kind:  ENTITY_KIND_ATTRIBUTE
-    name:  "int_att"
-    create_time:  {
-      seconds:  1718376529
-      nanos:  770049000
+attributes: {
+  entity: {
+    entity_id: "M3wEooPwGG0z9e1DD1-Da"
+    entity_kind: ENTITY_KIND_ATTRIBUTE
+    name: "enum_att"
+    create_time: {
+      seconds: 1721816474
+      nanos: 618109300
     }
   }
-  type:  ATTRIBUTE_TYPE_INTEGER
-  integer_attribute:  {
-    max:  10000
+  type: ATTRIBUTE_TYPE_ENUM
+  enum_attribute: {
+    def_value: "VALUE_0"
+    values: "VALUE_0"
+    values: "VALUE_1"
+    values: "VALUE_2"
+    values: "VALUE_3"
   }
 }
-attributes:  {
-  entity:  {
-    entity_id:  "CNETatAJk8gpLv3aisl0Y"
-    entity_kind:  ENTITY_KIND_ATTRIBUTE
-    name:  "str_att"
-    create_time:  {
-      seconds:  1718376529
-      nanos:  770049000
+attributes: {
+  entity: {
+    entity_id: "dOmXVnOz3mv7Mo0V1BXaf"
+    entity_kind: ENTITY_KIND_ATTRIBUTE
+    name: "float_att"
+    create_time: {
+      seconds: 1721816474
+      nanos: 618102400
     }
   }
-  type:  ATTRIBUTE_TYPE_STRING
-  string_attribute:  {}
-}
-attributes:  {
-  entity:  {
-    entity_id:  "qMYsYozihbFdngzNWr2F5"
-    entity_kind:  ENTITY_KIND_ATTRIBUTE
-    name:  "hex_att"
-    create_time:  {
-      seconds:  1718376529
-      nanos:  770049000
-    }
-  }
-  type:  ATTRIBUTE_TYPE_INTEGER
-  integer_attribute:  {
-    max:  10000
-    is_hex_format:  true
+  type: ATTRIBUTE_TYPE_FLOAT
+  float_attribute: {
+    def_value: 1.5
+    max: 100.5
   }
 }
-attributes:  {
-  entity:  {
-    entity_id:  "BO61C7kytvHpW_JL81HPp"
-    entity_kind:  ENTITY_KIND_ATTRIBUTE
-    name:  "enum_att"
-    create_time:  {
-      seconds:  1718376529
-      nanos:  770049000
+attributes: {
+  entity: {
+    entity_id: "G_Aw7c_7lReNDFMlXzA-f"
+    entity_kind: ENTITY_KIND_ATTRIBUTE
+    name: "hex_att"
+    create_time: {
+      seconds: 1721816474
+      nanos: 618075400
     }
   }
-  type:  ATTRIBUTE_TYPE_ENUM
-  enum_attribute:  {
-    def_value:  "VALUE_0"
-    values:  "VALUE_0"
-    values:  "VALUE_1"
-    values:  "VALUE_2"
-    values:  "VALUE_3"
+  type: ATTRIBUTE_TYPE_INTEGER
+  integer_attribute: {
+    max: 10000
+    is_hex_format: true
   }
 }
-attributes:  {
-  entity:  {
-    entity_id:  "2y0KOXPJcQ_HSxUURzVFs"
-    entity_kind:  ENTITY_KIND_ATTRIBUTE
-    name:  "float_att"
-    create_time:  {
-      seconds:  1718376529
-      nanos:  770049000
+attributes: {
+  entity: {
+    entity_id: "yfdGPobNvlEtByaxjVGqy"
+    entity_kind: ENTITY_KIND_ATTRIBUTE
+    name: "int_att"
+    create_time: {
+      seconds: 1721816474
+      nanos: 618075400
     }
   }
-  type:  ATTRIBUTE_TYPE_FLOAT
-  float_attribute:  {
-    def_value:  1.5
-    max:  100.5
+  type: ATTRIBUTE_TYPE_INTEGER
+  integer_attribute: {
+    max: 10000
   }
+}
+attributes: {
+  entity: {
+    entity_id: "U-yPXXHmdUry1M0xVXPGG"
+    entity_kind: ENTITY_KIND_ATTRIBUTE
+    name: "str_att"
+    create_time: {
+      seconds: 1721816474
+      nanos: 618075400
+    }
+  }
+  type: ATTRIBUTE_TYPE_STRING
+  string_attribute: {}
 }

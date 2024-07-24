@@ -163,9 +163,9 @@ type signal struct {
 	relStartBit int
 }
 
-func newSignal(name string, kind SignalKind) *signal {
+func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
 	return &signal{
-		entity:         newEntity(name, EntityKindSignal),
+		entity:         ent,
 		withAttributes: newWithAttributes(),
 
 		parentMsg:    nil,
@@ -178,6 +178,10 @@ func newSignal(name string, kind SignalKind) *signal {
 
 		relStartBit: 0,
 	}
+}
+
+func newSignal(name string, kind SignalKind) *signal {
+	return newSignalFromEntity(newEntity(name, EntityKindSignal), kind)
 }
 
 func (s *signal) hasParentMsg() bool {
@@ -339,9 +343,7 @@ type StandardSignal struct {
 	unit *SignalUnit
 }
 
-// NewStandardSignal creates a new [StandardSignal] with the given name and [SignalType].
-// It may return an error if the given [SignalType] is nil.
-func NewStandardSignal(name string, typ *SignalType) (*StandardSignal, error) {
+func newStandardSignalFromBase(base *signal, typ *SignalType) (*StandardSignal, error) {
 	if typ == nil {
 		return nil, &ArgumentError{
 			Name: "typ",
@@ -350,7 +352,7 @@ func NewStandardSignal(name string, typ *SignalType) (*StandardSignal, error) {
 	}
 
 	sig := &StandardSignal{
-		signal: newSignal(name, SignalKindStandard),
+		signal: base,
 
 		typ:  typ,
 		unit: nil,
@@ -359,6 +361,12 @@ func NewStandardSignal(name string, typ *SignalType) (*StandardSignal, error) {
 	typ.addRef(sig)
 
 	return sig, nil
+}
+
+// NewStandardSignal creates a new [StandardSignal] with the given name and [SignalType].
+// It may return an error if the given [SignalType] is nil.
+func NewStandardSignal(name string, typ *SignalType) (*StandardSignal, error) {
+	return newStandardSignalFromBase(newSignal(name, SignalKindStandard), typ)
 }
 
 // GetSize returns the size of the [StandardSignal].
@@ -472,9 +480,7 @@ type EnumSignal struct {
 	enum *SignalEnum
 }
 
-// NewEnumSignal creates a new [EnumSignal] with the given name and [SignalEnum].
-// It may return an error if the given [SignalEnum] is nil.
-func NewEnumSignal(name string, enum *SignalEnum) (*EnumSignal, error) {
+func newEnumSignalFromBase(base *signal, enum *SignalEnum) (*EnumSignal, error) {
 	if enum == nil {
 		return nil, &ArgumentError{
 			Name: "enum",
@@ -483,7 +489,7 @@ func NewEnumSignal(name string, enum *SignalEnum) (*EnumSignal, error) {
 	}
 
 	sig := &EnumSignal{
-		signal: newSignal(name, SignalKindEnum),
+		signal: base,
 
 		enum: enum,
 	}
@@ -491,6 +497,12 @@ func NewEnumSignal(name string, enum *SignalEnum) (*EnumSignal, error) {
 	enum.addRef(sig)
 
 	return sig, nil
+}
+
+// NewEnumSignal creates a new [EnumSignal] with the given name and [SignalEnum].
+// It may return an error if the given [SignalEnum] is nil.
+func NewEnumSignal(name string, enum *SignalEnum) (*EnumSignal, error) {
+	return newEnumSignalFromBase(newSignal(name, SignalKindEnum), enum)
 }
 
 // GetSize returns the size of the [EnumSignal].

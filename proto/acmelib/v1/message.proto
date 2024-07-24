@@ -48,7 +48,12 @@ message Message {
     uint32 delay_time = 12;
     uint32 start_delay_time = 13;
 
-    repeated string receiver_ids = 14;
+    repeated MessageReceiver receivers = 14;
     
     repeated acmelib.v1.AttributeAssignment attribute_assignments = 15;
+}
+
+message MessageReceiver {
+    string node_entity_id = 1;
+    uint32 node_interface_number = 2;
 }

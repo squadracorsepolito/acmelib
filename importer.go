@@ -162,7 +162,7 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 	for _, dbcAtt := range dbcAtts {
 		dbcAttDef, ok := dbcAttDefMap[dbcAtt.Name]
 		if !ok {
-			return i.errorf(dbcAtt, &ErrIsRequired{Thing: "attribute default"})
+			return i.errorf(dbcAtt, &ErrIsRequired{Item: "attribute default"})
 		}
 
 		var att Attribute
@@ -534,7 +534,7 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 		if dbcSig.IsMultiplexed {
 			dbcExtMux, ok := i.dbcExtMuxes[i.getSignalKey(dbcMsg.ID, dbcSig.Name)]
 			if !ok {
-				return i.errorf(dbcSig, &ErrIsRequired{Thing: "extended multiplexing"})
+				return i.errorf(dbcSig, &ErrIsRequired{Item: "extended multiplexing"})
 			}
 
 			muxIdx, ok := muxSigNames[dbcExtMux.MultiplexorName]

@@ -121,18 +121,14 @@ func (n *Node) Interfaces() []*NodeInterface {
 	return n.interfaces
 }
 
+// GetInterface returns the [NodeInterface] with the given interface number.
+//
+// It returns an [ArgumentError] if the interface number is negative or out of bounds.
 func (n *Node) GetInterface(interfaceNumber int) (*NodeInterface, error) {
 	if interfaceNumber < 0 {
 		return nil, &ArgumentError{
 			Name: "interfaceNumber",
 			Err:  ErrIsNegative,
-		}
-	}
-
-	if interfaceNumber == 0 {
-		return nil, &ArgumentError{
-			Name: "interfaceNumber",
-			Err:  ErrIsZero,
 		}
 	}
 

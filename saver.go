@@ -2,8 +2,12 @@ package acmelib
 
 import (
 	"io"
+	"log"
+	"slices"
+	"strings"
 
 	acmelibv1 "github.com/squadracorsepolito/acmelib/proto/gen/go/acmelib/v1"
+	"golang.org/x/exp/maps"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
@@ -159,27 +163,39 @@ func (s *saver) saveNetwork(net *Network) *acmelibv1.Network {
 		pNet.Buses = append(pNet.Buses, s.saveBus(bus))
 	}
 
-	for _, canIDBuilder := range s.refCANIDBuilders {
+	canIDBuilders := maps.Values(s.refCANIDBuilders)
+	slices.SortFunc(canIDBuilders, func(a, b *CANIDBuilder) int { return strings.Compare(a.name, b.name) })
+	for _, canIDBuilder := range canIDBuilders {
 		pNet.CanidBuilders = append(pNet.CanidBuilders, s.saveCANIDBuilder(canIDBuilder))
 	}
 
-	for _, node := range s.refNodes {
+	nodes := maps.Values(s.refNodes)
+	slices.SortFunc(nodes, func(a, b *Node) int { return int(a.id - b.id) })
+	for _, node := range nodes {
 		pNet.Nodes = append(pNet.Nodes, s.saveNode(node))
 	}
 
-	for _, sigType := range s.refSigTypes {
+	sigTypes := maps.Values(s.refSigTypes)
+	slices.SortFunc(sigTypes, func(a, b *SignalType) int { return strings.Compare(a.name, b.name) })
+	for _, sigType := range sigTypes {
 		pNet.SignalTypes = append(pNet.SignalTypes, s.saveSignalType(sigType))
 	}
 
-	for _, sigUnit := range s.refSigUnits {
+	sigUnits := maps.Values(s.refSigUnits)
+	slices.SortFunc(sigUnits, func(a, b *SignalUnit) int { return strings.Compare(a.name, b.name) })
+	for _, sigUnit := range sigUnits {
 		pNet.SignalUnits = append(pNet.SignalUnits, s.saveSignalUnit(sigUnit))
 	}
 
-	for _, sigEnum := range s.refSigEnums {
+	sigEnums := maps.Values(s.refSigEnums)
+	slices.SortFunc(sigEnums, func(a, b *SignalEnum) int { return strings.Compare(a.name, b.name) })
+	for _, sigEnum := range sigEnums {
 		pNet.SignalEnums = append(pNet.SignalEnums, s.saveSignalEnum(sigEnum))
 	}
 
-	for _, att := range s.refAttributes {
+	attributes := maps.Values(s.refAttributes)
+	slices.SortFunc(attributes, func(a, b Attribute) int { return strings.Compare(a.Name(), b.Name()) })
+	for _, att := range attributes {
 		pNet.Attributes = append(pNet.Attributes, s.saveAttribute(att))
 	}
 
@@ -196,7 +212,6 @@ func (s *saver) saveAttributeAssignments(attAss []*AttributeAssignment) []*acmel
 
 		pTmpAttAss.EntityId = tmpAttAss.EntityID().String()
 		pTmpAttAss.AttributeEntityId = tmpAtt.EntityID().String()
-		pTmpAttAss.EntityKind = s.getEntityKind(tmpAttAss.entity.EntityKind())
 
 		switch tmpAtt.Type() {
 		case AttributeTypeString, AttributeTypeEnum:
@@ -237,6 +252,7 @@ func (s *saver) saveBus(bus *Bus) *acmelibv1.Bus {
 	pBus.Type = pBusType
 
 	for _, nodeInt := range bus.NodeInterfaces() {
+		log.Print(nodeInt.node.name, nodeInt.node.id)
 		pBus.NodeInterfaces = append(pBus.NodeInterfaces, s.saveNodeInterface(nodeInt))
 	}
 
@@ -372,7 +388,10 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 	pMsg.StartDelayTime = uint32(msg.startDelayTime)
 
 	for _, rec := range msg.Receivers() {
-		pMsg.ReceiverIds = append(pMsg.ReceiverIds, rec.node.entityID.String())
+		pMsg.Receivers = append(pMsg.Receivers, &acmelibv1.MessageReceiver{
+			NodeEntityId:        rec.node.entityID.String(),
+			NodeInterfaceNumber: uint32(rec.number),
+		})
 	}
 
 	return pMsg

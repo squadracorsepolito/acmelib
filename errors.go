@@ -32,14 +32,33 @@ var ErrIntersect = errors.New("is intersecting")
 // ErrInvalidType is returned when an invalid type is used.
 var ErrInvalidType = errors.New("invalid type")
 
+// ErrInvalidOneof is returned when a oneof field does not match
+// a kind/type field.
+type ErrInvalidOneof struct {
+	KindTypeField string
+}
+
+func (e *ErrInvalidOneof) Error() string {
+	return fmt.Sprintf("kind/type field must be %q for this oneof field", e.KindTypeField)
+}
+
+// ErrMissingOneofField is returned when a oneof field is missing.
+type ErrMissingOneofField struct {
+	OneofField string
+}
+
+func (e *ErrMissingOneofField) Error() string {
+	return fmt.Sprintf("oneof field %q is missing", e.OneofField)
+}
+
 // ErrIsRequired is returned when something is required.
 // The Thing field is what is required.
 type ErrIsRequired struct {
-	Thing string
+	Item string
 }
 
 func (e *ErrIsRequired) Error() string {
-	return fmt.Sprintf("%s is required", e.Thing)
+	return fmt.Sprintf("%q is required", e.Item)
 }
 
 // ErrGreaterThen is returned when a value is greater than a target.
@@ -298,3 +317,16 @@ func (e *AttributeValueError) Error() string {
 }
 
 func (e *AttributeValueError) Unwrap() error { return e.Err }
+
+// EntityIDError is returned when an entity id is invalid.
+// The EntityID field is the id of the entity and the Err field is the cause.
+type EntityIDError struct {
+	EntityID EntityID
+	Err      error
+}
+
+func (e *EntityIDError) Error() string {
+	return fmt.Sprintf("entity id error; entity_id:%q : %v", e.EntityID, e.Err)
+}
+
+func (e *EntityIDError) Unwrap() error { return e.Err }

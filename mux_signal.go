@@ -24,13 +24,7 @@ type MultiplexerSignal struct {
 	groups     []*signalPayload
 }
 
-// NewMultiplexerSignal creates a new [MultiplexerSignal] with the given name,
-// group count and group size.
-// The group count defines the number of groups that the signal will hold
-// and the group size defines the dimension in bits of each group.
-//
-// It will return an [ArgumentError] if group count or group size is invalid.
-func NewMultiplexerSignal(name string, groupCount, groupSize int) (*MultiplexerSignal, error) {
+func newMultiplexerSignalFromBase(base *signal, groupCount, groupSize int) (*MultiplexerSignal, error) {
 	if groupCount <= 0 {
 		err := &ArgumentError{
 			Name: "groupCount",
@@ -65,7 +59,7 @@ func NewMultiplexerSignal(name string, groupCount, groupSize int) (*MultiplexerS
 	}
 
 	return &MultiplexerSignal{
-		signal: newSignal(name, SignalKindMultiplexer),
+		signal: base,
 
 		signals:        newSet[EntityID, Signal](),
 		signalNames:    newSet[string, EntityID](),
@@ -77,6 +71,16 @@ func NewMultiplexerSignal(name string, groupCount, groupSize int) (*MultiplexerS
 		groupSize:  groupSize,
 		groups:     groups,
 	}, nil
+}
+
+// NewMultiplexerSignal creates a new [MultiplexerSignal] with the given name,
+// group count and group size.
+// The group count defines the number of groups that the signal will hold
+// and the group size defines the dimension in bits of each group.
+//
+// It will return an [ArgumentError] if group count or group size is invalid.
+func NewMultiplexerSignal(name string, groupCount, groupSize int) (*MultiplexerSignal, error) {
+	return newMultiplexerSignalFromBase(newSignal(name, SignalKindMultiplexer), groupCount, groupSize)
 }
 
 func (ms *MultiplexerSignal) addSignal(sig Signal) {

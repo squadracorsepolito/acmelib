@@ -49,12 +49,11 @@ message EnumAttribute {
 
 message AttributeAssignment {
     string entity_id = 1;
-    acmelib.v1.EntityKind entity_kind = 2;
-    string attribute_entity_id = 3;
+    string attribute_entity_id = 2;
 
     oneof value {
-        string value_string = 4;
-        int32 value_int = 5;
-        double value_double = 6;
+        string value_string = 3;
+        int32 value_int = 4;
+        double value_double = 5;
     }
 }

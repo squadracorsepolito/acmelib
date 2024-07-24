@@ -44,7 +44,7 @@ func (ek EntityKind) String() string {
 	case EntityKindBus:
 		return "bus"
 	case EntityKindNode:
-		return "node-interface"
+		return "node"
 	case EntityKindMessage:
 		return "message"
 	case EntityKindSignal:
