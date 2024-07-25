@@ -648,7 +648,7 @@ func (m *Message) ID() MessageID {
 	return m.id
 }
 
-// GetCANID returns the [CANID] associated to the [Message].
+// GetCANID returns the [GetCANID] associated to the [Message].
 // If the message has a static CAN-ID, it will be returned.
 // If the message does not have a sender [NodeInterface], it will return the message id.
 // Otherwise, it will calculate the CAN-ID based on the [CANIDBuilder]
@@ -671,10 +671,20 @@ func (m *Message) GetCANID() CANID {
 }
 
 // SetStaticCANID sets the static CAN-ID of the [Message].
-func (m *Message) SetStaticCANID(canID CANID) {
+//
+// It returns a [CANIDError] if the given static CAN-ID is already used.
+func (m *Message) SetStaticCANID(staticCANID CANID) error {
+	if m.hasSenderNodeInt() {
+		if err := m.senderNodeInt.verifyStaticCANID(staticCANID); err != nil {
+			return err
+		}
+	}
+
 	m.hasStaticCANID = true
-	m.staticCANID = canID
-	m.id = MessageID(canID)
+	m.staticCANID = staticCANID
+	m.id = MessageID(staticCANID)
+
+	return nil
 }
 
 // HasStaticCANID returns whether the [Message] has a static CAN-ID.

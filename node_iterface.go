@@ -11,9 +11,10 @@ import (
 type NodeInterface struct {
 	parentBus *Bus
 
-	messages     *set[EntityID, *Message]
-	messageNames *set[string, EntityID]
-	messageIDs   *set[MessageID, EntityID]
+	messages            *set[EntityID, *Message]
+	messageNames        *set[string, EntityID]
+	messageIDs          *set[MessageID, EntityID]
+	messageStaticCANIDs *set[CANID, EntityID]
 
 	number int
 	node   *Node
@@ -23,9 +24,10 @@ func newNodeInterface(number int, node *Node) *NodeInterface {
 	return &NodeInterface{
 		parentBus: nil,
 
-		messages:     newSet[EntityID, *Message](),
-		messageNames: newSet[string, EntityID](),
-		messageIDs:   newSet[MessageID, EntityID](),
+		messages:            newSet[EntityID, *Message](),
+		messageNames:        newSet[string, EntityID](),
+		messageIDs:          newSet[MessageID, EntityID](),
+		messageStaticCANIDs: newSet[CANID, EntityID](),
 
 		number: number,
 		node:   node,
@@ -94,6 +96,26 @@ func (ni *NodeInterface) verifyMessageID(msgID MessageID) error {
 	return nil
 }
 
+func (ni *NodeInterface) verifyStaticCANID(staticCANID CANID) error {
+	if err := ni.messageStaticCANIDs.verifyKeyUnique(staticCANID); err != nil {
+		return &CANIDError{
+			CANID: staticCANID,
+			Err:   err,
+		}
+	}
+
+	if ni.hasParentBus() {
+		if err := ni.parentBus.verifyStaticCANID(staticCANID); err != nil {
+			return &CANIDError{
+				CANID: staticCANID,
+				Err:   err,
+			}
+		}
+	}
+
+	return nil
+}
+
 // AddMessage adds a [Message] that the [NodeInterface] can send.
 //
 // It returns an [ArgumentError] if the given message is nil or
@@ -116,12 +138,23 @@ func (ni *NodeInterface) AddMessage(message *Message) error {
 		return ni.errorf(addMsgErr)
 	}
 
-	if !message.hasStaticCANID {
-		if err := ni.verifyMessageID(message.id); err != nil {
+	if message.hasStaticCANID {
+		if err := ni.verifyStaticCANID(message.staticCANID); err != nil {
 			addMsgErr.Err = err
 			return ni.errorf(addMsgErr)
 		}
 
+		if ni.hasParentBus() {
+			ni.parentBus.messageStaticCANIDs.add(message.staticCANID, message.entityID)
+		}
+
+		ni.messageStaticCANIDs.add(message.staticCANID, message.entityID)
+
+	} else {
+		if err := ni.verifyMessageID(message.id); err != nil {
+			addMsgErr.Err = err
+			return ni.errorf(addMsgErr)
+		}
 		ni.messageIDs.add(message.id, message.entityID)
 	}
 
@@ -150,7 +183,17 @@ func (ni *NodeInterface) RemoveMessage(messageEntityID EntityID) error {
 
 	ni.messages.remove(messageEntityID)
 	ni.messageNames.remove(msg.name)
-	ni.messageIDs.remove(msg.id)
+
+	if msg.hasStaticCANID {
+		ni.messageStaticCANIDs.remove(msg.staticCANID)
+
+		if ni.hasParentBus() {
+			ni.parentBus.messageStaticCANIDs.remove(msg.staticCANID)
+		}
+
+	} else {
+		ni.messageIDs.remove(msg.id)
+	}
 
 	return nil
 }
@@ -159,11 +202,16 @@ func (ni *NodeInterface) RemoveMessage(messageEntityID EntityID) error {
 func (ni *NodeInterface) RemoveAllMessages() {
 	for _, tmpMsg := range ni.messages.entries() {
 		tmpMsg.senderNodeInt = nil
+
+		if ni.hasParentBus() && tmpMsg.hasStaticCANID {
+			ni.parentBus.messageStaticCANIDs.remove(tmpMsg.staticCANID)
+		}
 	}
 
 	ni.messages.clear()
 	ni.messageNames.clear()
 	ni.messageIDs.clear()
+	ni.messageStaticCANIDs.clear()
 }
 
 // GetMessageByName returns the [Message] with the given name.

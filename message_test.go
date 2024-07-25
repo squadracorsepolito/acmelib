@@ -241,5 +241,42 @@ func Test_Message_ShiftSignalRight(t *testing.T) {
 	for idx, sig := range msg.Signals() {
 		assert.Equal(finalStartBits[idx], sig.GetStartBit())
 	}
+}
 
+func Test_Message_SetStaticCANID(t *testing.T) {
+	assert := assert.New(t)
+
+	bus := NewBus("bus")
+	node1 := NewNode("node_1", 1, 1)
+	nodeInt1 := node1.Interfaces()[0]
+	assert.NoError(bus.AddNodeInterface(nodeInt1))
+
+	msg1 := NewMessage("msg_1", 1, 1)
+	assert.NoError(msg1.SetStaticCANID(500))
+	assert.Equal(CANID(500), msg1.GetCANID())
+	assert.NoError(nodeInt1.AddMessage(msg1))
+
+	msg2 := NewMessage("msg_2", 2, 1)
+	assert.NoError(msg2.SetStaticCANID(500))
+	assert.Error(nodeInt1.AddMessage(msg2))
+	assert.NoError(msg2.SetStaticCANID(600))
+	assert.NoError(nodeInt1.AddMessage(msg2))
+
+	node2 := NewNode("node_2", 2, 1)
+	nodeInt2 := node2.Interfaces()[0]
+	assert.NoError(bus.AddNodeInterface(nodeInt2))
+
+	msg3 := NewMessage("msg_3", 3, 1)
+	assert.NoError(msg3.SetStaticCANID(600))
+	assert.Error(nodeInt2.AddMessage(msg3))
+	assert.NoError(msg3.SetStaticCANID(700))
+	assert.NoError(nodeInt1.AddMessage(msg3))
+
+	node3 := NewNode("node_3", 3, 1)
+	nodeInt3 := node3.Interfaces()[0]
+	msg4 := NewMessage("msg_4", 4, 1)
+	assert.NoError(msg4.SetStaticCANID(700))
+	assert.NoError(nodeInt3.AddMessage(msg4))
+
+	assert.Error(bus.AddNodeInterface(nodeInt3))
 }

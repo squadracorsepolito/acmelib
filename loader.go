@@ -256,7 +256,9 @@ func (l *loader) loadMessage(pMsg *acmelibv1.Message) (*Message, error) {
 	}
 
 	if pMsg.HasStaticCanId {
-		msg.SetStaticCANID(CANID(pMsg.StaticCanId))
+		if err := msg.SetStaticCANID(CANID(pMsg.StaticCanId)); err != nil {
+			return nil, err
+		}
 	}
 
 	switch pMsg.Priority {

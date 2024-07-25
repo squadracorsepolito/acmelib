@@ -407,7 +407,9 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 	msgID := MessageID(dbcMsg.ID)
 	msg := NewMessage(dbcMsg.Name, msgID, int(dbcMsg.Size))
 
-	msg.SetStaticCANID(CANID(msgID))
+	if err := msg.SetStaticCANID(CANID(msgID)); err != nil {
+		return i.errorf(dbcMsg, err)
+	}
 
 	i.messages[msgID] = msg
 

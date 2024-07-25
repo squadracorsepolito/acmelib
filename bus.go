@@ -39,6 +39,8 @@ type Bus struct {
 	nodeNames *set[string, EntityID]
 	nodeIDs   *set[NodeID, EntityID]
 
+	messageStaticCANIDs *set[CANID, EntityID]
+
 	baudrate int
 	typ      BusType
 }
@@ -56,6 +58,8 @@ func newBusFromEntity(ent *entity) *Bus {
 		nodeInts:  newSet[EntityID, *NodeInterface](),
 		nodeNames: newSet[string, EntityID](),
 		nodeIDs:   newSet[NodeID, EntityID](),
+
+		messageStaticCANIDs: newSet[CANID, EntityID](),
 
 		baudrate: 0,
 		typ:      BusTypeCAN2A,
@@ -108,6 +112,16 @@ func (b *Bus) verifyNodeID(nodeID NodeID) error {
 		return &NodeIDError{
 			NodeID: nodeID,
 			Err:    err,
+		}
+	}
+	return nil
+}
+
+func (b *Bus) verifyStaticCANID(staticCANID CANID) error {
+	if err := b.messageStaticCANIDs.verifyKeyUnique(staticCANID); err != nil {
+		return &CANIDError{
+			CANID: staticCANID,
+			Err:   err,
 		}
 	}
 	return nil
@@ -187,6 +201,22 @@ func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 		return b.errorf(err)
 	}
 
+	messages := nodeInterface.messages.getValues()
+	msgStaticCANIDs := make(map[CANID]EntityID)
+	for _, tmpMsg := range messages {
+		if tmpMsg.hasStaticCANID {
+			err := b.verifyStaticCANID(tmpMsg.staticCANID)
+			if err != nil {
+				return b.errorf(err)
+			}
+
+			msgStaticCANIDs[tmpMsg.staticCANID] = tmpMsg.entityID
+		}
+	}
+	for canID, entID := range msgStaticCANIDs {
+		b.messageStaticCANIDs.add(canID, entID)
+	}
+
 	nodeInterface.parentBus = b
 	nodeEntID := node.entityID
 
@@ -216,6 +246,12 @@ func (b *Bus) RemoveNodeInterface(nodeInterfaceEntityID EntityID) error {
 	b.nodeNames.remove(nodeInt.node.name)
 	b.nodeIDs.remove(nodeInt.node.id)
 
+	for _, tmpMsg := range nodeInt.messages.getValues() {
+		if tmpMsg.hasStaticCANID {
+			b.messageStaticCANIDs.remove(tmpMsg.staticCANID)
+		}
+	}
+
 	return nil
 }
 
@@ -228,6 +264,7 @@ func (b *Bus) RemoveAllNodeInterfaces() {
 	b.nodeInts.clear()
 	b.nodeNames.clear()
 	b.nodeIDs.clear()
+	b.messageStaticCANIDs.clear()
 }
 
 // NodeInterfaces returns a slice of all node interfaces connected to the [Bus] sorted by node id.

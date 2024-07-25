@@ -188,6 +188,19 @@ func (e *NodeIDError) Error() string {
 
 func (e *NodeIDError) Unwrap() error { return e.Err }
 
+// CANIDError is returned when a [CANID] is invalid.
+// The CANID field is the CAN-ID and the Err field is the cause.
+type CANIDError struct {
+	CANID CANID
+	Err   error
+}
+
+func (e *CANIDError) Error() string {
+	return fmt.Sprintf("can id error; can_id:%d : %v", e.CANID, e.Err)
+}
+
+func (e *CANIDError) Unwrap() error { return e.Err }
+
 // MessageIDError is returned when a [MessageCANID] is invalid.
 // The MessageID field is the message ID and the Err field is the cause.
 type MessageIDError struct {
