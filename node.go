@@ -116,6 +116,36 @@ func (n *Node) UpdateName(newName string) error {
 	return nil
 }
 
+// UpdateID updates the id of the [Node].
+//
+// It returns a [NodeError] if the new id is invalid.
+func (n *Node) UpdateID(newID NodeID) error {
+	if newID == n.id {
+		return nil
+	}
+
+	buses := []*Bus{}
+	for _, tmpNodeInt := range n.interfaces {
+		if !tmpNodeInt.hasParentBus() {
+			continue
+		}
+
+		if err := tmpNodeInt.parentBus.verifyNodeID(newID); err != nil {
+			return n.errorf(err)
+		}
+
+		buses = append(buses, tmpNodeInt.parentBus)
+	}
+
+	for _, tmpBus := range buses {
+		tmpBus.nodeIDs.modifyKey(n.id, newID, tmpBus.entityID)
+	}
+
+	n.id = newID
+
+	return nil
+}
+
 // Interfaces returns a slice with all the interfaces of the [Node].
 func (n *Node) Interfaces() []*NodeInterface {
 	return n.interfaces
