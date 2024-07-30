@@ -2,7 +2,6 @@ package acmelib
 
 import (
 	"io"
-	"log"
 	"slices"
 	"strings"
 
@@ -252,7 +251,6 @@ func (s *saver) saveBus(bus *Bus) *acmelibv1.Bus {
 	pBus.Type = pBusType
 
 	for _, nodeInt := range bus.NodeInterfaces() {
-		log.Print(nodeInt.node.name, nodeInt.node.id)
 		pBus.NodeInterfaces = append(pBus.NodeInterfaces, s.saveNodeInterface(nodeInt))
 	}
 

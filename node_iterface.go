@@ -221,7 +221,7 @@ func (ni *NodeInterface) RemoveAllMessages() {
 func (ni *NodeInterface) GetMessageByName(name string) (*Message, error) {
 	id, err := ni.messageNames.getValue(name)
 	if err != nil {
-		return nil, ni.errorf(&NameError{Err: err})
+		return nil, ni.errorf(&NameError{Name: name, Err: err})
 	}
 
 	msg, err := ni.messages.getValue(id)

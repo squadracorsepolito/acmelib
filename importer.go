@@ -381,6 +381,10 @@ func (i *importer) importExtMuxes(dbcExtMuxes []*dbc.ExtendedMux) {
 
 func (i *importer) importNodes(dbcNodes *dbc.Nodes) error {
 	for idx, nodeName := range dbcNodes.Names {
+		if nodeName == dbc.DummyNode {
+			continue
+		}
+
 		tmpNode := NewNode(nodeName, NodeID(idx), 1)
 
 		if desc, ok := i.nodeDesc[nodeName]; ok {
