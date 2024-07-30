@@ -185,7 +185,7 @@ func (w *writer) writeMessage(msg *Message) {
 }
 
 func (w *writer) writeSignal(sig *Signal) {
-	w.print("\t%s %s", getKeyword(keywordSignal), sig.Name)
+	w.print(" %s %s", getKeyword(keywordSignal), sig.Name)
 
 	if sig.IsMultiplexed && sig.IsMultiplexor {
 		w.print(" m%sM", w.formatUint(sig.MuxSwitchValue))

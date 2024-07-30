@@ -37,25 +37,25 @@ BU_: node_0 rec_node_0
 VAL_TABLE_ enum 0 "VALUE_0" 1 "VALUE_1" 15 "VALUE_15";
 
 BO_ 16 msg_0 : 8 node_0
-	SG_ std_sig_0 : 0|4@1+ (1,0) [0|15] "degC" Vector__XXX
-	SG_ mux_sig_0 M : 4|2@1+ (1,0) [0|3] "" Vector__XXX
-	SG_ fixed_sig m0 : 6|4@1+ (1,0) [0|15] "" Vector__XXX
-	SG_ multi_group_sig_0 m0 : 10|4@1+ (1,0) [0|15] "" Vector__XXX
-	SG_ one_group_sig_0 m1 : 10|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ std_sig_0 : 0|4@1+ (1,0) [0|15] "degC" Vector__XXX
+ SG_ mux_sig_0 M : 4|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ fixed_sig m0 : 6|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ multi_group_sig_0 m0 : 10|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ one_group_sig_0 m1 : 10|4@1+ (1,0) [0|15] "" Vector__XXX
 
 BO_ 32 msg_1 : 8 node_0
-	SG_ mux_sig_1 M : 0|2@1+ (1,0) [0|3] "" Vector__XXX
-	SG_ one_group_sig_1 m0 : 2|4@1+ (1,0) [0|15] "" Vector__XXX
-	SG_ nested_mux_sig_1 m0M : 2|1@1+ (1,0) [0|1] "" Vector__XXX
-	SG_ one_group_sig_2 m0 : 3|4@1+ (1,0) [0|15] "" Vector__XXX
-	SG_ multi_group_sig_1 m1 : 7|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ mux_sig_1 M : 0|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ one_group_sig_1 m0 : 2|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ nested_mux_sig_1 m0M : 2|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ one_group_sig_2 m0 : 3|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ multi_group_sig_1 m1 : 7|4@1+ (1,0) [0|15] "" Vector__XXX
 
 BO_ 48 msg_2 : 8 node_0
-	SG_ enum_sig_0 : 0|4@1+ (1,0) [0|15] "" rec_node_0
+ SG_ enum_sig_0 : 0|4@1+ (1,0) [0|15] "" rec_node_0
 
 BO_ 64 msg_3 : 1 node_0
-	SG_ std_sig_1 : 7|4@0+ (1,0) [0|15] "" Vector__XXX
-	SG_ std_sig_2 : 3|4@0+ (1,0) [0|15] "" Vector__XXX
+ SG_ std_sig_1 : 7|4@0+ (1,0) [0|15] "" Vector__XXX
+ SG_ std_sig_2 : 3|4@0+ (1,0) [0|15] "" Vector__XXX
 
 CM_ "bus0 description";
 CM_ BU_ node_0 "node0 description";
