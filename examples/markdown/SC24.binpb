@@ -1,0 +1,1960 @@
+
+g
+fftZLGtPgVvdYUAXzNJUgSC24"8The CAN network of the squadracorse 2024 formula SAE car*åğ¢µØÍ™–¯Ì
+5
+kb-HKQ558iF7fdZ2oxsYpMain CAN Bus*åğ¢µÈùÜ™¨#1Cq2ehkDEtI-Kl2mM9Z_l¶
+>
+ROZLxfR4EjC1nU1UTLUCeTLB_BAT_signalsStatus*åğ¢µ€Îƒš~
+a
+Xp9OCVdHKBn_0HNDycGMTAIR_POS_cmd_isActive""Status of the Positive AIR command*åğ¢µŒƒŠš*
+rky-Pz3qSMN2LAhi_Mnxjƒ
+f
+kh2O0_vTy8Ccf9f5HDK59AIR_POS_isClosed"+Status of the Positive AIR mechanical state*åğ¢µŒƒŠš*
+rky-Pz3qSMN2LAhi_Mnxj~
+a
+1vqShLGfyRPw-RdQQwJQRAIR_NEG_cmd_isActive""Status of the Negative AIR command*åğ¢µŒƒŠš*
+rky-Pz3qSMN2LAhi_Mnxjƒ
+f
+M-RHxTJ3y1NXX59tBH2s1AIR_NEG_isClosed"+Status of the Negative AIR mechanical state*åğ¢µŒƒŠš*
+rky-Pz3qSMN2LAhi_Mnxj
+r
+lT2pO1CoVvTk8SPK5BbkRDCBUS_PRECH_RLY_cmd_isActive"+Status of the DCBUS Precharge Relay command*åğ¢µŒƒŠš*
+rky-Pz3qSMN2LAhi_Mnxj”
+w
+6QUh05egfuL2zdfPpT4rNDCBUS_PRECH_RLY_isClosed"4Status of the DCBUS Precharge Relay mechanical state*åğ¢µŒƒŠš*
+rky-Pz3qSMN2LAhi_Mnxj}
+`
+3WetnGuaZEDiMqlK0v5DGAMS_errIsActive"&States whether the AMS error is active*åğ¢µœôš*
+rky-Pz3qSMN2LAhi_Mnxj}
+`
+kPDixwT65lEU69SqE49RhIMD_errIsActive"&States whether the IMD error is active*åğ¢µüÛ•š*
+rky-Pz3qSMN2LAhi_Mnxj‰
+l
+rP3V9wvNzokjw0Oez-dr-TSAL_green_isActive".States whether the TSAL green signal is active*åğ¢µüÛ•š*
+rky-Pz3qSMN2LAhi_Mnxj„
+g
+3D1vNKzXH-V8qURaQ_CyyDCBUS_isOver60V"-States whether the DC BUS volatge is over 60V*åğ¢µüÛ•š*
+rky-Pz3qSMN2LAhi_Mnxjƒ
+f
+fnb5MYbMNw2oKc0gViVRWIMP_any_isActive"+States whether any implausibility is active*åğ¢µüÛ•š*
+rky-Pz3qSMN2LAhi_Mnxj¶
+˜
+My24kEl4aCed94E3dKatJIMP_HV_Relays_Signals_isActive"OStates whether an implausibility on HV relays (NEG,POS,PRECH) signals is active*åğ¢µüÛ•š*
+rky-Pz3qSMN2LAhi_Mnxj¦
+ˆ
+dZg8RgBVBei-KITEPvh8uIMP_AIRs_Signals_isActive"DStates whether an implausibility on AIRs (NEG,POS) signals is active*åğ¢µüÛ•š*
+rky-Pz3qSMN2LAhi_Mnxj·
+™
+xjTo3m7zIt29NMiFm7Akq$AIR_POS_STG_mechStateSignal_isActive"JStates whether a Short To Gnd on AIR POS mechanical state signal is active*åğ¢µüÛ•š*
+rky-Pz3qSMN2LAhi_Mnxj·
+™
+Y3A1C1V1uumIwoYCL3NCw$AIR_NEG_STG_mechStateSignal_isActive"JStates whether a Short To Gnd on AIR NEG mechanical state signal is active*åğ¢µüÛ•š*
+rky-Pz3qSMN2LAhi_Mnxj“
+
+Xp9OCVdHKBn_0HNDycGMT
+
+kh2O0_vTy8Ccf9f5HDK59
+
+1vqShLGfyRPw-RdQQwJQR
+
+M-RHxTJ3y1NXX59tBH2s1
+
+lT2pO1CoVvTk8SPK5BbkR
+
+6QUh05egfuL2zdfPpT4rN
+
+3WetnGuaZEDiMqlK0v5DG
+
+kPDixwT65lEU69SqE49Rh
+
+rP3V9wvNzokjw0Oez-dr-
+
+3D1vNKzXH-V8qURaQ_Cyy	
+
+fnb5MYbMNw2oKc0gViVRW
+
+
+My24kEl4aCed94E3dKatJ
+
+dZg8RgBVBei-KITEPvh8u
+
+xjTo3m7zIt29NMiFm7Akq
+
+Y3A1C1V1uumIwoYCL3NCw (@HP
+Xr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTÏ
+A
+seD-8ay0s8uDZBNgLqozyTLB_BAT_sdcSensingStatus*åğ¢µ¼æša
+D
+Bcob645Kp8nSWSVEY2ixWSDC_TSAC_initialIn_isActive*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxje
+H
+jfoUoejYsirWHe3pJ7u2TSDC_post_AMS_IMD_relay_isActive*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxj_
+B
+KRFhiCiXPewX8rWqtgJEmSDC_TSAC_finalIn_isActive*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxj
+p
+agKHQMLmb-EspS4fhI9T_SDC_PRCH_RLY_isClosed"0States whether the SDC precharge relay is closed*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjw
+C
+2xqBox4YajBHYwHs5fWfESDC_TSAC_initialIn_voltage*åğ¢µ¼æš*.
+kMykY1gkfbALnpRgSeOLW6lHQqQnh8RPZ0oj0IP2FBu
+A
+waQHtLYk-B5891fmFrw56SDC_TSAC_finalIn_voltage*åğ¢µ¼æš*.
+kMykY1gkfbALnpRgSeOLW6lHQqQnh8RPZ0oj0IP2FB 
+
+Bcob645Kp8nSWSVEY2ixW
+
+jfoUoejYsirWHe3pJ7u2T
+
+KRFhiCiXPewX8rWqtgJEm
+
+agKHQMLmb-EspS4fhI9T_
+
+2xqBox4YajBHYwHs5fWfE
+
+waQHtLYk-B5891fmFrw56 (.@HP
+Xr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTÛ
+6
+V_2UlljlHc72GX6mHNeEUTLB_BAT_xcpTx*åğ¢µœ“Àšc
+F
+WLL3zOCzp2yMGA1f2r1Wxxcp_payload"xcp payload data*åğ¢µœ“Àš*
+MkEIRG5VsyXC6z26r9hsa
+
+WLL3zOCzp2yMGA1f2r1Wx (F@HXr
+hsPtkjnpm-gd6UYJkGZL2¥
+6
+WR6KYcEgr26Ky-4EX69WaTLB_BAT_hello*åğ¢µè¼ä›t
+W
+53mQdQ-qnAnF_Lrsxr-B_FW_majorVersion"firmware major version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+bUd8cjl10A20Ofxy8DJlQFW_minorVersion"firmware minor version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+Y2DNPtl_OnikUDWOqtAmoFW_patchVersion"firmware patch version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5O
+
+53mQdQ-qnAnF_Lrsxr-B_
+
+bUd8cjl10A20Ofxy8DJlQ
+
+Y2DNPtl_OnikUDWOqtAmo (d@Hr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTŸ"U6rbiyxARA3J78ZmirX15¢
+>
+pp2sTUe5_0gsxiMPviOA2SB_FRONT_analogDevice*åğ¢µÄË›š—
+c
+R7dSBrT8FmLEVSbl0vdk7APPS_0_voltage"*The voltage of the APPS #0 expressed in mV*åğ¢µÄË›š*.
+1ATVxsgXAzubVqH0fGKP76GtfVQB2-Wkf5VTPKJMeE—
+c
+Ju5EFj0-YORQLrSCEo88aAPPS_1_voltage"*The voltage of the APPS #1 expressed in mV*åğ¢µÄË›š*.
+1ATVxsgXAzubVqH0fGKP76GtfVQB2-Wkf5VTPKJMeEÇ
+’
+RMe8pSAAB15qlNFjnQH7_STEER_RME_voltage"VThe voltage of the Steering Wheel RME (rotary magnetic encoder) sensor expressed in mV*åğ¢µ¼æš*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeE·
+‚
+elnqU6cAdy17IPsjBoUqMBRAKE_PRESS_FRONT_voltage">The voltage of the front brake pressure sensor expressed in mV*åğ¢µ¼æš*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeEj
+
+R7dSBrT8FmLEVSbl0vdk7
+
+Ju5EFj0-YORQLrSCEo88a
+
+
+RMe8pSAAB15qlNFjnQH7_
+
+elnqU6cAdy17IPsjBoUqM$ (@HP
+Xr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHT˜
+B
+mpGx3ph1Mf20Guq379honSB_FRONT_sdcSensingStatus*åğ¢µ¼æš•
+x
+THGnTw9Apxm4LyE1a5hlGSDC_POST_INERTIA_isActive"4States whether the SDC post inertia switch is active*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjˆ
+k
+KnaCCjLBVYV6kEiYPUa4rSDC_POST_BOTS_isActive"*States whether the SDC post BOTS is active*åğ¢µÀÂ½š*
+rky-Pz3qSMN2LAhi_MnxjŸ
+
+IvnfRXbxClEAmr-SkaOyDSDC_POST_CP_PUSH_BTN_isActive"9States whether the SDC post cockpit push button is active*åğ¢µÀÂ½š*
+rky-Pz3qSMN2LAhi_MnxjO
+
+THGnTw9Apxm4LyE1a5hlG
+
+KnaCCjLBVYV6kEiYPUa4r
+
+IvnfRXbxClEAmr-SkaOyD (0@HP
+Xr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTè
+?
+3_ioM30FnqXKj57lc-lafSB_FRONT_potentiometer*åğ¢µÀÂ½šÖ
+¡
+k2M7p2hLNDJzBueP7_xjdLPPS_DAMPER_FL_voltage"`The voltage of the linear potentiometer position sensor on the front left damper expressed in mV*åğ¢µœ“Àš*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeE×
+¢
+o2TQA9fBC8y9CRgdjgHnFLPPS_DAMPER_FR_voltage"aThe voltage of the linear potentiometer position sensor on the front right damper expressed in mV*åğ¢µœ“Àš*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeE4
+
+k2M7p2hLNDJzBueP7_xjd
+
+o2TQA9fBC8y9CRgdjgHnF (2@HP
+Xr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTÜ
+7
+ow30X52uJ8qcmaxnKDCpxSB_FRONT_xcpTx*åğ¢µœ“Àšc
+F
+RBZdzAnipdmXnB5znU5WMxcp_payload"xcp payload data*åğ¢µœ“Àš*
+MkEIRG5VsyXC6z26r9hsa
+
+RBZdzAnipdmXnB5znU5WM (F@HXr
+hsPtkjnpm-gd6UYJkGZL2¦
+7
+i3q5DVoduKeOrq4dj_k0xSB_FRONT_hello*åğ¢µè¼ä›t
+W
+NDKyNCgo4yHKT_5cNvBNiFW_majorVersion"firmware major version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+h3bYiMbaMR8nHvwsZzBwiFW_minorVersion"firmware minor version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+L9Xt7fnOzq_zswVm7SLzgFW_patchVersion"firmware patch version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5O
+
+NDKyNCgo4yHKT_5cNvBNi
+
+h3bYiMbaMR8nHvwsZzBwi
+
+L9Xt7fnOzq_zswVm7SLzg (d@Hr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTÒ
+
+?
+4E6B1l27rxH8TTNFTr49nSB_FRONT_ntcResistance*åğ¢µè¼ä›³
+
+qu4e1Bv26glhDtBZH-8W_JACKET_FL_NTC_resistance"<The resistance of the front left jacket NTC expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_µ
+€
+cJZNBZnazEjeJ2S0JzzcdJACKET_FR_NTC_resistance"=The resistance of the front right jacket NTC expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_²
+~
+E43MBHeWz9fUKaYiJpdExCOLDPLATE_L_NTC_resistance"9The resistance of the left coldplate NTC expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_³
+
+t8qqQZQrvNUoTGFIUQSsjCOLDPLATE_R_NTC_resistance":The resistance of the right coldplate NTC expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_¨
+t
+S_RF-W8TQfomYMl2rAzO2SPARE_NTC_0_resistance"3The resistance of the spare NTC #0 expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_¨
+t
+_RPQXkuf9qpdb0kqYbNO1SPARE_NTC_1_resistance"3The resistance of the spare NTC #1 expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_ 
+
+qu4e1Bv26glhDtBZH-8W_
+
+cJZNBZnazEjeJ2S0Jzzcd
+
+
+E43MBHeWz9fUKaYiJpdEx
+
+t8qqQZQrvNUoTGFIUQSsj
+
+S_RF-W8TQfomYMl2rAzO2(
+
+_RPQXkuf9qpdb0kqYbNO12 (g@HPôXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHT™&Z9skS7EQmvT09Pv7JvJdrú
+=
+yO7lb0P_hDPWdfqxGb1W_SB_REAR_analogDevice*åğ¢µ¼æš¶
+
+5c9blm-zkbHKdPNoVVNs5COOL_PRESS_LEFT_voltage"?The voltage of the left cooling pressure sensor expressed in mV*åğ¢µ¼æš*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeE¸
+ƒ
+UTl7V1F37QEOdS41E2VKrCOOL_PRESS_RIGHT_voltage"@The voltage of the right cooling pressure sensor expressed in mV*åğ¢µ¼æš*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeEµ
+€
+fA4qiCxL0VOT9zhj3DVneBRAKE_PRESS_REAR_voltage"=The voltage of the rear brake pressure sensor expressed in mV*åğ¢µ¼æš*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeEO
+
+5c9blm-zkbHKdPNoVVNs5
+
+UTl7V1F37QEOdS41E2VKr
+
+fA4qiCxL0VOT9zhj3DVne  (@HP
+Xr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHT³
+D
+ikgmTizwRgQdbqLyJ3zycSB_REAR_criticalPeripherals*åğ¢µ¼æš|
+_
+QyurbTis3m0EeF1fZ5jW1DISCHARGE_isOpen"$States whether the discharge is open*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjy
+\
+-H0-7NiDReWvdaqt8JDgZBSPD_hasError"$States whether the BSPD has an error*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxj4
+
+QyurbTis3m0EeF1fZ5jW1
+
+-H0-7NiDReWvdaqt8JDgZ (@HP
+Xr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTİ
+A
+kK6_i0K0YjxD43vqNqPPESB_REAR_sdcSensingStatus*åğ¢µ¼æšˆ
+k
+7VzeZgXc7kDTVN03jf4L0SDC_POST_BSPD_isClosed"*States whether the SDC post BSPD is closed*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxj¦
+ˆ
+YjzqGefb6DCmd3Qzn9VN6SDC_PRE_PUSH_BTNS_isClosed"CStates whether the SDC per push buttons (hoop right/left) is closed*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjœ
+
+PItlitWeN4xH4rHH9WAdxSDC_POST_DC_BUS_isClosed"<States whether the SDC post DC bus (inverter mono) is closed*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjš
+}
+0HPs1nngvMQwm_Nj-EM-4SDC_POST_INV_FR_isClosed":States whether the SDC post inverter front right is closed*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjj
+
+7VzeZgXc7kDTVN03jf4L0
+
+YjzqGefb6DCmd3Qzn9VN6
+
+PItlitWeN4xH4rHH9WAdx
+
+0HPs1nngvMQwm_Nj-EM-4 (/@HP
+Xr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTä
+>
+MrcyFkdFEEOh4t5IYcKQlSB_REAR_potentiometer*åğ¢µœ“ÀšÕ
+ 
+NVQMFuhKWlJBOteP99P0hLPPS_DAMPER_RL_voltage"_The voltage of the linear potentiometer position sensor on the rear left damper expressed in mV*åğ¢µœ“Àš*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeEÕ
+ 
+IB80c70GuTMYeNf36ZI2ELPPS_DAMPER_RR_voltage"_The voltage of the linear potentiometer position sensor on the rear left damper expressed in mV*åğ¢µœ“Àš*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeE4
+
+NVQMFuhKWlJBOteP99P0h
+
+IB80c70GuTMYeNf36ZI2E (3@HP
+Xr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTÛ
+6
+dRR_L_jLIq-eFCGpJYJjySB_REAR_xcpTx*åğ¢µœ“Àšc
+F
+ifrbuMbX20g6Er-B7d_Hpxcp_payload"xcp payload data*åğ¢µœ“Àš*
+MkEIRG5VsyXC6z26r9hsa
+
+ifrbuMbX20g6Er-B7d_Hp (F@HXr
+hsPtkjnpm-gd6UYJkGZL2¥
+6
+zBgJMXDNWhmdxVjyJyDZwSB_REAR_hello*åğ¢µè¼ä›t
+W
+S68yWsV1uv1aH1tbh5Vm5FW_majorVersion"firmware major version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+XIOluKSJnenCmm2yPJMmqFW_minorVersion"firmware minor version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+NT_9ozbchSZLXmXFM5SEKFW_patchVersion"firmware patch version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5O
+
+S68yWsV1uv1aH1tbh5Vm5
+
+XIOluKSJnenCmm2yPJMmq
+
+NT_9ozbchSZLXmXFM5SEK (d@Hr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTÿ
+
+>
+_6x8NYgKneUuFDAAWIyUUSB_REAR_ntcResistance*åğ¢µè¼ä›²
+~
+9K5_WbdU22JkMYTRRz7zJJACKET_RL_NTC_resistance";The resistance of the rear left jacket NTC expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_³
+
+JawB0veBe56-2HWhQ3TiwJACKET_RR_NTC_resistance"<The resistance of the rear right jacket NTC expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_¸
+ƒ
+lbpISp0ntBtv_Q4w4yyAzRAD_RL_IN_NTC_resistance"@The resistance of the rear left IN radiator NTC expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_º
+…
+CKoxPp5W1MrNNC4GJ3sM-RAD_RL_OUT_NTC_resistance"AThe resistance of the rear left OUT radiator NTC expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_¹
+„
+TzK7q6P9c1hj_daVhIGlwRAD_RR_IN_NTC_resistance"AThe resistance of the rear right IN radiator NTC expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_»
+†
+5E4heb5Vy62YmYHfRU1NXRAD_RR_OUT_NTC_resistance"BThe resistance of the rear right OUT radiator NTC expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_ 
+
+9K5_WbdU22JkMYTRRz7zJ
+
+JawB0veBe56-2HWhQ3Tiw
+
+
+lbpISp0ntBtv_Q4w4yyAz
+
+CKoxPp5W1MrNNC4GJ3sM-
+
+TzK7q6P9c1hj_daVhIGlw(
+
+5E4heb5Vy62YmYHfRU1NX2 (h@HPôXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTĞXOGAzLgHJBdK0851VdQwk0™
+<
+QWSv5bP0fxQCyyw88ihbLBMS_LV_lvBatGeneral*åğ¢µ¼æšÅ
+
+Qi7vneOQcDM-CoIN4E79dLV_BAT_currentSensVoltage"LThe voltage returned by the current sensor of the LV battery expressed in mV*åğ¢µ¼æš*.
+-1vcdGgjj6GDJEa34tXQc6GtfVQB2-Wkf5VTPKJMeEª
+v
+eDabqCsrxKdGEVkLISONsLV_BAT_voltage"=The total read voltage of the LV battery pack expressed in mV*åğ¢µ¼æš*.
+HpupPU_6qZBt0luJVyFK36GtfVQB2-Wkf5VTPKJMeEÔ
+Ÿ
+jYiOezAeNGc_KvHykawvGLV_BAT_summedVoltage"`The total voltage of the LV battery pack calculated by summing each cell voltage expressed in mV*åğ¢µ¼æš*.
+HpupPU_6qZBt0luJVyFK36GtfVQB2-Wkf5VTPKJMeEO
+
+Qi7vneOQcDM-CoIN4E79d
+
+eDabqCsrxKdGEVkLISONs
+
+jYiOezAeNGc_KvHykawvG  (@HPdXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTÚ
+5
+V6XIJ9yvuCK3NkLv5CAu7BMS_LV_xcpTx*åğ¢µœ“Àšc
+F
+6J6gyc4fFsY2qecQA6S48xcp_payload"xcp payload data*åğ¢µÄáš*
+MkEIRG5VsyXC6z26r9hsa
+
+6J6gyc4fFsY2qecQA6S48 (F@HXr
+hsPtkjnpm-gd6UYJkGZL2ÿ%
+;
+_zQzqlYxGqT9-2x4bmk6LBMS_LV_cellsStatus*åğ¢µˆò›…
+h
+_rYnunYrCgSNYeNADe7xWLV_CELL_0_isOV"/States whether the LV cell #0 is in overvoltage*åğ¢µˆò›*
+rky-Pz3qSMN2LAhi_Mnxj†
+i
+QPzgdsyUJG1H8EbP5n7f5LV_CELL_0_isUV"0States whether the LV cell #0 is in undervoltage*åğ¢µˆò›*
+rky-Pz3qSMN2LAhi_Mnxj…
+h
+ttbOnoVb9_q9apWkqGROiLV_CELL_1_isOV"/States whether the LV cell #1 is in overvoltage*åğ¢µˆò›*
+rky-Pz3qSMN2LAhi_Mnxj†
+i
+RjMYEFtE-TtRtSEKMZlCKLV_CELL_1_isUV"0States whether the LV cell #1 is in undervoltage*åğ¢µˆò›*
+rky-Pz3qSMN2LAhi_Mnxj…
+h
+eSlyww-Fzl1e9K8kGKL74LV_CELL_2_isOV"/States whether the LV cell #2 is in overvoltage*åğ¢µìÄ¡›*
+rky-Pz3qSMN2LAhi_Mnxj†
+i
+KgzFoJ2ptwX1jexVA4i42LV_CELL_2_isUV"0States whether the LV cell #2 is in undervoltage*åğ¢µìÄ¡›*
+rky-Pz3qSMN2LAhi_Mnxj…
+h
+TCLAITDMT0zCZ0nPeyue0LV_CELL_3_isOV"/States whether the LV cell #3 is in overvoltage*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj†
+i
+6_CJbA02Bhi8hJa--vQ28LV_CELL_3_isUV"0States whether the LV cell #3 is in undervoltage*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj…
+h
+D9UYvQ4oSkkftmC-OMPD6LV_CELL_4_isOV"/States whether the LV cell #4 is in overvoltage*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj†
+i
+_VZuoKAfi-EN9NGqtSWrgLV_CELL_4_isUV"0States whether the LV cell #4 is in undervoltage*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj…
+h
+9rkUL-vP2jqJPz45DQ-0hLV_CELL_5_isOV"/States whether the LV cell #5 is in overvoltage*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj†
+i
+1UfwjJOu4TG1lT2G8m88LLV_CELL_5_isUV"0States whether the LV cell #5 is in undervoltage*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj…
+h
+dLS6uySpdoUDlgQY8h9q-LV_CELL_6_isOV"/States whether the LV cell #6 is in overvoltage*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj†
+i
+bmwZgh50M4ElY2FylnZkWLV_CELL_6_isUV"0States whether the LV cell #6 is in undervoltage*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj®
+
+-K1gGLnLE-MPLmgZBUcRILV_CELL_NTC_00_isOT"RStates whether the LV cell temperature sensor #0 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj®
+
+jpigiPAIXsSPf_VVdk0b9LV_CELL_NTC_01_isOT"RStates whether the LV cell temperature sensor #1 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj®
+
+TwNkgefoOryJwUuGk7zm0LV_CELL_NTC_02_isOT"RStates whether the LV cell temperature sensor #2 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj®
+
+WIpAjKjODHIrzxet-GNlTLV_CELL_NTC_03_isOT"RStates whether the LV cell temperature sensor #3 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj®
+
+iDgYhcpIoYXSEqWB5P979LV_CELL_NTC_04_isOT"RStates whether the LV cell temperature sensor #4 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj®
+
+z76_WwiH5anC1w3l8u8BxLV_CELL_NTC_05_isOT"RStates whether the LV cell temperature sensor #5 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj®
+
+M-8T0_ApJMW-T5b04Hpg3LV_CELL_NTC_06_isOT"RStates whether the LV cell temperature sensor #6 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj®
+
+B7UeCduSKw243bg1k0EB7LV_CELL_NTC_07_isOT"RStates whether the LV cell temperature sensor #7 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj®
+
+tKSYXHvm2YID-dQkHJ3nDLV_CELL_NTC_08_isOT"RStates whether the LV cell temperature sensor #8 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj®
+
+ZmsGR9B_1Unb7hEcPMfA2LV_CELL_NTC_09_isOT"RStates whether the LV cell temperature sensor #9 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj¯
+‘
+ASlSpi4L7UHs4I4G9-aXGLV_CELL_NTC_10_isOT"SStates whether the LV cell temperature sensor #10 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj¯
+‘
+zCkT7TWJ0COZibAjGruMiLV_CELL_NTC_11_isOT"SStates whether the LV cell temperature sensor #11 (NTC) detects an over temperature*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj¼
+
+_rYnunYrCgSNYeNADe7xW
+
+QPzgdsyUJG1H8EbP5n7f5
+
+ttbOnoVb9_q9apWkqGROi
+
+RjMYEFtE-TtRtSEKMZlCK
+
+eSlyww-Fzl1e9K8kGKL74
+
+KgzFoJ2ptwX1jexVA4i42
+
+TCLAITDMT0zCZ0nPeyue0
+
+6_CJbA02Bhi8hJa--vQ28
+
+D9UYvQ4oSkkftmC-OMPD6
+
+_VZuoKAfi-EN9NGqtSWrg	
+
+9rkUL-vP2jqJPz45DQ-0h
+
+
+1UfwjJOu4TG1lT2G8m88L
+
+dLS6uySpdoUDlgQY8h9q-
+
+bmwZgh50M4ElY2FylnZkW
+
+-K1gGLnLE-MPLmgZBUcRI
+
+jpigiPAIXsSPf_VVdk0b9
+
+TwNkgefoOryJwUuGk7zm0
+
+WIpAjKjODHIrzxet-GNlT
+
+iDgYhcpIoYXSEqWB5P979
+
+z76_WwiH5anC1w3l8u8Bx
+
+M-8T0_ApJMW-T5b04Hpg3
+
+B7UeCduSKw243bg1k0EB7
+
+tKSYXHvm2YID-dQkHJ3nD
+
+ZmsGR9B_1Unb7hEcPMfA2
+
+ASlSpi4L7UHs4I4G9-aXG
+
+zCkT7TWJ0COZibAjGruMi (K@HPdXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTÁ
+6
+99n7UQ2dE3xi7h2Bnj8CIBMS_LV_status*åğ¢µ”ˆ£›~
+a
+HusA7BPU56We0FzJa6xOQLV_RELAY_isClosed"%States whether the LV relay is closed*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj‘
+t
+gdSxbxEwTQ6lQMjrQRjlELV_RELAY_isRelayOverrideOn"/States whether the LV relay override is enabled*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj4
+
+HusA7BPU56We0FzJa6xOQ
+
+gdSxbxEwTQ6lQMjrQRjlE (L@HPôXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTê
+>
+1RPVj5kXNqyfRDmdptwL3BMS_LV_lvCellVoltage0*åğ¢µ”ˆ£›
+i
+IMbRUTl-e3LwyZtT87tONLV_CELL_0_voltage"-The voltage of the LV cell #0 expressed in mV*åğ¢µ”ˆ£›*.
+MSNowMiZWsHKfXLcRCicA6GtfVQB2-Wkf5VTPKJMeE
+i
+Exen85oaFaY48NdRc2AEjLV_CELL_1_voltage"-The voltage of the LV cell #1 expressed in mV*åğ¢µ”ˆ£›*.
+MSNowMiZWsHKfXLcRCicA6GtfVQB2-Wkf5VTPKJMeE
+i
+gXlDGsoLpRU4IKlULXCoDLV_CELL_2_voltage"-The voltage of the LV cell #2 expressed in mV*åğ¢µ”ˆ£›*.
+MSNowMiZWsHKfXLcRCicA6GtfVQB2-Wkf5VTPKJMeE
+i
+2WUI22nfmBxfzKRfDQu0OLV_CELL_3_voltage"-The voltage of the LV cell #3 expressed in mV*åğ¢µ”ˆ£›*.
+MSNowMiZWsHKfXLcRCicA6GtfVQB2-Wkf5VTPKJMeEj
+
+IMbRUTl-e3LwyZtT87tON
+
+Exen85oaFaY48NdRc2AEj
+
+gXlDGsoLpRU4IKlULXCoD 
+
+2WUI22nfmBxfzKRfDQu0O0 (M@HPdXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHT¯
+>
+WQoiu_xm1C6zNsO2YgVt4BMS_LV_lvCellVoltage1*åğ¢µ”ˆ£›
+i
+HFFbnhlQ-0YyjS-fLipZMLV_CELL_4_voltage"-The voltage of the LV cell #4 expressed in mV*åğ¢µ”ˆ£›*.
+MSNowMiZWsHKfXLcRCicA6GtfVQB2-Wkf5VTPKJMeE
+i
+XdX1AzW-5v_qWg1CmVuPbLV_CELL_5_voltage"-The voltage of the LV cell #4 expressed in mV*åğ¢µ”ˆ£›*.
+MSNowMiZWsHKfXLcRCicA6GtfVQB2-Wkf5VTPKJMeE
+i
+zhb5xe_bbpAQTrQgH3znBLV_CELL_6_voltage"-The voltage of the LV cell #4 expressed in mV*åğ¢µ”ˆ£›*.
+MSNowMiZWsHKfXLcRCicA6GtfVQB2-Wkf5VTPKJMeEO
+
+HFFbnhlQ-0YyjS-fLipZM
+
+XdX1AzW-5v_qWg1CmVuPb
+
+zhb5xe_bbpAQTrQgH3znB  (N@HPdXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHT¤
+5
+13bmyLc6aXsnXN4TLiZRXBMS_LV_hello*åğ¢µè¼ä›t
+W
+-1X5OhV1_Uuf8wHy8_Z-AFW_majorVersion"firmware major version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+6sxE6wQ_BlVoQl5VLZobDFW_minorVersion"firmware minor version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+dDRmeLMKAbXzcoiCrolnmFW_patchVersion"firmware patch version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5O
+
+-1X5OhV1_Uuf8wHy8_Z-A
+
+6sxE6wQ_BlVoQl5VLZobD
+
+dDRmeLMKAbXzcoiCrolnm (d@Hr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHT–
+D
+vEY5_AA3urDAujBdwOSIRBMS_LV_lvCellNTCResistance0*åğ¢µè¼ä›º
+…
+aGq3tpjs4ZGmijWeQ8YyWLV_CELL_NTC_00_resistance"AThe resistance of the NTC #0 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_º
+…
+_xAnGbpZGi9ahYIcW7sLCLV_CELL_NTC_01_resistance"AThe resistance of the NTC #1 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_º
+…
+NE8Rqu56bZzfUBUSpD753LV_CELL_NTC_02_resistance"AThe resistance of the NTC #2 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_º
+…
+934jQmxcdBEPpbnTNNH0rLV_CELL_NTC_03_resistance"AThe resistance of the NTC #3 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_º
+…
+WczrqB_T7NipLW4OflDDTLV_CELL_NTC_04_resistance"AThe resistance of the NTC #4 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_º
+…
+CWk7dIHFkiu2Rs66a_GXkLV_CELL_NTC_05_resistance"AThe resistance of the NTC #5 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_ 
+
+aGq3tpjs4ZGmijWeQ8YyW
+
+_xAnGbpZGi9ahYIcW7sLC
+
+
+NE8Rqu56bZzfUBUSpD753
+
+934jQmxcdBEPpbnTNNH0r
+
+WczrqB_T7NipLW4OflDDT(
+
+CWk7dIHFkiu2Rs66a_GXk2 (e@HPĞXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHT˜
+D
+K2YL5j1YXBEmYqdYg_U_TBMS_LV_lvCellNTCResistance1*åğ¢µè¼ä›º
+…
+Lq4reeqhvhags7VEZqJQ4LV_CELL_NTC_06_resistance"AThe resistance of the NTC #6 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_º
+…
+0qCdaUWuNs0PqX8A8T2LTLV_CELL_NTC_07_resistance"AThe resistance of the NTC #7 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_º
+…
+MQi9K6naZHAaKGedYGvriLV_CELL_NTC_08_resistance"AThe resistance of the NTC #8 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_º
+…
+7rLtqcS1nMCELbDh1BkvlLV_CELL_NTC_09_resistance"AThe resistance of the NTC #9 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_»
+†
+4555yvlRenkttoA1zPHmgLV_CELL_NTC_10_resistance"BThe resistance of the NTC #10 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_»
+†
+GnKrmN-mQ5kLpoFUt65OTLV_CELL_NTC_11_resistance"BThe resistance of the NTC #11 in the battery pack expressed in Ohm*åğ¢µè¼ä›*.
+30gdSe7KdIL81_aQd8U0RUjOGS9sWpCPJLOziLiA7_ 
+
+Lq4reeqhvhags7VEZqJQ4
+
+0qCdaUWuNs0PqX8A8T2LT
+
+
+MQi9K6naZHAaKGedYGvri
+
+7rLtqcS1nMCELbDh1Bkvl
+
+4555yvlRenkttoA1zPHmg(
+
+GnKrmN-mQ5kLpoFUt65OT2 (f@HPĞXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHT­SlmbAvN8fylQ9v44emYFHş
+=
+xjJQ9sEdqBoG7j793ma2vDASH_hmiDevicesState*åğ¢µ¼æšv
+Y
+2nXGx6Cb5SifPj9RU2oDLBTN_RTD_isPressed"Ready To Drive Button pressed*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjz
+]
+ibg4hzS7ug0W5xhWRGDaIBTN_1_isPressed"#Steering wheel Button #1 is pressed*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjz
+]
+4J8iE9aeIi0ovWg9vOg4mBTN_2_isPressed"#Steering wheel Button #2 is pressed*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjz
+]
+pOEq67cfc8RZ-d5vyuGq4BTN_3_isPressed"#Steering wheel Button #3 is pressed*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjz
+]
+q45_UmUaH26iS1tWh7aWrBTN_4_isPressed"#Steering wheel Button #4 is pressed*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjk
+N
+LEeXjsHJe4kAm8F-WGb76ROT_SW_1_state"Rotary Switch 1 state*åğ¢µ¼æš*
+isWfMLvt59vDiBmlkheE8k
+N
+EHPk4zy3-tQRyGqB0uyBSROT_SW_2_state"Rotary Switch 2 state*åğ¢µ¼æš*
+isWfMLvt59vDiBmlkheE8»
+
+2nXGx6Cb5SifPj9RU2oDL
+
+ibg4hzS7ug0W5xhWRGDaI
+
+4J8iE9aeIi0ovWg9vOg4m
+
+pOEq67cfc8RZ-d5vyuGq4
+
+q45_UmUaH26iS1tWh7aWr
+
+LEeXjsHJe4kAm8F-WGb76
+
+EHPk4zy3-tQRyGqB0uyBS (@HPôXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTØ
+3
+rpyYWNA0tXfvjF0-Gh7Ce
+DASH_xcpTx*åğ¢µÄášc
+F
+hchMvVWAGokjzLidVxAX1xcp_payload"xcp payload data*åğ¢µÄáš*
+MkEIRG5VsyXC6z26r9hsa
+
+hchMvVWAGokjzLidVxAX1 (F@HXr
+hsPtkjnpm-gd6UYJkGZL2Ç
+?
+sncX3xj1wqfJWFOMaj4TdDASH_peripheralsStatus*åğ¢µ”ˆ£›©
+u
+nxQtTbIoRkqapPl2_XcUGTSAC_FAN_pwmDutyCycleStatus"/PWM duty cycle percentage for TSAC fans control*åğ¢µ”ˆ£›*.
+PLqe7t7oUT5KPvuKhLIp2bV8tvdBFdisF6uJPV5Ozw
+
+nxQtTbIoRkqapPl2_XcUG (O@HPôXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHT¢
+3
+Cd7tliI8bdr7rXSrTSwY8
+DASH_hello*åğ¢µè¼ä›t
+W
+GSn6sCV5nQNJkfM0hzVHXFW_majorVersion"firmware major version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+joeQL_u9zyULzoF31fvAcFW_minorVersion"firmware minor version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+oeOEEjnHbWFZqgFZaW8WyFW_patchVersion"firmware patch version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5O
+
+GSn6sCV5nQNJkfM0hzVHX
+
+joeQL_u9zyULzoF31fvAc
+
+oeOEEjnHbWFZqgFZaW8Wy (d@Hr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTù
+=
+-JC7y85y9t-JDC12LWJQkDASH_appsRangeLimits*åğ¢µè¼ä›¢
+n
+nZAJQwsojbnCqsMNeSnT4APPS_0_voltageRangeMin"-APPS channel #0 minimum range expressed in mV*åğ¢µè¼ä›*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeE¢
+n
+FqbxA_f-9DkOJ02lVasM4APPS_0_voltageRangeMax"-APPS channel #0 maximum range expressed in mV*åğ¢µè¼ä›*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeE¢
+n
+UiDTIuAmxIt8RZFDzSkI9APPS_1_voltageRangeMin"-APPS channel #1 minimum range expressed in mV*åğ¢µè¼ä›*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeE¢
+n
+TXLdJFzdhvxYyzU7Ym5PCAPPS_1_voltageRangeMax"-APPS channel #1 maximum range expressed in mV*åğ¢µè¼ä›*.
+RREsa5eF6p14X74IMmAXp6GtfVQB2-Wkf5VTPKJMeEj
+
+nZAJQwsojbnCqsMNeSnT4
+
+FqbxA_f-9DkOJ02lVasM4
+
+UiDTIuAmxIt8RZFDzSkI9 
+
+TXLdJFzdhvxYyzU7Ym5PC0 (i@Hr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTÌ
+9
+8NvaA10QTXN_AmjbsHDouDASH_carCommands*åğ¢µè¼ä›‰
+l
+SnHuGi45yjctVV_lm92ZsBMS_LV_diagPWD"3The password to enter diagnostic mode of the BMS_LV*åğ¢µè¼ä›*
+qee9dPbLNxAyIByPIeEk0«
+w
+29Hb42IZE0Lv9sReldPFRLV_RELAY_forcedState"8The command to force the LV relay open (0) or closed (1)*åğ¢µè¼ä›*.
+rky-Pz3qSMN2LAhi_Mnxjx0allq9_WKpDctFAvljS44
+
+SnHuGi45yjctVV_lm92Zs
+
+29Hb42IZE0Lv9sReldPFR (j@Hr
+OGAzLgHJBdK0851VdQwk0ş
+hsPtkjnpm-gd6UYJkGZL2ä
+?
+atvb5vTYEdjihyfhSmTwpDIAG_TOOL_xcpTxTLB_BAT*åğ¢µ¼æšc
+F
+L9owRfhB8YpeiKc09X2Lcxcp_payload"xcp payload data*åğ¢µ¼æš*
+MkEIRG5VsyXC6z26r9hsa
+
+L9owRfhB8YpeiKc09X2Lc ((@HXr
+1Cq2ehkDEtI-Kl2mM9Z_lå
+@
+pOHQmB3v6pbA8Ys8Y7sjWDIAG_TOOL_xcpTxSB_FRONT*åğ¢µ¼æšc
+F
+O5M-drgkcIftKfIy3g0dixcp_payload"xcp payload data*åğ¢µ¼æš*
+MkEIRG5VsyXC6z26r9hsa
+
+O5M-drgkcIftKfIy3g0di ()@HXr
+U6rbiyxARA3J78ZmirX15ä
+?
+kd9YRBEiLk8LrWCb50sqVDIAG_TOOL_xcpTxSB_REAR*åğ¢µ¼æšc
+F
+wc6thmZu0xJzXDncx-m5mxcp_payload"xcp payload data*åğ¢µ¼æš*
+MkEIRG5VsyXC6z26r9hsa
+
+wc6thmZu0xJzXDncx-m5m (*@HXr
+Z9skS7EQmvT09Pv7JvJdrã
+>
+0qSoJ-p4GeVDT8UzBu1JUDIAG_TOOL_xcpTxBMS_LV*åğ¢µ¼æšc
+F
+aem8N7mJlgfbbFfn6fS74xcp_payload"xcp payload data*åğ¢µ¼æš*
+MkEIRG5VsyXC6z26r9hsa
+
+aem8N7mJlgfbbFfn6fS74 (+@HXr
+OGAzLgHJBdK0851VdQwk0á
+<
+vpPtX2GQjq1zgl04Z7cMiDIAG_TOOL_xcpTxDASH*åğ¢µ¼æšc
+F
+kimmksLeBEKhhyDJGrrFMxcp_payload"xcp payload data*åğ¢µ¼æš*
+MkEIRG5VsyXC6z26r9hsa
+
+kimmksLeBEKhhyDJGrrFM (,@HXr
+SlmbAvN8fylQ9v44emYFHä
+?
+yWVnrlelFRI1A0Oyb9ACaDIAG_TOOL_xcpTxSCANNER*åğ¢µ¼æšc
+F
+0IdsCuqIoWjE3DWASS9iVxcp_payload"xcp payload data*åğ¢µ¼æš*
+MkEIRG5VsyXC6z26r9hsa
+
+0IdsCuqIoWjE3DWASS9iV (-@HXr
+zvjxv7TFiqh9ChiBGugHTÁ/CuGDLxQ6nZBfuKiS9G8Pnï
+
+;
+mXA1I46VKDR4mRPJcmdZTDSPACE_timeAndDate*åğ¢µÈùÜ™‚
+e
+8QfN9YfJ3VlxOl26-R74tDATETIME_year"-Current year expressed as an offset from 1970*åğ¢µÈùÜ™*
+UH4uB_tANFpRR1hUBtdY5Œ
+o
+f8F5CGTUtJEzGghx7snL2DATETIME_month"6Current month of the year (1 = January, 12 = December)*åğ¢µğÃı™*
+3ogp6AN9xOo25Q3Te9vUEz
+]
+CpdLcxikgGj2BxbULHj0JDATETIME_day"&Current day of the month, from 1 to 31*åğ¢µğÃı™*
+jrm4MDuR1SzbOxmoj1P0OŒ
+X
+Fteu30kt2rWXERE-Hl0XhDATETIME_hours"Current hours of the day (1-24)*åğ¢µğÃı™*.
+T1QsGHTUpiVW5SEa36CudZcoI2sRXcTdSWCGVPU2QjŠ
+V
+6UI1wxkRF0RwUXUr46zKoDATETIME_minutes"Current minutes of the hour*åğ¢µ€Îƒš*.
+tbIBm4SJZLwNbZRv9x53W93eWdxa_aVufusiLD_1t8Œ
+X
+td0HahyM72k4Usb26saZdDATETIME_seconds"Current seconds of the minute*åğ¢µ€Îƒš*.
+bx7xVE4SQTDThwnzcMPmOAD_4kT_1nXCLqkkEAvWlW”
+`
+GfEIwppzbNZW-ZHqR2vuGDATETIME_houndresOfASeconds"Current tens of the second*åğ¢µ€Îƒš*.
+zwdlLBqn9inhAlHF82UObAD_4kT_1nXCLqkkEAvWlW»
+
+8QfN9YfJ3VlxOl26-R74t
+
+f8F5CGTUtJEzGghx7snL2
+
+CpdLcxikgGj2BxbULHj0J
+
+Fteu30kt2rWXERE-Hl0Xh
+
+6UI1wxkRF0RwUXUr46zKo
+
+td0HahyM72k4Usb26saZd
+
+GfEIwppzbNZW-ZHqR2vuG" (@HP
+Xr
+OGAzLgHJBdK0851VdQwk0r
+SlmbAvN8fylQ9v44emYFHr
+U6rbiyxARA3J78ZmirX15r
+Z9skS7EQmvT09Pv7JvJdrr
+zvjxv7TFiqh9ChiBGugHTr
+1Cq2ehkDEtI-Kl2mM9Z_l„
+?
+J5DFsf4xR8y14fcmNGjxUDSPACE_peripheralsCTRL*åğ¢µ¼æš›
+~
+UVOP5gglShu4O47Y28jdMBRAKE_LIGHT_activeCMD">The command to turn on the brake light (0 inactive - 1 active)*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxj’
+u
+3e9AKwdSYiMezbtjpso9GDASH_SDC_RLY_closeCMD"5The command to close the SDC relay (0 open - 1 close)*åğ¢µ¼æš*
+rky-Pz3qSMN2LAhi_Mnxjª
+v
+6FzmDA4Y4zmqyuRJk6DmoRAD_FAN_pwmDutyCicleCtrl"3PWM duty cycle percentage for Radiator Fans control*åğ¢µ¼æš*.
+G2ULxSontgcxj5TABGUnsbV8tvdBFdisF6uJPV5Ozw
+i
+g_Y8MdDvWGoeagBpe8I_xCOOL_PUMPS_speedCtrl"*Speed percentage for Cooling Pumps control*åğ¢µ¼æš*.
+G2ULxSontgcxj5TABGUnsbV8tvdBFdisF6uJPV5Ozwj
+
+UVOP5gglShu4O47Y28jdM
+
+3e9AKwdSYiMezbtjpso9G
+
+6FzmDA4Y4zmqyuRJk6Dmo
+
+g_Y8MdDvWGoeagBpe8I_x (@HP
+Xr
+SlmbAvN8fylQ9v44emYFHr
+Z9skS7EQmvT09Pv7JvJdrr
+zvjxv7TFiqh9ChiBGugHT¢
+7
+B1GJqEWAMYD_ss2LRSWDJDSPACE_signals*åğ¢µÄáš
+Y
+AYT_BOXBsME5-TdSGfpKx	HVBAT_soc"%HV Battery State Of Charge percentage*åğ¢µˆò›*.
+re4YwGsPt24oWmP3d-MQDbV8tvdBFdisF6uJPV5Ozw
+
+AYT_BOXBsME5-TdSGfpKx (I@HPdXr
+SlmbAvN8fylQ9v44emYFHr
+zvjxv7TFiqh9ChiBGugHTğ
+9
+aj9nvxkXmyL1M4z1ZbIOvDSPACE_fsmStates*åğ¢µˆò›„
+g
+o5jDcVqx8a8EJImPcL0ynDSPACE_main_FSM_State"'The state of the main/RTD FSM of dspace*åğ¢µˆò›2
+a1gwxJUgUNlJwcSsFaZTM—
+z
+0YY3C4sr0pORnAO3t8yY2DSPACE_amkInvFL_FSM_State"6The state of the AMK Inverter Front Left FSM of dspace*åğ¢µˆò›2
+LeY9XrGbZAZaVB3qbO7m1˜
+{
+WRuuzJq-DAA-mI-TRAQPzDSPACE_amkInvFR_FSM_State"7The state of the AMK Inverter Front Right FSM of dspace*åğ¢µˆò›2
+T2LDFEpbBCQItZgxpyuBw–
+y
+UUYUDuvV_89KLam9LI5o7DSPACE_amkInvRL_FSM_State"5The state of the AMK Inverter Rear Left FSM of dspace*åğ¢µˆò›2
+zYmsDsPjQbypY6mVVNSXC—
+z
+KiJN8_Yaw5Nj1zsFhvyLVDSPACE_amkInvRR_FSM_State"6The state of the AMK Inverter Rear Right FSM of dspace*åğ¢µˆò›2
+j2u_M6gOyT5fV9w8xtFMo…
+
+o5jDcVqx8a8EJImPcL0yn
+
+0YY3C4sr0pORnAO3t8yY2
+
+WRuuzJq-DAA-mI-TRAQPz
+
+UUYUDuvV_89KLam9LI5o7
+
+KiJN8_Yaw5Nj1zsFhvyLV  (J@HPdXr
+SlmbAvN8fylQ9v44emYFHr
+zvjxv7TFiqh9ChiBGugHT‹
+5
+ZiJqcHuqlH7oFf3K08qlcDSPACE_hello*åğ¢µè¼ä›t
+W
+cUxIxJ551sl3Q377siAukFW_majorVersion"firmware major version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+8Llo0yEAu5RlszhMCucx-FW_minorVersion"firmware minor version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5t
+W
+m_X4jL6cvEGVJXp8VBLFYFW_patchVersion"firmware patch version number*åğ¢µè¼ä›*
+UH4uB_tANFpRR1hUBtdY5O
+
+cUxIxJ551sl3Q377siAuk
+
+8Llo0yEAu5RlszhMCucx-
+
+m_X4jL6cvEGVJXp8VBLFY (d@Hr
+zvjxv7TFiqh9ChiBGugHTˆ
+@
+xFjwcT8GlOwVUPPkKp4VvDSPACE_dashLedsColorRGB*åğ¢µè¼ä›{
+^
+igO__N9yrPdiTRcQgqJ_1	LED_1_red"*The red channel of LED #1 of the dashboard*åğ¢µè¼ä›*
+Kj4HCcARkACvnbd76nh0G
+b
+2GdSCq-62SL0nINrAUo1qLED_1_green",The green channel of LED #1 of the dashboard*åğ¢µè¼ä›*
+Kj4HCcARkACvnbd76nh0G}
+`
+8ndYxM4QNUDFBzIpI9gkx
+LED_1_blue"+The blue channel of LED #1 of the dashboard*åğ¢µè¼ä›*
+Kj4HCcARkACvnbd76nh0G{
+^
+spmNS4cKROCyhDkyBqamO	LED_2_red"*The red channel of LED #2 of the dashboard*åğ¢µì˜ƒœ*
+Kj4HCcARkACvnbd76nh0G
+b
+e4cO2i5xaUvHtSsJebX5NLED_2_green",The green channel of LED #2 of the dashboard*åğ¢µì˜ƒœ*
+Kj4HCcARkACvnbd76nh0G}
+`
+p9mIzsK-0cTBtUXta0i-L
+LED_2_blue"+The blue channel of LED #2 of the dashboard*åğ¢µì˜ƒœ*
+Kj4HCcARkACvnbd76nh0G{
+^
+2iUKiVdUI0lsok7vyCHpQ	LED_3_red"*The red channel of LED #3 of the dashboard*åğ¢µì˜ƒœ*
+Kj4HCcARkACvnbd76nh0G
+b
+WxaYo_7Kfj--qLldsq6vgLED_3_green",The green channel of LED #3 of the dashboard*åğ¢µì˜ƒœ*
+Kj4HCcARkACvnbd76nh0G}
+`
+rsrvlnV1Z9ZuAPBfNGD-F
+LED_3_blue"+The blue channel of LED #3 of the dashboard*åğ¢µä„…œ*
+Kj4HCcARkACvnbd76nh0G{
+^
+oue_7A55ZxlsQ6XOYxQam	LED_4_red"*The red channel of LED #4 of the dashboard*åğ¢µä„…œ*
+Kj4HCcARkACvnbd76nh0G
+b
+XAFBQ7MssJSsAsfjtNCPJLED_4_green",The green channel of LED #4 of the dashboard*åğ¢µä„…œ*
+Kj4HCcARkACvnbd76nh0G}
+`
+A0UInQitlkBRLhX_UWY6s
+LED_4_blue"+The blue channel of LED #4 of the dashboard*åğ¢µä„…œ*
+Kj4HCcARkACvnbd76nh0GÂ
+
+igO__N9yrPdiTRcQgqJ_1
+
+2GdSCq-62SL0nINrAUo1q
+
+8ndYxM4QNUDFBzIpI9gkx
+
+spmNS4cKROCyhDkyBqamO	
+
+e4cO2i5xaUvHtSsJebX5N
+
+p9mIzsK-0cTBtUXta0i-L
+
+2iUKiVdUI0lsok7vyCHpQ
+
+WxaYo_7Kfj--qLldsq6vg
+
+rsrvlnV1Z9ZuAPBfNGD-F
+
+oue_7A55ZxlsQ6XOYxQam
+
+XAFBQ7MssJSsAsfjtNCPJ
+
+A0UInQitlkBRLhX_UWY6s! (k@HPÈX¸c8VSXV5GbJQ4aH8KIxkXS
+”
+S2LJgSwTeQ9R9ToVU2IA9IRTS_placeholderMessage"RIRTS message placeholder TODO: update this message when you have the specification*åğ¢µä„…œ\
+?
+NvKdo5OLSHH2MGM83_oVqIRTS_signalPlaceholder*åğ¢µä„…œ*
+v4iHv3wD96vJqCHw_35R0
+
+NvKdo5OLSHH2MGM83_oVq (ˆ0ˆ8@Hõzvjxv7TFiqh9ChiBGugHTÛ
+6
+MTX1K9zq6ahswElQuRJugSCANNER_xcpTx*åğ¢µÄášc
+F
+3E7kSAfhMCcrvTkm3iOJuxcp_payload"xcp payload data*åğ¢µÄáš*
+MkEIRG5VsyXC6z26r9hsa
+
+3E7kSAfhMCcrvTkm3iOJu (F@HXr
+hsPtkjnpm-gd6UYJkGZL2¦4RgL7W7tJWYHW6PCDDjagÉ
+A
+h2HiQo5mV3Iyhxsy5rys8TPMS_frontWheelsPressure*åğ¢µ”ˆ£›z
+]
+ih5Lj_95m1A4UbBsGx9trTIRE_FL_sensID"$The sensor id of the Front Left tire*åğ¢µ”ˆ£›*
+W2DDiwjMVFpkil3gGRQPy­
+
+UU2oVcyvmW7GCIN_1bsz0TIRE_FL_statusIsSpinning"LAcc bit of Front Left tire status register: wheel is spinning (1) or not (0)*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj¼
+
+u8czYyyQlFda_SS8BhDPwTIRE_FL_statusIsVbattNotOk"YVbatt bit of Front Left tire status register: TPMS battery is below 2.2V (1) or above (0)*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj˜
+d
+nksGyLGsQs4_7RJ5iJdQbTIRE_FL_temperature"&The temperature of the Front Left tire*åğ¢µ”ˆ£›*.
+V5uGyKhEA6DSeXfl6shw1SPRGBETy33TmfXSlAKh1u’
+^
+Hv3mRCXJHLC3UwTZb_y3WTIRE_FL_pressure"#The pressure of the front left tire*åğ¢µ”ˆ£›*.
+v04RTVCiz42iJiXljazUvjdoZuatDZ0BkLmSSaNF95{
+^
+joaGQyVXGpjR2Lvj7bf2kTIRE_FR_sensID"%The sensor id of the front right tire*åğ¢µ”ˆ£›*
+W2DDiwjMVFpkil3gGRQPy®
+
+hte5mpT9b3YnKw_Bn-im7TIRE_FR_statusIsSpinning"MAcc bit of Front Right tire status register: wheel is spinning (1) or not (0)*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj½
+Ÿ
+730ehrR6UUC5B7osvZepLTIRE_FR_statusIsVbattNotOk"ZVbatt bit of Front Right tire status register: TPMS battery is below 2.2V (1) or above (0)*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj™
+e
+XVjguvg21pFt-HozTUKx9TIRE_FR_temperature"'The temperature of the Front Right tire*åğ¢µ”ˆ£›*.
+V5uGyKhEA6DSeXfl6shw1SPRGBETy33TmfXSlAKh1u“
+_
+TdbowN5c6F3uj8Gkl3SqgTIRE_FR_pressure"$The pressure of the Front Right tire*åğ¢µ”ˆ£›*.
+v04RTVCiz42iJiXljazUvjdoZuatDZ0BkLmSSaNF95Œ
+
+ih5Lj_95m1A4UbBsGx9tr
+
+UU2oVcyvmW7GCIN_1bsz0
+
+
+u8czYyyQlFda_SS8BhDPw
+
+nksGyLGsQs4_7RJ5iJdQb
+
+Hv3mRCXJHLC3UwTZb_y3W
+
+joaGQyVXGpjR2Lvj7bf2k 
+
+hte5mpT9b3YnKw_Bn-im7*
+
+730ehrR6UUC5B7osvZepL+
+
+XVjguvg21pFt-HozTUKx90
+
+TdbowN5c6F3uj8Gkl3Sqg8 (P@HXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTÀ
+@
+3fc09N4PCKu46Muk-TnI8TPMS_rearWheelsPressure*åğ¢µ”ˆ£›y
+\
+eXs_TGJcOeREuggViWvQnTIRE_RL_sensID"#The sensor id of the Rear Left tire*åğ¢µ”ˆ£›*
+W2DDiwjMVFpkil3gGRQPy¬
+
+IZrDFOLEBmqd1J_OYbm3JTIRE_RL_statusIsSpinning"KAcc bit of Rear Left tire status register: wheel is spinning (1) or not (0)*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj»
+
+86T99AahKjUHJSxxFXdi8TIRE_RL_statusIsVbattNotOk"XVbatt bit of Rear Left tire status register: TPMS battery is below 2.2V (1) or above (0)*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj—
+c
+PGSv6NuBAlO0lO-uVrW4-TIRE_RL_temperature"%The temperature of the Rear Left tire*åğ¢µ”ˆ£›*.
+V5uGyKhEA6DSeXfl6shw1SPRGBETy33TmfXSlAKh1u’
+^
+nHaujD7bXO5f2_gdU-Pd_TIRE_RL_pressure"#The pressure of the front left tire*åğ¢µ”ˆ£›*.
+v04RTVCiz42iJiXljazUvjdoZuatDZ0BkLmSSaNF95{
+^
+At6RKen8ZtMyNZpR7A5nkTIRE_RR_sensID"%The sensor id of the front right tire*åğ¢µ”ˆ£›*
+W2DDiwjMVFpkil3gGRQPy­
+
+HD5fUKYz1D78KKj3rAbHITIRE_RR_statusIsSpinning"LAcc bit of Rear Right tire status register: wheel is spinning (1) or not (0)*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj¼
+
+8TiA1_BplCXBXikCLChVqTIRE_RR_statusIsVbattNotOk"YVbatt bit of Rear Right tire status register: TPMS battery is below 2.2V (1) or above (0)*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj˜
+d
+TRsQLJoNMcL2VWFEfGCoDTIRE_RR_temperature"&The temperature of the Rear Right tire*åğ¢µ”ˆ£›*.
+V5uGyKhEA6DSeXfl6shw1SPRGBETy33TmfXSlAKh1u’
+^
+YySh2bJEA03D5GUNib3o4TIRE_RR_pressure"#The pressure of the Rear Right tire*åğ¢µ”ˆ£›*.
+v04RTVCiz42iJiXljazUvjdoZuatDZ0BkLmSSaNF95Œ
+
+eXs_TGJcOeREuggViWvQn
+
+IZrDFOLEBmqd1J_OYbm3J
+
+
+86T99AahKjUHJSxxFXdi8
+
+PGSv6NuBAlO0lO-uVrW4-
+
+nHaujD7bXO5f2_gdU-Pd_
+
+At6RKen8ZtMyNZpR7A5nk 
+
+HD5fUKYz1D78KKj3rAbHI*
+
+8TiA1_BplCXBXikCLChVq+
+
+TRsQLJoNMcL2VWFEfGCoD0
+
+YySh2bJEA03D5GUNib3o48 (Q@HXr
+CuGDLxQ6nZBfuKiS9G8Pnr
+zvjxv7TFiqh9ChiBGugHTüztDF86pi5lCDLfWeoiFLBÙ
+C
+TkzJI5quK8X5m7481N_qfSBG_ECAN_MSG_GPS2_POS_INFO*åğ¢µ¼æšg
+3
+4VFAaqJY5gZdIhGbslp3a
+TIME_STAMP*åğ¢µ¼æš*.
+tjK1NQtpUgzmqnaxr5qIugLrwYHKhmRq3BsSsDkc7OL
+/
+fzH_0aWa99utCSYWrpzOBSTATUS*åğ¢µ¼æš*
+tjK1NQtpUgzmqnaxr5qIu4
+
+4VFAaqJY5gZdIhGbslp3a
+
+fzH_0aWa99utCSYWrpzOB  („0„8@Hr
+zvjxv7TFiqh9ChiBGugHTì
+>
+ZDG4qfK8OsEegu-9Ns0NASBG_ECAN_MSG_GPS2_POS*åğ¢µ¼æše
+1
+d_K7SIVh1toXuKjmGBx_uLATITUDE*åğ¢µ¼æš*.
+TA9hlfULmmqCe2pBA2bX0iKoNy-ptA0DdIPVHhVcUif
+2
+BzKTIyvE8uGs2b-e7WedI	LONGITUDE*åğ¢µ¼æš*.
+TA9hlfULmmqCe2pBA2bX0iKoNy-ptA0DdIPVHhVcUi4
+
+d_K7SIVh1toXuKjmGBx_u
+
+BzKTIyvE8uGs2b-e7WedI  (…0…8@Hr
+zvjxv7TFiqh9ChiBGugHTÙ
+C
+T7wkA2MV1jRDDRb_zslnsSBG_ECAN_MSG_GPS2_HDT_INFO*åğ¢µ¼æšg
+3
+vs5glD0DWo4tJa7qzQQ-C
+TIME_STAMP*åğ¢µ¼æš*.
+tjK1NQtpUgzmqnaxr5qIugLrwYHKhmRq3BsSsDkc7OL
+/
+3WGJAtxMAF3EqE4Quly7pSTATUS*åğ¢µ¼æš*
+RREsa5eF6p14X74IMmAXp4
+
+vs5glD0DWo4tJa7qzQQ-C
+
+3WGJAtxMAF3EqE4Quly7p  (ˆ0ˆ8@Hr
+zvjxv7TFiqh9ChiBGugHTù
+>
+F2ym8HoPZ57Sv2XVvCN4JSBG_ECAN_MSG_GPS2_HDT*åğ¢µ¼æši
+5
+6fIs6yI4WxVcQ-uUa0Rh3TRUE_HEADING*åğ¢µ¼æš*.
+dZO-NNLPHS38m9IX7ulPyiKoNy-ptA0DdIPVHhVcUim
+9
+YIpOHC06xN8X67uGbMeDnTRUE_HEADING_ACC*åğ¢µ¼æš*.
+dZO-NNLPHS38m9IX7ulPyiKoNy-ptA0DdIPVHhVcUib
+.
+Oyrg9MqzYlERUPaQ6PkawPITCH*åğ¢µ¼æš*.
+syr99pUwaIiDS141y0cmDiKoNy-ptA0DdIPVHhVcUif
+2
+OSM8kc_gQE-vYmTNdiS7Z	PITCH_ACC*åğ¢µ¼æš*.
+dZO-NNLPHS38m9IX7ulPyiKoNy-ptA0DdIPVHhVcUij
+
+6fIs6yI4WxVcQ-uUa0Rh3
+
+YIpOHC06xN8X67uGbMeDn
+
+Oyrg9MqzYlERUPaQ6Pkaw 
+
+OSM8kc_gQE-vYmTNdiS7Z0 (‰0‰8@Hr
+zvjxv7TFiqh9ChiBGugHT¿
+B
+mwoXMvwZ9U0DF872qqP-vSBG_ECAN_MSG_EVENT_INFO_A*åğ¢µ¼æšg
+3
+DJmbDqgxfJNshOmMvExyx
+TIME_STAMP*åğ¢µ¼æš*.
+tjK1NQtpUgzmqnaxr5qIugLrwYHKhmRq3BsSsDkc7OL
+/
+yaEWfL5gz7_quEfANoWfdSTATUS*åğ¢µ¼æš*
+RREsa5eF6p14X74IMmAXp4
+
+DJmbDqgxfJNshOmMvExyx
+
+yaEWfL5gz7_quEfANoWfd  (€0€8@HÏmkoZd09P0RoGdbJnLDqq-PÎ"
+0
+ctOSVOVyKA5U2-VRHcbkWNLG5_ST*åğ¢µ”ˆ£›À
+¢
+sEKnrUpe7MNULQBTKU9-5	NLG5_S_HE"nIndicates if hardware enabled, i.e. a hi or lo signal is fed to the 'Power On' pin (pin3 of control connector)*åğ¢µœëÁ›*
+rky-Pz3qSMN2LAhi_Mnxj
+r
+l99gho-hZ9NO6lcMZhfRc
+NLG5_S_ERR"=An error has been detected, red LED is ON, no power is output*åğ¢µœëÁ›*
+rky-Pz3qSMN2LAhi_Mnxj·
+™
+CGOla5ytPOsIdRuP5huGJ
+NLG5_S_WAR"dWarning condition on, i.e. charging power limited due to any limiting condition; red LED is blinking*åğ¢µœëÁ›*
+rky-Pz3qSMN2LAhi_Mnxjo
+R
+pdhhBSzhRXKh7BFCRPuXA
+NLG5_S_FAN"Charger cooling fan is active*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj|
+_
+kbMvwRcVL5QGtEpykLtxb
+NLG5_S_EUM"*European mains input detected (230V, 50Hz)*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj|
+_
+nIQj0dLnxzsP9WT-COMJYNLG5_S_UM_I")US mains level 1 (120VAC / 60Hz) detected*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj}
+`
+CRixmGdXk-USC14JAs66nNLG5_S_UM_II")US mains level 2 (240VAC / 60Hz) detected*åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_Mnxj~
+a
+TIG6DJAm2-K2wYT71gtahNLG5_S_CP_DT"*Control pilot signal (SAE J1772) detected *åğ¢µ”ˆ£›*
+rky-Pz3qSMN2LAhi_MnxjÅ
+§
+sLqKMpCRK63CeTeGlRdMsNLG5_S_BPD_I"pBypass detection bit 1; 00: no bypass, 01: DC bypass detected, 10:AC bypass in phase, 11: AC bypass not in phase*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_MnxjÆ
+¨
+OhX8JTvSfknO1H36T8LhaNLG5_S_BPD_II"pBypass detection bit 2; 00: no bypass, 01: DC bypass detected, 10:AC bypass in phase, 11: AC bypass not in phase*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj‡
+j
+345OtPj2qKj6sw-m9sGxdNLG5_S_L_OV"4Output power limited by battery output voltage limit*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj‡
+j
+Kd-89-RTVbn3xxKf6M91WNLG5_S_L_OC"4Output power limited by battery output current limit*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj~
+a
+Een-zL-d8E0b9G_fp6M60NLG5_S_L_MC"+Output power limited by mains current limit*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj”
+w
+PPtBFxYWPGLjw41eKoWPANLG5_S_L_PI"AOutput power limited by analog input 'power indicator' (PI) limit*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj‹
+n
+TmM4OB6fpLIpHdOo3WiRgNLG5_S_L_CP"8Output power limited by control pilot signal (SAE J1772)*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj
+p
+8xb5YEHlnbG1fBmL9BpxbNLG5_S_L_PMAX"8Output power limited by maximum power capability of NLG5*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj—
+z
+SF2im8EcMp1nNTfC1XyyONLG5_S_L_MC_MAX"@Output power limited by maximum mains current capability of NLG5*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj˜
+{
+T4pzTX2KFPqucYQdcecY-NLG5_S_L_OC_MAX"AOutput power limited by maximum output current capability of NLG5*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj˜
+{
+kuAZDcve6oXnmr6q5gC8NNLG5_S_L_MO_MAX"AOutput power limited by maximum output voltage capability of NLG5*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj‘
+t
+Mh2KcXoFLWbyLUTM8lkOENLG5_S_L_T_CPRIM"9Output power limited by temperature of primary capacitors*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjˆ
+k
+yC6gBKktWL_4U39j28mlxNLG5_S_L_T_POW"2Output power limited by temperature of power stage*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjƒ
+f
+pWnf4C5nKlhSO2tfSz6XfNLG5_S_L_T_DIO"-Output power limited by temperature of diodes*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj‡
+j
+FZR2CZ0Qg9OLVTKHopnAiNLG5_S_L_T_TR"2Output power limited by temperature of transformer*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj‚
+e
+iqydxOKRWA3BjMR4wBQu1NLG5_S_L_T_BATT"+Output power limited by battery temperature*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjt
+W
+J8EH_SAFi7ikAidFrMiiI
+NLG5_S_AAC""AUX 12 V Automatic Charging Active*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj¡
+
+sEKnrUpe7MNULQBTKU9-5
+
+l99gho-hZ9NO6lcMZhfRc
+
+CGOla5ytPOsIdRuP5huGJ
+
+pdhhBSzhRXKh7BFCRPuXA
+
+kbMvwRcVL5QGtEpykLtxb
+
+nIQj0dLnxzsP9WT-COMJY
+
+CRixmGdXk-USC14JAs66n
+
+TIG6DJAm2-K2wYT71gtah
+
+sLqKMpCRK63CeTeGlRdMs
+
+OhX8JTvSfknO1H36T8Lha	
+
+345OtPj2qKj6sw-m9sGxd
+
+
+Kd-89-RTVbn3xxKf6M91W
+
+Een-zL-d8E0b9G_fp6M60
+
+PPtBFxYWPGLjw41eKoWPA
+
+TmM4OB6fpLIpHdOo3WiRg
+
+8xb5YEHlnbG1fBmL9Bpxb
+
+SF2im8EcMp1nNTfC1XyyO
+
+T4pzTX2KFPqucYQdcecY-
+
+kuAZDcve6oXnmr6q5gC8N
+
+Mh2KcXoFLWbyLUTM8lkOE
+
+yC6gBKktWL_4U39j28mlx
+
+pWnf4C5nKlhSO2tfSz6Xf
+
+FZR2CZ0Qg9OLVTKHopnAi
+
+iqydxOKRWA3BjMR4wBQu1
+
+J8EH_SAFi7ikAidFrMiiI (08@HPdr
+zvjxv7TFiqh9ChiBGugHTŞ
+3
+rSjZwIi8D3i679G2GM3pz
+NLG5_ACT_I*åğ¢µÈêÂ›~
+J
+i_sT33NJ0rG0zz1CvbvSVNLG5_MC_ACT"Actual mains current*åğ¢µÈêÂ›*.
+6-CfVx886LapB9Cfa6d3wwBhCNC2kQXpmasnS2EIM-~
+J
+r17071roQUxwXPFBdV_XvNLG5_MV_ACT"Actual mains voltage*åğ¢µÈêÂ›*.
+aZtCt-ynog1PIeCr7Yr1b6lHQqQnh8RPZ0oj0IP2FB‡
+S
+XHxuHSczZpYF95n3M-HtnNLG5_OV_ACT"Actual battery output voltage*åğ¢µÈêÂ›*.
+-JtBWUUaBzddviYVrwOIS6lHQqQnh8RPZ0oj0IP2FB‡
+S
+myl3v1ZfVak4hiuxkqnOuNLG5_OC_ACT"output current to the battery*åğ¢µÈêÂ›*.
+c85QDX9skQ0Yeflxw0TeMwBhCNC2kQXpmasnS2EIM-j
+
+i_sT33NJ0rG0zz1CvbvSV
+
+r17071roQUxwXPFBdV_Xv
+
+XHxuHSczZpYF95n3M-Htn 
+
+myl3v1ZfVak4hiuxkqnOu0 (‘0‘8@HPdr
+zvjxv7TFiqh9ChiBGugHTÆ
+4
+78XWQmHqbf1S2WE6UMx7XNLG5_ACT_II*åğ¢µÈêÂ›½
+ˆ
+jBVcBTY6cNRnunDciAoh8NLG5_S_MC_M_CP"OValue of mains current limit, commanded by the control pilot (SAE J1772) signal*åğ¢µÈêÂ›*.
+P9w7rNfiYJpw1_ejB7dfSwBhCNC2kQXpmasnS2EIM-Ç
+’
+y59ZfPXB51wKoET35SdLQNLG5_S_MC_M_PI"YValue of mains current limit, commanded by the 'power indicator' (PI) analog input signal*åğ¢µÈêÂ›*.
+koHStjnGZWHQEfPBWoM4GwBhCNC2kQXpmasnS2EIM-z
+F
+d8E9wFzAPtbVSUiENs1AiNLG5_ABV"Aux battery voltage*åğ¢µÈêÂ›*.
+CCeyeUswTu6TmFEOzHyN46lHQqQnh8RPZ0oj0IP2FB®
+z
+nzacQmYCDqt_tCV4Nlv-FNLG5_AHC_EXT"CCharge balance obtained via  Ext. Ah counter connected to DI1 / DI2*åğ¢µÈêÂ›*.
+syr99pUwaIiDS141y0cmDRIXz-rec53cwiF-0eBWH9¥
+q
+-31MmZwgeaJ82HIZLANt4
+NLG5_OC_BO"<output current of the booster (if one is present and active)*åğ¢µÈêÂ›*.
+6-CfVx886LapB9Cfa6d3wwBhCNC2kQXpmasnS2EIM-…
+
+jBVcBTY6cNRnunDciAoh8
+
+y59ZfPXB51wKoET35SdLQ
+
+d8E9wFzAPtbVSUiENs1Ai
+
+nzacQmYCDqt_tCV4Nlv-F 
+
+-31MmZwgeaJ82HIZLANt40 (’0’8@HPdr
+zvjxv7TFiqh9ChiBGugHTü
+2
+gJGsYJdB3KBmw562n10sP	NLG5_TEMP*åğ¢µÈêÂ›€
+L
+EDT5PdLwpTulvUgEGPjwS
+NLG5_P_TMP"Power stage temperature*åğ¢µÈêÂ›*.
+QRsgiWpH-M0OvkGsBRrSSSPRGBETy33TmfXSlAKh1u·
+‚
+POPtnoPeYZcJQt_IxJOMzNLG5_TMP_EXT1"JValue of external battery temperature sensor #1 (if connected and enabled)*åğ¢µÈêÂ›*.
+QRsgiWpH-M0OvkGsBRrSSSPRGBETy33TmfXSlAKh1u¸
+ƒ
+eeIp5t1ch1RjkURz4yEC7NLG5_TEMP_EXT2"JValue of external battery temperature sensor #2 (if connected and enabled)*åğ¢µÈêÂ›*.
+QRsgiWpH-M0OvkGsBRrSSSPRGBETy33TmfXSlAKh1u·
+‚
+VYNgw1Nfv4UZ9w2_Fm7BuNLG5_TMP_EXT3"JValue of external battery temperature sensor #3 (if connected and enabled)*åğ¢µÈêÂ›*.
+QRsgiWpH-M0OvkGsBRrSSSPRGBETy33TmfXSlAKh1uj
+
+EDT5PdLwpTulvUgEGPjwS
+
+POPtnoPeYZcJQt_IxJOMz
+
+eeIp5t1ch1RjkURz4yEC7 
+
+VYNgw1Nfv4UZ9w2_Fm7Bu0 (“0“8@HPèr
+zvjxv7TFiqh9ChiBGugHT´3
+1
+qKAScQucOQaDPuHTE6PPBNLG5_ERR*åğ¢µÈêÂ›£
+…
+vbjRmGxwmgOOspSBwCzjh
+NLG5_E_OOV"Pbattery output overvoltage; error can only be cleared by cycling power ON-OFF-ON*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjq
+T
+JSHEf2ex3JWbADw2FxFZ2NLG5_E_MOV_II"Mains overvoltage 2 detected*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjp
+S
+LdWQLHMJDWcva16XALLa_NLG5_E_MOV_I"Mains overvoltage 1 detected*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj´
+–
+gYbBe_p08--GUmmHpDMMK	NLG5_E_SC"bpower stage short circuit condition detected; error can only be cleared by cycling power ON-OFF-ON*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjˆ
+k
+DoX_nX_p4ouGAtUcx0D5TNLG5_E_P_OM"5plausibility battery output voltage measurement wrong*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj
+b
+EsNFvlVLutBIv9sPx3xSCNLG5_E_P_MV",plausibility mains voltage measurement wrong*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjf
+I
+hKDKlJrqrdkrh-ITllYtx	NLG5_E_OF"output fuse defective*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxje
+H
+ZbVyCkRnj7fFdi63O6YHQ	NLG5_E_MF"Mains fuse defective*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj 
+‚
+66lV0iK6V2JepYEIKpDhf
+NLG5_E_B_P"Mwrong battery polarity;  error can only be cleared by cycling power ON-OFF-ON*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj
+d
+TaodmEN-9DEq2T7USfojs
+NLG5_E_T_C"/Temperature sensor for prim capacitor defective*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj…
+h
+z7J_3YA1fH_np0aZQs2fJNLG5_E_T_POW"1Temperature sensor for prim power stage defective*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj{
+^
+S-zoIrvxwND3-EPyb1ZVyNLG5_E_T_DIO"'Temperature sensor for diodes defective*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj
+b
+69-I3botl4VqOMU1WG0FBNLG5_E_T_TR",Temperature sensor for transformer defective*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj…
+h
+pi1XEU2lelWCCsazeqw5RNLG5_E_T_EXT1"0Ext. temperature sensor 1 defective (if enabled)*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj…
+h
+I9zuvHhCbE5It6P3yULvSNLG5_E_T_EXT2"0Ext. temperature sensor 2 defective (if enabled)*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj…
+h
+QcZUgN3dRbS_HD9sAck0VNLG5_E_T_EXT3"0Ext. temperature sensor 3 defective (if enabled)*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjq
+T
+4e1okO00wJbACsP7T45KwNLG5_E_F_CRC"Flash memory checksum failure*åğ¢µˆåá›*
+rky-Pz3qSMN2LAhi_MnxjÆ
+¨
+5h2QE8GKZ6LoPjsbze9FbNLG5_E_NV_CRC"pNVSRAM check sum failure; contains most of the scaling & calibration values, CAN ID's and  charging profile etc.*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjp
+S
+mCyHV2KZR9D6tmu6PX1gUNLG5_E_ES_CRC"Sys EEPROM checksum failure*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjp
+S
+gGdpAd-W0xCc8kTbBsyf2NLG5_E_EP_CRC"Pow EEPROM checksum failure*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjk
+N
+XxEsE0Mr40iMkI9G7rkd6
+NLG5_E_WDT"Internal Watchdog Timeout*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjg
+J
+LhQR99tLl7kFp8mOp9OiHNLG5_E_INIT"Initialization error*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxj†
+i
+otl8wdD38B16wE23RR1sfNLG5_E_C_TO"3CAN timeout, no control message received for >300ms*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjq
+T
+S5O9qbxrB5BlX21VqJAccNLG5_E_C_OFF"CAN off, transmit buffer >255*åğ¢µÈêÂ›*
+rky-Pz3qSMN2LAhi_Mnxjk
+N
+bDhse9nTpkRKh7Oid3eUrNLG5_E_C_TX"CAN transmit buffer >127*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxjk
+N
+feDoKRy57_pfS6mXebUBmNLG5_E_C_RX"CAN receiver buffer >127*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxjÿ
+á
+yExLzjCPV03cybIMBtMwlNLG5_E_SDT_BT"¨Emergency Shutdown Threshold 'Battery Temperature' is exceeded; see ChargeStar help section 'protective features';  error can only be cleared by cycling power ON-OFF-ON*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxjû
+İ
+Bmj2EHiAAy5WRcb0gZjIJNLG5_E_SDT_BV"¤Emergency Shutdown Threshold 'Battery Voltage' is exceeded; see ChargeStar help section 'protective features';  error can only be cleared by cycling power ON-OFF-ON*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxjõ
+×
+qph-oCmOpzgXhWu2MG6voNLG5_E_SDT_AH"Emergency Shutdown Threshold 'Amp Hours' is exceeded; see ChargeStar help section 'protective features';  error can only be cleared by cycling power ON-OFF-ON*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxjù
+Û
+s__87T5IjXlao_bsUiTZdNLG5_E_SDT_CT"¢Emergency Shutdown Threshold 'Charging Time' is exceeded; see ChargeStar help section 'protective features';  error can only be cleared by cycling power ON-OFF-ON*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxj}
+`
+-u8l2DrnQFwldgQ0AcSOUNLG5_W_PL_MV")Output power limited by low mains voltage*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxj
+b
+cw34RJ3bsEjOgQ5bv8qfgNLG5_W_PL_BV"+Output power limited by low battery voltage*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_MnxjŒ
+o
+j4iiUwyNgZXJAh44tokn1NLG5_W_PL_IT"8Output power limited by charger internal overtemperature*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxj®
+
+Nfq0Zt2IrIZUI02ugdC8rNLG5_W_C_VOR"YCommanded value is out of specified range; max or min applicable value is assumed instead*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxjs
+V
+RKVejfOFO0KOQ9fh6oDjfNLG5_W_CM_NA"NLG5 Control message not active*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxjµ
+—
+BIzA4WIXD5tQ9Ks3wA6cC	NLG5_W_OD"cLED Output driver defective, LEDs cannot be controlled by NLG5 anymore. Charging is still possible.*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxjİ
+¿
+UPp9w0KCeLBK07UqOWJ-CNLG5_W_SC_M"ˆSave-Charging-Mode reduces primary current to 3.95 A as long as one of the four internal temperature sensors indicates -18deg C or less.*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxjå
+
+vbjRmGxwmgOOspSBwCzjh
+
+JSHEf2ex3JWbADw2FxFZ2
+
+LdWQLHMJDWcva16XALLa_
+
+gYbBe_p08--GUmmHpDMMK
+
+DoX_nX_p4ouGAtUcx0D5T
+
+EsNFvlVLutBIv9sPx3xSC
+
+hKDKlJrqrdkrh-ITllYtx
+
+ZbVyCkRnj7fFdi63O6YHQ
+
+66lV0iK6V2JepYEIKpDhf
+
+TaodmEN-9DEq2T7USfojs	
+
+z7J_3YA1fH_np0aZQs2fJ
+
+
+S-zoIrvxwND3-EPyb1ZVy
+
+69-I3botl4VqOMU1WG0FB
+
+pi1XEU2lelWCCsazeqw5R
+
+I9zuvHhCbE5It6P3yULvS
+
+QcZUgN3dRbS_HD9sAck0V
+
+4e1okO00wJbACsP7T45Kw
+
+5h2QE8GKZ6LoPjsbze9Fb
+
+mCyHV2KZR9D6tmu6PX1gU
+
+gGdpAd-W0xCc8kTbBsyf2
+
+XxEsE0Mr40iMkI9G7rkd6
+
+LhQR99tLl7kFp8mOp9OiH
+
+otl8wdD38B16wE23RR1sf
+
+S5O9qbxrB5BlX21VqJAcc
+
+bDhse9nTpkRKh7Oid3eUr
+
+feDoKRy57_pfS6mXebUBm
+
+yExLzjCPV03cybIMBtMwl
+
+Bmj2EHiAAy5WRcb0gZjIJ
+
+qph-oCmOpzgXhWu2MG6vo
+
+s__87T5IjXlao_bsUiTZd
+
+-u8l2DrnQFwldgQ0AcSOU 
+
+cw34RJ3bsEjOgQ5bv8qfg!
+
+j4iiUwyNgZXJAh44tokn1"
+
+Nfq0Zt2IrIZUI02ugdC8r#
+
+RKVejfOFO0KOQ9fh6oDjf$
+
+BIzA4WIXD5tQ9Ks3wA6cC&
+
+UPp9w0KCeLBK07UqOWJ-C' (”0”8@HPèr
+zvjxv7TFiqh9ChiBGugHT„
+5
+yZrcAmz1xfWsgowrh4xg4NLG5_DIAG_TX*åğ¢µä„…œp
+S
+SG3d48BJZH8SCuRmvPbxzLAD_D_ParamRp"Diag responded data to host*åğ¢µä„…œ*
+MkEIRG5VsyXC6z26r9hsa
+
+SG3d48BJZH8SCuRmvPbxz (š0š8@Hr
+koZd09P0RoGdbJnLDqq-Pr
+zvjxv7TFiqh9ChiBGugHT‘VQxVKeeEuBJivIxzCBBECî
+1
+sKdHrbTJAF29iM_sOA4lrNLG5_CTL*åğ¢µè¼ä›‚
+e
+HTgFgIw3hiwzMImErSK7aNLG5_C_C_EN"/Must be ON to enable power stage of the charger*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxj
+q
+qA93mUR9kD2iTYdef26hkNLG5_C_C_EL";cycle this value 0-1-0 to clear all latched charger errors *åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxj—
+ù
+qy9buVyyFXz-stVsr8TrcNLG5_C_CP_V"Âspecial signal to tell a charging station equipped with the Control Pilot interface (SAE J1772) to switch on the facility's ventilation (in order to get rid of battery gases like hydrogen, e.g.)*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxj|
+_
+XAQLDfVvqHQ-5Cvl1eu1X	NLG5_C_MR"+Enables CP-State C to request mains voltage*åğ¢µè¼ä›*
+rky-Pz3qSMN2LAhi_Mnxjê
+µ
+Fnf3L06BaPpGNiovOXmIaNLG5_MC_MAX"Maximum current to be drawn from the mains outlet, usually 16A. Must always contain a valid value in order to keep on charging.*åğ¢µè¼ä›*.
+l9-Q5N9jVTE5lp1MDv7zMwBhCNC2kQXpmasnS2EIM-×
+¢
+giu8WOaX8h_dYeaZYiNMMNLG5_OV_COM"lDesired voltage to be output to the battery. Must always contain a valid value in order to keep on charging.*åğ¢µè¼ä›*.
+-JtBWUUaBzddviYVrwOIS6lHQqQnh8RPZ0oj0IP2FBÃ
+
+_bJOKoZDyHbxPPXY-v58jNLG5_OC_COM"XDesired battery current. Must always contain a valid value in order to keep on charging.*åğ¢µè¼ä›*.
+4yd9ddPiz6qsb1VrBUy4iwBhCNC2kQXpmasnS2EIM-»
+
+HTgFgIw3hiwzMImErSK7a
+
+qA93mUR9kD2iTYdef26hk
+
+qy9buVyyFXz-stVsr8Trc
+
+XAQLDfVvqHQ-5Cvl1eu1X
+
+Fnf3L06BaPpGNiovOXmIa
+
+giu8WOaX8h_dYeaZYiNMM
+
+_bJOKoZDyHbxPPXY-v58j( (˜0˜8@HPdr
+koZd09P0RoGdbJnLDqq-Pr
+zvjxv7TFiqh9ChiBGugHT†
+5
+vM1JKqc_77ezWsHboVlIGNLG5_DIAG_RX*åğ¢µä„…œr
+U
+Y_yqFkb8nqjGbSYueCVXzLAD_D_ParamRq"Diag requested data from host*åğ¢µä„…œ*
+MkEIRG5VsyXC6z26r9hsa
+
+Y_yqFkb8nqjGbSYueCVXz (˜0˜8@Hr
+koZd09P0RoGdbJnLDqq-Pr
+zvjxv7TFiqh9ChiBGugHTÀ„= "T
+N
+4RgL7W7tJWYHW6PCDDjagTPMS"Tire pressure monitoring system*åğ¢µÈùÜ™
+"I
+C
+koZd09P0RoGdbJnLDqq-PBRUSA"Brusa NLG5 charger.*åğ¢µÈùÜ™"i
+c
+c8VSXV5GbJQ4aH8KIxkXS
+EXTRA_NODE".Extra CAN BUS-Nodes not permanent or temporary*åğ¢µÈùÜ™"N
+H
+U6rbiyxARA3J78ZmirX15SB_FRONT"Sensorboard front ECU*åğ¢µÈùÜ™"L
+F
+Z9skS7EQmvT09Pv7JvJdrSB_REAR"Sensorboard rear ECU*åğ¢µÈùÜ™"`
+Z
+OGAzLgHJBdK0851VdQwk0BMS_LV")Battery-Management-System Low-Voltage ECU*åğ¢µÈùÜ™"B
+<
+SlmbAvN8fylQ9v44emYFHDASH"Dashboard ECU*åğ¢µÈùÜ™"I
+C
+hsPtkjnpm-gd6UYJkGZL2	DIAG_TOOL"Diagnostic tool*åğ¢µÈùÜ™"H
+B
+CuGDLxQ6nZBfuKiS9G8PnDSPACE"An automotive ECU*åğ¢µÈùÜ™"F
+@
+zvjxv7TFiqh9ChiBGugHTSCANNER"Can Logger ECU*åğ¢µÈùÜ™	"T
+N
+1Cq2ehkDEtI-Kl2mM9Z_lTLB_BAT"TSAL-latch-board battery ECU*åğ¢µÈùÜ™";
+4
+VQxVKeeEuBJivIxzCBBECVector__XXX*åğ¢µÈùÜ™€"N
+H
+ztDF86pi5lCDLfWeoiFLBIMU"Inertial Measurement Unit.*åğ¢µÈùÜ™*R
+:
+qee9dPbLNxAyIByPIeEk0bms_lv_password_t*åğ¢µè¼ä›1      à@9      ğ?*O
+.
+jrm4MDuR1SzbOxmoj1P0Oday_t*åğ¢µğÃı™)      ğ?1      ?@9      ğ?*J
+2
+PLqe7t7oUT5KPvuKhLIp2	fan_pwm_t*åğ¢µä„…œ1      $@9      ğ?*G
+/
+rky-Pz3qSMN2LAhi_Mnxjflag_t*åğ¢µÈùÜ™1      ğ?9      ğ?*H
+0
+T1QsGHTUpiVW5SEa36Cudhours_t*åğ¢µğÃı™1      7@9      ğ?*V
+>
+-1vcdGgjj6GDJEa34tXQclv_bat_current_sens_t*åğ¢µ¼æš1\Âõ¨t³@9Ûù~j¼t³?*Z
+9
+HpupPU_6qZBt0luJVyFK3lv_bat_voltage_t*åğ¢µ¼æš1HázvÑ@9J+‡Ñ?A     XË@*[
+:
+MSNowMiZWsHKfXLcRCicAlv_cell_voltage_t*åğ¢µ”ˆ£›1\Âõ¨t£@9Ûù~j¼t£?A     @Ÿ@*J
+2
+tbIBm4SJZLwNbZRv9x53W	minutes_t*åğ¢µ€Îƒš1     €M@9      ğ?*H
+0
+3ogp6AN9xOo25Q3Te9vUEmonth_t*åğ¢µğÃı™1      &@9      ğ?*Z
+9
+30gdSe7KdIL81_aQd8U0Rntc_resistance_t*åğ¢µè¼ä›
+1    08ß@9     @?@A     @@*V
+>
+isWfMLvt59vDiBmlkheE8rotary_switch_state_t*åğ¢µ¼æš1      "@9      ğ?*e
+B
+syr99pUwaIiDS141y0cmDs16_-327.68-327.67_0.01_0*åğ¢µ¼æš ){®GáztÀ1…ëQ¸zt@9{®Gáz„?*]
+:
+QRsgiWpH-M0OvkGsBRrSSs16_-40-300_0.1_0*åğ¢µÈêÂ› )      DÀ1     Àr@9š™™™™™¹?*S
+9
+c85QDX9skQ0Yeflxw0TeMs16_0-150_0.01_0*åğ¢µÈêÂ› 1     Àb@9{®Gáz„?*p
+M
+TA9hlfULmmqCe2pBA2bX0$s32_-214.7483648-214.7483647_1e-07_0*åğ¢µ¼æš  )H¯¼šò×jÀ1cÿ†šò×j@9H¯¼šò×z>*J
+2
+bx7xVE4SQTDThwnzcMPmO	seconds_t*åğ¢µä„…œ1     €M@9      ğ?*P
+8
+1ATVxsgXAzubVqH0fGKP7u10_0-65535_1_0*åğ¢µÄË›š
+1    àÿï@9      ğ?*Q
+9
+-JtBWUUaBzddviYVrwOISu16_0-1000_0.1_0*åğ¢µÈêÂ›1     @@9š™™™™™¹?*P
+8
+P9w7rNfiYJpw1_ejB7dfSu16_0-100_0.1_0*åğ¢µÈêÂ›1      Y@9š™™™™™¹?*P
+8
+4yd9ddPiz6qsb1VrBUy4iu16_0-150_0.1_0*åğ¢µè¼ä›1     Àb@9š™™™™™¹?*P
+8
+aZtCt-ynog1PIeCr7Yr1bu16_0-500_0.1_0*åğ¢µÈêÂ›1     @@9š™™™™™¹?*P
+8
+6-CfVx886LapB9Cfa6d3wu16_0-50_0.01_0*åğ¢µÈêÂ›1      I@9{®Gáz„?*O
+7
+l9-Q5N9jVTE5lp1MDv7zMu16_0-50_0.1_0*åğ¢µè¼ä›1      I@9š™™™™™¹?*T
+<
+dZO-NNLPHS38m9IX7ulPyu16_0-655.35_0.01_0*åğ¢µ¼æš1ÍÌÌÌÌz„@9{®Gáz„?*V
+>
+tjK1NQtpUgzmqnaxr5qIuu32_0-4.29497e+09_1_0*åğ¢µ¼æš 1   ©  ğA9      ğ?*K
+3
+Kj4HCcARkACvnbd76nh0G
+u3_0-7_1_0*åğ¢µè¼ä›1      @9      ğ?*C
+4
+MkEIRG5VsyXC6z26r9hsau64_0-0_1_0*åğ¢µ¼æš@9      ğ?*P
+8
+v4iHv3wD96vJqCHw_35R0u64_0-65535_1_0*åğ¢µä„…œ@1    àÿï@9      ğ?*L
+4
+zwdlLBqn9inhAlHF82UObu7_0-99_1_0*åğ¢µ€Îƒš1     ÀX@9      ğ?*M
+5
+G2ULxSontgcxj5TABGUnsu8_0-100_1_0*åğ¢µ¼æš1      Y@9      ğ?*N
+6
+koHStjnGZWHQEfPBWoM4Gu8_0-20_0.1_0*åğ¢µÈêÂ›1      4@9š™™™™™¹?*Q
+9
+kMykY1gkfbALnpRgSeOLWu8_0-255_0.177_0*åğ¢µ¼æš1     ào@9-²ï§Æ?*N
+6
+CCeyeUswTu6TmFEOzHyN4u8_0-25_0.1_0*åğ¢µÈêÂ›1      9@9š™™™™™¹?*k
+A
+v04RTVCiz42iJiXljazUvu8_1-254_13.7035_-0.7035*åğ¢µ”ˆ£›)      ğ?1     Ào@9Õxé&1h+@AP—nƒæ¿*V
+5
+W2DDiwjMVFpkil3gGRQPyu8_1-255_1_0*åğ¢µ”ˆ£›)      ğ?1     ào@9      ğ?*b
+8
+V5uGyKhEA6DSeXfl6shw1u8_10-170_1_-50*åğ¢µ”ˆ£›)      $@1     @e@9      ğ?A      IÀ*M
+5
+re4YwGsPt24oWmP3d-MQDu8_100-0_1_0*åğ¢µˆò›)      Y@9      ğ?*I
+1
+RREsa5eF6p14X74IMmAXpuint16_t*åğ¢µ¼æš1    àÿï@9      ğ?*H
+0
+UH4uB_tANFpRR1hUBtdY5uint8_t*åğ¢µÈùÜ™1     ào@9      ğ?21
+*
+bV8tvdBFdisF6uJPV5Ozw%*åğ¢µ¼æš%21
+*
+wBhCNC2kQXpmasnS2EIM-A*åğ¢µÈêÂ›A23
++
+RIXz-rec53cwiF-0eBWH9Ah*åğ¢µÈêÂ›Ah25
+,
+UjOGS9sWpCPJLOziLiA7_Ohm*åğ¢µè¼ä›Ohm21
+*
+6lHQqQnh8RPZ0oj0IP2FBV*åğ¢µ¼æšV2;
+/
+x0allq9_WKpDctFAvljS4closed*åğ¢µè¼ä›closed25
+,
+iKoNy-ptA0DdIPVHhVcUideg*åğ¢µ¼æšdeg27
+-
+SPRGBETy33TmfXSlAKh1udegC*åğ¢µ”ˆ£›degC21
+*
+ZcoI2sRXcTdSWCGVPU2Qjh*åğ¢µğÃı™h23
++
+jdoZuatDZ0BkLmSSaNF95mB*åğ¢µ”ˆ£›mB23
++
+6GtfVQB2-Wkf5VTPKJMeEmV*åğ¢µÄË›šmV25
+,
+93eWdxa_aVufusiLD_1t8min*åğ¢µ€Îƒšmin25
+,
+AD_4kT_1nXCLqkkEAvWlWsec*åğ¢µ€Îƒšsec27
+-
+gLrwYHKhmRq3BsSsDkc7Ousec*åğ¢µ¼æšusec:Æ
+G
+LeY9XrGbZAZaVB3qbO7m1DSPACE_amkInvFL_FSM_State_Enum*åğ¢µÈùÜ™0
+.
+8_-ZOyGrSBVrLzfuUTenZ	RESET*åğ¢µÈùÜ™3
+/
+z-Gmjgcp0m-UcvsZbKY8D	LV ON *åğ¢µÈùÜ™2
+.
+2SR9SlFN8mowmBB1HQkSD	TS ON*åğ¢µÈùÜ™0
+,
+WEDYHShpiOGFalfTKrpq5	RTD*åğ¢µÈùÜ™8
+4
+ge9IlnrcFtidDjkDPUiQZ	MOTOR DRIVE*åğ¢µÈùÜ™9
+5
+9xzNnxN9FC5KK4w6T_VYF	INTERM ERROR*åğ¢µÈùÜ™7
+3
+bGm-5Xc5REF3SDWj6XUTQ	
+HARD ERROR*åğ¢µÈùÜ™:Æ
+G
+T2LDFEpbBCQItZgxpyuBwDSPACE_amkInvFR_FSM_State_Enum*åğ¢µÈùÜ™0
+.
+b79Q7-J7oFDyhBvi1sUsO	RESET*åğ¢µÈùÜ™3
+/
+4eazkO-xeFROwVpU88n-8	LV ON *åğ¢µÈùÜ™2
+.
+IyEyL-NZhCqw0Jr_dnqT5	TS ON*åğ¢µÈùÜ™0
+,
+JMsiXJrZgV0TP85ED0UYh	RTD*åğ¢µÈùÜ™8
+4
+EDRZRH87DBRC-hhu3uZXc	MOTOR DRIVE*åğ¢µÈùÜ™9
+5
+nZUOjwkMv6PsvahMGg_Ub	INTERM ERROR*åğ¢µÈùÜ™7
+3
+owkPACRinzJzfCTneu0SX	
+HARD ERROR*åğ¢µÈùÜ™:Æ
+G
+zYmsDsPjQbypY6mVVNSXCDSPACE_amkInvRL_FSM_State_Enum*åğ¢µÈùÜ™0
+.
+SO2phCxlecq47YkH9dsKE	RESET*åğ¢µÈùÜ™3
+/
+FOFDa59uXWA_g3eV4J4Z9	LV ON *åğ¢µÈùÜ™2
+.
+oULH-9QW5d1oOPy5Aeq1D	TS ON*åğ¢µÈùÜ™0
+,
+pEZHf_lTgYUDb-cEbiR2g	RTD*åğ¢µÈùÜ™8
+4
+-C0FoAf0z88WqfMJaMj_N	MOTOR DRIVE*åğ¢µÈùÜ™9
+5
+SzWcoLnoTiutfM3ErdJl0	INTERM ERROR*åğ¢µÈùÜ™7
+3
+O4MopJ0wQ0yaxyhiYhgxT	
+HARD ERROR*åğ¢µÈùÜ™:Æ
+G
+j2u_M6gOyT5fV9w8xtFMoDSPACE_amkInvRR_FSM_State_Enum*åğ¢µÈùÜ™0
+.
+AaQj_19dRFE67acvHx7MJ	RESET*åğ¢µÈùÜ™3
+/
+3Ha-4GgXr0aakf1uvYHST	LV ON *åğ¢µÈùÜ™2
+.
+E_R7JKKwt9r1_QJ6RWvTY	TS ON*åğ¢µÈùÜ™0
+,
+AkKj0l7ELs2LjybN0N7Q_	RTD*åğ¢µÈùÜ™8
+4
+Sc4CTpwdV5JC01pWoG4yr	MOTOR DRIVE*åğ¢µÈùÜ™9
+5
+MdcWuYDqKEnp4DV1nManY	INTERM ERROR*åğ¢µÈùÜ™7
+3
+xMuXipM4yDLVIoOwpiFin	
+HARD ERROR*åğ¢µÈùÜ™:¾
+C
+a1gwxJUgUNlJwcSsFaZTMDSPACE_main_FSM_State_Enum*åğ¢µÈùÜ™/
+-
+AyTe4_0CwvO_MeOEW_ZBs	IDLE*åğ¢µÈùÜ™6
+2
+AfdA2O2mlQ3CL4nRB02l9		PRECHARGE*åğ¢µÈùÜ™2
+.
+ooX94hpM5xAD0D0QP6uDK	TS ON*åğ¢µÈùÜ™8
+4
+2_vswBTUh3v06MqANk0Kc	RTD REQUEST*åğ¢µÈùÜ™0
+,
+ba-qhWfIjdCPBeRqy4YfX	RTD*åğ¢µÈùÜ™3
+/
+JFLt3znEV96-cAy0m2huk	TS OFF*åğ¢µÈùÜ™7
+2
+9fOx7f2p-lixAi1A3G8ID		DISCHARGE*åğ¢µÈùÜ™ÿ
