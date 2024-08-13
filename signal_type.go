@@ -81,6 +81,22 @@ func newSignalType(name string, kind SignalTypeKind, size int, signed bool, min,
 	return newSignalTypeFromEntity(newEntity(name, EntityKindSignalType), kind, size, signed, min, max, scale, offset)
 }
 
+// Clone creates a new [SignalType] with the same values as the current one.
+func (st *SignalType) Clone() *SignalType {
+	return &SignalType{
+		entity:   st.entity.clone(),
+		withRefs: newWithRefs[*StandardSignal](),
+
+		kind:   st.kind,
+		size:   st.size,
+		signed: st.signed,
+		min:    st.min,
+		max:    st.max,
+		scale:  st.scale,
+		offset: st.offset,
+	}
+}
+
 // NewCustomSignalType creates a new [SignalType] of kind [SignalTypeKindCustom]
 // with the given name, size, signed, order, min/max values, scale, and offset.
 // It may return an error if the size is negative.

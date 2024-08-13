@@ -48,6 +48,9 @@ type Attribute interface {
 	// CreateTime returns the time of creation of the attribute.
 	CreateTime() time.Time
 
+	// Clone creates a new attribute with the same properties as the current one.
+	Clone() (Attribute, error)
+
 	// Type returns the kind of the attribute.
 	Type() AttributeType
 
@@ -87,6 +90,10 @@ func newAttributeFromEntity(ent *entity, typ AttributeType) *attribute {
 
 func newAttribute(name string, typ AttributeType) *attribute {
 	return newAttributeFromEntity(newEntity(name, EntityKindAttribute), typ)
+}
+
+func (a *attribute) clone() *attribute {
+	return newAttributeFromEntity(a.entity.clone(), a.typ)
 }
 
 func (a *attribute) errorf(err error) error {
@@ -137,6 +144,11 @@ func newStringAttributeFromBase(base *attribute, defValue string) *StringAttribu
 // and default value.
 func NewStringAttribute(name, defValue string) *StringAttribute {
 	return newStringAttributeFromBase(newAttribute(name, AttributeTypeString), defValue)
+}
+
+// Clone creates a new [StringAttribute] with the same properties as the current one.
+func (sa *StringAttribute) Clone() (Attribute, error) {
+	return newStringAttributeFromBase(sa.attribute.clone(), sa.defValue), nil
 }
 
 func (sa *StringAttribute) stringify(b *strings.Builder, tabs int) {
@@ -234,6 +246,18 @@ func newIntegerAttributeFromBase(base *attribute, defValue, min, max int) (*Inte
 // or if the min value is greater then the max value.
 func NewIntegerAttribute(name string, defValue, min, max int) (*IntegerAttribute, error) {
 	return newIntegerAttributeFromBase(newAttribute(name, AttributeTypeInteger), defValue, min, max)
+}
+
+// Clone creates a new [IntegerAttribute] with the same properties as the current one.
+func (ia *IntegerAttribute) Clone() (Attribute, error) {
+	cloned, err := newIntegerAttributeFromBase(ia.attribute.clone(), ia.defValue, ia.min, ia.max)
+	if err != nil {
+		return nil, err
+	}
+
+	cloned.isHexFormat = ia.isHexFormat
+
+	return cloned, nil
 }
 
 func (ia *IntegerAttribute) stringify(b *strings.Builder, tabs int) {
@@ -352,6 +376,11 @@ func NewFloatAttribute(name string, defValue, min, max float64) (*FloatAttribute
 	return newFloatAttributeFromBase(newAttribute(name, AttributeTypeFloat), defValue, min, max)
 }
 
+// Clone creates a new [FloatAttribute] with the same properties as the current one.
+func (fa *FloatAttribute) Clone() (Attribute, error) {
+	return newFloatAttributeFromBase(fa.attribute.clone(), fa.defValue, fa.min, fa.max)
+}
+
 func (fa *FloatAttribute) stringify(b *strings.Builder, tabs int) {
 	fa.attribute.stringify(b, tabs)
 
@@ -450,6 +479,18 @@ func newEnumAttributeFromBase(base *attribute, values ...string) (*EnumAttribute
 // It may return an error if no values are passed.
 func NewEnumAttribute(name string, values ...string) (*EnumAttribute, error) {
 	return newEnumAttributeFromBase(newAttribute(name, AttributeTypeEnum), values...)
+}
+
+// Clone creates a new [EnumAttribute] with the same properties as the current one.
+func (ea *EnumAttribute) Clone() (Attribute, error) {
+	cloned, err := newEnumAttributeFromBase(ea.attribute.clone(), ea.Values()...)
+	if err != nil {
+		return nil, err
+	}
+
+	cloned.defValue = ea.defValue
+
+	return cloned, nil
 }
 
 func (ea *EnumAttribute) stringify(b *strings.Builder, tabs int) {

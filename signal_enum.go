@@ -12,7 +12,6 @@ type SignalEnum struct {
 	*entity
 	*withRefs[*EnumSignal]
 
-	// refs     *set[EntityID, *EnumSignal]
 	parErrID EntityID
 
 	values       *set[EntityID, *SignalEnumValue]
@@ -42,6 +41,19 @@ func newSignalEnumFromEntity(ent *entity) *SignalEnum {
 // NewSignalEnum creates a new [SignalEnum] with the given name.
 func NewSignalEnum(name string) *SignalEnum {
 	return newSignalEnumFromEntity(newEntity(name, EntityKindSignalEnum))
+}
+
+// Clone creates a new [SignalEnum] with the same values as the current one.
+func (se *SignalEnum) Clone() (*SignalEnum, error) {
+	cloned := newSignalEnumFromEntity(se.entity.clone())
+
+	for _, tmpVal := range se.values.getValues() {
+		if err := cloned.AddValue(tmpVal.Clone()); err != nil {
+			return nil, err
+		}
+	}
+
+	return cloned, nil
 }
 
 func (se *SignalEnum) errorf(err error) error {
@@ -330,6 +342,11 @@ func newSignalEnumValueFromEntity(ent *entity, index int) *SignalEnumValue {
 // NewSignalEnumValue creates a new [SignalEnumValue] with the given name and index.
 func NewSignalEnumValue(name string, index int) *SignalEnumValue {
 	return newSignalEnumValueFromEntity(newEntity(name, EntityKindSignalEnumValue), index)
+}
+
+// Clone creates a new [SignalEnumValue] with the values as the current one.
+func (sev *SignalEnumValue) Clone() *SignalEnumValue {
+	return newSignalEnumValueFromEntity(sev.entity.clone(), sev.index)
 }
 
 func (sev *SignalEnumValue) hasParentEnum() bool {

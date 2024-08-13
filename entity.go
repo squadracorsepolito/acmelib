@@ -145,6 +145,16 @@ func (e *entity) stringify(b *strings.Builder, tabs int) {
 	b.WriteString(fmt.Sprintf("%screate_time: %s\n", tabStr, e.createTime.Format(time.RFC3339)))
 }
 
+func (e *entity) clone() *entity {
+	return &entity{
+		entityID:   newEntityID(),
+		entityKind: e.entityKind,
+		name:       e.name,
+		desc:       e.desc,
+		createTime: e.createTime,
+	}
+}
+
 type withAttributes struct {
 	attAssignments *set[EntityID, *AttributeAssignment]
 }

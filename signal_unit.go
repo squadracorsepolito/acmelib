@@ -53,6 +53,17 @@ func newSignalUnitFromEntity(ent *entity, kind SignalUnitKind, symbol string) *S
 	}
 }
 
+// Clone creates a new [SignalUnit] with the same values as the current one.
+func (su *SignalUnit) Clone() *SignalUnit {
+	return &SignalUnit{
+		entity:   su.entity.clone(),
+		withRefs: newWithRefs[*StandardSignal](),
+
+		kind:   su.kind,
+		symbol: su.symbol,
+	}
+}
+
 // NewSignalUnit creates a new [SignalUnit] with the given name,
 // kind, and symbol.
 func NewSignalUnit(name string, kind SignalUnitKind, symbol string) *SignalUnit {
