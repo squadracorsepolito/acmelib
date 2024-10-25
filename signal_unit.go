@@ -104,3 +104,13 @@ func (su *SignalUnit) Symbol() string {
 func (su *SignalUnit) SetName(name string) {
 	su.name = name
 }
+
+// SetKind sets the kind of the [SignalUnit] to the given one.
+func (su *SignalUnit) SetKind(kind SignalUnitKind) {
+	su.kind = kind
+}
+
+// SetSymbol sets the symbol of the [SignalUnit] to the given one.
+func (su *SignalUnit) SetSymbol(symbol string) {
+	su.symbol = symbol
+}
