@@ -294,6 +294,20 @@ func (se *SignalEnum) Values() []*SignalEnumValue {
 	return valueSlice
 }
 
+// GetValue returns the [SignalEnumValue] with the given entity id.
+//
+// It returns a [GetEntityError] if the value with the given entity id is not found.
+func (se *SignalEnum) GetValue(valueEntityID EntityID) (*SignalEnumValue, error) {
+	val, err := se.values.getValue(valueEntityID)
+	if err != nil {
+		return nil, se.errorf(&GetEntityError{
+			EntityID: valueEntityID,
+			Err:      err,
+		})
+	}
+	return val, nil
+}
+
 // GetSize returns the size of the [SignalEnum] in bits.
 func (se *SignalEnum) GetSize() int {
 	maxIdxSize := calcSizeFromValue(se.maxIndex)
