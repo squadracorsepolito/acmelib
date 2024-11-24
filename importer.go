@@ -124,7 +124,7 @@ func (i *importer) importFile(dbcFile *dbc.File) (*Bus, error) {
 		panic(err)
 	}
 
-	if len(dummyNode.Messages()) == 0 {
+	if len(dummyNode.SentMessages()) == 0 {
 		if err := bus.RemoveNodeInterface(dummyNode.node.entityID); err != nil {
 			panic(err)
 		}
@@ -470,7 +470,7 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 		return i.errorf(dbcMsg, err)
 	}
 
-	if err := sendNode.AddMessage(msg); err != nil {
+	if err := sendNode.AddSentMessage(msg); err != nil {
 		return i.errorf(dbcMsg, err)
 	}
 

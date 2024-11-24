@@ -254,13 +254,13 @@ func Test_Message_SetStaticCANID(t *testing.T) {
 	msg1 := NewMessage("msg_1", 1, 1)
 	assert.NoError(msg1.SetStaticCANID(500))
 	assert.Equal(CANID(500), msg1.GetCANID())
-	assert.NoError(nodeInt1.AddMessage(msg1))
+	assert.NoError(nodeInt1.AddSentMessage(msg1))
 
 	msg2 := NewMessage("msg_2", 2, 1)
 	assert.NoError(msg2.SetStaticCANID(500))
-	assert.Error(nodeInt1.AddMessage(msg2))
+	assert.Error(nodeInt1.AddSentMessage(msg2))
 	assert.NoError(msg2.SetStaticCANID(600))
-	assert.NoError(nodeInt1.AddMessage(msg2))
+	assert.NoError(nodeInt1.AddSentMessage(msg2))
 
 	node2 := NewNode("node_2", 2, 1)
 	nodeInt2 := node2.Interfaces()[0]
@@ -268,15 +268,45 @@ func Test_Message_SetStaticCANID(t *testing.T) {
 
 	msg3 := NewMessage("msg_3", 3, 1)
 	assert.NoError(msg3.SetStaticCANID(600))
-	assert.Error(nodeInt2.AddMessage(msg3))
+	assert.Error(nodeInt2.AddSentMessage(msg3))
 	assert.NoError(msg3.SetStaticCANID(700))
-	assert.NoError(nodeInt1.AddMessage(msg3))
+	assert.NoError(nodeInt1.AddSentMessage(msg3))
 
 	node3 := NewNode("node_3", 3, 1)
 	nodeInt3 := node3.Interfaces()[0]
 	msg4 := NewMessage("msg_4", 4, 1)
 	assert.NoError(msg4.SetStaticCANID(700))
-	assert.NoError(nodeInt3.AddMessage(msg4))
+	assert.NoError(nodeInt3.AddSentMessage(msg4))
 
 	assert.Error(bus.AddNodeInterface(nodeInt3))
+}
+
+func Test_Message_AddReceiver(t *testing.T) {
+	assert := assert.New(t)
+
+	node0 := NewNode("node_0", 0, 2)
+	nodeInt00 := node0.Interfaces()[0]
+	nodeInt01 := node0.Interfaces()[1]
+
+	node1 := NewNode("node_1", 1, 1)
+	nodeInt1 := node1.Interfaces()[0]
+
+	node2 := NewNode("node_2", 2, 1)
+	nodeInt2 := node2.Interfaces()[0]
+
+	msg := NewMessage("msg", 1, 1)
+	assert.NoError(nodeInt00.AddSentMessage(msg))
+
+	assert.Error(msg.AddReceiver(nodeInt00))
+	assert.NoError(msg.AddReceiver(nodeInt1))
+
+	assert.Len(msg.Receivers(), 1)
+	assert.Len(nodeInt1.ReceivedMessages(), 1)
+
+	assert.NoError(msg.AddReceiver(nodeInt01))
+	assert.NoError(msg.AddReceiver(nodeInt2))
+
+	assert.Len(msg.Receivers(), 3)
+	assert.Len(nodeInt01.ReceivedMessages(), 1)
+	assert.Len(nodeInt2.ReceivedMessages(), 1)
 }

@@ -39,7 +39,7 @@ func CalculateBusLoad(bus *Bus, defCycleTime int) (float64, error) {
 
 	consumedBitsPerSec := float64(0)
 	for _, tmpInt := range bus.nodeInts.getValues() {
-		for _, tmpMsg := range tmpInt.messages.getValues() {
+		for _, tmpMsg := range tmpInt.sentMessages.getValues() {
 			stuffingBits := (headerStuffingBits + tmpMsg.sizeByte*8 - 1) / 4
 			msgBits := tmpMsg.sizeByte*8 + headerBits + trailerBits + stuffingBits
 

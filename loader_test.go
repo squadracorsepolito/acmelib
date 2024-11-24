@@ -44,8 +44,8 @@ func compareNodeInterfaces(assert *assert.Assertions, expected, curr *NodeInterf
 
 	compareNode(assert, expected.Node(), curr.Node())
 
-	expectedMessages := expected.Messages()
-	currMessages := curr.Messages()
+	expectedMessages := expected.SentMessages()
+	currMessages := curr.SentMessages()
 	assert.Len(currMessages, len(expectedMessages))
 	for i, currMessage := range currMessages {
 		expectedMessage := expectedMessages[i]

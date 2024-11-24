@@ -320,7 +320,7 @@ func (s *saver) saveNodeInterface(nodeInt *NodeInterface) *acmelibv1.NodeInterfa
 	s.refNodes[nodeEntID] = nodeInt.node
 	pNodeint.NodeEntityId = nodeEntID.String()
 
-	for _, msg := range nodeInt.Messages() {
+	for _, msg := range nodeInt.SentMessages() {
 		pNodeint.Messages = append(pNodeint.Messages, s.saveMessage(msg))
 	}
 

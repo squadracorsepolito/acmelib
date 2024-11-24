@@ -43,7 +43,7 @@ func Test_ImportDBCFile(t *testing.T) {
 	// testing signal types aggregation
 	sigTypeIDs := make(map[EntityID]bool)
 	for _, tmpNodeInt := range bus.NodeInterfaces() {
-		for _, tmpMsg := range tmpNodeInt.Messages() {
+		for _, tmpMsg := range tmpNodeInt.SentMessages() {
 			for _, sig := range tmpMsg.signals.getValues() {
 				if sig.Kind() != SignalKindStandard {
 					continue

@@ -163,7 +163,7 @@ func checkErr(err error) {
 }
 
 func modifySignalTypeName(nodeInt *acmelib.NodeInterface, msgName, sigName, newName string) {
-	tmpMsg, err := nodeInt.GetMessageByName(msgName)
+	tmpMsg, err := nodeInt.GetSentMessageByName(msgName)
 	checkErr(err)
 	tmpSig, err := tmpMsg.GetSignalByName(sigName)
 	checkErr(err)
@@ -173,7 +173,7 @@ func modifySignalTypeName(nodeInt *acmelib.NodeInterface, msgName, sigName, newN
 }
 
 func modifySignalType(nodeInt *acmelib.NodeInterface, msgName, sigName string, newType *acmelib.SignalType) {
-	tmpMsg, err := nodeInt.GetMessageByName(msgName)
+	tmpMsg, err := nodeInt.GetSentMessageByName(msgName)
 	checkErr(err)
 	tmpSig, err := tmpMsg.GetSignalByName(sigName)
 	checkErr(err)
@@ -195,7 +195,7 @@ func parseNodeIDs(mcb *acmelib.Bus) {
 
 func parseMessageIDs(mcb *acmelib.Bus) {
 	for _, tmpNodeInt := range mcb.NodeInterfaces() {
-		for _, tmpMsg := range tmpNodeInt.Messages() {
+		for _, tmpMsg := range tmpNodeInt.SentMessages() {
 			if msgID, ok := messageIDs[tmpMsg.Name()]; ok {
 				checkErr(tmpMsg.UpdateID(msgID))
 			}

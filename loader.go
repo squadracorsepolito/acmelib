@@ -216,7 +216,7 @@ func (l *loader) loadNodeInterface(pNodeInt *acmelibv1.NodeInterface) (*NodeInte
 			return nil, err
 		}
 
-		if err := nodeInt.AddMessage(msg); err != nil {
+		if err := nodeInt.AddSentMessage(msg); err != nil {
 			return nil, err
 		}
 	}

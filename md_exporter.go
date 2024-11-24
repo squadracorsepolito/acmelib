@@ -82,7 +82,7 @@ func (e *mdExporter) exportTOC(net *Network) {
 		e.w.BulletList(e.getHeaderLink(bus.name))
 		for _, nodeInt := range bus.NodeInterfaces() {
 			e.w.PlainTextf("\t- %s", e.getHeaderLink(nodeInt.node.name))
-			for _, msg := range nodeInt.Messages() {
+			for _, msg := range nodeInt.SentMessages() {
 				e.w.PlainTextf("\t\t- %s", e.getHeaderLink(msg.name))
 			}
 		}
@@ -124,7 +124,7 @@ func (e *mdExporter) exportNode(node *NodeInterface) {
 	hexNodeIIDStr := "0x" + strconv.FormatUint(uint64(node.node.id), 16)
 	e.w.PlainTextf("Node ID: %s (dec), %s (hex)", md.Bold(fmt.Sprintf("%d", node.node.id)), md.Bold(hexNodeIIDStr)).LF()
 
-	for _, msg := range node.Messages() {
+	for _, msg := range node.SentMessages() {
 		e.exportMessage(msg)
 	}
 }

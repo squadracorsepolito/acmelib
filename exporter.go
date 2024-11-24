@@ -291,7 +291,7 @@ func (e *exporter) exportNodeInterfaces(nodeInts []*NodeInterface) {
 
 		dbcNodes.Names = append(dbcNodes.Names, nodeName)
 
-		for _, msg := range nodeInt.Messages() {
+		for _, msg := range nodeInt.SentMessages() {
 			e.exportMessage(msg)
 		}
 	}

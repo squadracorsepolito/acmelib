@@ -359,7 +359,7 @@ func (m *Message) UpdateName(newName string) error {
 	}
 
 	if m.hasSenderNodeInt() {
-		if err := m.senderNodeInt.messageNames.verifyKeyUnique(newName); err != nil {
+		if err := m.senderNodeInt.sentMessageNames.verifyKeyUnique(newName); err != nil {
 			return m.errorf(&UpdateNameError{
 				Err: &NameError{
 					Name: newName,
@@ -368,7 +368,7 @@ func (m *Message) UpdateName(newName string) error {
 			})
 		}
 
-		m.senderNodeInt.messageNames.modifyKey(m.name, newName, m.entityID)
+		m.senderNodeInt.sentMessageNames.modifyKey(m.name, newName, m.entityID)
 	}
 
 	m.name = newName
@@ -593,13 +593,45 @@ func (m *Message) StartDelayTime() int {
 }
 
 // AddReceiver adds a receiver to the [Message].
-func (m *Message) AddReceiver(receiver *NodeInterface) {
-	m.receivers.add(receiver.node.entityID, receiver)
+//
+// It returns an [ArgumentError] if the given receiver is nil or
+// a [ErrReceiverIsSender] wrapped by an [AddEntityError]
+// if the receiver is the same as the sender.
+func (m *Message) AddReceiver(receiver *NodeInterface) error {
+	if receiver == nil {
+		return m.errorf(&ArgumentError{
+			Name: "receiver",
+			Err:  ErrIsNil,
+		})
+	}
+
+	if err := receiver.addReceivedMessage(m); err != nil {
+		return m.errorf(&AddEntityError{
+			EntityID: receiver.node.entityID,
+			Name:     receiver.node.name,
+			Err:      err,
+		})
+	}
+
+	return nil
 }
 
 // RemoveReceiver removes a receiver from the [Message].
-func (m *Message) RemoveReceiver(receiverEntityID EntityID) {
-	m.receivers.remove(receiverEntityID)
+//
+// It returns an [ErrNotFound] wrapped by a [RemoveEntityError]
+// if the receiver with the given entity id is not found.
+func (m *Message) RemoveReceiver(receiverEntityID EntityID) error {
+	receiver, err := m.receivers.getValue(receiverEntityID)
+	if err != nil {
+		return m.errorf(&RemoveEntityError{
+			EntityID: receiverEntityID,
+			Err:      err,
+		})
+	}
+
+	receiver.removeReceivedMessage(m)
+
+	return nil
 }
 
 // Receivers returns a slice of all receivers of the [Message].

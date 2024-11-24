@@ -201,7 +201,7 @@ func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 		return b.errorf(err)
 	}
 
-	messages := nodeInterface.messages.getValues()
+	messages := nodeInterface.sentMessages.getValues()
 	msgStaticCANIDs := make(map[CANID]EntityID)
 	for _, tmpMsg := range messages {
 		if tmpMsg.hasStaticCANID {
@@ -246,7 +246,7 @@ func (b *Bus) RemoveNodeInterface(nodeInterfaceEntityID EntityID) error {
 	b.nodeNames.remove(nodeInt.node.name)
 	b.nodeIDs.remove(nodeInt.node.id)
 
-	for _, tmpMsg := range nodeInt.messages.getValues() {
+	for _, tmpMsg := range nodeInt.sentMessages.getValues() {
 		if tmpMsg.hasStaticCANID {
 			b.messageStaticCANIDs.remove(tmpMsg.staticCANID)
 		}

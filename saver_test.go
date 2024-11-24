@@ -24,7 +24,7 @@ func initTestNetwork(assert *assert.Assertions) *Network {
 
 	// msg0 has a signal in big endian order and a multiplexer signal
 	msg0 := NewMessage("msg_0", 1, 8)
-	assert.NoError(node0Int.AddMessage(msg0))
+	assert.NoError(node0Int.AddSentMessage(msg0))
 
 	size4Type, err := NewIntegerSignalType("4_bits", 4, false)
 	assert.NoError(err)
@@ -53,7 +53,7 @@ func initTestNetwork(assert *assert.Assertions) *Network {
 
 	// msg1 has a 2 level nested multiplexer signals
 	msg1 := NewMessage("msg_1", 2, 8)
-	assert.NoError(node0Int.AddMessage(msg1))
+	assert.NoError(node0Int.AddSentMessage(msg1))
 	msg1.SetDesc("msg1 description")
 
 	muxSig1, err := NewMultiplexerSignal("mux_sig_1", 4, 16)
@@ -79,7 +79,7 @@ func initTestNetwork(assert *assert.Assertions) *Network {
 
 	// msg2 has an enum signal
 	msg2 := NewMessage("msg_2", 3, 8)
-	assert.NoError(node0Int.AddMessage(msg2))
+	assert.NoError(node0Int.AddSentMessage(msg2))
 	msg2.AddReceiver(recNode0Int)
 
 	enum := NewSignalEnum("enum")
@@ -94,7 +94,7 @@ func initTestNetwork(assert *assert.Assertions) *Network {
 	// msg3 is big endian
 	msg3 := NewMessage("msg_3", 4, 1)
 	msg3.SetByteOrder(MessageByteOrderBigEndian)
-	assert.NoError(node0Int.AddMessage(msg3))
+	assert.NoError(node0Int.AddSentMessage(msg3))
 	stdSig1, err := NewStandardSignal("std_sig_1", size4Type)
 	assert.NoError(err)
 	stdSig2, err := NewStandardSignal("std_sig_2", size4Type)

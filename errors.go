@@ -32,6 +32,9 @@ var ErrIntersect = errors.New("is intersecting")
 // ErrInvalidType is returned when an invalid type is used.
 var ErrInvalidType = errors.New("invalid type")
 
+// ErrReceiverIsSender is returned when the receiver is the sender.
+var ErrReceiverIsSender = errors.New("receiver is sender")
+
 // ErrInvalidOneof is returned when a oneof field does not match
 // a kind/type field.
 type ErrInvalidOneof struct {

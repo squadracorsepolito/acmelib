@@ -18,10 +18,10 @@ func Test_CalculateBusLoad(t *testing.T) {
 
 	msg0 := NewMessage("msg_0", 1, 8)
 	msg0.SetCycleTime(10)
-	assert.NoError(nodeInt.AddMessage(msg0))
+	assert.NoError(nodeInt.AddSentMessage(msg0))
 	msg1 := NewMessage("msg_1", 2, 8)
 	msg1.SetCycleTime(10)
-	assert.NoError(nodeInt.AddMessage(msg1))
+	assert.NoError(nodeInt.AddSentMessage(msg1))
 
 	load, err := CalculateBusLoad(bus, 500)
 	assert.NoError(err)
