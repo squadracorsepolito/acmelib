@@ -176,6 +176,15 @@ func (l *loader) loadNode(pNode *acmelibv1.Node) (*Node, error) {
 func (l *loader) loadBus(pBus *acmelibv1.Bus) (*Bus, error) {
 	bus := newBusFromEntity(l.loadEntity(pBus.Entity, EntityKindBus))
 
+	var typ BusType
+	switch pBus.Type {
+	case acmelibv1.BusType_BUS_TYPE_CAN_2A:
+		typ = BusTypeCAN2A
+	}
+	bus.SetType(typ)
+
+	bus.SetBaudrate(int(pBus.Baudrate))
+
 	for _, pNodeInt := range pBus.NodeInterfaces {
 		nodeInt, err := l.loadNodeInterface(pNodeInt)
 		if err != nil {
