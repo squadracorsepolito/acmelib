@@ -4,9 +4,9 @@ import (
 	"io"
 
 	"text/template"
-
-	"github.com/squadracorsepolito/acmelib/templates"
 )
+
+const tmpTemplatesFolder = "../templates"
 
 func GenerateCCode(bus *Bus, hFile io.Writer, cFile io.Writer) error {
 	csGen := newCSourceGenerator(hFile, cFile)
@@ -26,21 +26,21 @@ func newCSourceGenerator(hFile io.Writer, cFile io.Writer) *cCodeGenerator {
 }
 
 func (g *cCodeGenerator) generateBus(bus *Bus) error {
-	hTmpl, err := template.New("c_header").Parse(templates.BusHeader)
+	hTmpl, err := template.New("c_header").ParseGlob(tmpTemplatesFolder + "/*.tmpl")
 	if err != nil {
 		return err
 	}
 
-	cTmpl, err := template.New("c_source").Parse(templates.BusSource)
+	cTmpl, err := template.New("c_source").ParseGlob(tmpTemplatesFolder + "/*.tmpl")
 	if err != nil {
 		return err
 	}
 
-	if err := hTmpl.Execute(g.hFile, bus); err != nil {
+	if err := hTmpl.ExecuteTemplate(g.hFile, "bus_h", bus); err != nil {
 		return err
 	}
 
-	if err := cTmpl.Execute(g.cFile, bus); err != nil {
+	if err := cTmpl.ExecuteTemplate(g.cFile, "bus_c", bus); err != nil {
 		return err
 	}
 
