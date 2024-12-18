@@ -291,7 +291,13 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 				if ok {
 					switch attType {
 					case specialAttributeSigStartValue:
-						sig.SetStartValue(value.(float64))
+						switch value.(type) {
+						case float64:
+							sig.SetStartValue(value.(float64))
+
+						case int:
+							sig.SetStartValue(float64(value.(int)))
+						}
 
 					case specialAttributeSigSendType:
 						sig.SetSendType(signalSendTypeFromDBC(value.(string)))
