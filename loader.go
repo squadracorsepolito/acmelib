@@ -410,7 +410,7 @@ func (l *loader) loadSignal(pSig *acmelibv1.Signal) (Signal, error) {
 	}
 
 	if pSig.StartValue != 0 {
-		sig.SetStartValue(int(pSig.StartValue))
+		sig.SetStartValue(float64(pSig.StartValue))
 	}
 
 	for _, pAttAss := range pSig.AttributeAssignments {
