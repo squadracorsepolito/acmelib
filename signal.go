@@ -124,9 +124,9 @@ type Signal interface {
 	setParentMuxSig(parentMuxSig *MultiplexerSignal)
 
 	// SetStartValue sets the initial raw value of the signal.
-	SetStartValue(startValue int)
+	SetStartValue(startValue float64)
 	// StartValue returns the initial raw value of the signal.
-	StartValue() int
+	StartValue() float64
 	// SetSendType sets the send type of the signal.
 	SetSendType(sendType SignalSendType)
 	// SendType returns the send type of the signal.
@@ -157,7 +157,7 @@ type signal struct {
 
 	kind SignalKind
 
-	startValue int
+	startValue float64
 	sendType   SignalSendType
 
 	relStartBit int
@@ -261,11 +261,11 @@ func (s *signal) stringify(b *strings.Builder, tabs int) {
 	b.WriteString(fmt.Sprintf("%sstart_bit: %d; ", tabStr, s.relStartBit))
 }
 
-func (s *signal) SetStartValue(startValue int) {
+func (s *signal) SetStartValue(startValue float64) {
 	s.startValue = startValue
 }
 
-func (s *signal) StartValue() int {
+func (s *signal) StartValue() float64 {
 	return s.startValue
 }
 

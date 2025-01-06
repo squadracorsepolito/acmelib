@@ -432,7 +432,7 @@ func (s *saver) saveSignal(sig Signal) *acmelibv1.Signal {
 	}
 	pSig.SendType = pSendType
 
-	pSig.StartValue = int64(sig.StartValue())
+	pSig.StartValue = sig.StartValue()
 
 	pKind := acmelibv1.SignalKind_SIGNAL_KIND_UNSPECIFIED
 	switch sig.Kind() {

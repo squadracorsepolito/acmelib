@@ -291,7 +291,13 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 				if ok {
 					switch attType {
 					case specialAttributeSigStartValue:
-						sig.SetStartValue(value.(int))
+						switch value.(type) {
+						case float64:
+							sig.SetStartValue(value.(float64))
+
+						case int:
+							sig.SetStartValue(float64(value.(int)))
+						}
 
 					case specialAttributeSigSendType:
 						sig.SetSendType(signalSendTypeFromDBC(value.(string)))
@@ -493,7 +499,10 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 	if muxSigCount == 1 {
 		dbcMuxSig := muxSignals[0]
 
-		muxedSignals := []*importerMuxedSignal{}
+		lastMuxedStartPos := -1
+		stdSignals := []*importerSignal{}
+
+		muxedSignals := []*importerSignal{}
 		for _, dbcSig := range dbcMsg.Signals {
 			if dbcSig.Name == dbcMuxSig.Name {
 				continue
@@ -504,29 +513,50 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 				return err
 			}
 
+			tmpStartPos := i.getSignalStartBit(dbcSig)
+
 			if dbcSig.IsMultiplexed {
-				muxedSignals = append(muxedSignals, &importerMuxedSignal{sig: tmpSig, dbcSig: dbcSig})
+				muxedSignals = append(muxedSignals, &importerSignal{sig: tmpSig, dbcSig: dbcSig, startPos: tmpStartPos})
+
+				if tmpStartPos > lastMuxedStartPos {
+					lastMuxedStartPos = tmpStartPos
+				}
+
 				continue
 			}
 
-			if err := msg.InsertSignal(tmpSig, i.getSignalStartBit(dbcSig)); err != nil {
-				return i.errorf(dbcSig, err)
+			stdSignals = append(stdSignals, &importerSignal{sig: tmpSig, dbcSig: dbcSig, startPos: tmpStartPos})
+		}
+
+		muxorStartPos := i.getSignalStartBit(dbcMuxSig)
+
+		for _, stdSig := range stdSignals {
+			tmpStartPos := stdSig.startPos
+			if tmpStartPos > muxorStartPos && tmpStartPos < lastMuxedStartPos {
+				muxedSignals = append(muxedSignals, stdSig)
+				continue
+			}
+
+			if err := msg.InsertSignal(stdSig.sig, tmpStartPos); err != nil {
+				return i.errorf(stdSig.dbcSig, err)
 			}
 		}
+
+		slices.SortStableFunc(muxedSignals, func(a, b *importerSignal) int { return a.startPos - b.startPos })
 
 		muxSig, err := i.importMuxSignal(dbcMuxSig, dbcMsg.ID, muxedSignals)
 		if err != nil {
 			return err
 		}
 
-		if err := msg.InsertSignal(muxSig, i.getSignalStartBit(dbcMuxSig)); err != nil {
+		if err := msg.InsertSignal(muxSig, muxorStartPos); err != nil {
 			return i.errorf(dbcMuxSig, err)
 		}
 
 		return nil
 	}
 
-	muxedSigGroups := make([][]*importerMuxedSignal, muxSigCount)
+	muxedSigGroups := make([][]*importerSignal, muxSigCount)
 	for _, dbcSig := range dbcMsg.Signals {
 		if _, ok := muxSigNames[dbcSig.Name]; ok {
 			continue
@@ -548,7 +578,7 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 				return i.errorf(dbcExtMux, &NameError{Name: dbcExtMux.MultiplexorName, Err: ErrNotFound})
 			}
 
-			muxedSigGroups[muxIdx] = append(muxedSigGroups[muxIdx], &importerMuxedSignal{
+			muxedSigGroups[muxIdx] = append(muxedSigGroups[muxIdx], &importerSignal{
 				sig:    tmpSig,
 				dbcSig: dbcSig,
 			})
@@ -582,7 +612,7 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 			return i.errorf(dbcExtMux, &NameError{Name: dbcExtMux.MultiplexorName, Err: ErrNotFound})
 		}
 
-		muxedSigGroups[muxIdx] = append(muxedSigGroups[muxIdx], &importerMuxedSignal{
+		muxedSigGroups[muxIdx] = append(muxedSigGroups[muxIdx], &importerSignal{
 			sig:    muxSig,
 			dbcSig: dbcMuxSig,
 		})
@@ -599,12 +629,13 @@ func (i *importer) getSignalStartBit(dbcSig *dbc.Signal) int {
 	return startBit + 7 - 2*(startBit%8)
 }
 
-type importerMuxedSignal struct {
-	sig    Signal
-	dbcSig *dbc.Signal
+type importerSignal struct {
+	sig      Signal
+	dbcSig   *dbc.Signal
+	startPos int
 }
 
-func (i *importer) importMuxSignal(dbcMuxSig *dbc.Signal, dbcMsgID uint32, muxedSignals []*importerMuxedSignal) (*MultiplexerSignal, error) {
+func (i *importer) importMuxSignal(dbcMuxSig *dbc.Signal, dbcMsgID uint32, muxedSignals []*importerSignal) (*MultiplexerSignal, error) {
 	lastMuxedSig := muxedSignals[len(muxedSignals)-1]
 
 	lastSize := lastMuxedSig.sig.GetSize()

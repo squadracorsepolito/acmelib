@@ -28,7 +28,7 @@ message Signal {
 
     SignalKind kind = 2;
     SignalSendType send_type = 3;
-    int64 start_value = 4;
+    double start_value = 4;
 
     oneof signal {
         StandardSignal standard = 5;
