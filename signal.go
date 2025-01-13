@@ -88,6 +88,12 @@ type Signal interface {
 	EntityKind() EntityKind
 	// Name returns the name of the signal.
 	Name() string
+
+	// UpdateName updates the name of the signal.
+	//
+	// It returns [NameError] if the new name is not valid.
+	UpdateName(name string) error
+
 	// SetDesc stes the description of the signal.
 	SetDesc(desc string)
 	// Desc returns the description of the signal.
