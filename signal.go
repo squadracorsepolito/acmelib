@@ -459,6 +459,11 @@ func (ss *StandardSignal) SetUnit(unit *SignalUnit) {
 		ss.unit.removeRef(ss.entityID)
 	}
 
+	if unit == nil {
+		ss.unit = nil
+		return
+	}
+
 	unit.addRef(ss)
 	ss.unit = unit
 }
