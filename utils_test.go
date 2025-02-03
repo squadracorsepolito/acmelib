@@ -29,7 +29,7 @@ func Test_CalculateBusLoad(t *testing.T) {
 	assert.Less(load, 6.0)
 	assert.Len(msgLoads, 2)
 
-	expectedNames := []string{"msg_0", "msg_1"}
+	expectedNames := []string{"msg_1", "msg_0"}
 	expectedBitsPerSec := []float64{13200, 1320}
 	for idx, msgLoad := range msgLoads {
 		assert.Equal(expectedNames[idx], msgLoad.Message.Name())
