@@ -1,6 +1,6 @@
 package acmelib
 
-import "slices"
+import "golang.org/x/exp/slices"
 
 // MessageLoad is a struct that represents the load caused by a [Message] in a [Bus].
 type MessageLoad struct {
