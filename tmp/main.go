@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// opening the test network file
-	netWireFile, err := os.Open("../testdata/expected.binpb")
+	netWireFile, err := os.Open("../testdata/simple.binpb") // expected.binpb
 	must(err)
 	defer netWireFile.Close()
 
@@ -33,8 +33,8 @@ func main() {
 	must(acmelib.GenerateCCode(bus, hFileBuf, wFileBuf))
 
 	// writing the files
-	must(os.WriteFile(path.Join("res", "test.h"), hFileBuf.Bytes(), 0666))
-	must(os.WriteFile(path.Join("res", "test.c"), wFileBuf.Bytes(), 0666))
+	must(os.WriteFile(path.Join("res", "simple_res.h"), hFileBuf.Bytes(), 0666)) // test.h
+	must(os.WriteFile(path.Join("res", "simple_res.c"), wFileBuf.Bytes(), 0666)) // test.c
 }
 
 func must(err error) {
