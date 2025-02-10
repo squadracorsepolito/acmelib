@@ -34,6 +34,24 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 	funcMap := template.FuncMap{
 		"toUpper": strings.ToUpper,
 		"toLower": strings.ToLower,
+		"camelToSnake": func(s string) string {
+			var res []byte
+			for i := 0; i < len(s); i++ {
+				if i > 0 && s[i] >= 'A' && s[i] <= 'Z' {
+					// Check if the previous character is lowercase OR the next character is lowercase
+					if (s[i-1] >= 'a' && s[i-1] <= 'z') || (i+1 < len(s) && s[i+1] >= 'a' && s[i+1] <= 'z') {
+						res = append(res, '_')
+					}
+				}
+				// Convert uppercase to lowercase
+				if s[i] >= 'A' && s[i] <= 'Z' {
+					res = append(res, s[i]+'a'-'A')
+				} else {
+					res = append(res, s[i])
+				}
+			}
+			return string(res)
+		},
 		"toUint": func(i interface{}) string {
 			switch v := i.(type) {
 			case MessageID:
