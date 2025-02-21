@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 const maxErrorValueLength = 20
@@ -39,8 +40,8 @@ func isAlphaNumeric(ch rune) bool {
 type scanner struct {
 	r *bufio.Reader
 
-	value     string
-	peekBytes int
+	value           string
+	peekBytesOffset int
 
 	lastReadCh rune
 
@@ -59,8 +60,8 @@ func newScanner(r io.Reader) *scanner {
 	return &scanner{
 		r: bufR,
 
-		value:     "",
-		peekBytes: 1,
+		value:           "",
+		peekBytesOffset: 1,
 
 		beginToken: true,
 
@@ -79,7 +80,7 @@ func (s *scanner) read() rune {
 	}
 
 	s.value += string(ch)
-	s.peekBytes = 1
+	s.peekBytesOffset = 0
 
 	s.lastReadCh = ch
 
@@ -103,14 +104,21 @@ func (s *scanner) read() rune {
 }
 
 func (s *scanner) peek() rune {
-	b, err := s.r.Peek(s.peekBytes)
-	if err != nil {
-		return eof
+	for peekBytes := 1; peekBytes < 4; peekBytes++ {
+		b, err := s.r.Peek(peekBytes + s.peekBytesOffset)
+		if err == nil {
+			ch, chBytes := utf8.DecodeRune(b[s.peekBytesOffset:])
+			if ch == utf8.RuneError {
+				continue
+			}
+
+			s.peekBytesOffset += chBytes
+
+			return ch
+		}
 	}
 
-	s.peekBytes++
-
-	return rune(b[s.peekBytes-2])
+	return eof
 }
 
 func (s *scanner) emitToken(kind tokenKind) *token {
