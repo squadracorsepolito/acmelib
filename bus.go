@@ -127,6 +127,20 @@ func (b *Bus) verifyStaticCANID(staticCANID CANID) error {
 	return nil
 }
 
+func (b *Bus) verifyMessageSize(sizeByte int) error {
+	switch b.typ {
+	case BusTypeCAN2A:
+		if sizeByte <= 8 {
+			return nil
+		}
+	}
+
+	return &MessageSizeError{
+		Size: sizeByte,
+		Err:  ErrTooBig,
+	}
+}
+
 func (b *Bus) stringify(builder *strings.Builder, tabs int) {
 	b.entity.stringify(builder, tabs)
 
@@ -181,8 +195,12 @@ func (b *Bus) ParentNetwork() *Network {
 
 // AddNodeInterface adds a [NodeInterface] to the [Bus].
 //
-// It returns an [ArgumentError] if the given node interface is nil
-// or a [NameError]/[NodeIDError] if the node name/id is already used.
+// It returns:
+//   - [ArgumentError] if the given node interface is nil.
+//   - [NameError] if the node name is invalid.
+//   - [NodeIDError] if the node id is invalid.
+//   - [MessageSizeError] if one of the size of a message sent by the node is invalid.
+//   - [CANIDError] if one of the static CAN-ID of a message sent by the node is invalid.
 func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 	if nodeInterface == nil {
 		return &ArgumentError{
@@ -204,6 +222,10 @@ func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 	messages := nodeInterface.sentMessages.getValues()
 	msgStaticCANIDs := make(map[CANID]EntityID)
 	for _, tmpMsg := range messages {
+		if err := b.verifyMessageSize(tmpMsg.sizeByte); err != nil {
+			return b.errorf(err)
+		}
+
 		if tmpMsg.hasStaticCANID {
 			err := b.verifyStaticCANID(tmpMsg.staticCANID)
 			if err != nil {

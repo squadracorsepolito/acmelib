@@ -35,6 +35,12 @@ var ErrInvalidType = errors.New("invalid type")
 // ErrReceiverIsSender is returned when the receiver is the sender.
 var ErrReceiverIsSender = errors.New("receiver is sender")
 
+// ErrTooSmall is returned when a value is too small.
+var ErrTooSmall = errors.New("too small")
+
+// ErrTooBig is returned when a value is too big.
+var ErrTooBig = errors.New("too big")
+
 // ErrInvalidOneof is returned when a oneof field does not match
 // a kind/type field.
 type ErrInvalidOneof struct {
@@ -283,6 +289,19 @@ func (e *SignalSizeError) Error() string {
 }
 
 func (e *SignalSizeError) Unwrap() error { return e.Err }
+
+// MessageSizeError is returned when a message size is invalid.
+// The Size field is the size and the Err field is the cause.
+type MessageSizeError struct {
+	Size int
+	Err  error
+}
+
+func (e *MessageSizeError) Error() string {
+	return fmt.Sprintf("message size error; size:%d : %v", e.Size, e.Err)
+}
+
+func (e *MessageSizeError) Unwrap() error { return e.Err }
 
 // StartBitError is returned when a start bit is invalid.
 // The StartBit field is the start bit and the Err field is the cause.

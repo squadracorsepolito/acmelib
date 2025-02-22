@@ -33,6 +33,19 @@ func Test_Node_AddSentMessage(t *testing.T) {
 	// should return an error because name msg_2 is already taken
 	dupNameMsg := NewMessage("msg_2", 4, 1)
 	assert.Error(node.AddSentMessage(dupNameMsg))
+
+	// create a new bus of type CAN 2.0A
+	bus := NewBus("bus")
+	bus.SetType(BusTypeCAN2A)
+
+	// attach the node interface to the bus
+	assert.NoError(bus.AddNodeInterface(node))
+
+	// create a big message
+	bigMsg := NewMessage("big_msg", 5, 9)
+
+	// should return an error because the message cannot be sent over a CAN 2.0A bus
+	assert.Error(node.AddSentMessage(bigMsg))
 }
 
 func Test_Node_RemoveSentMessage(t *testing.T) {

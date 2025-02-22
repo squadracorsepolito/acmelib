@@ -33,6 +33,16 @@ func Test_Bus_AddNodeInterface(t *testing.T) {
 	// should return an error because name node_1 is already taken
 	dupNameNode := NewNode("node_1", 3, 1).Interfaces()[0]
 	assert.Error(bus.AddNodeInterface(dupNameNode))
+
+	// create a node with an invalid message size
+	invalidNodeInt := NewNode("invilid_node", 4, 1).Interfaces()[0]
+	bigMsg := NewMessage("big_msg", 1, 9)
+	normalMsg := NewMessage("normal_msg", 2, 1)
+	assert.NoError(invalidNodeInt.AddSentMessage(bigMsg))
+	assert.NoError(invalidNodeInt.AddSentMessage(normalMsg))
+
+	// should return an error because the message size is too big
+	assert.Error(bus.AddNodeInterface(invalidNodeInt))
 }
 
 func Test_Bus_RemoveNodeInterface(t *testing.T) {
