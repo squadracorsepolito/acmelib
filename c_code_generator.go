@@ -88,6 +88,9 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 		},
 		"segments": segments,
 		"formatRange": formatRange,
+		"sub": func(a, b int) int {
+			return a - b
+		},
 	}	
 
 	hTmpl, err := template.New("c_header").Funcs(funcMap).ParseGlob(tmpTemplatesFolder + "/*.tmpl")

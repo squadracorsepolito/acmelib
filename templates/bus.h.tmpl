@@ -96,10 +96,17 @@ struct {{ $.dbName | toLower }}_{{ $messageName | toLower }}_t { {{ range .Signa
      * Offset: {{ .Type.Offset }}
      */
     {{ if .Type.Signed }}int{{ else }}uint{{ end }}{{ .Type.Size | getLen }}_t {{ .Name | toLower }};
+{{ end }}{{ if (eq .Kind.String "enum") }}
+    /**
+     * Range: {{ formatRange (index .Enum.Values 0).Index (index .Enum.Values (sub (len .Enum.Values) 1)).Index 0 1 }}
+     * Scale: 1
+     * Offset: 0
+     */
+    uint{{ .GetSize | getLen }}_t {{ .Name | toLower }};
 {{ end }}{{- end }}};
-{{ end }}{{ end }}
+{{ end }}{{ end -}}
 
-{{ range .Bus.NodeInterfaces }}{{ range .SentMessages }}{{ $messageName := .Name }}
+{{- range .Bus.NodeInterfaces }}{{ range .SentMessages }}{{ $messageName := .Name }}
 /**
  * Pack message {{ $messageName }}.
  *
@@ -127,7 +134,7 @@ int {{ $.dbName | toLower }}_{{ $messageName | toLower }}_unpack(
     struct {{ $.dbName | toLower }}_{{ $messageName | toLower }}_t *dst_p,
     const uint8_t *src_p,
     size_t size);
-{{ range .Signals }}{{ $signalName := .Name }}
+{{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := .GetSize | getLen }}
 /**
  * Encode given signal by applying scaling and offset.
  *
@@ -143,7 +150,7 @@ uint16_t {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | 
  *
  * @return Decoded signal.
  */
-double {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_decode(boh value);
+double {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_decode(uint{{ $signalSize }}_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -152,7 +159,7 @@ double {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | to
  *
  * @return true if in range, false otherwise.
  */
-bool {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_is_in_range(boh value);
+bool {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_is_in_range(uint16_t value);
 {{ end }}{{ end }}{{ end }}
 
 #ifdef __cplusplus

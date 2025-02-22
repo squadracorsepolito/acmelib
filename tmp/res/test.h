@@ -91,7 +91,14 @@ struct expected_msg_1_t { };
  * All signal values are as on the CAN bus.
  *
  */
-struct expected_msg_2_t { };
+struct expected_msg_2_t { 
+    /**
+     * Range: 0..15 (0..15 -)
+     * Scale: 1
+     * Offset: 0
+     */
+    uint8_t enum_sig_0;
+};
 
 /**
  * Signals in message msg_3.
@@ -114,8 +121,6 @@ struct expected_msg_3_t {
      */
     uint8_t std_sig_2;
 };
-
-
 
 /**
  * Pack message msg_0.
@@ -160,7 +165,7 @@ uint16_t expected_msg_0_std_sig_0_encode(double value);
  *
  * @return Decoded signal.
  */
-double expected_msg_0_std_sig_0_decode(boh value);
+double expected_msg_0_std_sig_0_decode(uint8_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -169,7 +174,7 @@ double expected_msg_0_std_sig_0_decode(boh value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_0_std_sig_0_is_in_range(boh value);
+bool expected_msg_0_std_sig_0_is_in_range(uint16_t value);
 
 /**
  * Encode given signal by applying scaling and offset.
@@ -186,7 +191,7 @@ uint16_t expected_msg_0_mux_sig_0_encode(double value);
  *
  * @return Decoded signal.
  */
-double expected_msg_0_mux_sig_0_decode(boh value);
+double expected_msg_0_mux_sig_0_decode(uint32_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -195,7 +200,7 @@ double expected_msg_0_mux_sig_0_decode(boh value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_0_mux_sig_0_is_in_range(boh value);
+bool expected_msg_0_mux_sig_0_is_in_range(uint16_t value);
 
 /**
  * Pack message msg_1.
@@ -240,7 +245,7 @@ uint16_t expected_msg_1_mux_sig_1_encode(double value);
  *
  * @return Decoded signal.
  */
-double expected_msg_1_mux_sig_1_decode(boh value);
+double expected_msg_1_mux_sig_1_decode(uint32_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -249,7 +254,7 @@ double expected_msg_1_mux_sig_1_decode(boh value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_1_mux_sig_1_is_in_range(boh value);
+bool expected_msg_1_mux_sig_1_is_in_range(uint16_t value);
 
 /**
  * Pack message msg_2.
@@ -294,7 +299,7 @@ uint16_t expected_msg_2_enum_sig_0_encode(double value);
  *
  * @return Decoded signal.
  */
-double expected_msg_2_enum_sig_0_decode(boh value);
+double expected_msg_2_enum_sig_0_decode(uint8_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -303,7 +308,7 @@ double expected_msg_2_enum_sig_0_decode(boh value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_2_enum_sig_0_is_in_range(boh value);
+bool expected_msg_2_enum_sig_0_is_in_range(uint16_t value);
 
 /**
  * Pack message msg_3.
@@ -348,7 +353,7 @@ uint16_t expected_msg_3_std_sig_1_encode(double value);
  *
  * @return Decoded signal.
  */
-double expected_msg_3_std_sig_1_decode(boh value);
+double expected_msg_3_std_sig_1_decode(uint8_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -357,7 +362,7 @@ double expected_msg_3_std_sig_1_decode(boh value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_3_std_sig_1_is_in_range(boh value);
+bool expected_msg_3_std_sig_1_is_in_range(uint16_t value);
 
 /**
  * Encode given signal by applying scaling and offset.
@@ -374,7 +379,7 @@ uint16_t expected_msg_3_std_sig_2_encode(double value);
  *
  * @return Decoded signal.
  */
-double expected_msg_3_std_sig_2_decode(boh value);
+double expected_msg_3_std_sig_2_decode(uint8_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -383,7 +388,7 @@ double expected_msg_3_std_sig_2_decode(boh value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_3_std_sig_2_is_in_range(boh value);
+bool expected_msg_3_std_sig_2_is_in_range(uint16_t value);
 
 
 #ifdef __cplusplus
