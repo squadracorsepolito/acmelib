@@ -142,7 +142,7 @@ int {{ $.dbName | toLower }}_{{ $messageName | toLower }}_unpack(
  *
  * @return Encoded signal.
  */
-uint16_t {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_encode(double value);
+uint{{ $signalSize }}_t {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_encode(double value);
 
 /** Decode given signal by applying scaling and offset.
  *
@@ -159,7 +159,7 @@ double {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | to
  *
  * @return true if in range, false otherwise.
  */
-bool {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_is_in_range(uint16_t value);
+bool {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_is_in_range(uint{{ $signalSize }}_t value);
 {{ end }}{{ end }}{{ end }}
 
 #ifdef __cplusplus

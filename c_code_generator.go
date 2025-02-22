@@ -112,7 +112,7 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 		return err
 	}
 
-	if err := cTmpl.ExecuteTemplate(g.cFile, "bus_c", bus); err != nil {
+	if err := cTmpl.ExecuteTemplate(g.cFile, "bus_c", data); err != nil {
 		return err
 	}	
 

@@ -157,7 +157,7 @@ int expected_msg_0_unpack(
  *
  * @return Encoded signal.
  */
-uint16_t expected_msg_0_std_sig_0_encode(double value);
+uint8_t expected_msg_0_std_sig_0_encode(double value);
 
 /** Decode given signal by applying scaling and offset.
  *
@@ -174,7 +174,7 @@ double expected_msg_0_std_sig_0_decode(uint8_t value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_0_std_sig_0_is_in_range(uint16_t value);
+bool expected_msg_0_std_sig_0_is_in_range(uint8_t value);
 
 /**
  * Encode given signal by applying scaling and offset.
@@ -183,7 +183,7 @@ bool expected_msg_0_std_sig_0_is_in_range(uint16_t value);
  *
  * @return Encoded signal.
  */
-uint16_t expected_msg_0_mux_sig_0_encode(double value);
+uint32_t expected_msg_0_mux_sig_0_encode(double value);
 
 /** Decode given signal by applying scaling and offset.
  *
@@ -200,7 +200,7 @@ double expected_msg_0_mux_sig_0_decode(uint32_t value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_0_mux_sig_0_is_in_range(uint16_t value);
+bool expected_msg_0_mux_sig_0_is_in_range(uint32_t value);
 
 /**
  * Pack message msg_1.
@@ -237,7 +237,7 @@ int expected_msg_1_unpack(
  *
  * @return Encoded signal.
  */
-uint16_t expected_msg_1_mux_sig_1_encode(double value);
+uint32_t expected_msg_1_mux_sig_1_encode(double value);
 
 /** Decode given signal by applying scaling and offset.
  *
@@ -254,7 +254,7 @@ double expected_msg_1_mux_sig_1_decode(uint32_t value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_1_mux_sig_1_is_in_range(uint16_t value);
+bool expected_msg_1_mux_sig_1_is_in_range(uint32_t value);
 
 /**
  * Pack message msg_2.
@@ -291,7 +291,7 @@ int expected_msg_2_unpack(
  *
  * @return Encoded signal.
  */
-uint16_t expected_msg_2_enum_sig_0_encode(double value);
+uint8_t expected_msg_2_enum_sig_0_encode(double value);
 
 /** Decode given signal by applying scaling and offset.
  *
@@ -308,7 +308,7 @@ double expected_msg_2_enum_sig_0_decode(uint8_t value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_2_enum_sig_0_is_in_range(uint16_t value);
+bool expected_msg_2_enum_sig_0_is_in_range(uint8_t value);
 
 /**
  * Pack message msg_3.
@@ -345,7 +345,7 @@ int expected_msg_3_unpack(
  *
  * @return Encoded signal.
  */
-uint16_t expected_msg_3_std_sig_1_encode(double value);
+uint8_t expected_msg_3_std_sig_1_encode(double value);
 
 /** Decode given signal by applying scaling and offset.
  *
@@ -362,7 +362,7 @@ double expected_msg_3_std_sig_1_decode(uint8_t value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_3_std_sig_1_is_in_range(uint16_t value);
+bool expected_msg_3_std_sig_1_is_in_range(uint8_t value);
 
 /**
  * Encode given signal by applying scaling and offset.
@@ -371,7 +371,7 @@ bool expected_msg_3_std_sig_1_is_in_range(uint16_t value);
  *
  * @return Encoded signal.
  */
-uint16_t expected_msg_3_std_sig_2_encode(double value);
+uint8_t expected_msg_3_std_sig_2_encode(double value);
 
 /** Decode given signal by applying scaling and offset.
  *
@@ -388,7 +388,7 @@ double expected_msg_3_std_sig_2_decode(uint8_t value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_3_std_sig_2_is_in_range(uint16_t value);
+bool expected_msg_3_std_sig_2_is_in_range(uint8_t value);
 
 
 #ifdef __cplusplus
