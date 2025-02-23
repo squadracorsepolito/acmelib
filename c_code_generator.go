@@ -37,6 +37,7 @@ func newCSourceGenerator(hFile io.Writer, cFile io.Writer) *cCodeGenerator {
 func (g *cCodeGenerator) generateBus(bus *Bus) error {
 	// define DB name
 	dbName := "expected"
+	fileName := "test"
 
 	funcMap := template.FuncMap{
 		"toUpper": strings.ToUpper,
@@ -106,8 +107,9 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 	}
 
 	data := map[string]interface{}{
-		"Bus":    bus,
+		"Bus": bus,
 		"dbName": dbName,
+		"fileName": fileName,
 	}
 
 	if err := hTmpl.ExecuteTemplate(g.hFile, "bus_h", data); err != nil {

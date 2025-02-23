@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-#include "expected.h"
+#include "test.h"
 
 static inline uint8_t pack_left_shift_u8(
     uint8_t value,
@@ -53,5 +53,148 @@ static inline uint16_t unpack_right_shift_u16(
     uint8_t mask)
 {
     return (uint16_t)((uint16_t)(value & mask) >> shift);
+}
+
+
+int expected_msg_0_pack(
+    uint8_t *dst_p,
+    const struct expected_msg_0_t *src_p,
+    size_t size)
+{}
+
+int expected_msg_0_unpack(
+    struct expected_msg_0_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{}
+
+
+uint8_t expected_msg_0_std_sig_0_encode(double value)
+{
+    return (uint8_t)(value);
+}
+double expected_msg_0_std_sig_0_decode(uint8_t value)
+{
+    return ((double)value);
+}
+bool expected_msg_0_std_sig_0_is_in_range(uint8_t value)
+{
+    (void)value;
+    
+    return (true);
+}
+
+32_t expected_msg_0_mux_sig_0_encode(double value)
+{
+    return (32_t)(value);
+}
+double expected_msg_0_mux_sig_0_decode(32_t value)
+{
+    return ((double)value);
+}
+bool expected_msg_0_mux_sig_0_is_in_range(32_t value)
+{
+    (void)value;
+    
+    return (true);
+}
+
+int expected_msg_1_pack(
+    uint8_t *dst_p,
+    const struct expected_msg_1_t *src_p,
+    size_t size)
+{}
+
+int expected_msg_1_unpack(
+    struct expected_msg_1_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{}
+
+
+32_t expected_msg_1_mux_sig_1_encode(double value)
+{
+    return (32_t)(value);
+}
+double expected_msg_1_mux_sig_1_decode(32_t value)
+{
+    return ((double)value);
+}
+bool expected_msg_1_mux_sig_1_is_in_range(32_t value)
+{
+    (void)value;
+    
+    return (true);
+}
+
+int expected_msg_2_pack(
+    uint8_t *dst_p,
+    const struct expected_msg_2_t *src_p,
+    size_t size)
+{}
+
+int expected_msg_2_unpack(
+    struct expected_msg_2_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{}
+
+
+uint8_t expected_msg_2_enum_sig_0_encode(double value)
+{
+    return (uint8_t)(value);
+}
+double expected_msg_2_enum_sig_0_decode(uint8_t value)
+{
+    return ((double)value);
+}
+bool expected_msg_2_enum_sig_0_is_in_range(uint8_t value)
+{
+    (void)value;
+    
+    return (true);
+}
+
+int expected_msg_3_pack(
+    uint8_t *dst_p,
+    const struct expected_msg_3_t *src_p,
+    size_t size)
+{}
+
+int expected_msg_3_unpack(
+    struct expected_msg_3_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{}
+
+
+uint8_t expected_msg_3_std_sig_1_encode(double value)
+{
+    return (uint8_t)(value);
+}
+double expected_msg_3_std_sig_1_decode(uint8_t value)
+{
+    return ((double)value);
+}
+bool expected_msg_3_std_sig_1_is_in_range(uint8_t value)
+{
+    (void)value;
+    
+    return (true);
+}
+
+uint8_t expected_msg_3_std_sig_2_encode(double value)
+{
+    return (uint8_t)(value);
+}
+double expected_msg_3_std_sig_2_decode(uint8_t value)
+{
+    return ((double)value);
+}
+bool expected_msg_3_std_sig_2_is_in_range(uint8_t value)
+{
+    (void)value;
+    
+    return (true);
 }
 

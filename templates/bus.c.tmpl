@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-#include "{{ .dbName | toLower }}.h"
+#include "{{ .fileName | toLower }}.h"
 
 static inline uint8_t pack_left_shift_u8(
     uint8_t value,
@@ -55,4 +55,33 @@ static inline uint16_t unpack_right_shift_u16(
     return (uint16_t)((uint16_t)(value & mask) >> shift);
 }
 
+{{ range .Bus.NodeInterfaces }}{{ range .SentMessages }}{{ $messageName := .Name }}
+int {{ $.dbName | toLower }}_{{ $messageName | toLower }}_pack(
+    uint8_t *dst_p,
+    const struct {{ $.dbName | toLower }}_{{ $messageName | toLower }}_t *src_p,
+    size_t size)
+{}
+
+int {{ $.dbName | toLower }}_{{ $messageName | toLower }}_unpack(
+    struct {{ $.dbName | toLower }}_{{ $messageName | toLower }}_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{}
+
+{{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := .GetSize | getLen }}
+{{ if (eq .Kind.String "standard") }}{{ isSignedType .Type.Signed }}{{ end }}{{ if (eq .Kind.String "enum") }}{{ isEnumSigned .Enum.Values }}{{ end }}{{ $signalSize }}_t {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_encode(double value)
+{
+    return ({{ if (eq .Kind.String "standard") }}{{ isSignedType .Type.Signed }}{{ end }}{{ if (eq .Kind.String "enum") }}{{ isEnumSigned .Enum.Values }}{{ end }}{{ $signalSize }}_t)(value);
+}
+double {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_decode({{ if (eq .Kind.String "standard") }}{{ isSignedType .Type.Signed }}{{ end }}{{ if (eq .Kind.String "enum") }}{{ isEnumSigned .Enum.Values }}{{ end }}{{ $signalSize }}_t value)
+{
+    return ((double)value);
+}
+bool {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_is_in_range({{ if (eq .Kind.String "standard") }}{{ isSignedType .Type.Signed }}{{ end }}{{ if (eq .Kind.String "enum") }}{{ isEnumSigned .Enum.Values }}{{ end }}{{ $signalSize }}_t value)
+{
+    (void)value;
+    
+    return (true);
+}
+{{ end }}{{ end }}{{ end }}
 {{ end }}
