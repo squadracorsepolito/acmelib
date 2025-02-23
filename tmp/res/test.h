@@ -183,7 +183,7 @@ bool expected_msg_0_std_sig_0_is_in_range(uint8_t value);
  *
  * @return Encoded signal.
  */
-uint32_t expected_msg_0_mux_sig_0_encode(double value);
+32_t expected_msg_0_mux_sig_0_encode(double value);
 
 /** Decode given signal by applying scaling and offset.
  *
@@ -191,7 +191,7 @@ uint32_t expected_msg_0_mux_sig_0_encode(double value);
  *
  * @return Decoded signal.
  */
-double expected_msg_0_mux_sig_0_decode(uint32_t value);
+double expected_msg_0_mux_sig_0_decode(32_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -200,7 +200,7 @@ double expected_msg_0_mux_sig_0_decode(uint32_t value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_0_mux_sig_0_is_in_range(uint32_t value);
+bool expected_msg_0_mux_sig_0_is_in_range(32_t value);
 
 /**
  * Pack message msg_1.
@@ -237,7 +237,7 @@ int expected_msg_1_unpack(
  *
  * @return Encoded signal.
  */
-uint32_t expected_msg_1_mux_sig_1_encode(double value);
+32_t expected_msg_1_mux_sig_1_encode(double value);
 
 /** Decode given signal by applying scaling and offset.
  *
@@ -245,7 +245,7 @@ uint32_t expected_msg_1_mux_sig_1_encode(double value);
  *
  * @return Decoded signal.
  */
-double expected_msg_1_mux_sig_1_decode(uint32_t value);
+double expected_msg_1_mux_sig_1_decode(32_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -254,7 +254,7 @@ double expected_msg_1_mux_sig_1_decode(uint32_t value);
  *
  * @return true if in range, false otherwise.
  */
-bool expected_msg_1_mux_sig_1_is_in_range(uint32_t value);
+bool expected_msg_1_mux_sig_1_is_in_range(32_t value);
 
 /**
  * Pack message msg_2.

@@ -86,7 +86,6 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 				return 64
 			}
 		},
-		"segments": segments,
 		"formatRange": formatRange,
 		"sub": func(a, b int) int {
 			return a - b
@@ -169,81 +168,3 @@ func formatRange(min interface{}, max interface{}, offset interface {}, scale in
 		return "-"
 	}
 }
-
-func segments(signal Signal, invertShift bool) []struct {
-	Index         int
-	Shift         int
-	ShiftDir      string
-	Mask          int
-} {
-	var result []struct {
-		Index    int
-		Shift    int
-		ShiftDir string
-		Mask     int
-	}
-
-	index, pos := signal.GetStartBit()/8, signal.GetStartBit()%8
-	left := signal.GetSize()
-
-	for left > 0 {
-		var length, shift, mask int
-		if signal.ParentMessage().ByteOrder().String() == "big_endian" {
-			if left >= pos+1 {
-				length = pos + 1
-				pos = 7
-				shift = -(left - length)
-				mask = (1 << length) - 1
-			} else {
-				length = left
-				shift = pos - length + 1
-				mask = ((1 << length) - 1) << (pos - length + 1)
-			}
-		} else {
-			shift = left - signal.GetSize() + pos
-			if left >= 8-pos {
-				length = 8 - pos
-				mask = ((1 << length) - 1) << pos
-				pos = 0
-			} else {
-				length = left
-				mask = ((1 << length) - 1) << pos
-			}
-		}
-
-		shiftDirection := "left"
-		if invertShift {
-			if shift < 0 {
-				shift = -shift
-				shiftDirection = "left"
-			} else {
-				shiftDirection = "right"
-			}
-		} else {
-			if shift < 0 {
-				shift = -shift
-				shiftDirection = "right"
-			} else {
-				shiftDirection = "left"
-			}
-		}
-
-		result = append(result, struct {
-			Index    int
-			Shift    int
-			ShiftDir string
-			Mask     int
-		}{
-			Index:    index,
-			Shift:    shift,
-			ShiftDir: shiftDirection,
-			Mask:     mask,
-		})
-
-		left -= length
-		index++
-	}
-
-	return result
-}
-

@@ -102,7 +102,7 @@ struct {{ $.dbName | toLower }}_{{ $messageName | toLower }}_t { {{ range .Signa
      * Scale: 1
      * Offset: 0
      */
-    uint{{ .GetSize | getLen }}_t {{ .Name | toLower }};
+    {{ if lt (index .Enum.Values 0).Index 0 }}int{{ else }}uint{{ end }}{{ .GetSize | getLen }}_t {{ .Name | toLower }};
 {{ end }}{{- end }}};
 {{ end }}{{ end -}}
 
@@ -142,7 +142,7 @@ int {{ $.dbName | toLower }}_{{ $messageName | toLower }}_unpack(
  *
  * @return Encoded signal.
  */
-uint{{ $signalSize }}_t {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_encode(double value);
+{{ if (eq .Kind.String "enum") }}{{ if lt (index .Enum.Values 0).Index 0 }}int{{ else }}uint{{ end }}{{ end }}{{ if (eq .Kind.String "standard") }}{{ if .Type.Signed }}int{{ else }}uint{{ end }}{{ end }}{{ $signalSize }}_t {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_encode(double value);
 
 /** Decode given signal by applying scaling and offset.
  *
@@ -150,7 +150,7 @@ uint{{ $signalSize }}_t {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{
  *
  * @return Decoded signal.
  */
-double {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_decode(uint{{ $signalSize }}_t value);
+double {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_decode({{ if (eq .Kind.String "enum") }}{{ if lt (index .Enum.Values 0).Index 0 }}int{{ else }}uint{{ end }}{{ end }}{{ if (eq .Kind.String "standard") }}{{ if .Type.Signed }}int{{ else }}uint{{ end }}{{ end }}{{ $signalSize }}_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -159,7 +159,7 @@ double {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | to
  *
  * @return true if in range, false otherwise.
  */
-bool {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_is_in_range(uint{{ $signalSize }}_t value);
+bool {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_is_in_range({{ if (eq .Kind.String "enum") }}{{ if lt (index .Enum.Values 0).Index 0 }}int{{ else }}uint{{ end }}{{ end }}{{ if (eq .Kind.String "standard") }}{{ if .Type.Signed }}int{{ else }}uint{{ end }}{{ end }}{{ $signalSize }}_t value);
 {{ end }}{{ end }}{{ end }}
 
 #ifdef __cplusplus
