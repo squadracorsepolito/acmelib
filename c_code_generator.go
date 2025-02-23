@@ -90,6 +90,9 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 		"sub": func(a, b int) int {
 			return a - b
 		},
+		"isSignedType": isSignedType,
+		"isEnumSigned": isEnumSigned,
+		"getIntType":   getIntType,
 	}	
 
 	hTmpl, err := template.New("c_header").Funcs(funcMap).ParseGlob(tmpTemplatesFolder + "/*.tmpl")
@@ -167,4 +170,31 @@ func formatRange(min interface{}, max interface{}, offset interface {}, scale in
 	} else {
 		return "-"
 	}
+}
+
+func isSignedType(isSigned bool) string {
+	if isSigned {
+		return "int"
+	}
+	return "uint"
+}
+
+func isEnumSigned(enumValues []*SignalEnumValue) string {
+	if len(enumValues) == 0 {
+		return "uint"
+	}
+	firstIndex := enumValues[0].Index()
+	if firstIndex < 0 {
+		return "int"
+	}
+	return "uint"
+}
+
+func getIntType(kind string, isSigned bool, enumValues []*SignalEnumValue) string {
+	if kind == "enum" {
+		return isEnumSigned(enumValues)
+	} else if kind == "standard" {
+		return isSignedType(isSigned)
+	}
+	return "uint"
 }
