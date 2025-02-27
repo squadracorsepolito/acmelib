@@ -702,6 +702,12 @@ func (i *importer) importSignal(dbcSig *dbc.Signal, dbcMsgID uint32) (Signal, er
 		if err != nil {
 			return nil, i.errorf(dbcSig, err)
 		}
+
+		dbcSigSize := int(dbcSig.Size)
+		if enumSig.GetSize() < dbcSigSize {
+			sigEnum.SetMinSize(dbcSigSize)
+		}
+
 		sig = enumSig
 
 	} else {
