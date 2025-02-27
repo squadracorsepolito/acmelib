@@ -61,7 +61,7 @@ int {{ $.dbName | toLower }}_{{ $messageName | toLower }}_pack(
     const struct {{ $.dbName | toLower }}_{{ $messageName | toLower }}_t *src_p,
     size_t size)
 {
-    {{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := .GetSize | getLenByte -}}
+    {{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := getLenByte .GetSize -}}
     {{- if eq .Kind.String "standard" -}}
         {{- if eq "int" (isSignedType .Type.Signed) -}}
             uint{{ $signalSize }}_t {{ toLower $signalName }};
@@ -78,7 +78,7 @@ int {{ $.dbName | toLower }}_{{ $messageName | toLower }}_pack(
 
     memset(&dst_p[0], 0, {{ .SizeByte }});
 
-    {{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := .GetSize | getLenByte -}}
+    {{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := getLenByte .GetSize -}}
     // startBit = {{ .GetStartBit }}
     // size = {{ .GetSize }}
     {{ if eq .Kind.String "standard" -}}
@@ -118,7 +118,7 @@ int {{ $.dbName | toLower }}_{{ $messageName | toLower }}_unpack(
     const uint8_t *src_p,
     size_t size)
 {
-    {{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := .GetSize | getLenByte -}}
+    {{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := getLenByte .GetSize -}}
     {{- if eq .Kind.String "standard" -}}
         {{- if eq "int" (isSignedType .Type.Signed) -}}
             uint{{ $signalSize }}_t {{ toLower $signalName }};
@@ -133,10 +133,48 @@ int {{ $.dbName | toLower }}_{{ $messageName | toLower }}_unpack(
         return (-EINVAL);
     }
 
+    {{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := getLenByte .GetSize -}}
+    {{ if eq .Kind.String "standard" -}}
+    {{- if eq "int" (isSignedType .Type.Signed) -}}
+    {{- $segments := segments .GetStartBit .GetSize -}}
+    {{- $i := 0 }}{{ range $segment := $segments -}}
+    {{ toLower $signalName }} {{ if eq $i 0 }}={{ else }}|={{ end }} unpack_{{ $segment.ShiftDir }}_shift_u{{ $signalSize }}(src_p[{{ $segment.Index }}], {{ $segment.Shift }}u, {{ hexMap $segment.Mask }});
+    dst_p->{{ toLower $signalName }} = (int{{ $signalSize }}_t){{ toLower $signalName }};
+    {{ $i = add $i 1 -}}
+    {{- end -}}
+    {{- else -}}
+    {{- $segments := segments .GetStartBit .GetSize -}}
+    {{- $i := 0 }}{{- range $segment := $segments -}}
+    dst_p->{{ toLower $signalName }} {{ if eq $i 0 }}={{ else }}|={{ end }} unpack_{{ $segment.ShiftDir }}_shift_u{{ $signalSize }}(src_p[{{ $segment.Index }}], {{ $segment.Shift }}u, {{ hexMap $segment.Mask }});
+    {{ $i = add $i 1 -}}
+    {{- end }}{{ end }}
+    {{- else if eq .Kind.String "enum" -}}
+    {{- if eq "int" (isEnumSigned .Enum.Values) -}}
+    {{- $segments := segments .GetStartBit .GetSize -}}
+    {{- $i := 0 }}{{- range $segment := $segments -}}
+    {{ toLower $signalName }} {{ if eq $i 0 }}={{ else }}|={{ end }} unpack_{{ $segment.ShiftDir }}_shift_u{{ $signalSize }}(src_p[{{ $segment.Index }}], {{ $segment.Shift }}u, {{ hexMap $segment.Mask }});
+    dst_p->{{ toLower $signalName }} = (int{{ $signalSize }}_t){{ toLower $signalName }};
+    {{ $i = add $i 1 -}}
+    {{- end -}}
+    {{ else -}}
+    {{- $segments := segments .GetStartBit .GetSize -}}
+    {{- $i := 0 }}{{- range $segment := $segments -}}
+    dst_p->{{ toLower $signalName }} {{ if eq $i 0 }}={{ else }}|={{ end }} unpack_{{ $segment.ShiftDir }}_shift_u{{ $signalSize }}(src_p[{{ $segment.Index }}], {{ $segment.Shift }}u, {{ hexMap $segment.Mask }});
+    {{ $i = add $i 1 -}}
+    {{- end }}{{ end -}}
+    {{- else -}}
+    {{- $segments := segments .GetStartBit .GetSize -}}
+    {{- $i := 0 }}{{- range $segment := $segments -}}
+    dst_p->{{ toLower $signalName }} {{ if eq $i 0 }}={{ else }}|={{ end }} unpack_{{ $segment.ShiftDir }}_shift_u{{ $signalSize }}(src_p[{{ $segment.Index }}], {{ $segment.Shift }}u, {{ hexMap $segment.Mask }});
+    {{ $i = add $i 1 -}}
+    {{ end -}}
+    {{- end -}}
+    {{- end }}
+
     return (0);
 }
 
-{{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := .GetSize | getLenByte }}
+{{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := getLenByte .GetSize }}
 {{ if (eq .Kind.String "standard") }}{{ isSignedType .Type.Signed }}{{ end }}{{ if (eq .Kind.String "enum") }}{{ isEnumSigned .Enum.Values }}{{ end }}{{ $signalSize }}_t {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_encode(double value)
 {
     return ({{ if (eq .Kind.String "standard") }}{{ isSignedType .Type.Signed }}{{ end }}{{ if (eq .Kind.String "enum") }}{{ isEnumSigned .Enum.Values }}{{ end }}{{ $signalSize }}_t)(value);
