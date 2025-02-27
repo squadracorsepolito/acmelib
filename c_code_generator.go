@@ -11,11 +11,12 @@ import (
 
 const tmpTemplatesFolder = "../templates"
 
-// type Signal struct {
-// 	StartBit  int
-// 	Size      int
-// 	ByteOrder string
-// }
+type Segment struct {
+	Index        int
+	Shift        int
+	ShiftDir     string
+	Mask         uint8
+}
 
 func GenerateCCode(bus *Bus, hFile io.Writer, cFile io.Writer) error {
 	csGen := newCSourceGenerator(hFile, cFile)
@@ -76,7 +77,7 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 			}
 			return 1
 		},
-		"getLen": func(len int) int {
+		"getLenByte": func(len int) int {
 			if len <= 8 {
 				return 8
 			} else if len <= 16 {
@@ -94,14 +95,37 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 		"isSignedType": isSignedType,
 		"isEnumSigned": isEnumSigned,
 		"getIntType":   getIntType,
+		"div": func (a, b int) int {
+			if b == 0 {
+				panic("divided by zero")
+			}
+			return a / b
+		},
+		"add": func (a, b int) int {
+			return a + b
+		},
+		"mod": func (a, b int) int {
+			if b == 0 {
+				panic("mod by zero")
+			}
+			return a % b
+		},
+		"hexMap": func(mask interface{}) string {
+    		return fmt.Sprintf("0x%02x", mask) + "u"
+		},
+		"getMask": getMask,
+		"getByteIndex": func(startBit int) int {
+			return startBit / 8
+		},
+		"segments": segments,
 	}	
 
-	hTmpl, err := template.New("c_header").Funcs(funcMap).ParseGlob(tmpTemplatesFolder + "/*.tmpl")
+	hTmpl, err := template.New("c_header").Funcs(funcMap).ParseGlob(tmpTemplatesFolder + "/*.gtpl")
 	if err != nil {
 		return err
 	}
 
-	cTmpl, err := template.New("c_source").Funcs(funcMap).ParseGlob(tmpTemplatesFolder + "/*.tmpl")
+	cTmpl, err := template.New("c_source").Funcs(funcMap).ParseGlob(tmpTemplatesFolder + "/*.gtpl")
 	if err != nil {
 		return err
 	}
@@ -199,4 +223,41 @@ func getIntType(kind string, isSigned bool, enumValues []*SignalEnumValue) strin
 		return isSignedType(isSigned)
 	}
 	return "uint"
+}
+
+func segments(startBit, length int) []Segment {
+	remaining := length
+    index := startBit / 8
+    pos := startBit % 8
+    var result []Segment
+
+    for remaining > 0 {
+        var segment Segment
+        segment.Index = index
+
+        bitsInByte := min(8-pos, remaining)
+        segment.Mask = ((1 << bitsInByte) - 1) << pos
+
+        segment.Shift = (index - startBit/8) * 8
+        segment.ShiftDir = "left"
+
+        result = append(result, segment)
+
+        remaining -= bitsInByte
+        index++
+        pos = 0
+    }
+
+	return result
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func getMask(signalSize int) int {
+	return ((1 << signalSize) - 1)
 }

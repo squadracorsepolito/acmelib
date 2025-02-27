@@ -60,13 +60,41 @@ int expected_msg_0_pack(
     uint8_t *dst_p,
     const struct expected_msg_0_t *src_p,
     size_t size)
-{}
+{
+    
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    // startBit = 0
+    // size = 4
+    dst_p[0] |= pack_left_shift_u8(src_p->std_sig_0, 0u, 0x0fu);
+    // startBit = 4
+    // size = 18
+    dst_p[0] |= pack_left_shift_u32(src_p->mux_sig_0, 0u, 0xf0u);
+    dst_p[1] |= pack_left_shift_u32(src_p->mux_sig_0, 8u, 0xffu);
+    dst_p[2] |= pack_left_shift_u32(src_p->mux_sig_0, 16u, 0x3fu);
+    
+
+    return (8);
+}
 
 int expected_msg_0_unpack(
     struct expected_msg_0_t *dst_p,
     const uint8_t *src_p,
     size_t size)
-{}
+{
+    
+    
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    return (0);
+}
 
 
 uint8_t expected_msg_0_std_sig_0_encode(double value)
@@ -103,13 +131,38 @@ int expected_msg_1_pack(
     uint8_t *dst_p,
     const struct expected_msg_1_t *src_p,
     size_t size)
-{}
+{
+    
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    // startBit = 0
+    // size = 18
+    dst_p[0] |= pack_left_shift_u32(src_p->mux_sig_1, 0u, 0xffu);
+    dst_p[1] |= pack_left_shift_u32(src_p->mux_sig_1, 8u, 0xffu);
+    dst_p[2] |= pack_left_shift_u32(src_p->mux_sig_1, 16u, 0x03u);
+    
+
+    return (8);
+}
 
 int expected_msg_1_unpack(
     struct expected_msg_1_t *dst_p,
     const uint8_t *src_p,
     size_t size)
-{}
+{
+    
+    
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    return (0);
+}
 
 
 32_t expected_msg_1_mux_sig_1_encode(double value)
@@ -131,13 +184,36 @@ int expected_msg_2_pack(
     uint8_t *dst_p,
     const struct expected_msg_2_t *src_p,
     size_t size)
-{}
+{
+    
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    // startBit = 0
+    // size = 4
+    dst_p[0] |= pack_left_shift_u8(src_p->enum_sig_0, 0u, 0x0fu);
+    
+
+    return (8);
+}
 
 int expected_msg_2_unpack(
     struct expected_msg_2_t *dst_p,
     const uint8_t *src_p,
     size_t size)
-{}
+{
+    
+    
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    return (0);
+}
 
 
 uint8_t expected_msg_2_enum_sig_0_encode(double value)
@@ -159,13 +235,39 @@ int expected_msg_3_pack(
     uint8_t *dst_p,
     const struct expected_msg_3_t *src_p,
     size_t size)
-{}
+{
+    
+
+    if (size < 1u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 1);
+
+    // startBit = 0
+    // size = 4
+    dst_p[0] |= pack_left_shift_u8(src_p->std_sig_1, 0u, 0x0fu);
+    // startBit = 4
+    // size = 4
+    dst_p[0] |= pack_left_shift_u8(src_p->std_sig_2, 0u, 0xf0u);
+    
+
+    return (1);
+}
 
 int expected_msg_3_unpack(
     struct expected_msg_3_t *dst_p,
     const uint8_t *src_p,
     size_t size)
-{}
+{
+    
+    
+    if (size < 1u) {
+        return (-EINVAL);
+    }
+
+    return (0);
+}
 
 
 uint8_t expected_msg_3_std_sig_1_encode(double value)

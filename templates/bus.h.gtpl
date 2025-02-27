@@ -95,14 +95,14 @@ struct {{ $.dbName | toLower }}_{{ $messageName | toLower }}_t { {{ range .Signa
      * Scale: {{ .Type.Scale }}
      * Offset: {{ .Type.Offset }}
      */
-    {{ isSignedType .Type.Signed }}{{ .Type.Size | getLen }}_t {{ .Name | toLower }};
+    {{ isSignedType .Type.Signed }}{{ .Type.Size | getLenByte }}_t {{ .Name | toLower }};
 {{ end }}{{ if (eq .Kind.String "enum") }}
     /**
      * Range: {{ formatRange (index .Enum.Values 0).Index (index .Enum.Values (sub (len .Enum.Values) 1)).Index 0 1 }}
      * Scale: 1
      * Offset: 0
      */
-    {{ isEnumSigned .Enum.Values }}{{ .GetSize | getLen }}_t {{ .Name | toLower }};
+    {{ isEnumSigned .Enum.Values }}{{ .GetSize | getLenByte }}_t {{ .Name | toLower }};
 {{ end }}{{- end }}};
 {{ end }}{{ end -}}
 
@@ -134,7 +134,7 @@ int {{ $.dbName | toLower }}_{{ $messageName | toLower }}_unpack(
     struct {{ $.dbName | toLower }}_{{ $messageName | toLower }}_t *dst_p,
     const uint8_t *src_p,
     size_t size);
-{{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := .GetSize | getLen }}
+{{ range .Signals }}{{ $signalName := .Name }}{{ $signalSize := .GetSize | getLenByte }}
 /**
  * Encode given signal by applying scaling and offset.
  *
