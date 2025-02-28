@@ -6,6 +6,7 @@ import (
 
 	"fmt"
 	"strings"
+	"strconv"
 	"text/template"
 )
 
@@ -37,8 +38,8 @@ func newCSourceGenerator(hFile io.Writer, cFile io.Writer) *cCodeGenerator {
 
 func (g *cCodeGenerator) generateBus(bus *Bus) error {
 	// define DB name
-	dbName := "expected"
-	fileName := "test"
+	dbName := "simple"
+	fileName := "simple_out"
 
 	funcMap := template.FuncMap{
 		"toUpper": strings.ToUpper,
@@ -118,6 +119,7 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 			return startBit / 8
 		},
 		"segments": segments,
+		"isInRange": isInRange,
 	}	
 
 	hTmpl, err := template.New("c_header").Funcs(funcMap).ParseGlob(tmpTemplatesFolder + "/*.gtpl")
@@ -260,4 +262,55 @@ func min(a, b int) int {
 
 func getMask(signalSize int) int {
 	return ((1 << signalSize) - 1)
+}
+
+func isInRange(min interface{}, max interface{}, size int, isSigned int) string {
+	var minStr, maxStr string
+	var minimum, maximum float64
+	var isFloat bool
+
+	switch min.(type) {
+	case float64:
+		minimum = min.(float64)
+		maximum = max.(float64)
+		isFloat = true
+	case int:
+		minimum = float64(min.(int))
+		maximum = float64(max.(int))
+		isFloat = false
+	default:
+		return "true"
+	}
+
+	check := []string{}
+
+	if minimum == 0 && maximum == 0 {
+		return "true"
+	}
+
+	if !math.IsNaN(minimum) && minimum != 0 {
+		if !isFloat {
+			minimum = math.Round(minimum)
+		}
+		minStr = strconv.FormatFloat(minimum, 'f', -1, 64)
+		check = append(check, fmt.Sprintf("(value >= %su)", minStr))
+	}
+
+	if !math.IsNaN(maximum) && maximum != 0 {
+		if !isFloat {
+			maximum = math.Round(maximum)
+		}
+		maxStr = strconv.FormatFloat(maximum, 'f', -1, 64)
+		check = append(check, fmt.Sprintf("(value <= %su)", maxStr))
+	}
+
+	if len(check) == 0 {
+		return "true"
+	}
+
+	if len(check) == 1 {
+		return check[0][1 : len(check[0])-1]
+	}
+
+	return strings.Join(check, " && ")
 }

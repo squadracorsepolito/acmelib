@@ -167,9 +167,7 @@ int {{ $.dbName | toLower }}_{{ $messageName | toLower }}_unpack(
     {{- $i := 0 }}{{- range $segment := $segments -}}
     dst_p->{{ toLower $signalName }} {{ if eq $i 0 }}={{ else }}|={{ end }} unpack_{{ $segment.ShiftDir }}_shift_u{{ $signalSize }}(src_p[{{ $segment.Index }}], {{ $segment.Shift }}u, {{ hexMap $segment.Mask }});
     {{ $i = add $i 1 -}}
-    {{ end -}}
-    {{- end -}}
-    {{- end }}
+    {{ end }}{{ end }}{{ end }}
 
     return (0);
 }
@@ -185,9 +183,17 @@ double {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | to
 }
 bool {{ $.dbName | toLower }}_{{ $messageName | toLower }}_{{ $signalName | toLower }}_is_in_range({{ if (eq .Kind.String "standard") }}{{ isSignedType .Type.Signed }}{{ end }}{{ if (eq .Kind.String "enum") }}{{ isEnumSigned .Enum.Values }}{{ end }}{{ $signalSize }}_t value)
 {
-    (void)value;
-    
+    {{ if eq .Kind.String "standard" -}}
+    {{- if eq "int" (isSignedType .Type.Signed) -}} 
+    // {{ .Type.Min }} <= value <= {{ .Type.Max }}
     return (true);
+    {{ else -}}
+    // {{ .Type.Min }} <= value <= {{ .Type.Max }}
+    return ({{ isInRange .Type.Min .Type.Max .Type.Size 0 }});
+    {{ end -}}
+    {{- else -}}
+    return (true);
+    {{- end }}
 }
 {{ end }}{{ end }}{{ end }}
 {{ end }}
