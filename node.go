@@ -146,6 +146,59 @@ func (n *Node) UpdateID(newID NodeID) error {
 	return nil
 }
 
+// AddInterface adds a new interface to the [Node].
+// The interface will be assigned with the next available interface number.
+func (n *Node) AddInterface() {
+	n.interfaces = append(n.interfaces, newNodeInterface(n.interfaceCount, n))
+	n.interfaceCount++
+}
+
+// RemoveInterface removes the interface with the given interface number from the [Node].
+// It will update the interface numbers of the remaining interfaces
+// in order to keep the interface numbers contiguous.
+//
+// It returns an [ArgumentError] if the interface number is negative or out of bounds.
+func (n *Node) RemoveInterface(interfaceNumber int) error {
+	if interfaceNumber < 0 {
+		return &ArgumentError{
+			Name: "interfaceNumber",
+			Err:  ErrIsNegative,
+		}
+	}
+
+	if interfaceNumber >= n.interfaceCount {
+		return &ArgumentError{
+			Name: "interfaceNumber",
+			Err:  ErrOutOfBounds,
+		}
+	}
+
+	found := false
+	newInterfaces := make([]*NodeInterface, 0, n.interfaceCount-1)
+	for _, tmpInt := range n.interfaces {
+		if tmpInt.number == interfaceNumber {
+			if tmpInt.hasParentBus() {
+				if err := tmpInt.parentBus.RemoveNodeInterface(n.entityID); err != nil {
+					return err
+				}
+			}
+
+			found = true
+			continue
+		}
+
+		if found {
+			tmpInt.number--
+		}
+
+		newInterfaces = append(newInterfaces, tmpInt)
+	}
+
+	n.interfaceCount--
+
+	return nil
+}
+
 // Interfaces returns a slice with all the interfaces of the [Node].
 func (n *Node) Interfaces() []*NodeInterface {
 	return n.interfaces

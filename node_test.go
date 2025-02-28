@@ -118,3 +118,29 @@ func Test_Node_UpdateName(t *testing.T) {
 	// should return an error because node_00 is already taken
 	assert.Error(node1.UpdateName("node_00"))
 }
+
+func Test_Node_RemoveInterface(t *testing.T) {
+	assert := assert.New(t)
+
+	bus := NewBus("bus")
+
+	// create a node with one interface
+	node := NewNode("node", 1, 1)
+	nodeInt0, err := node.GetInterface(0)
+	assert.NoError(err)
+
+	// attach the first interface to the bus
+	assert.NoError(bus.AddNodeInterface(nodeInt0))
+
+	// add another interface
+	node.AddInterface()
+	nodeInt1, err := node.GetInterface(1)
+	assert.NoError(err)
+	assert.Equal(1, nodeInt1.Number())
+	assert.Len(node.Interfaces(), 2)
+
+	// remove the first interface and check that the second interface is now the first
+	assert.NoError(node.RemoveInterface(0))
+	assert.Equal(0, nodeInt1.Number())
+	assert.Len(bus.NodeInterfaces(), 0)
+}
