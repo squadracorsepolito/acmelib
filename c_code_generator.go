@@ -8,6 +8,7 @@ import (
 	"strings"
 	"strconv"
 	"text/template"
+	"bytes"
 )
 
 const tmpTemplatesFolder = "../templates"
@@ -17,6 +18,51 @@ type Segment struct {
 	Shift        int
 	ShiftDir     string
 	Mask         uint8
+}
+
+const packLeftShiftFmt = `
+static inline uint8_t pack_left_shift_u{{.Length}}(
+    {{.VarType}} value,
+    uint8_t shift,
+    uint8_t mask)
+{
+    return (uint8_t)((uint8_t)(value << shift) & mask);
+}
+`
+
+const packRightShiftFmt = `
+static inline uint8_t pack_right_shift_u{{.Length}}(
+    {{.VarType}} value,
+    uint8_t shift,
+    uint8_t mask)
+{
+    return (uint8_t)((uint8_t)(value >> shift) & mask);
+}
+`
+
+const unpackLeftShiftFmt = `
+static inline {{.VarType}} unpack_left_shift_u{{.Length}}(
+    uint8_t value,
+    uint8_t shift,
+    uint8_t mask)
+{
+    return ({{.VarType}})(({{.VarType}})(value & mask) << shift);
+}
+`
+
+const unpackRightShiftFmt = `
+static inline {{.VarType}} unpack_right_shift_u{{.Length}}(
+    uint8_t value,
+    uint8_t shift,
+    uint8_t mask)
+{
+    return ({{.VarType}})(({{.VarType}})(value & mask) >> shift);
+}
+`
+
+type HelperKind struct {
+	Length  int
+	VarType string
 }
 
 func GenerateCCode(bus *Bus, hFile io.Writer, cFile io.Writer) error {
@@ -38,8 +84,15 @@ func newCSourceGenerator(hFile io.Writer, cFile io.Writer) *cCodeGenerator {
 
 func (g *cCodeGenerator) generateBus(bus *Bus) error {
 	// define DB name
-	dbName := "simple"
-	fileName := "simple_out"
+	dbName := "expected"
+	fileName := "test"
+
+	kinds := []HelperKind{
+		{Length: 8, VarType: "uint8_t"},
+		{Length: 16, VarType: "uint16_t"},
+	}
+
+	packHelpers, unpackHelpers := generatePackUnpackHelpers(kinds)
 
 	funcMap := template.FuncMap{
 		"toUpper": strings.ToUpper,
@@ -53,7 +106,6 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 						res += "_"
 					}
 				}
-				// Convert uppercase to lowercase
 				if ch >= 'A' && ch <= 'Z' {
 					res += string(ch + 'a' - 'A')
 				} else {
@@ -114,12 +166,22 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 		"hexMap": func(mask interface{}) string {
     		return fmt.Sprintf("0x%02x", mask) + "u"
 		},
-		"getMask": getMask,
+		"getMask": func (signalSize int) int {
+			return ((1 << signalSize) - 1)
+		},
 		"getByteIndex": func(startBit int) int {
 			return startBit / 8
 		},
 		"segments": segments,
 		"isInRange": isInRange,
+		"generateEncoding": GenerateEncoding,
+		"generateDecoding": GenerateDecoding,
+		"generatePackHelpers": func() []string {
+			return packHelpers
+		},
+		"generateUnpackHelpers": func() []string {
+			return unpackHelpers
+		},
 	}	
 
 	hTmpl, err := template.New("c_header").Funcs(funcMap).ParseGlob(tmpTemplatesFolder + "/*.gtpl")
@@ -136,6 +198,8 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 		"Bus": bus,
 		"dbName": dbName,
 		"fileName": fileName,
+		"packHelpers":   packHelpers,
+		"unpackHelpers": unpackHelpers, 
 	}
 
 	if err := hTmpl.ExecuteTemplate(g.hFile, "bus_h", data); err != nil {
@@ -260,10 +324,6 @@ func min(a, b int) int {
 	return b
 }
 
-func getMask(signalSize int) int {
-	return ((1 << signalSize) - 1)
-}
-
 func isInRange(min interface{}, max interface{}, size int, isSigned int) string {
 	var minStr, maxStr string
 	var minimum, maximum float64
@@ -313,4 +373,77 @@ func isInRange(min interface{}, max interface{}, size int, isSigned int) string 
 	}
 
 	return strings.Join(check, " && ")
+}
+
+func GenerateEncoding(scale, offset float64, useFloat bool) string {
+	scaleLiteral := formatLiteral(scale, useFloat)
+	offsetLiteral := formatLiteral(offset, useFloat)
+
+	if offset == 0 && scale == 1 {
+		return "value"
+	} else if offset != 0 && scale != 1 {
+		return fmt.Sprintf("(value - %s) / %s", offsetLiteral, scaleLiteral)
+	} else if offset != 0 {
+		return fmt.Sprintf("value - %s", offsetLiteral)
+	} else {
+		return fmt.Sprintf("value / %s", scaleLiteral)
+	}
+}
+
+func formatLiteral(value float64, useFloat bool) string {
+	strValue := strconv.FormatFloat(value, 'f', -1, 64)
+	if useFloat {
+		if !strings.Contains(strValue, ".") {
+			strValue += ".0"
+		}
+	}
+	return strValue
+}
+
+func GenerateDecoding(scale, offset float64, useFloat bool) string {
+	floatingPointType := getFloatingPointType(useFloat)
+
+	scaleLiteral := formatLiteral(scale, useFloat)
+	offsetLiteral := formatLiteral(offset, useFloat)
+
+	if offset == 0 && scale == 1 {
+		return fmt.Sprintf("(%s)value", floatingPointType)
+	} else if offset != 0 && scale != 1 {
+		return fmt.Sprintf("((%s)value * %s) + %s", floatingPointType, scaleLiteral, offsetLiteral)
+	} else if offset != 0 {
+		return fmt.Sprintf("(%s)value + %s", floatingPointType, offsetLiteral)
+	} else {
+		return fmt.Sprintf("(%s)value * %s", floatingPointType, scaleLiteral)
+	}
+}
+
+func getFloatingPointType(useFloat bool) string {
+	if useFloat {
+		return "float"
+	}
+	return "double"
+}
+
+func generatePackUnpackHelpers(kinds []HelperKind) ([]string, []string) {
+	packHelpers := generateHelpers(kinds, packLeftShiftFmt, packRightShiftFmt)
+	unpackHelpers := generateHelpers(kinds, unpackLeftShiftFmt, unpackRightShiftFmt)
+	return packHelpers, unpackHelpers
+}
+
+func generateHelpers(kinds []HelperKind, leftFormat, rightFormat string) []string {
+	var helpers []string
+	tmplLeft := template.Must(template.New("left").Parse(leftFormat))
+	tmplRight := template.Must(template.New("right").Parse(rightFormat))
+
+	for _, kind := range kinds {
+		var helper string
+		var buf bytes.Buffer
+
+		tmplLeft.Execute(&buf, kind)
+		tmplRight.Execute(&buf, kind)
+
+		helper = buf.String()
+		helpers = append(helpers, helper)
+	}
+	return helpers
 }

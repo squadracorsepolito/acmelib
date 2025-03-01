@@ -7,6 +7,8 @@
 
 #include "test.h"
 
+
+
 static inline uint8_t pack_left_shift_u8(
     uint8_t value,
     uint8_t shift,
@@ -14,6 +16,16 @@ static inline uint8_t pack_left_shift_u8(
 {
     return (uint8_t)((uint8_t)(value << shift) & mask);
 }
+
+static inline uint8_t pack_right_shift_u8(
+    uint8_t value,
+    uint8_t shift,
+    uint8_t mask)
+{
+    return (uint8_t)((uint8_t)(value >> shift) & mask);
+}
+
+
 
 static inline uint8_t pack_left_shift_u16(
     uint16_t value,
@@ -31,12 +43,16 @@ static inline uint8_t pack_right_shift_u16(
     return (uint8_t)((uint8_t)(value >> shift) & mask);
 }
 
-static inline uint16_t unpack_left_shift_u16(
+
+
+
+
+static inline uint8_t unpack_left_shift_u8(
     uint8_t value,
     uint8_t shift,
     uint8_t mask)
 {
-    return (uint16_t)((uint16_t)(value & mask) << shift);
+    return (uint8_t)((uint8_t)(value & mask) << shift);
 }
 
 static inline uint8_t unpack_right_shift_u8(
@@ -47,6 +63,16 @@ static inline uint8_t unpack_right_shift_u8(
     return (uint8_t)((uint8_t)(value & mask) >> shift);
 }
 
+
+
+static inline uint16_t unpack_left_shift_u16(
+    uint8_t value,
+    uint8_t shift,
+    uint8_t mask)
+{
+    return (uint16_t)((uint16_t)(value & mask) << shift);
+}
+
 static inline uint16_t unpack_right_shift_u16(
     uint8_t value,
     uint8_t shift,
@@ -54,6 +80,8 @@ static inline uint16_t unpack_right_shift_u16(
 {
     return (uint16_t)((uint16_t)(value & mask) >> shift);
 }
+
+
 
 
 int expected_msg_0_pack(
@@ -93,6 +121,12 @@ int expected_msg_0_unpack(
         return (-EINVAL);
     }
 
+    dst_p->std_sig_0 = unpack_left_shift_u8(src_p[0], 0u, 0x0fu);
+    dst_p->mux_sig_0 = unpack_left_shift_u32(src_p[0], 0u, 0xf0u);
+    dst_p->mux_sig_0 |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    dst_p->mux_sig_0 |= unpack_left_shift_u32(src_p[2], 16u, 0x3fu);
+    
+
     return (0);
 }
 
@@ -103,27 +137,25 @@ uint8_t expected_msg_0_std_sig_0_encode(double value)
 }
 double expected_msg_0_std_sig_0_decode(uint8_t value)
 {
-    return ((double)value);
+    return ((float)value);
 }
 bool expected_msg_0_std_sig_0_is_in_range(uint8_t value)
 {
-    (void)value;
+    // 0 <= value <= 15
+    return (value <= 15u);
     
-    return (true);
 }
 
 32_t expected_msg_0_mux_sig_0_encode(double value)
 {
-    return (32_t)(value);
+    return (32_t)();
 }
 double expected_msg_0_mux_sig_0_decode(32_t value)
 {
-    return ((double)value);
+    return ();
 }
 bool expected_msg_0_mux_sig_0_is_in_range(32_t value)
 {
-    (void)value;
-    
     return (true);
 }
 
@@ -161,22 +193,25 @@ int expected_msg_1_unpack(
         return (-EINVAL);
     }
 
+    dst_p->mux_sig_1 = unpack_left_shift_u32(src_p[0], 0u, 0xffu);
+    dst_p->mux_sig_1 |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    dst_p->mux_sig_1 |= unpack_left_shift_u32(src_p[2], 16u, 0x03u);
+    
+
     return (0);
 }
 
 
 32_t expected_msg_1_mux_sig_1_encode(double value)
 {
-    return (32_t)(value);
+    return (32_t)();
 }
 double expected_msg_1_mux_sig_1_decode(32_t value)
 {
-    return ((double)value);
+    return ();
 }
 bool expected_msg_1_mux_sig_1_is_in_range(32_t value)
 {
-    (void)value;
-    
     return (true);
 }
 
@@ -212,6 +247,9 @@ int expected_msg_2_unpack(
         return (-EINVAL);
     }
 
+    dst_p->enum_sig_0 = unpack_left_shift_u8(src_p[0], 0u, 0x0fu);
+    
+
     return (0);
 }
 
@@ -226,8 +264,6 @@ double expected_msg_2_enum_sig_0_decode(uint8_t value)
 }
 bool expected_msg_2_enum_sig_0_is_in_range(uint8_t value)
 {
-    (void)value;
-    
     return (true);
 }
 
@@ -266,6 +302,10 @@ int expected_msg_3_unpack(
         return (-EINVAL);
     }
 
+    dst_p->std_sig_1 = unpack_left_shift_u8(src_p[0], 0u, 0x0fu);
+    dst_p->std_sig_2 = unpack_left_shift_u8(src_p[0], 0u, 0xf0u);
+    
+
     return (0);
 }
 
@@ -276,13 +316,13 @@ uint8_t expected_msg_3_std_sig_1_encode(double value)
 }
 double expected_msg_3_std_sig_1_decode(uint8_t value)
 {
-    return ((double)value);
+    return ((float)value);
 }
 bool expected_msg_3_std_sig_1_is_in_range(uint8_t value)
 {
-    (void)value;
+    // 0 <= value <= 15
+    return (value <= 15u);
     
-    return (true);
 }
 
 uint8_t expected_msg_3_std_sig_2_encode(double value)
@@ -291,12 +331,12 @@ uint8_t expected_msg_3_std_sig_2_encode(double value)
 }
 double expected_msg_3_std_sig_2_decode(uint8_t value)
 {
-    return ((double)value);
+    return ((float)value);
 }
 bool expected_msg_3_std_sig_2_is_in_range(uint8_t value)
 {
-    (void)value;
+    // 0 <= value <= 15
+    return (value <= 15u);
     
-    return (true);
 }
 
