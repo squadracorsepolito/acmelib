@@ -376,6 +376,40 @@ func (m *Message) UpdateName(newName string) error {
 	return nil
 }
 
+// UpdateSizeByte updates the size of the [Message] to the given value in bytes.
+//
+// It returns:
+//   - [ArgumentError] if the new size is negative.
+//   - [MessageSizeError] if the new size is invalid.
+func (m *Message) UpdateSizeByte(newSizeByte int) error {
+	if newSizeByte < 0 {
+		return m.errorf(
+			&MessageSizeError{
+				Size: newSizeByte,
+				Err:  ErrIsNegative,
+			},
+		)
+	}
+
+	if m.sizeByte == newSizeByte {
+		return nil
+	}
+
+	if m.hasSenderNodeInt() {
+		if err := m.senderNodeInt.verifyMessageSize(newSizeByte); err != nil {
+			return err
+		}
+	}
+
+	if err := m.signalPayload.resize(newSizeByte * 8); err != nil {
+		return m.errorf(err)
+	}
+
+	m.sizeByte = newSizeByte
+
+	return nil
+}
+
 // SenderNodeInterface returns the [NodeInterface] that is responsible for sending the [Message].
 // If the [Message] is not sent by a [NodeInterface], it will return nil.
 func (m *Message) SenderNodeInterface() *NodeInterface {

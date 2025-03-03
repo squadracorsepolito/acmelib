@@ -57,6 +57,16 @@ BO_ 64 msg_3 : 1 node_0
  SG_ std_sig_1 : 7|4@0+ (1,0) [0|15] "" Vector__XXX
  SG_ std_sig_2 : 3|4@0+ (1,0) [0|15] "" Vector__XXX
 
+BO_ 128 mux_fixed_1l_std_sig_msg : 3 node_0
+ SG_ muxor_sig M : 0|1@1+ (1,0) [0|2] "" Vector__XXX
+ SG_ fixed_sig_0 : 1|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ muxed_sig_0_0 m0 : 5|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ muxed_sig_1_0 m1 : 5|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ fixed_sig_1 : 9|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ muxed_sig_0_1 m0 : 13|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ muxed_sig_1_1 m1 : 13|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ std_sig : 17|4@1+ (1,0) [0|15] "" Vector__XXX
+
 CM_ "bus0 description";
 CM_ BU_ node_0 "node0 description";
 CM_ BO_ 32 "msg1 description";

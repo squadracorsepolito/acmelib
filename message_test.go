@@ -310,3 +310,51 @@ func Test_Message_AddReceiver(t *testing.T) {
 	assert.Len(nodeInt01.ReceivedMessages(), 1)
 	assert.Len(nodeInt2.ReceivedMessages(), 1)
 }
+
+func Test_Message_UpdateSizeByte(t *testing.T) {
+	assert := assert.New(t)
+
+	// create a message of size 1 and update to 8
+	msg := NewMessage("msg", 1, 1)
+	assert.NoError(msg.UpdateSizeByte(8))
+	assert.Equal(msg.SizeByte(), 8)
+
+	// add a 64 bits (8 bytes) signal to the message
+	bigSigType, err := NewIntegerSignalType("64_bits", 64, false)
+	assert.NoError(err)
+	bigSig, err := NewStandardSignal("big_sig", bigSigType)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(bigSig, 0))
+
+	// it should return an error because the 8 bytes signal
+	// prevents the message size to be shrinked
+	assert.Error(msg.UpdateSizeByte(1))
+
+	// remove the 64 bits signal
+	assert.NoError(msg.RemoveSignal(bigSig.EntityID()))
+
+	// add a 32 bits (4 bytes) signal
+	smallSigType, err := NewIntegerSignalType("32_bits", 32, false)
+	assert.NoError(err)
+	smallSig, err := NewStandardSignal("small_sig", smallSigType)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(smallSig, 0))
+
+	// update the message size to 4 bytes
+	assert.NoError(msg.UpdateSizeByte(4))
+
+	// create a CAN2.0A bus and a node
+	bus := NewBus("bus")
+	bus.SetType(BusTypeCAN2A)
+	node := NewNode("node", 1, 1)
+
+	// add the message to the node
+	nodeInt, err := node.GetInterface(0)
+	assert.NoError(err)
+	assert.NoError(bus.AddNodeInterface(nodeInt))
+	assert.NoError(nodeInt.AddSentMessage(msg))
+
+	// should return an error because the message size is too big
+	// for a CAN2.0A bus
+	assert.Error(msg.UpdateSizeByte(9))
+}

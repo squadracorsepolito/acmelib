@@ -115,12 +115,15 @@ func (ni *NodeInterface) verifyStaticCANID(staticCANID CANID) error {
 	}
 
 	if ni.hasParentBus() {
-		if err := ni.parentBus.verifyStaticCANID(staticCANID); err != nil {
-			return &CANIDError{
-				CANID: staticCANID,
-				Err:   err,
-			}
-		}
+		return ni.parentBus.verifyStaticCANID(staticCANID)
+	}
+
+	return nil
+}
+
+func (ni *NodeInterface) verifyMessageSize(sizeByte int) error {
+	if ni.hasParentBus() {
+		return ni.parentBus.verifyMessageSize(sizeByte)
 	}
 
 	return nil
@@ -144,8 +147,12 @@ func (ni *NodeInterface) removeReceivedMessage(msg *Message) {
 
 // AddSentMessage adds a [Message] that the [NodeInterface] can send.
 //
-// It returns an [ArgumentError] if the given message is nil or
-// a [NameError]/[MessageIDError] if the message name/id is already used.
+// It returns:
+//   - [ArgumentError] if the given message is nil.
+//   - [AddEntityError] that wraps a [NameError] if the message name is invalid.
+//   - [AddEntityError] that wraps a [CANIDError] if the message static can id is invalid.
+//   - [AddEntityError] that wraps a [MessageIDError] if the message id is invalid.
+//   - [AddEntityError] that wraps a [MessageSizeError] if the message size is invalid.
 func (ni *NodeInterface) AddSentMessage(message *Message) error {
 	if message == nil {
 		return &ArgumentError{
@@ -160,6 +167,11 @@ func (ni *NodeInterface) AddSentMessage(message *Message) error {
 	}
 
 	if err := ni.verifyMessageName(message.name); err != nil {
+		addMsgErr.Err = err
+		return ni.errorf(addMsgErr)
+	}
+
+	if err := ni.verifyMessageSize(message.sizeByte); err != nil {
 		addMsgErr.Err = err
 		return ni.errorf(addMsgErr)
 	}

@@ -33,6 +33,19 @@ func Test_Node_AddSentMessage(t *testing.T) {
 	// should return an error because name msg_2 is already taken
 	dupNameMsg := NewMessage("msg_2", 4, 1)
 	assert.Error(node.AddSentMessage(dupNameMsg))
+
+	// create a new bus of type CAN 2.0A
+	bus := NewBus("bus")
+	bus.SetType(BusTypeCAN2A)
+
+	// attach the node interface to the bus
+	assert.NoError(bus.AddNodeInterface(node))
+
+	// create a big message
+	bigMsg := NewMessage("big_msg", 5, 9)
+
+	// should return an error because the message cannot be sent over a CAN 2.0A bus
+	assert.Error(node.AddSentMessage(bigMsg))
 }
 
 func Test_Node_RemoveSentMessage(t *testing.T) {
@@ -104,4 +117,30 @@ func Test_Node_UpdateName(t *testing.T) {
 
 	// should return an error because node_00 is already taken
 	assert.Error(node1.UpdateName("node_00"))
+}
+
+func Test_Node_RemoveInterface(t *testing.T) {
+	assert := assert.New(t)
+
+	bus := NewBus("bus")
+
+	// create a node with one interface
+	node := NewNode("node", 1, 1)
+	nodeInt0, err := node.GetInterface(0)
+	assert.NoError(err)
+
+	// attach the first interface to the bus
+	assert.NoError(bus.AddNodeInterface(nodeInt0))
+
+	// add another interface
+	node.AddInterface()
+	nodeInt1, err := node.GetInterface(1)
+	assert.NoError(err)
+	assert.Equal(1, nodeInt1.Number())
+	assert.Len(node.Interfaces(), 2)
+
+	// remove the first interface and check that the second interface is now the first
+	assert.NoError(node.RemoveInterface(0))
+	assert.Equal(0, nodeInt1.Number())
+	assert.Len(bus.NodeInterfaces(), 0)
 }

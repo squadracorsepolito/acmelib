@@ -126,7 +126,7 @@ func (p *parser) errorf(format string, args ...any) error {
 
 func (p *parser) expectPunct(kind punctKind) error {
 	if !p.scan().isPunct(kind) {
-		return p.errorf(fmt.Sprintf(`expected "%q"`, getPunctRune(kind)))
+		return p.errorf(`expected "%q"`, getPunctRune(kind))
 	}
 	return nil
 }

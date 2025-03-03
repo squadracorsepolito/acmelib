@@ -127,7 +127,7 @@ func main() {
 
 	// calculte bus load
 	mcb.SetBaudrate(1_000_000)
-	busLoad, err := acmelib.CalculateBusLoad(mcb, 1000)
+	busLoad, _, err := acmelib.CalculateBusLoad(mcb, 1000)
 	checkErr(err)
 	log.Print("BUS LOAD: ", busLoad)
 

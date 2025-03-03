@@ -307,6 +307,32 @@ func (sp *signalPayload) modifyStartBitsOnGrow(sig Signal, amount int) error {
 	return nil
 }
 
+func (sp *signalPayload) verifyBeforeResize(newSize int) error {
+	if newSize > sp.size {
+		return nil
+	}
+
+	lastSig := sp.signals[len(sp.signals)-1]
+	if lastSig.getRelStartBit()+lastSig.GetSize() > newSize {
+		return ErrTooSmall
+	}
+
+	return nil
+}
+
+func (sp *signalPayload) resize(newSize int) error {
+	if err := sp.verifyBeforeResize(newSize); err != nil {
+		return &MessageSizeError{
+			Size: newSize,
+			Err:  err,
+		}
+	}
+
+	sp.size = newSize
+
+	return nil
+}
+
 func (sp *signalPayload) shiftLeft(sigID EntityID, amount int) int {
 	if amount <= 0 {
 		return 0

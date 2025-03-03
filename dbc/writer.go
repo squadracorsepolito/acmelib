@@ -355,13 +355,13 @@ func (w *writer) writeAttributeDefault(attDef *AttributeDefault) {
 
 	switch attDef.Type {
 	case AttributeDefaultInt:
-		w.print(w.formatInt(attDef.ValueInt))
+		w.print("%s", w.formatInt(attDef.ValueInt))
 	case AttributeDefaultHex:
-		w.print(w.formatHexInt(attDef.ValueHex))
+		w.print("%s", w.formatHexInt(attDef.ValueHex))
 	case AttributeDefaultFloat:
-		w.print(w.formatDouble(attDef.ValueFloat))
+		w.print("%s", w.formatDouble(attDef.ValueFloat))
 	case AttributeDefaultString:
-		w.print(w.formatString(attDef.ValueString))
+		w.print("%s", w.formatString(attDef.ValueString))
 	}
 
 	w.println(";")
@@ -383,13 +383,13 @@ func (w *writer) writeAttributeValue(attVal *AttributeValue) {
 
 	switch attVal.Type {
 	case AttributeValueInt:
-		w.print(w.formatInt(attVal.ValueInt))
+		w.print("%s", w.formatInt(attVal.ValueInt))
 	case AttributeValueHex:
-		w.print(w.formatHexInt(attVal.ValueHex))
+		w.print("%s", w.formatHexInt(attVal.ValueHex))
 	case AttributeValueFloat:
-		w.print(w.formatDouble(attVal.ValueFloat))
+		w.print("%s", w.formatDouble(attVal.ValueFloat))
 	case AttributeValueString:
-		w.print(w.formatString(attVal.ValueString))
+		w.print("%s", w.formatString(attVal.ValueString))
 	}
 
 	w.println(";")
