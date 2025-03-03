@@ -184,6 +184,11 @@ func (st *SignalType) Signed() bool {
 	return st.signed
 }
 
+// UpdateSigned updates the signed flag of the [SignalType].
+func (st *SignalType) UpdateSigned(signed bool) {
+	st.signed = signed
+}
+
 // SetMin sets the minimum value of the [SignalType].
 func (st *SignalType) SetMin(min float64) {
 	st.min = min
