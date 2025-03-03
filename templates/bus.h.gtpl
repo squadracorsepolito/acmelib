@@ -19,68 +19,49 @@ extern "C" {
 #endif
 
 /* Frame ids. */
-{{- range .Bus.NodeInterfaces -}}
-{{- range .SentMessages }}
-#define {{ $.dbName | toUpper }}_{{ .Name | camelToSnake | toUpper }}_FRAME_ID ({{ .ID | toUint }})
-{{- end -}}
-{{- end }}
+{{ range .Bus.NodeInterfaces -}}
+    {{- range .SentMessages -}}
+        #define {{ toUpper $.dbName }}_{{ .Name | camelToSnake | toUpper }}_FRAME_ID ({{ toUint .ID}})
+{{ end }}{{ end }}
 
 /* Frame lengths in bytes. */
-{{- range .Bus.NodeInterfaces -}}
-{{- range .SentMessages }}
-#define {{ $.dbName | toUpper }}_{{ .Name | camelToSnake | toUpper }}_LENGTH ({{ .SizeByte | toUint }})
-{{- end -}}
-{{- end }}
+{{ range .Bus.NodeInterfaces -}}
+    {{- range .SentMessages -}}
+        #define {{ toUpper $.dbName }}_{{ .Name | camelToSnake | toUpper }}_LENGTH ({{ toUint .SizeByte }})
+{{ end }}{{ end }}
 
 /* Extended or standard frame types. */
-{{- range .Bus.NodeInterfaces -}}
-{{- range .SentMessages }}
-#define {{ $.dbName | toUpper }}_{{ .Name | camelToSnake | toUpper }}_IS_EXTENDED ({{ .ID | isExtended }})
-{{- end -}}
-{{- end }}
+{{ range .Bus.NodeInterfaces -}}
+    {{- range .SentMessages -}}
+        #define {{ toUpper $.dbName }}_{{ .Name | camelToSnake | toUpper }}_IS_EXTENDED ({{ .ID | isExtended }})
+{{ end }}{{ end }}
 
 /* Frame cycle times in milliseconds. */
-{{- range .Bus.NodeInterfaces -}}
-{{- range .SentMessages }}
-#define {{ $.dbName | toUpper }}_{{ .Name | camelToSnake | toUpper }}_CYCLE_TIME_MS ({{ .CycleTime | toUint }})
-{{- end -}}
-{{- end }}
+{{ range .Bus.NodeInterfaces -}}
+    {{- range .SentMessages -}}
+        #define {{ toUpper $.dbName }}_{{ .Name | camelToSnake | toUpper }}_CYCLE_TIME_MS ({{ .CycleTime | toUint }})
+{{ end }}{{ end }}
 
 /* Signal choices. */
-{{- range .Bus.NodeInterfaces -}}
-{{- range .SentMessages }}
-{{- $messageName := .Name }}
-{{- range .Signals }}
-{{- $signalName := .Name }}
-{{- if (eq .Kind.String "enum") }}
-{{- range .Enum.Values }}
-#define {{ $.dbName | toUpper }}_{{ $messageName | camelToSnake | toUpper }}_{{ $signalName | camelToSnake | toUpper }}_{{ .Name | camelToSnake | toUpper }}_CHOICE ({{ .Index }}u)
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
+{{ range .Bus.NodeInterfaces -}}
+    {{- range .SentMessages }}{{ $messageName := .Name }}
+        {{- range .Signals }}{{ $signalName := .Name }}{{ if (eq .Kind.String "enum") }}
+            {{- range .Enum.Values -}}
+                #define {{ toUpper $.dbName }}_{{ $messageName | camelToSnake | toUpper }}_{{ $signalName | camelToSnake | toUpper }}_{{ .Name | camelToSnake | toUpper }}_CHOICE ({{ .Index }}u)
+{{ end }}{{ end }}{{ end }}{{ end }}{{ end }}
 
 /* Frame Names. */
-{{- range .Bus.NodeInterfaces -}}
-{{- range .SentMessages }}
-{{- if and (ne .Name "") (or (gt (len .Receivers) 0) (ne .SenderNodeInterface nil)) }}
-#define {{ $.dbName | toUpper }}_{{ .Name | camelToSnake | toUpper }}_NAME ("{{ .Name }}")
-{{- end }}
-{{- end -}}
-{{- end }}
+{{ range .Bus.NodeInterfaces -}}
+    {{- range .SentMessages }}{{ if and (ne .Name "") (or (gt (len .Receivers) 0) (ne .SenderNodeInterface nil)) -}}
+        #define {{ toUpper $.dbName }}_{{ .Name | camelToSnake | toUpper }}_NAME ("{{ .Name }}")
+{{ end }}{{ end }}{{ end }}
 
 /* Signal Names. */
-{{- range .Bus.NodeInterfaces -}}
-{{- range .SentMessages }}
-{{- if and (ne .Name "") (or (gt (len .Receivers) 0) (ne .SenderNodeInterface nil)) }}
-{{- $messageName := .Name }}
-{{- range .Signals }}
-#define {{ $.dbName | toUpper }}_{{ $messageName | camelToSnake | toUpper }}_{{ .Name | camelToSnake | toUpper }}_NAME ("{{ .Name }}")
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
+{{ range .Bus.NodeInterfaces -}}
+    {{- range .SentMessages }}{{- if and (ne .Name "") (or (gt (len .Receivers) 0) (ne .SenderNodeInterface nil)) }}{{- $messageName := .Name }}
+        {{- range .Signals -}}
+            #define {{ toUpper $.dbName }}_{{ $messageName | camelToSnake | toUpper }}_{{ .Name | camelToSnake | toUpper }}_NAME ("{{ .Name }}")
+{{ end }}{{ end }}{{ end }}{{ end }}
 
 {{ range .Bus.NodeInterfaces }}{{ range .SentMessages }}{{ $messageName := .Name }}
 /**
@@ -89,14 +70,16 @@ extern "C" {
  * All signal values are as on the CAN bus.
  *
  */
-struct {{ $.dbName | toLower }}_{{ $messageName | toLower }}_t { {{ range .Signals }}{{ if (eq .Kind.String "standard") }}
+struct {{ $.dbName | toLower }}_{{ $messageName | toLower }}_t {
+{{- range .Signals }}{{ if (eq .Kind.String "standard") }}
     /**
      * Range: {{ formatRange .Type.Min .Type.Max .Type.Offset .Type.Scale}}
      * Scale: {{ .Type.Scale }}
      * Offset: {{ .Type.Offset }}
      */
     {{ isSignedType .Type.Signed }}{{ .Type.Size | getLenByte }}_t {{ .Name | toLower }};
-{{ end }}{{ if (eq .Kind.String "enum") }}
+{{ end -}}
+{{- if (eq .Kind.String "enum") }}
     /**
      * Range: {{ formatRange (index .Enum.Values 0).Index (index .Enum.Values (sub (len .Enum.Values) 1)).Index 0 1 }}
      * Scale: 1
