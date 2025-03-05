@@ -149,7 +149,6 @@ func (e *exporter) exportAttributeAssignment(attAss *AttributeAssignment, dbcAtt
 			dbcAttVal.Type = dbc.AttributeValueHex
 			dbcAttVal.ValueHex = uint32(attAss.value.(int))
 		} else {
-
 			dbcAttVal.Type = dbc.AttributeValueInt
 			dbcAttVal.ValueInt = attAss.value.(int)
 		}

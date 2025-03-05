@@ -40,7 +40,7 @@ var (
 	msgStartDelayTimeAtt, _ = NewIntegerAttribute(dbc.MsgStartDelayTimeName, dbc.MsgStartDelayTimeMin, dbc.MsgStartDelayTimeMin, dbc.MsgStartDelayTimeMax)
 	msgSendTypeAtt, _       = NewEnumAttribute(dbc.MsgSendTypeName, dbc.MsgSendTypeValues...)
 
-	sigStartValueAtt, _ = NewIntegerAttribute(dbc.SigStartValueName, dbc.SigStartValueMin, dbc.SigStartValueMin, dbc.SigStartValueMax)
+	sigStartValueAtt, _ = NewFloatAttribute(dbc.SigStartValueName, dbc.SigStartValueMin, dbc.SigStartValueMin, dbc.SigStartValueMax)
 	sigSendTypeAtt, _   = NewEnumAttribute(dbc.SigSendTypeName, dbc.SigSendTypeValues...)
 )
 
