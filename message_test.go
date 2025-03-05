@@ -314,8 +314,12 @@ func Test_Message_AddReceiver(t *testing.T) {
 func Test_Message_UpdateSizeByte(t *testing.T) {
 	assert := assert.New(t)
 
-	// create a message of size 1 and update to 8
+	// create a message of size 1 and update to 8 -> 1 -> 8
 	msg := NewMessage("msg", 1, 1)
+	assert.NoError(msg.UpdateSizeByte(8))
+	assert.Equal(msg.SizeByte(), 8)
+	assert.NoError(msg.UpdateSizeByte(1))
+	assert.Equal(msg.SizeByte(), 1)
 	assert.NoError(msg.UpdateSizeByte(8))
 	assert.Equal(msg.SizeByte(), 8)
 

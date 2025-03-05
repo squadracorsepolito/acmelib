@@ -312,6 +312,10 @@ func (sp *signalPayload) verifyBeforeResize(newSize int) error {
 		return nil
 	}
 
+	if len(sp.signals) == 0 {
+		return nil
+	}
+
 	lastSig := sp.signals[len(sp.signals)-1]
 	if lastSig.getRelStartBit()+lastSig.GetSize() > newSize {
 		return ErrTooSmall
