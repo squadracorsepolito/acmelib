@@ -21,8 +21,8 @@ type Segment struct {
 }
 
 const packLeftShiftFmt = `
-static inline uint8_t pack_left_shift_u{{.Length}}(
-    {{.VarType}} value,
+static inline uint8_t pack_left_shift_u{{ .Length }}(
+    {{ .VarType }} value,
     uint8_t shift,
     uint8_t mask)
 {
@@ -31,8 +31,8 @@ static inline uint8_t pack_left_shift_u{{.Length}}(
 `
 
 const packRightShiftFmt = `
-static inline uint8_t pack_right_shift_u{{.Length}}(
-    {{.VarType}} value,
+static inline uint8_t pack_right_shift_u{{ .Length }}(
+    {{ .VarType }} value,
     uint8_t shift,
     uint8_t mask)
 {
@@ -41,22 +41,22 @@ static inline uint8_t pack_right_shift_u{{.Length}}(
 `
 
 const unpackLeftShiftFmt = `
-static inline {{.VarType}} unpack_left_shift_u{{.Length}}(
+static inline {{ .VarType }} unpack_left_shift_u{{ .Length }}(
     uint8_t value,
     uint8_t shift,
     uint8_t mask)
 {
-    return ({{.VarType}})(({{.VarType}})(value & mask) << shift);
+    return ({{ .VarType }})(({{ .VarType }})(value & mask) << shift);
 }
 `
 
 const unpackRightShiftFmt = `
-static inline {{.VarType}} unpack_right_shift_u{{.Length}}(
+static inline {{ .VarType }} unpack_right_shift_u{{ .Length }}(
     uint8_t value,
     uint8_t shift,
     uint8_t mask)
 {
-    return ({{.VarType}})(({{.VarType}})(value & mask) >> shift);
+    return ({{ .VarType }})(({{ .VarType }})(value & mask) >> shift);
 }
 `
 
@@ -84,8 +84,8 @@ func newCSourceGenerator(hFile io.Writer, cFile io.Writer) *cCodeGenerator {
 
 func (g *cCodeGenerator) generateBus(bus *Bus) error {
 	// define DB name
-	dbName := "expected"
-	fileName := "test"
+	dbName := "new_simple"
+	fileName := "new_simple_out"
 
 	kinds := []HelperKind{
 		{Length: 8, VarType: "uint8_t"},
@@ -130,17 +130,7 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 			}
 			return 1
 		},
-		"getLenByte": func(len int) int {
-			if len <= 8 {
-				return 8
-			} else if len <= 16 {
-				return 16
-			} else if len <= 32 {
-				return 32
-			} else {
-				return 64
-			}
-		},
+		"getLenByte": getLenByte,
 		"formatRange": formatRange,
 		"sub": func(a, b int) int {
 			return a - b
@@ -182,6 +172,8 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 		"generateUnpackHelpers": func() []string {
 			return unpackHelpers
 		},
+		"ExtractSignalsFromMux": ExtractSignalsFromMux,
+		"GenerateSignalStruct": GenerateSignalStruct,
 	}	
 
 	hTmpl, err := template.New("c_header").Funcs(funcMap).ParseGlob(tmpTemplatesFolder + "/*.gtpl")
@@ -289,6 +281,18 @@ func getIntType(kind string, isSigned bool, enumValues []*SignalEnumValue) strin
 		return isSignedType(isSigned)
 	}
 	return "uint"
+}
+
+func getLenByte(len int) int {
+	if len <= 8 {
+		return 8
+	} else if len <= 16 {
+		return 16
+	} else if len <= 32 {
+		return 32
+	} else {
+		return 64
+	}
 }
 
 func segments(startBit, length int) []Segment {
@@ -446,4 +450,56 @@ func generateHelpers(kinds []HelperKind, leftFormat, rightFormat string) []strin
 		helpers = append(helpers, helper)
 	}
 	return helpers
+}
+
+func ExtractSignalsFromMux(signalGroups [][]Signal) []*Signal {
+	var res []*Signal
+	for _, group := range signalGroups {
+		for i := range group {
+			if group[i].Kind().String() == "multiplexer" {
+				mux, err := group[i].ToMultiplexer()
+				if err != nil {
+					return nil
+				}
+				res = append(res, ExtractSignalsFromMux(mux.GetSignalGroups())...)
+			} else {
+				res = append(res, &group[i])
+			}
+		}
+	}
+	return res
+}
+
+func GenerateSignalStruct(signal Signal) string {
+	var res, rangeStr, scaleStr, offsetStr string
+
+	if signal.Kind().String() == "standard" {
+		standardSignal, err := signal.ToStandard()
+		if err != nil {
+			return ""
+		}
+		rangeStr = formatRange(standardSignal.Type().Min(), standardSignal.Type().Max(), standardSignal.Type().Offset(), standardSignal.Type().Scale())
+		scaleStr = fmt.Sprintf("%v", standardSignal.Type().Scale())
+		offsetStr = fmt.Sprintf("%v", standardSignal.Type().Offset())
+		res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\t%s%d_t %s;", rangeStr, scaleStr, offsetStr, isSignedType(standardSignal.Type().Signed()), getLenByte(standardSignal.Type().Size()), strings.ToLower(standardSignal.Name()))
+	} else if signal.Kind().String() == "enum" {
+		enumSignal, err := signal.ToEnum()
+		if err != nil {
+			return ""
+		}
+		rangeStr = formatRange(enumSignal.Enum().Values()[0].Index(), enumSignal.Enum().Values()[len(enumSignal.Enum().Values())-1].Index(), 0, 1)
+		scaleStr = "1"
+		offsetStr = "0"
+		res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\t%s%d_t %s;", rangeStr, scaleStr, offsetStr, isEnumSigned(enumSignal.Enum().Values()), getLenByte(enumSignal.GetSize()), strings.ToLower(enumSignal.Name()))
+	} else if signal.Kind().String() == "multiplexer" {
+		mux, err := signal.ToMultiplexer()
+		if err != nil {
+			return ""
+		}
+		for _, s := range ExtractSignalsFromMux(mux.GetSignalGroups()) {
+			res += "\n" + GenerateSignalStruct(*s)
+		}
+	}
+
+	return res
 }
