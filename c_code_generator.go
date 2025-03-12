@@ -452,18 +452,18 @@ func generateHelpers(kinds []HelperKind, leftFormat, rightFormat string) []strin
 	return helpers
 }
 
-func ExtractSignalsFromMux(signalGroups [][]Signal) []*Signal {
-	var res []*Signal
+func ExtractSignalsFromMux(signalGroups [][]Signal) []Signal {
+	var res []Signal
 	for _, group := range signalGroups {
-		for i := range group {
-			if group[i].Kind().String() == "multiplexer" {
-				mux, err := group[i].ToMultiplexer()
+		for _, s := range group {
+			if s.Kind() == SignalKindMultiplexer {
+				mux, err := s.ToMultiplexer()
 				if err != nil {
 					return nil
 				}
 				res = append(res, ExtractSignalsFromMux(mux.GetSignalGroups())...)
 			} else {
-				res = append(res, &group[i])
+				res = append(res, s)
 			}
 		}
 	}
@@ -473,32 +473,37 @@ func ExtractSignalsFromMux(signalGroups [][]Signal) []*Signal {
 func GenerateSignalStruct(signal Signal) string {
 	var res, rangeStr, scaleStr, offsetStr string
 
-	if signal.Kind().String() == "standard" {
-		standardSignal, err := signal.ToStandard()
-		if err != nil {
-			return ""
-		}
-		rangeStr = formatRange(standardSignal.Type().Min(), standardSignal.Type().Max(), standardSignal.Type().Offset(), standardSignal.Type().Scale())
-		scaleStr = fmt.Sprintf("%v", standardSignal.Type().Scale())
-		offsetStr = fmt.Sprintf("%v", standardSignal.Type().Offset())
-		res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\t%s%d_t %s;", rangeStr, scaleStr, offsetStr, isSignedType(standardSignal.Type().Signed()), getLenByte(standardSignal.Type().Size()), strings.ToLower(standardSignal.Name()))
-	} else if signal.Kind().String() == "enum" {
-		enumSignal, err := signal.ToEnum()
-		if err != nil {
-			return ""
-		}
-		rangeStr = formatRange(enumSignal.Enum().Values()[0].Index(), enumSignal.Enum().Values()[len(enumSignal.Enum().Values())-1].Index(), 0, 1)
-		scaleStr = "1"
-		offsetStr = "0"
-		res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\t%s%d_t %s;", rangeStr, scaleStr, offsetStr, isEnumSigned(enumSignal.Enum().Values()), getLenByte(enumSignal.GetSize()), strings.ToLower(enumSignal.Name()))
-	} else if signal.Kind().String() == "multiplexer" {
-		mux, err := signal.ToMultiplexer()
-		if err != nil {
-			return ""
-		}
-		for _, s := range ExtractSignalsFromMux(mux.GetSignalGroups()) {
-			res += "\n" + GenerateSignalStruct(*s)
-		}
+	switch signal.Kind() {
+		case SignalKindStandard:
+			standardSignal, err := signal.ToStandard()
+			if err != nil {
+				return ""
+			}
+			rangeStr = formatRange(standardSignal.Type().Min(), standardSignal.Type().Max(), standardSignal.Type().Offset(), standardSignal.Type().Scale())
+			scaleStr = fmt.Sprintf("%v", standardSignal.Type().Scale())
+			offsetStr = fmt.Sprintf("%v", standardSignal.Type().Offset())
+			res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\t%s%d_t %s;", rangeStr, scaleStr, offsetStr, isSignedType(standardSignal.Type().Signed()), getLenByte(standardSignal.Type().Size()), strings.ToLower(standardSignal.Name()))
+		case SignalKindEnum: 
+			enumSignal, err := signal.ToEnum()
+			if err != nil {
+				return ""
+			}
+			rangeStr = formatRange(enumSignal.Enum().Values()[0].Index(), enumSignal.Enum().Values()[len(enumSignal.Enum().Values())-1].Index(), 0, 1)
+			scaleStr = "1"
+			offsetStr = "0"
+			res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\t%s%d_t %s;", rangeStr, scaleStr, offsetStr, isEnumSigned(enumSignal.Enum().Values()), getLenByte(enumSignal.GetSize()), strings.ToLower(enumSignal.Name()))
+		case SignalKindMultiplexer:
+			muxSignal, err := signal.ToMultiplexer()
+			if err != nil {
+				return ""
+			}
+			rangeStr = "-"
+			scaleStr = "1"
+			offsetStr = "0"
+			res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\tuint%d_t %s;", rangeStr, scaleStr, offsetStr, getLenByte(muxSignal.GetSize()), strings.ToLower(muxSignal.Name()))
+			for _, s := range ExtractSignalsFromMux(muxSignal.GetSignalGroups()) {
+				res += "\n" + GenerateSignalStruct(s)
+			}
 	}
 
 	return res
