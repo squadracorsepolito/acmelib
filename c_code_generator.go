@@ -20,6 +20,10 @@ type Segment struct {
 	Mask         uint8
 }
 
+// define DB name
+var dbName = "new_simple"
+var fileName = "new_simple_out"
+
 const packLeftShiftFmt = `
 static inline uint8_t pack_left_shift_u{{ .Length }}(
     {{ .VarType }} value,
@@ -83,9 +87,6 @@ func newCSourceGenerator(hFile io.Writer, cFile io.Writer) *cCodeGenerator {
 }
 
 func (g *cCodeGenerator) generateBus(bus *Bus) error {
-	// define DB name
-	dbName := "new_simple"
-	fileName := "new_simple_out"
 
 	kinds := []HelperKind{
 		{Length: 8, VarType: "uint8_t"},
@@ -174,6 +175,9 @@ func (g *cCodeGenerator) generateBus(bus *Bus) error {
 		},
 		"ExtractSignalsFromMux": ExtractSignalsFromMux,
 		"GenerateSignalStruct": GenerateSignalStruct,
+		"GenerateEncodingDeclaration": GenerateEncodingDeclaration,
+		"GenerateDecodingDeclaration": GenerateDecodingDeclaration,
+		"GenerateIsInRangeDeclaration": GenerateIsInRangeDeclaration,
 	}	
 
 	hTmpl, err := template.New("c_header").Funcs(funcMap).ParseGlob(tmpTemplatesFolder + "/*.gtpl")
@@ -474,37 +478,127 @@ func GenerateSignalStruct(signal Signal) string {
 	var res, rangeStr, scaleStr, offsetStr string
 
 	switch signal.Kind() {
-		case SignalKindStandard:
-			standardSignal, err := signal.ToStandard()
-			if err != nil {
-				return ""
-			}
-			rangeStr = formatRange(standardSignal.Type().Min(), standardSignal.Type().Max(), standardSignal.Type().Offset(), standardSignal.Type().Scale())
-			scaleStr = fmt.Sprintf("%v", standardSignal.Type().Scale())
-			offsetStr = fmt.Sprintf("%v", standardSignal.Type().Offset())
-			res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\t%s%d_t %s;", rangeStr, scaleStr, offsetStr, isSignedType(standardSignal.Type().Signed()), getLenByte(standardSignal.Type().Size()), strings.ToLower(standardSignal.Name()))
-		case SignalKindEnum: 
-			enumSignal, err := signal.ToEnum()
-			if err != nil {
-				return ""
-			}
-			rangeStr = formatRange(enumSignal.Enum().Values()[0].Index(), enumSignal.Enum().Values()[len(enumSignal.Enum().Values())-1].Index(), 0, 1)
-			scaleStr = "1"
-			offsetStr = "0"
-			res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\t%s%d_t %s;", rangeStr, scaleStr, offsetStr, isEnumSigned(enumSignal.Enum().Values()), getLenByte(enumSignal.GetSize()), strings.ToLower(enumSignal.Name()))
-		case SignalKindMultiplexer:
-			muxSignal, err := signal.ToMultiplexer()
-			if err != nil {
-				return ""
-			}
-			rangeStr = "-"
-			scaleStr = "1"
-			offsetStr = "0"
-			res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\tuint%d_t %s;", rangeStr, scaleStr, offsetStr, getLenByte(muxSignal.GetSize()), strings.ToLower(muxSignal.Name()))
-			for _, s := range ExtractSignalsFromMux(muxSignal.GetSignalGroups()) {
-				res += "\n" + GenerateSignalStruct(s)
-			}
+	case SignalKindStandard:
+		standardSignal, err := signal.ToStandard()
+		if err != nil {
+			return ""
+		}
+		rangeStr = formatRange(standardSignal.Type().Min(), standardSignal.Type().Max(), standardSignal.Type().Offset(), standardSignal.Type().Scale())
+		scaleStr = fmt.Sprintf("%v", standardSignal.Type().Scale())
+		offsetStr = fmt.Sprintf("%v", standardSignal.Type().Offset())
+		res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\t%s%d_t %s;", rangeStr, scaleStr, offsetStr, isSignedType(standardSignal.Type().Signed()), getLenByte(standardSignal.Type().Size()), strings.ToLower(standardSignal.Name()))
+	case SignalKindEnum: 
+		enumSignal, err := signal.ToEnum()
+		if err != nil {
+			return ""
+		}
+		rangeStr = formatRange(enumSignal.Enum().Values()[0].Index(), enumSignal.Enum().Values()[len(enumSignal.Enum().Values())-1].Index(), 0, 1)
+		scaleStr = "1"
+		offsetStr = "0"
+		res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\t%s%d_t %s;", rangeStr, scaleStr, offsetStr, isEnumSigned(enumSignal.Enum().Values()), getLenByte(enumSignal.GetSize()), strings.ToLower(enumSignal.Name()))
+	case SignalKindMultiplexer:
+		muxSignal, err := signal.ToMultiplexer()
+		if err != nil {
+			return ""
+		}
+		rangeStr = "-"
+		scaleStr = "1"
+		offsetStr = "0"
+		res = fmt.Sprintf("\t/**\n\t * Range: %s\n\t * Scale: %s\n\t * Offset: %s\n\t */\n\tuint8_t %s;", rangeStr, scaleStr, offsetStr, strings.ToLower(muxSignal.Name()))
+		for _, s := range ExtractSignalsFromMux(muxSignal.GetSignalGroups()) {
+			res += "\n" + GenerateSignalStruct(s)
+		}
 	}
 
+	return res
+}
+
+func GenerateEncodingDeclaration(signal Signal, messageName string) string {
+	var res = "/**\n * Encode given signal by applying scaling and offset.\n *\n * @param[in] value Signal to encode.\n *\n * @return Encoded signal.\n*/\n"
+	
+	switch signal.Kind() {
+	case SignalKindStandard:
+		standardSignal, err := signal.ToStandard()
+		if err != nil {
+			return ""
+		}
+		res += fmt.Sprintf("%s%d_t %s_%s_%s_encode(double value);\n", isSignedType(standardSignal.Type().Signed()), getLenByte(standardSignal.GetSize()), dbName, messageName, strings.ToLower(standardSignal.Name()))
+	case SignalKindEnum:
+		enumSignal, err := signal.ToEnum()
+		if err != nil {
+			return ""
+		}
+		res += fmt.Sprintf("%s%d_t %s_%s_%s_encode(double value);\n", isEnumSigned(enumSignal.Enum().Values()), getLenByte(enumSignal.GetSize()), dbName, messageName, strings.ToLower(enumSignal.Name()))
+	case SignalKindMultiplexer:
+		muxSignal, err := signal.ToMultiplexer()
+		if err != nil {
+			return ""
+		}
+		res += fmt.Sprintf("uint8_t %s_%s_%s_encode(double value);\n", dbName, messageName, strings.ToLower(muxSignal.Name()))
+		for _, s := range ExtractSignalsFromMux(muxSignal.GetSignalGroups()) {
+			res += "\n" + GenerateEncodingDeclaration(s, messageName)
+		}
+	}
+	
+	return res
+}
+
+func GenerateDecodingDeclaration(signal Signal, messageName string) string {
+	var res = "/**\n * Decode given signal by applying scaling and offset.\n *\n * @param[in] value Signal to decode.\n *\n * @return Decoded signal.\n*/\n"
+	
+	switch signal.Kind() {
+	case SignalKindStandard:
+		standardSignal, err := signal.ToStandard()
+		if err != nil {
+			return ""
+		}
+		res += fmt.Sprintf("double %s_%s_%s_decode(%s%d_t value);\n", dbName, messageName, strings.ToLower(standardSignal.Name()), isSignedType(standardSignal.Type().Signed()), getLenByte(standardSignal.GetSize()))
+	case SignalKindEnum:
+		enumSignal, err := signal.ToEnum()
+		if err != nil {
+			return ""
+		}
+		res += fmt.Sprintf("double %s_%s_%s_decode(%s%d_t value);\n", dbName, messageName, strings.ToLower(enumSignal.Name()), isEnumSigned(enumSignal.Enum().Values()), getLenByte(enumSignal.GetSize()))
+	case SignalKindMultiplexer:
+		muxSignal, err := signal.ToMultiplexer()
+		if err != nil {
+			return ""
+		}
+		res += fmt.Sprintf("double %s_%s_%s_decode(uint8_t value);\n", dbName, messageName, strings.ToLower(muxSignal.Name()))
+		for _, s := range ExtractSignalsFromMux(muxSignal.GetSignalGroups()) {
+			res += "\n" + GenerateDecodingDeclaration(s, messageName)
+		}
+	}
+	
+	return res
+}
+
+func GenerateIsInRangeDeclaration(signal Signal, messageName string) string {
+	var res = "/**\n * Check that given signal is in allowed range.\n *\n * @param[in] value Signal to check.\n *\n * @return true if in range, false otherwise.\n*/\n"
+	
+	switch signal.Kind() {
+	case SignalKindStandard:
+		standardSignal, err := signal.ToStandard()
+		if err != nil {
+			return ""
+		}
+		res += fmt.Sprintf("bool %s_%s_%s_is_in_range(%s%d_t value);\n", dbName, messageName, strings.ToLower(standardSignal.Name()), isSignedType(standardSignal.Type().Signed()), getLenByte(standardSignal.GetSize()))
+	case SignalKindEnum:
+		enumSignal, err := signal.ToEnum()
+		if err != nil {
+			return ""
+		}
+		res += fmt.Sprintf("bool %s_%s_%s_is_in_range(%s%d_t value);\n", dbName, messageName, strings.ToLower(enumSignal.Name()), isEnumSigned(enumSignal.Enum().Values()), getLenByte(enumSignal.GetSize()))
+	case SignalKindMultiplexer:
+		muxSignal, err := signal.ToMultiplexer()
+		if err != nil {
+			return ""
+		}
+		res += fmt.Sprintf("bool %s_%s_%s_is_in_range(uint8_t value);\n", dbName, messageName, strings.ToLower(muxSignal.Name()))
+		for _, s := range ExtractSignalsFromMux(muxSignal.GetSignalGroups()) {
+			res += "\n" + GenerateIsInRangeDeclaration(s, messageName)
+		}
+	}
+	
 	return res
 }
