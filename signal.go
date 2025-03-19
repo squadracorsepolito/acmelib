@@ -140,8 +140,12 @@ type Signal interface {
 
 	// GetStartBit returns the start bit of the signal.
 	GetStartBit() int
-	getRelStartBit() int
-	setRelStartBit(startBit int)
+
+	// GetRelativeStartPos returns the relative start postion of the signal.
+	// It is the same as GetStartBit for non-multiplexed signals.
+	GetRelativeStartPos() int
+
+	setRelativeStartPos(startPos int)
 
 	// GetSize returns the size of the signal.
 	GetSize() int
@@ -166,7 +170,7 @@ type signal struct {
 	startValue float64
 	sendType   SignalSendType
 
-	relStartBit int
+	relStartPos int
 }
 
 func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
@@ -182,7 +186,7 @@ func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
 		startValue: 0,
 		sendType:   SignalSendTypeUnset,
 
-		relStartBit: 0,
+		relStartPos: 0,
 	}
 }
 
@@ -245,12 +249,12 @@ func (s *signal) setParentMuxSig(parentMuxSig *MultiplexerSignal) {
 	s.parentMuxSig = parentMuxSig
 }
 
-func (s *signal) getRelStartBit() int {
-	return s.relStartBit
+func (s *signal) GetRelativeStartPos() int {
+	return s.relStartPos
 }
 
-func (s *signal) setRelStartBit(startBit int) {
-	s.relStartBit = startBit
+func (s *signal) setRelativeStartPos(startPos int) {
+	s.relStartPos = startPos
 }
 
 func (s *signal) stringify(b *strings.Builder, tabs int) {
@@ -264,7 +268,7 @@ func (s *signal) stringify(b *strings.Builder, tabs int) {
 		b.WriteString(fmt.Sprintf("%ssend_type: %q\n", tabStr, s.sendType))
 	}
 
-	b.WriteString(fmt.Sprintf("%sstart_bit: %d; ", tabStr, s.relStartBit))
+	b.WriteString(fmt.Sprintf("%sstart_pos: %d; ", tabStr, s.relStartPos))
 }
 
 func (s *signal) SetStartValue(startValue float64) {
@@ -285,9 +289,9 @@ func (s *signal) SendType() SignalSendType {
 
 func (s *signal) GetStartBit() int {
 	if s.hasParentMuxSig() {
-		return s.parentMuxSig.GetStartBit() + s.parentMuxSig.GetGroupCountSize() + s.relStartBit
+		return s.parentMuxSig.GetStartBit() + s.parentMuxSig.GetGroupCountSize() + s.relStartPos
 	}
-	return s.relStartBit
+	return s.relStartPos
 }
 
 func (s *signal) UpdateName(newName string) error {

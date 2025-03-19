@@ -401,7 +401,7 @@ func (s *saver) saveSignalPayload(payload *signalPayload) *acmelibv1.SignalPaylo
 	for _, sig := range payload.signals {
 		pPayload.Refs = append(pPayload.Refs, &acmelibv1.SignalPayloadRef{
 			SignalEntityId: sig.EntityID().String(),
-			RelStartBit:    uint32(sig.getRelStartBit()),
+			RelStartBit:    uint32(sig.GetRelativeStartPos()),
 		})
 	}
 

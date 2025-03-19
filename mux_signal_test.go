@@ -51,8 +51,8 @@ func Test_MultiplexerSignal(t *testing.T) {
 	assert.NoError(sig1.SetType(size4Type))
 
 	group := muxSig.GetSignalGroup(0)
-	assert.Equal(0, group[0].getRelStartBit())
-	assert.Equal(8, group[1].getRelStartBit())
+	assert.Equal(0, group[0].GetRelativeStartPos())
+	assert.Equal(8, group[1].GetRelativeStartPos())
 
 	enum := NewSignalEnum("enum")
 	enumVal := NewSignalEnumValue("val_0", 255)
