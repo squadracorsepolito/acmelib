@@ -33,3 +33,22 @@ func Test_CANIDBuilder(t *testing.T) {
 
 	assert.Equal(expected, uint32(res1))
 }
+
+func Test_CANIDBuilder_RemoveOperation(t *testing.T) {
+	assert := assert.New(t)
+
+	b := NewCANIDBuilder("canid_builder")
+	b.UseMessagePriority(30).UseMessageID(4, 10).UseNodeID(0, 4)
+
+	assert.Len(b.Operations(), 3)
+
+	assert.NoError(b.RemoveOperation(2))
+
+	ops := b.Operations()
+	assert.Len(ops, 2)
+	assert.Equal(CANIDBuilderOpKindMessagePriority, ops[0].kind)
+	assert.Equal(CANIDBuilderOpKindMessageID, ops[1].kind)
+
+	assert.Error(b.RemoveOperation(-1))
+	assert.Len(b.Operations(), 2)
+}

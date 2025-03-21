@@ -2,6 +2,7 @@ package acmelib
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -126,6 +127,12 @@ func (b *CANIDBuilder) String() string {
 	return builder.String()
 }
 
+// UpdateName updates the name of the [CANIDBuilder].
+func (b *CANIDBuilder) UpdateName(name string) error {
+	b.entity.name = name
+	return nil
+}
+
 // Operations returns the operations performed by the [CANIDBuilder].
 func (b *CANIDBuilder) Operations() []*CANIDBuilderOp {
 	return b.operations
@@ -192,4 +199,20 @@ func (b *CANIDBuilder) UseCAN2A() *CANIDBuilder {
 func (b *CANIDBuilder) UseBitMask(from, len int) *CANIDBuilder {
 	b.operations = append(b.operations, newCANIDBuilderOp(CANIDBuilderOpKindBitMask, from, len))
 	return b
+}
+
+// RemoveOperation removes the operation at the given index from the [CANIDBuilder].
+//
+// It returns an [ArgumentError] if the operation's index is out of bounds.
+func (b *CANIDBuilder) RemoveOperation(opIndex int) error {
+	if opIndex < 0 || opIndex >= len(b.operations) {
+		return &ArgumentError{
+			Name: "opIndex",
+			Err:  ErrOutOfBounds,
+		}
+	}
+
+	b.operations = slices.Delete(b.operations, opIndex, opIndex+1)
+
+	return nil
 }
