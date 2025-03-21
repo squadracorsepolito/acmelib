@@ -281,6 +281,46 @@ func Test_Message_SetStaticCANID(t *testing.T) {
 	assert.Error(bus.AddNodeInterface(nodeInt3))
 }
 
+func Test_Message_UpdateID(t *testing.T) {
+	assert := assert.New(t)
+
+	node := NewNode("node", 1, 1)
+	nodeInt := node.Interfaces()[0]
+
+	msg0 := NewMessage("msg_0", 1, 1)
+	msg1 := NewMessage("msg_1", 2, 1)
+
+	assert.NoError(nodeInt.AddSentMessage(msg0))
+	assert.NoError(nodeInt.AddSentMessage(msg1))
+
+	// update msg0 to id 3
+	assert.NoError(msg0.UpdateID(3))
+
+	// update msg1 to id 3, this should return an error
+	assert.Error(msg1.UpdateID(3))
+
+	// update msg0 to id 1
+	assert.NoError(msg0.UpdateID(1))
+
+	// update msg0 to id 2, this should return an error
+	assert.Error(msg0.UpdateID(2))
+
+	msg2 := NewMessage("msg_2", 3, 1)
+	assert.NoError(nodeInt.AddSentMessage(msg2))
+
+	// setting msg2 with a static id
+	assert.NoError(msg2.SetStaticCANID(100))
+
+	// should update msg2 to id 3 and remove the static id 100 from the node interface
+	assert.NoError(msg2.UpdateID(3))
+
+	msg3 := NewMessage("msg_3", 4, 1)
+	assert.NoError(nodeInt.AddSentMessage(msg3))
+
+	// setting msg3 with a static id
+	assert.NoError(msg3.SetStaticCANID(100))
+}
+
 func Test_Message_AddReceiver(t *testing.T) {
 	assert := assert.New(t)
 

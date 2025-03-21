@@ -690,15 +690,27 @@ func (m *Message) ByteOrder() MessageByteOrder {
 // UpdateID updates the id of the [Message].
 // It will also reset the static CAN-ID of the message.
 //
-// It may return an error if the new message id is already used within a [NodeInterface].
+// It returns a [MessageIDError] if the new id is invalid.
 func (m *Message) UpdateID(newID MessageID) error {
 	if m.id == newID && !m.hasStaticCANID {
 		return nil
 	}
 
 	if m.hasSenderNodeInt() {
-		if err := m.senderNodeInt.verifyMessageID(newID); err != nil {
+		nodeInt := m.senderNodeInt
+
+		if err := nodeInt.verifyMessageID(newID); err != nil {
 			return m.errorf(err)
+		}
+
+		if m.hasStaticCANID {
+			nodeInt.sentMessageStaticCANIDs.remove(m.staticCANID)
+
+			if nodeInt.hasParentBus() {
+				nodeInt.parentBus.messageStaticCANIDs.remove(m.staticCANID)
+			}
+		} else {
+			nodeInt.sentMessageIDs.modifyKey(m.id, newID, m.entityID)
 		}
 	}
 
@@ -741,8 +753,21 @@ func (m *Message) GetCANID() CANID {
 // It returns a [CANIDError] if the given static CAN-ID is already used.
 func (m *Message) SetStaticCANID(staticCANID CANID) error {
 	if m.hasSenderNodeInt() {
-		if err := m.senderNodeInt.verifyStaticCANID(staticCANID); err != nil {
+		nodeInt := m.senderNodeInt
+
+		if err := nodeInt.verifyStaticCANID(staticCANID); err != nil {
 			return err
+		}
+
+		if m.hasStaticCANID {
+			nodeInt.sentMessageStaticCANIDs.modifyKey(m.staticCANID, staticCANID, m.entityID)
+
+			if nodeInt.hasParentBus() {
+				nodeInt.parentBus.messageStaticCANIDs.modifyKey(m.staticCANID, staticCANID, m.entityID)
+			}
+		} else {
+			nodeInt.sentMessageIDs.remove(m.id)
+			nodeInt.sentMessageStaticCANIDs.add(staticCANID, m.entityID)
 		}
 	}
 

@@ -38,10 +38,6 @@ func newNodeInterface(number int, node *Node) *NodeInterface {
 	}
 }
 
-func (ni *NodeInterface) setName(nodeName string) string {
-	return fmt.Sprintf("%s/int%d", nodeName, ni.number)
-}
-
 func (ni *NodeInterface) hasParentBus() bool {
 	return ni.parentBus != nil
 }
