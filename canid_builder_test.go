@@ -34,6 +34,26 @@ func Test_CANIDBuilder(t *testing.T) {
 	assert.Equal(expected, uint32(res1))
 }
 
+func Test_CANIDBuilder_CalculatePartials(t *testing.T) {
+	assert := assert.New(t)
+
+	b := NewCANIDBuilder("canid_builder")
+	b.UseMessagePriority(30).UseMessageID(4, 10).UseNodeID(0, 4)
+
+	msgPriority := MessagePriorityLow
+	msgID := MessageID(0b1111111111)
+	nodeID := NodeID(0b11)
+
+	expected0 := uint32(msgPriority << 30)
+	expected1 := expected0 | uint32(msgID<<4)
+	expected2 := expected1 | uint32(nodeID)
+
+	expected := []uint32{expected0, expected1, expected2}
+	for idx, canID := range b.CalculatePartials(msgPriority, msgID, nodeID) {
+		assert.Equal(expected[idx], uint32(canID))
+	}
+}
+
 func Test_CANIDBuilder_RemoveOperation(t *testing.T) {
 	assert := assert.New(t)
 

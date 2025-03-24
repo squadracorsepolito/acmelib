@@ -138,35 +138,57 @@ func (b *CANIDBuilder) Operations() []*CANIDBuilderOp {
 	return b.operations
 }
 
-// Calculate returns the CAN-ID calculated by applying the operations.
-func (b *CANIDBuilder) Calculate(messagePriority MessagePriority, messageID MessageID, nodeID NodeID) CANID {
-	canID := uint32(0)
+func (b *CANIDBuilder) calculateOp(op *CANIDBuilderOp, prev CANID, msgPriority MessagePriority, msgID MessageID, nodeID NodeID) CANID {
+	canID := uint32(prev)
 
-	for _, op := range b.operations {
-		if op.kind == CANIDBuilderOpKindBitMask {
-			mask := uint32(0xFFFFFFFF) >> uint32(32-op.len)
-			canID &= (mask << uint32(op.from))
-			continue
-		}
-
-		tmpVal := uint32(0)
-		switch op.kind {
-		case CANIDBuilderOpKindMessagePriority:
-			tmpVal = uint32(messagePriority)
-		case CANIDBuilderOpKindMessageID:
-			tmpVal = uint32(messageID)
-		case CANIDBuilderOpKindNodeID:
-			tmpVal = uint32(nodeID)
-		}
-
+	if op.kind == CANIDBuilderOpKindBitMask {
 		mask := uint32(0xFFFFFFFF) >> uint32(32-op.len)
-		tmpVal &= mask
-
-		tmpVal = tmpVal << uint32(op.from)
-		canID |= tmpVal
+		canID &= (mask << uint32(op.from))
+		return CANID(canID)
 	}
 
+	tmpVal := uint32(0)
+	switch op.kind {
+	case CANIDBuilderOpKindMessagePriority:
+		tmpVal = uint32(msgPriority)
+	case CANIDBuilderOpKindMessageID:
+		tmpVal = uint32(msgID)
+	case CANIDBuilderOpKindNodeID:
+		tmpVal = uint32(nodeID)
+	}
+
+	mask := uint32(0xFFFFFFFF) >> uint32(32-op.len)
+	tmpVal &= mask
+
+	tmpVal = tmpVal << uint32(op.from)
+	canID |= tmpVal
+
 	return CANID(canID)
+}
+
+// Calculate returns the CAN-ID calculated by applying the operations.
+func (b *CANIDBuilder) Calculate(messagePriority MessagePriority, messageID MessageID, nodeID NodeID) CANID {
+	canID := CANID(0)
+
+	for _, op := range b.operations {
+		canID = b.calculateOp(op, canID, messagePriority, messageID, nodeID)
+	}
+
+	return canID
+}
+
+// CalculatePartials returns the CAN-IDs calculated by applying the operations.
+// The last entry is the final CAN-ID.
+func (b *CANIDBuilder) CalculatePartials(messagePriority MessagePriority, messageID MessageID, nodeID NodeID) []CANID {
+	canIDs := []CANID{}
+
+	prevCANID := CANID(0)
+	for _, op := range b.operations {
+		prevCANID = b.calculateOp(op, prevCANID, messagePriority, messageID, nodeID)
+		canIDs = append(canIDs, prevCANID)
+	}
+
+	return canIDs
 }
 
 // UseMessagePriority adds an operation that involves the message priority from the given index.
