@@ -72,3 +72,30 @@ func Test_CANIDBuilder_RemoveOperation(t *testing.T) {
 	assert.Error(b.RemoveOperation(-1))
 	assert.Len(b.Operations(), 2)
 }
+
+func Test_CANIDBuilder_InsertOperation(t *testing.T) {
+	assert := assert.New(t)
+
+	b := NewCANIDBuilder("canid_builder")
+
+	assert.NoError(b.InsertOperation(CANIDBuilderOpKindBitMask, 0, 11, 0))
+	assert.NoError(b.InsertOperation(CANIDBuilderOpKindNodeID, 0, 4, 0))
+	assert.NoError(b.InsertOperation(CANIDBuilderOpKindMessageID, 3, 7, 1))
+
+	expectedKinds := []CANIDBuilderOpKind{CANIDBuilderOpKindNodeID, CANIDBuilderOpKindMessageID, CANIDBuilderOpKindBitMask}
+
+	operations := b.Operations()
+	assert.Len(operations, 3)
+	for idx, op := range operations {
+		assert.Equal(expectedKinds[idx], op.Kind())
+	}
+
+	assert.Error(b.InsertOperation(CANIDBuilderOpKindBitMask, -1, 1, 0))
+	assert.Error(b.InsertOperation(CANIDBuilderOpKindBitMask, 32, 1, 0))
+
+	assert.Error(b.InsertOperation(CANIDBuilderOpKindBitMask, 0, -1, 0))
+	assert.Error(b.InsertOperation(CANIDBuilderOpKindBitMask, 31, 2, 0))
+
+	assert.Error(b.InsertOperation(CANIDBuilderOpKindBitMask, 0, 1, -1))
+	assert.Error(b.InsertOperation(CANIDBuilderOpKindBitMask, 0, 1, 4))
+}

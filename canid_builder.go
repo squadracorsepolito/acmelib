@@ -223,6 +223,37 @@ func (b *CANIDBuilder) UseBitMask(from, len int) *CANIDBuilder {
 	return b
 }
 
+// InsertOperation inserts an operation at the given index in the [CANIDBuilder].
+//
+// It returns an [ArgumentError] if one of the arguments is out of bounds.
+func (b *CANIDBuilder) InsertOperation(kind CANIDBuilderOpKind, from, length, opIndex int) error {
+	if from < 0 || from > 31 {
+		return &ArgumentError{
+			Name: "from",
+			Err:  ErrOutOfBounds,
+		}
+	}
+
+	if length < 0 || length > 32-from {
+		return &ArgumentError{
+			Name: "length",
+			Err:  ErrOutOfBounds,
+		}
+	}
+
+	if opIndex < 0 || opIndex > len(b.operations) {
+		return &ArgumentError{
+			Name: "opIndex",
+			Err:  ErrOutOfBounds,
+		}
+	}
+
+	op := newCANIDBuilderOp(kind, from, length)
+	b.operations = slices.Insert(b.operations, opIndex, op)
+
+	return nil
+}
+
 // RemoveOperation removes the operation at the given index from the [CANIDBuilder].
 //
 // It returns an [ArgumentError] if the operation's index is out of bounds.
@@ -237,4 +268,9 @@ func (b *CANIDBuilder) RemoveOperation(opIndex int) error {
 	b.operations = slices.Delete(b.operations, opIndex, opIndex+1)
 
 	return nil
+}
+
+// RemoveAllOperations removes all operations from the [CANIDBuilder].
+func (b *CANIDBuilder) RemoveAllOperations() {
+	b.operations = []*CANIDBuilderOp{}
 }
