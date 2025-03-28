@@ -46,13 +46,12 @@ type Bus struct {
 }
 
 func newBusFromEntity(ent *entity) *Bus {
-	return &Bus{
+	bus := &Bus{
 		entity:         ent,
 		withAttributes: newWithAttributes(),
 
 		parentNetwork: nil,
 
-		canIDBuilder:      defaulCANIDBuilder,
 		isDefCANIDBuilder: true,
 
 		nodeInts:  newSet[EntityID, *NodeInterface](),
@@ -64,6 +63,12 @@ func newBusFromEntity(ent *entity) *Bus {
 		baudrate: 0,
 		typ:      BusTypeCAN2A,
 	}
+
+	builder := newDefaultCANIDBuilder()
+	bus.canIDBuilder = builder
+	builder.addRef(bus)
+
+	return bus
 }
 
 // NewBus creates a new [Bus] with the given name and description.
