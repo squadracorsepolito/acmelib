@@ -542,8 +542,6 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 			}
 		}
 
-		slices.SortStableFunc(muxedSignals, func(a, b *importerSignal) int { return a.startPos - b.startPos })
-
 		muxSig, err := i.importMuxSignal(dbcMuxSig, dbcMsg.ID, muxedSignals)
 		if err != nil {
 			return err
@@ -636,15 +634,21 @@ type importerSignal struct {
 }
 
 func (i *importer) importMuxSignal(dbcMuxSig *dbc.Signal, dbcMsgID uint32, muxedSignals []*importerSignal) (*MultiplexerSignal, error) {
-	lastMuxedSig := muxedSignals[len(muxedSignals)-1]
-
-	lastSize := lastMuxedSig.sig.GetSize()
-	lastStartBit := i.getSignalStartBit(lastMuxedSig.dbcSig)
+	groupSize := 0
+	muxedEndBit := 0
+	for _, tmpMuxedSig := range muxedSignals {
+		tmpEndBit := tmpMuxedSig.sig.GetSize() + i.getSignalStartBit(tmpMuxedSig.dbcSig)
+		if tmpEndBit > muxedEndBit {
+			muxedEndBit = tmpEndBit
+		}
+	}
 
 	muxSigStartBit := i.getSignalStartBit(dbcMuxSig)
-
 	muxSigSize := int(dbcMuxSig.Size)
-	groupSize := lastStartBit + lastSize - muxSigStartBit - muxSigSize
+
+	if muxedEndBit > 0 {
+		groupSize = muxedEndBit - muxSigStartBit - muxSigSize
+	}
 
 	muxSig, err := NewMultiplexerSignal(dbcMuxSig.Name, calcValueFromSize(muxSigSize), groupSize)
 	if err != nil {
@@ -671,7 +675,7 @@ func (i *importer) importMuxSignal(dbcMuxSig *dbc.Signal, dbcMsgID uint32, muxed
 				groupIDs = []int{}
 			}
 
-		} else {
+		} else if tmpDBCSig.IsMultiplexed {
 			groupIDs = append(groupIDs, int(tmpDBCSig.MuxSwitchValue))
 		}
 

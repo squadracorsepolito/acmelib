@@ -54,3 +54,76 @@ func Test_ImportDBCFile(t *testing.T) {
 	}
 	assert.Len(sigTypeIDs, 1)
 }
+
+const muxSignalsDBCFilename = "testdata/mux_signals.dbc"
+
+func Test_ImportDBCFile_MuxSignals(t *testing.T) {
+	assert := assert.New(t)
+
+	inputFile, err := os.Open(muxSignalsDBCFilename)
+	assert.NoError(err)
+
+	bus, err := ImportDBCFile(muxSignalsDBCFilename, inputFile)
+	assert.NoError(err)
+	inputFile.Close()
+
+	type muxedSig struct {
+		name     string
+		startPos int
+		size     int
+	}
+
+	expected := [][]muxedSig{
+		{
+			{"DADD", 2, 6},
+			{"CADD", 8, 3},
+			{"ovrd_bank", 11, 2},
+			{"write_RADD", 16, 13},
+			{"value", 32, 16},
+		},
+		{
+			{"DADD", 2, 6},
+			{"CADD", 8, 3},
+			{"ovrd_bank", 11, 2},
+			{"ovrd_bitset_idx", 13, 3},
+			{"ovrd_bitset", 16, 48},
+		},
+		{
+			{"DADD", 2, 6},
+			{"CADD", 8, 3},
+			{"ovrd_bank", 11, 2},
+			{"ovrd_bank_enabled", 13, 1},
+		},
+		{
+			{"DADD", 2, 6},
+			{"CADD", 8, 3},
+			{"ovrd_bank", 11, 2},
+			{"read_RADD", 16, 13},
+		},
+	}
+
+	node0Int, err := bus.GetNodeInterfaceByNodeName("node_0")
+	assert.NoError(err)
+
+	msg0, err := node0Int.GetSentMessageByName("msg_0")
+	assert.NoError(err)
+
+	sig, err := msg0.GetSignalByName("ovrd_cmd")
+	assert.NoError(err)
+
+	muxSig, err := sig.ToMultiplexer()
+	assert.NoError(err)
+
+	assert.Equal(4, muxSig.GroupCount())
+	assert.Equal(62, muxSig.GroupSize())
+
+	for groupID, group := range muxSig.GetSignalGroups() {
+		expectedGroup := expected[groupID]
+		for idx, tmpSig := range group {
+			expectedSig := expectedGroup[idx]
+			assert.Equal(expectedSig.name, tmpSig.Name())
+			assert.Equal(expectedSig.startPos, tmpSig.GetStartBit())
+			assert.Equal(expectedSig.size, tmpSig.GetSize())
+		}
+	}
+}
