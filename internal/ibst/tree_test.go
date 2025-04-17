@@ -1,4 +1,4 @@
-package internal
+package ibst
 
 import (
 	"testing"
@@ -21,21 +21,8 @@ func newTestInterval(low, high int) TestInterval {
 	return TestInterval{Low: low, High: high}
 }
 
-func Test_NewIntervalBST(t *testing.T) {
-	tree := NewIntervalBST[TestInterval]()
-	if tree.root != nil {
-		t.Error("New tree should have nil root")
-	}
-	if tree.Size() != 0 {
-		t.Errorf("New tree should have size 0, got %d", tree.Size())
-	}
-	if !tree.IsEmpty() {
-		t.Error("New tree should be empty")
-	}
-}
-
-func Test_IntervalBST_Insert(t *testing.T) {
-	tree := NewIntervalBST[TestInterval]()
+func Test_Tree_Insert(t *testing.T) {
+	tree := NewTree[TestInterval]()
 
 	// Insert single interval
 	tree.Insert(newTestInterval(10, 20))
@@ -61,8 +48,8 @@ func Test_IntervalBST_Insert(t *testing.T) {
 	}
 }
 
-func Test_IntervalBST_Delete(t *testing.T) {
-	tree := NewIntervalBST[TestInterval]()
+func Test_Tree_Delete(t *testing.T) {
+	tree := NewTree[TestInterval]()
 
 	// Insert intervals
 	intervals := []TestInterval{
@@ -96,8 +83,8 @@ func Test_IntervalBST_Delete(t *testing.T) {
 	}
 }
 
-func Test_IntervalBST_Intersects(t *testing.T) {
-	tree := NewIntervalBST[TestInterval]()
+func Test_Tree_Intersects(t *testing.T) {
+	tree := NewTree[TestInterval]()
 
 	// Test empty tree
 	if tree.Intersects(newTestInterval(10, 20)) {
@@ -139,8 +126,8 @@ func Test_IntervalBST_Intersects(t *testing.T) {
 	}
 }
 
-func Test_IntervalBST_GetAllIntervals(t *testing.T) {
-	tree := NewIntervalBST[TestInterval]()
+func Test_Tree_GetAllIntervals(t *testing.T) {
+	tree := NewTree[TestInterval]()
 
 	// Test empty tree
 	intervals := tree.GetAllIntervals()
@@ -175,8 +162,8 @@ func Test_IntervalBST_GetAllIntervals(t *testing.T) {
 	}
 }
 
-func Test_IntervalBST_CanUpdateInterval(t *testing.T) {
-	tree := NewIntervalBST[TestInterval]()
+func Test_Tree_CanUpdateInterval(t *testing.T) {
+	tree := NewTree[TestInterval]()
 
 	// Test empty tree
 	if !tree.CanUpdateInterval(newTestInterval(10, 20), 15, 25) {
@@ -208,7 +195,7 @@ func Test_IntervalBST_CanUpdateInterval(t *testing.T) {
 	}
 
 	// Test single element tree
-	singleTree := NewIntervalBST[TestInterval]()
+	singleTree := NewTree[TestInterval]()
 	singleInterval := newTestInterval(10, 20)
 	singleTree.Insert(singleInterval)
 
@@ -217,8 +204,8 @@ func Test_IntervalBST_CanUpdateInterval(t *testing.T) {
 	}
 }
 
-func Test_IntervalBST_TreeBalancing(t *testing.T) {
-	tree := NewIntervalBST[TestInterval]()
+func Test_Tree_TreeBalancing(t *testing.T) {
+	tree := NewTree[TestInterval]()
 
 	// Insert elements in ascending order which would create a skewed tree without balancing
 	for i := 1; i <= 10; i++ {
@@ -249,8 +236,8 @@ func Test_IntervalBST_TreeBalancing(t *testing.T) {
 	}
 }
 
-func Test_IntervalBST_Clear(t *testing.T) {
-	tree := NewIntervalBST[TestInterval]()
+func Test_Tree_Clear(t *testing.T) {
+	tree := NewTree[TestInterval]()
 
 	// Insert some intervals
 	tree.Insert(newTestInterval(10, 20))
@@ -279,8 +266,8 @@ func Test_IntervalBST_Clear(t *testing.T) {
 }
 
 // Test edge cases with overlapping intervals
-func Test_IntervalBST_EdgeCases(t *testing.T) {
-	tree := NewIntervalBST[TestInterval]()
+func Test_Tree_EdgeCases(t *testing.T) {
+	tree := NewTree[TestInterval]()
 
 	// Insert intervals with same low value but different high values
 	tree.Insert(newTestInterval(10, 20))
@@ -317,8 +304,8 @@ func Test_IntervalBST_EdgeCases(t *testing.T) {
 }
 
 // Benchmark insertion performance
-func Benchmark_IntervalBST_Insert(b *testing.B) {
-	tree := NewIntervalBST[TestInterval]()
+func Benchmark_Tree_Insert(b *testing.B) {
+	tree := NewTree[TestInterval]()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -330,8 +317,8 @@ func Benchmark_IntervalBST_Insert(b *testing.B) {
 }
 
 // Benchmark intersection checking performance
-func Benchmark_IntervalBST_Intersects(b *testing.B) {
-	tree := NewIntervalBST[TestInterval]()
+func Benchmark_Tree_Intersects(b *testing.B) {
+	tree := NewTree[TestInterval]()
 
 	// Insert some intervals first
 	for i := 0; i < 1000; i += 20 {
@@ -347,8 +334,8 @@ func Benchmark_IntervalBST_Intersects(b *testing.B) {
 }
 
 // Benchmark CanUpdateInterval performance
-func Benchmark_IntervalBST_CanUpdateInterval(b *testing.B) {
-	tree := NewIntervalBST[TestInterval]()
+func Benchmark_Tree_CanUpdateInterval(b *testing.B) {
+	tree := NewTree[TestInterval]()
 
 	// Insert some intervals first
 	intervals := make([]TestInterval, 0, 1000)

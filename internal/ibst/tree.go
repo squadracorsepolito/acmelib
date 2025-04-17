@@ -1,5 +1,5 @@
-// Package internal contains internal types and functions used by the acmelib library.
-package internal
+// Package ibst contains the implementation of the interval binary search tree.
+package ibst
 
 import (
 	"fmt"
@@ -7,122 +7,28 @@ import (
 )
 
 // Intervalable is an interface for intervalable items
-// to be stored in the [IntervalBST].
+// to be stored in the [Tree].
 type Intervalable interface {
 	GetLow() int
 	GetHigh() int
 }
 
-type node[T Intervalable] struct {
-	item        T
-	max         int
-	left, right *node[T]
-	height      int
-}
-
-// updateHeight recalculates the height of a node based on its children
-func (n *node[T]) updateHeight() {
-	leftH := 0
-	if n.left != nil {
-		leftH = n.left.height
-	}
-
-	rightH := 0
-	if n.right != nil {
-		rightH = n.right.height
-	}
-
-	n.height = 1 + max(leftH, rightH)
-}
-
-// updateMax recalculates the max value of a node based on itself and its children
-func (n *node[T]) updateMax() {
-	n.max = n.item.GetHigh()
-
-	if n.left != nil && n.left.max > n.max {
-		n.max = n.left.max
-	}
-
-	if n.right != nil && n.right.max > n.max {
-		n.max = n.right.max
-	}
-}
-
-// balanceFactor returns the balance factor of a node
-func (n *node[T]) balanceFactor() int {
-	leftH := 0
-	if n.left != nil {
-		leftH = n.left.height
-	}
-
-	rightH := 0
-	if n.right != nil {
-		rightH = n.right.height
-	}
-
-	return leftH - rightH
-}
-
-// rotateRight performs a right rotation on the given node
-func (n *node[T]) rotateRight() *node[T] {
-	leftNode := n.left
-	leftRightNode := leftNode.right
-
-	// Perform rotation
-	leftNode.right = n
-	n.left = leftRightNode
-
-	// Update heights and max values
-	n.updateHeight()
-	n.updateMax()
-	leftNode.updateHeight()
-	leftNode.updateMax()
-
-	return leftNode
-}
-
-// rotateLeft performs a left rotation on the given node
-func (n *node[T]) rotateLeft() *node[T] {
-	rightNode := n.right
-	rightLeftNode := rightNode.left
-
-	// Perform rotation
-	rightNode.left = n
-	n.right = rightLeftNode
-
-	// Update heights and max values
-	n.updateHeight()
-	n.updateMax()
-	rightNode.updateHeight()
-	rightNode.updateMax()
-
-	return rightNode
-}
-
-// findMin returns the node with the minimum low value in the subtree
-func (n *node[T]) findMin() *node[T] {
-	for n.left != nil {
-		return n.left
-	}
-	return n
-}
-
-// IntervalBST is a binary search tree that stores intervals.
-type IntervalBST[T Intervalable] struct {
+// Tree is a binary search tree that stores intervals.
+type Tree[T Intervalable] struct {
 	root *node[T]
 	size int
 }
 
-// NewIntervalBST returns a new [IntervalBST].
-func NewIntervalBST[T Intervalable]() *IntervalBST[T] {
-	return &IntervalBST[T]{
+// NewTree returns a new [Tree].
+func NewTree[T Intervalable]() *Tree[T] {
+	return &Tree[T]{
 		root: nil,
 		size: 0,
 	}
 }
 
 // insertNode recursively inserts a new interval into the tree and balances it
-func (t *IntervalBST[T]) insertNode(root *node[T], item T) *node[T] {
+func (t *Tree[T]) insertNode(root *node[T], item T) *node[T] {
 	// Standard BST insertion
 	if root == nil {
 		t.size++
@@ -134,7 +40,7 @@ func (t *IntervalBST[T]) insertNode(root *node[T], item T) *node[T] {
 	}
 
 	low := item.GetLow()
-	if low < root.item.GetLow() {
+	if low < root.getLow() {
 		root.left = t.insertNode(root.left, item)
 	} else {
 		root.right = t.insertNode(root.right, item)
@@ -150,7 +56,7 @@ func (t *IntervalBST[T]) insertNode(root *node[T], item T) *node[T] {
 	// Left heavy
 	if balance > 1 {
 		// Left-Right case
-		if item.GetLow() > root.left.item.GetLow() {
+		if item.GetLow() > root.left.getLow() {
 			root.left = root.left.rotateLeft()
 			return root.rotateRight()
 		}
@@ -161,7 +67,7 @@ func (t *IntervalBST[T]) insertNode(root *node[T], item T) *node[T] {
 	// Right heavy
 	if balance < -1 {
 		// Right-Left case
-		if item.GetLow() < root.right.item.GetLow() {
+		if item.GetLow() < root.right.getLow() {
 			root.right = root.right.rotateRight()
 			return root.rotateLeft()
 		}
@@ -173,7 +79,7 @@ func (t *IntervalBST[T]) insertNode(root *node[T], item T) *node[T] {
 }
 
 // Insert adds a new intervalable item to the tree.
-func (t *IntervalBST[T]) Insert(item T) {
+func (t *Tree[T]) Insert(item T) {
 	if item.GetLow() > item.GetHigh() {
 		// Invalid interval, silently ignore or could return an error
 		return
@@ -182,7 +88,7 @@ func (t *IntervalBST[T]) Insert(item T) {
 }
 
 // deleteNode recursively deletes a node with the given interval
-func (t *IntervalBST[T]) deleteNode(root *node[T], item T) *node[T] {
+func (t *Tree[T]) deleteNode(root *node[T], item T) *node[T] {
 	if root == nil {
 		return nil
 	}
@@ -191,11 +97,11 @@ func (t *IntervalBST[T]) deleteNode(root *node[T], item T) *node[T] {
 	high := item.GetHigh()
 
 	// First locate the node to delete
-	if low < root.item.GetLow() {
+	if low < root.getLow() {
 		root.left = t.deleteNode(root.left, item)
-	} else if low > root.item.GetLow() {
+	} else if low > root.getLow() {
 		root.right = t.deleteNode(root.right, item)
-	} else if high != root.item.GetHigh() {
+	} else if high != root.getHigh() {
 		// Same low but different high, continue search
 		root.right = t.deleteNode(root.right, item)
 	} else {
@@ -260,22 +166,22 @@ func (t *IntervalBST[T]) deleteNode(root *node[T], item T) *node[T] {
 }
 
 // Delete removes an intervalable item from the tree.
-func (t *IntervalBST[T]) Delete(item T) {
+func (t *Tree[T]) Delete(item T) {
 	t.root = t.deleteNode(t.root, item)
 }
 
 // Size returns the number of intervals in the tree.
-func (t *IntervalBST[T]) Size() int {
+func (t *Tree[T]) Size() int {
 	return t.size
 }
 
 // IsEmpty returns true if the tree is empty.
-func (t *IntervalBST[T]) IsEmpty() bool {
+func (t *Tree[T]) IsEmpty() bool {
 	return t.size == 0
 }
 
 // intersectsNode recursively checks for any intersection with the given interval
-func (t *IntervalBST[T]) intersectsNode(root *node[T], low, high int) bool {
+func (t *Tree[T]) intersectsNode(root *node[T], low, high int) bool {
 	if root == nil {
 		return false
 	}
@@ -286,13 +192,13 @@ func (t *IntervalBST[T]) intersectsNode(root *node[T], low, high int) bool {
 	}
 
 	// If current node overlaps, return true immediately
-	if root.item.GetLow() <= high && low <= root.item.GetHigh() {
+	if root.getLow() <= high && low <= root.getHigh() {
 		return true
 	}
 
 	// More efficient traversal based on BST properties
 	// If low value is less than root's low, we need to check left subtree
-	if low < root.item.GetLow() && t.intersectsNode(root.left, low, high) {
+	if low < root.getLow() && t.intersectsNode(root.left, low, high) {
 		return true
 	}
 
@@ -301,7 +207,7 @@ func (t *IntervalBST[T]) intersectsNode(root *node[T], low, high int) bool {
 }
 
 // Intersects states whether the given intervalable item intersects any already in the tree.
-func (t *IntervalBST[T]) Intersects(item T) bool {
+func (t *Tree[T]) Intersects(item T) bool {
 	if t.IsEmpty() {
 		return false
 	}
@@ -309,7 +215,7 @@ func (t *IntervalBST[T]) Intersects(item T) bool {
 }
 
 // inOrderTraversal performs an in-order traversal and collects items
-func (t *IntervalBST[T]) inOrderTraversal(root *node[T], result *[]T) {
+func (t *Tree[T]) inOrderTraversal(root *node[T], result *[]T) {
 	if root == nil {
 		return
 	}
@@ -320,7 +226,7 @@ func (t *IntervalBST[T]) inOrderTraversal(root *node[T], result *[]T) {
 }
 
 // GetAllIntervals returns all intervals in the tree in ascending order by low value
-func (t *IntervalBST[T]) GetAllIntervals() []T {
+func (t *Tree[T]) GetAllIntervals() []T {
 	result := make([]T, 0, t.size)
 	t.inOrderTraversal(t.root, &result)
 	return result
@@ -328,7 +234,7 @@ func (t *IntervalBST[T]) GetAllIntervals() []T {
 
 // checkOtherIntervals a helper function to check if an interval intersects with any other interval
 // except the one we are skipping.
-func (t *IntervalBST[T]) checkOtherIntervals(node *node[T], low, high int, skipItem T) bool {
+func (t *Tree[T]) checkOtherIntervals(node *node[T], low, high int, skipItem T) bool {
 	if node == nil {
 		return false
 	}
@@ -340,13 +246,13 @@ func (t *IntervalBST[T]) checkOtherIntervals(node *node[T], low, high int, skipI
 
 	// Check if current node overlaps with the new interval
 	// Skip the node if it's the one we're updating
-	isSameItem := node.item.GetLow() == skipItem.GetLow() && node.item.GetHigh() == skipItem.GetHigh()
-	if !isSameItem && node.item.GetLow() <= high && low <= node.item.GetHigh() {
+	isSameItem := node.getLow() == skipItem.GetLow() && node.getHigh() == skipItem.GetHigh()
+	if !isSameItem && node.getLow() <= high && low <= node.getHigh() {
 		return true // Found an intersection
 	}
 
 	// If low value is less than node's low, we need to check left subtree
-	if low < node.item.GetLow() && t.checkOtherIntervals(node.left, low, high, skipItem) {
+	if low < node.getLow() && t.checkOtherIntervals(node.left, low, high, skipItem) {
 		return true
 	}
 
@@ -355,7 +261,7 @@ func (t *IntervalBST[T]) checkOtherIntervals(node *node[T], low, high int, skipI
 }
 
 // CanUpdateInterval checks if the given intervalable item can be updated.
-func (t *IntervalBST[T]) CanUpdateInterval(item T, newLow, newHigh int) bool {
+func (t *Tree[T]) CanUpdateInterval(item T, newLow, newHigh int) bool {
 	// If tree is empty or has only one item (the one we're updating)
 	if t.size <= 1 {
 		return true
@@ -365,12 +271,12 @@ func (t *IntervalBST[T]) CanUpdateInterval(item T, newLow, newHigh int) bool {
 }
 
 // Clear removes all intervals from the tree
-func (t *IntervalBST[T]) Clear() {
+func (t *Tree[T]) Clear() {
 	t.root = nil
 	t.size = 0
 }
 
-func (t *IntervalBST[T]) stringify(sb *strings.Builder, node *node[T], level int) {
+func (t *Tree[T]) stringify(sb *strings.Builder, node *node[T], level int) {
 	if node == nil {
 		return
 	}
@@ -381,13 +287,13 @@ func (t *IntervalBST[T]) stringify(sb *strings.Builder, node *node[T], level int
 	// Current node with proper indentation
 	indent := strings.Repeat("\t", level)
 	sb.WriteString(fmt.Sprintf("%s[%d, %d] (max: %d)\n",
-		indent, node.item.GetLow(), node.item.GetHigh(), node.max))
+		indent, node.getLow(), node.getHigh(), node.max))
 
 	// Traverse left subtree
 	t.stringify(sb, node.left, level+1)
 }
 
-func (t *IntervalBST[T]) String() string {
+func (t *Tree[T]) String() string {
 	if t.root == nil {
 		return "Empty IntervalBST"
 	}
