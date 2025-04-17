@@ -1,6 +1,6 @@
 module github.com/squadracorsepolito/acmelib
 
-go 1.22.2
+go 1.24.0
 
 require (
 	github.com/jaevor/go-nanoid v1.4.0

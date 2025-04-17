@@ -138,6 +138,10 @@ type Signal interface {
 	// SendType returns the send type of the signal.
 	SendType() SignalSendType
 
+	// Endianness returns the endianness of the signal.
+	Endianness() MessageByteOrder
+	setEndianness(endianness MessageByteOrder)
+
 	// GetStartBit returns the start bit of the signal.
 	GetStartBit() int
 
@@ -169,6 +173,8 @@ type signal struct {
 
 	startValue float64
 	sendType   SignalSendType
+
+	endianness MessageByteOrder
 
 	relStartPos int
 }
@@ -243,10 +249,18 @@ func (s *signal) ParentMultiplexerSignal() *MultiplexerSignal {
 
 func (s *signal) setParentMsg(parentMsg *Message) {
 	s.parentMsg = parentMsg
+
+	if parentMsg != nil {
+		s.endianness = parentMsg.byteOrder
+	}
 }
 
 func (s *signal) setParentMuxSig(parentMuxSig *MultiplexerSignal) {
 	s.parentMuxSig = parentMuxSig
+
+	if parentMuxSig != nil && parentMuxSig.hasParentMsg() {
+		s.endianness = parentMuxSig.parentMsg.byteOrder
+	}
 }
 
 func (s *signal) GetRelativeStartPos() int {
@@ -285,6 +299,14 @@ func (s *signal) SetSendType(sendType SignalSendType) {
 
 func (s *signal) SendType() SignalSendType {
 	return s.sendType
+}
+
+func (s *signal) Endianness() MessageByteOrder {
+	return s.endianness
+}
+
+func (s *signal) setEndianness(endianness MessageByteOrder) {
+	s.endianness = endianness
 }
 
 func (s *signal) GetStartBit() int {

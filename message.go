@@ -92,7 +92,7 @@ type Message struct {
 	signals     *set[EntityID, Signal]
 	signalNames *set[string, EntityID]
 
-	signalPayload *signalPayload
+	signalLayout *SignalLayout //*signalPayload
 
 	sizeByte int
 
@@ -121,7 +121,7 @@ func newMessageFromEntity(ent *entity, id MessageID, sizeByte int) *Message {
 		signals:     newSet[EntityID, Signal](),
 		signalNames: newSet[string, EntityID](),
 
-		signalPayload: newSignalPayload(sizeByte * 8),
+		signalLayout: newSignalLayout(sizeByte * 8), //newSignalPayload(sizeByte * 8),
 
 		sizeByte: sizeByte,
 
@@ -186,7 +186,7 @@ func (m *Message) verifySignalSizeAmount(sigID EntityID, amount int) error {
 	}
 
 	if amount > 0 {
-		if err := m.signalPayload.verifyBeforeGrow(sig, amount); err != nil {
+		if err := m.signalLayout.verifyBeforeGrow(sig, amount); err != nil {
 			return &SignalSizeError{
 				Size: sig.GetSize() + amount,
 				Err:  err,
@@ -196,7 +196,7 @@ func (m *Message) verifySignalSizeAmount(sigID EntityID, amount int) error {
 		return nil
 	}
 
-	if err := m.signalPayload.verifyBeforeShrink(sig, -amount); err != nil {
+	if err := m.signalLayout.verifyBeforeShrink(sig, -amount); err != nil {
 		return &SignalSizeError{
 			Size: sig.GetSize() + amount,
 			Err:  err,
@@ -217,10 +217,10 @@ func (m *Message) modifySignalSize(sigID EntityID, amount int) error {
 	}
 
 	if amount > 0 {
-		return m.signalPayload.modifyStartBitsOnGrow(sig, amount)
+		return m.signalLayout.modifyStartBitsOnGrow(sig, amount)
 	}
 
-	return m.signalPayload.modifyStartBitsOnShrink(sig, -amount)
+	return m.signalLayout.modifyStartBitsOnShrink(sig, -amount)
 }
 
 func (m *Message) stringify(b *strings.Builder, tabs int) {
@@ -401,7 +401,7 @@ func (m *Message) UpdateSizeByte(newSizeByte int) error {
 		}
 	}
 
-	if err := m.signalPayload.resize(newSizeByte * 8); err != nil {
+	if err := m.signalLayout.resize(newSizeByte * 8); err != nil {
 		return m.errorf(err)
 	}
 
@@ -435,7 +435,7 @@ func (m *Message) AppendSignal(signal Signal) error {
 		})
 	}
 
-	if err := m.signalPayload.append(signal); err != nil {
+	if err := m.signalLayout.append(signal); err != nil {
 		return m.errorf(err)
 	}
 
@@ -465,7 +465,7 @@ func (m *Message) InsertSignal(signal Signal, startBit int) error {
 		})
 	}
 
-	if err := m.signalPayload.verifyAndInsert(signal, startBit); err != nil {
+	if err := m.signalLayout.verifyAndInsert(signal, startBit); err != nil {
 		return m.errorf(err)
 	}
 
@@ -487,7 +487,7 @@ func (m *Message) RemoveSignal(signalEntityID EntityID) error {
 
 	m.removeSignal(sig)
 
-	m.signalPayload.remove(signalEntityID)
+	m.signalLayout.remove(signalEntityID)
 
 	return nil
 }
@@ -501,7 +501,7 @@ func (m *Message) RemoveAllSignals() {
 	m.signals.clear()
 	m.signalNames.clear()
 
-	m.signalPayload.removeAll()
+	m.signalLayout.removeAll()
 }
 
 // ShiftSignalLeft shifts the signal with the given entity id left by the given amount.
@@ -512,7 +512,7 @@ func (m *Message) ShiftSignalLeft(signalEntityID EntityID, amount int) int {
 		return 0
 	}
 
-	return m.signalPayload.shiftLeft(sig.EntityID(), amount)
+	return m.signalLayout.shiftLeft(sig.EntityID(), amount)
 }
 
 // ShiftSignalRight shifts the signal with the given entity id right by the given amount.
@@ -523,17 +523,17 @@ func (m *Message) ShiftSignalRight(signalEntityID EntityID, amount int) int {
 		return 0
 	}
 
-	return m.signalPayload.shiftRight(sig.EntityID(), amount)
+	return m.signalLayout.shiftRight(sig.EntityID(), amount)
 }
 
 // CompactSignals compacts the [Message] payload.
 func (m *Message) CompactSignals() {
-	m.signalPayload.compact()
+	m.signalLayout.compact()
 }
 
 // Signals returns a slice of all signals in the [Message].
 func (m *Message) Signals() []Signal {
-	return m.signalPayload.signals
+	return m.signalLayout.signals
 }
 
 // GetSignal returns the [Signal] that matches the given entity id.
@@ -680,6 +680,12 @@ func (m *Message) Receivers() []*NodeInterface {
 // SetByteOrder sets the byte order of the [Message].
 func (m *Message) SetByteOrder(byteOrder MessageByteOrder) {
 	m.byteOrder = byteOrder
+
+	for _, sig := range m.signals.getValues() {
+		sig.setEndianness(byteOrder)
+	}
+
+	m.signalLayout.generateFilters()
 }
 
 // ByteOrder returns the byte order of the [Message].
@@ -781,6 +787,11 @@ func (m *Message) SetStaticCANID(staticCANID CANID) error {
 // HasStaticCANID returns whether the [Message] has a static CAN-ID.
 func (m *Message) HasStaticCANID() bool {
 	return m.hasStaticCANID
+}
+
+// SignalLayout returns the [SignalLayout] of the [Message].
+func (m *Message) SignalLayout() *SignalLayout {
+	return m.signalLayout
 }
 
 // AssignAttribute assigns the given attribute/value pair to the [Message].

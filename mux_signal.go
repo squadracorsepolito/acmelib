@@ -21,7 +21,7 @@ type MultiplexerSignal struct {
 
 	groupCount int
 	groupSize  int
-	groups     []*signalPayload
+	groups     []*SignalLayout //[]*signalPayload
 }
 
 func newMultiplexerSignalFromBase(base *signal, groupCount, groupSize int) (*MultiplexerSignal, error) {
@@ -53,10 +53,15 @@ func newMultiplexerSignalFromBase(base *signal, groupCount, groupSize int) (*Mul
 		return nil, err
 	}
 
-	groups := make([]*signalPayload, groupCount)
+	groups := make([]*SignalLayout, groupCount)
 	for i := 0; i < groupCount; i++ {
-		groups[i] = newSignalPayload(groupSize)
+		groups[i] = newSignalLayout(groupSize)
 	}
+
+	// groups := make([]*signalPayload, groupCount)
+	// for i := 0; i < groupCount; i++ {
+	// 	groups[i] = newSignalPayload(groupSize)
+	// }
 
 	return &MultiplexerSignal{
 		signal: base,

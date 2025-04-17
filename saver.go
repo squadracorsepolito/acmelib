@@ -340,7 +340,7 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 		pMsg.Signals = append(pMsg.Signals, s.saveSignal(sig))
 	}
 
-	pMsg.Payload = s.saveSignalPayload(msg.signalPayload)
+	pMsg.Payload = s.saveSignalLayout(msg.signalLayout)
 
 	pMsg.StaticCanId = uint32(msg.staticCANID)
 	pMsg.HasStaticCanId = msg.hasStaticCANID
@@ -395,10 +395,10 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 	return pMsg
 }
 
-func (s *saver) saveSignalPayload(payload *signalPayload) *acmelibv1.SignalPayload {
+func (s *saver) saveSignalLayout(layout *SignalLayout) *acmelibv1.SignalPayload {
 	pPayload := new(acmelibv1.SignalPayload)
 
-	for _, sig := range payload.signals {
+	for _, sig := range layout.signals {
 		pPayload.Refs = append(pPayload.Refs, &acmelibv1.SignalPayloadRef{
 			SignalEntityId: sig.EntityID().String(),
 			RelStartBit:    uint32(sig.GetRelativeStartPos()),
@@ -407,6 +407,19 @@ func (s *saver) saveSignalPayload(payload *signalPayload) *acmelibv1.SignalPaylo
 
 	return pPayload
 }
+
+// func (s *saver) saveSignalPayload(payload *signalPayload) *acmelibv1.SignalPayload {
+// 	pPayload := new(acmelibv1.SignalPayload)
+
+// 	for _, sig := range payload.signals {
+// 		pPayload.Refs = append(pPayload.Refs, &acmelibv1.SignalPayloadRef{
+// 			SignalEntityId: sig.EntityID().String(),
+// 			RelStartBit:    uint32(sig.GetRelativeStartPos()),
+// 		})
+// 	}
+
+// 	return pPayload
+// }
 
 func (s *saver) saveSignal(sig Signal) *acmelibv1.Signal {
 	pSig := new(acmelibv1.Signal)
@@ -527,7 +540,7 @@ func (s *saver) saveMultiplexerSignal(muxSig *MultiplexerSignal) *acmelibv1.Mult
 			pMuxSig.Signals = append(pMuxSig.Signals, s.saveSignal(muxedSig))
 		}
 
-		pMuxSig.Groups = append(pMuxSig.Groups, s.saveSignalPayload(muxSig.groups[groupID]))
+		pMuxSig.Groups = append(pMuxSig.Groups, s.saveSignalLayout(muxSig.groups[groupID]))
 	}
 
 	return pMuxSig
