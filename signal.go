@@ -145,21 +145,27 @@ type Signal interface {
 	// GetStartBit returns the start bit of the signal.
 	GetStartBit() int
 
-	// GetRelativeStartPos returns the relative start postion of the signal.
-	// It is the same as GetStartBit for non-multiplexed signals.
-	GetRelativeStartPos() int
-
-	setRelativeStartPos(startPos int)
-
-	// GetSize returns the size of the signal.
-	GetSize() int
-
 	// ToStandard returns the signal as a standard signal.
 	ToStandard() (*StandardSignal, error)
 	// ToEnum returns the signal as a enum signal.
 	ToEnum() (*EnumSignal, error)
 	// ToMultiplexer returns the signal as a multiplexer signal.
 	ToMultiplexer() (*MultiplexerSignal, error)
+
+	// GetSize returns the size of the signal.
+	GetSize() int
+	setSize(size int)
+
+	// GetRelativeStartPos returns the relative start postion of the signal.
+	// It is the same as GetStartBit for non-multiplexed signals.
+	GetRelativeStartPos() int
+	setRelativeStartPos(startPos int)
+	resetStartPos()
+
+	GetLow() int
+	SetLow(low int)
+	GetHigh() int
+	SetHigh(high int)
 }
 
 type signal struct {
@@ -177,6 +183,7 @@ type signal struct {
 	endianness MessageByteOrder
 
 	relStartPos int
+	size        int
 }
 
 func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
@@ -192,6 +199,7 @@ func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
 		startValue: 0,
 		sendType:   SignalSendTypeUnset,
 
+		size:        0,
 		relStartPos: 0,
 	}
 }
@@ -366,260 +374,30 @@ func (s *signal) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeA
 	return attAss, nil
 }
 
-// StandardSignal is the representation of a normal signal that has a [SignalType],
-// a min, a max, an offset, a scale, and can have a [SignalUnit].
-type StandardSignal struct {
-	*signal
-
-	typ  *SignalType
-	unit *SignalUnit
+func (s *signal) GetSize() int {
+	return s.size
 }
 
-func newStandardSignalFromBase(base *signal, typ *SignalType) (*StandardSignal, error) {
-	if typ == nil {
-		return nil, &ArgumentError{
-			Name: "typ",
-			Err:  ErrIsNil,
-		}
-	}
-
-	sig := &StandardSignal{
-		signal: base,
-
-		typ:  typ,
-		unit: nil,
-	}
-
-	typ.addRef(sig)
-
-	return sig, nil
+func (s *signal) setSize(size int) {
+	s.size = size
 }
 
-// NewStandardSignal creates a new [StandardSignal] with the given name and [SignalType].
-// It may return an error if the given [SignalType] is nil.
-func NewStandardSignal(name string, typ *SignalType) (*StandardSignal, error) {
-	return newStandardSignalFromBase(newSignal(name, SignalKindStandard), typ)
+func (s *signal) GetLow() int {
+	return s.GetRelativeStartPos()
 }
 
-// GetSize returns the size of the [StandardSignal].
-func (ss *StandardSignal) GetSize() int {
-	return ss.typ.size
+func (s *signal) resetStartPos() {
+	s.relStartPos = 0
 }
 
-// ToStandard returns the [StandardSignal] itself.
-func (ss *StandardSignal) ToStandard() (*StandardSignal, error) {
-	return ss, nil
+func (s *signal) SetLow(low int) {
+	s.setRelativeStartPos(low)
 }
 
-// ToEnum always returns an error, because a [StandardSignal] cannot be converted to an [EnumSignal].
-func (ss *StandardSignal) ToEnum() (*EnumSignal, error) {
-	return nil, ss.errorf(&ConversionError{
-		From: SignalKindStandard.String(),
-		To:   SignalKindEnum.String(),
-	})
+func (s *signal) SetHigh(high int) {
+	s.size = high - s.GetLow() + 1
 }
 
-// ToMultiplexer always returns an error, because a [StandardSigna] cannot be converted to a [MultiplexerSignal].
-func (ss *StandardSignal) ToMultiplexer() (*MultiplexerSignal, error) {
-	return nil, ss.errorf(&ConversionError{
-		From: SignalKindStandard.String(),
-		To:   SignalKindMultiplexer.String(),
-	})
-}
-
-func (ss *StandardSignal) stringify(b *strings.Builder, tabs int) {
-	ss.signal.stringify(b, tabs)
-
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("size: %d\n", ss.GetSize()))
-
-	b.WriteString(fmt.Sprintf("%stype:\n", tabStr))
-	ss.typ.stringify(b, tabs+1)
-
-	if ss.unit != nil {
-		b.WriteString(fmt.Sprintf("%sunit:\n", tabStr))
-		ss.unit.stringify(b, tabs+1)
-	}
-}
-
-func (ss *StandardSignal) String() string {
-	builder := new(strings.Builder)
-	ss.stringify(builder, 0)
-	return builder.String()
-}
-
-// Type returns the [SignalType] of the [StandardSignal].
-func (ss *StandardSignal) Type() *SignalType {
-	return ss.typ
-}
-
-// SetType sets the [SignalType] of the [StandardSignal].
-// It resets the physical values.
-// It may return an error if the given [SignalType] is nil, or if the new signal type
-// size cannot fit in the message payload.
-func (ss *StandardSignal) SetType(typ *SignalType) error {
-	if typ == nil {
-		return ss.errorf(&ArgumentError{
-			Name: "typ",
-			Err:  ErrIsNil,
-		})
-	}
-
-	if err := ss.modifySize(typ.size - ss.typ.size); err != nil {
-		return ss.errorf(err)
-	}
-
-	ss.typ.removeRef(ss.entityID)
-
-	ss.typ = typ
-
-	typ.addRef(ss)
-
-	return nil
-}
-
-// SetUnit sets the [SignalUnit] of the [StandardSignal] to the given one.
-func (ss *StandardSignal) SetUnit(unit *SignalUnit) {
-	if ss.unit != nil {
-		ss.unit.removeRef(ss.entityID)
-	}
-
-	if unit == nil {
-		ss.unit = nil
-		return
-	}
-
-	unit.addRef(ss)
-	ss.unit = unit
-}
-
-// Unit returns the [SignalUnit] of the [StandardSignal].
-func (ss *StandardSignal) Unit() *SignalUnit {
-	return ss.unit
-}
-
-// AssignAttribute assigns the given attribute/value pair to the [StandardSignal].
-//
-// It returns an [ArgumentError] if the attribute is nil,
-// or an [AttributeValueError] if the value does not conform to the attribute.
-func (ss *StandardSignal) AssignAttribute(attribute Attribute, value any) error {
-	if err := ss.addAttributeAssignment(attribute, ss, value); err != nil {
-		return ss.errorf(err)
-	}
-	return nil
-}
-
-// EnumSignal is a signal that holds a [SignalEnum].
-type EnumSignal struct {
-	*signal
-
-	enum *SignalEnum
-}
-
-func newEnumSignalFromBase(base *signal, enum *SignalEnum) (*EnumSignal, error) {
-	if enum == nil {
-		return nil, &ArgumentError{
-			Name: "enum",
-			Err:  ErrIsNil,
-		}
-	}
-
-	sig := &EnumSignal{
-		signal: base,
-
-		enum: enum,
-	}
-
-	enum.addRef(sig)
-
-	return sig, nil
-}
-
-// NewEnumSignal creates a new [EnumSignal] with the given name and [SignalEnum].
-// It may return an error if the given [SignalEnum] is nil.
-func NewEnumSignal(name string, enum *SignalEnum) (*EnumSignal, error) {
-	return newEnumSignalFromBase(newSignal(name, SignalKindEnum), enum)
-}
-
-// GetSize returns the size of the [EnumSignal].
-func (es *EnumSignal) GetSize() int {
-	return es.enum.GetSize()
-}
-
-// ToStandard always returns an error, because an [EnumSignal] cannot be converted to a [StandardSignal].
-func (es *EnumSignal) ToStandard() (*StandardSignal, error) {
-	return nil, es.errorf(&ConversionError{
-		From: SignalKindEnum.String(),
-		To:   SignalKindStandard.String(),
-	})
-}
-
-// ToEnum returns the [EnumSignal] itself.
-func (es *EnumSignal) ToEnum() (*EnumSignal, error) {
-	return es, nil
-}
-
-// ToMultiplexer always returns an error, because an [EnumSignal] cannot be converted to a [MultiplexerSignal].
-func (es *EnumSignal) ToMultiplexer() (*MultiplexerSignal, error) {
-	return nil, es.errorf(&ConversionError{
-		From: SignalKindEnum.String(),
-		To:   SignalKindMultiplexer.String(),
-	})
-}
-
-func (es *EnumSignal) stringify(b *strings.Builder, tabs int) {
-	es.signal.stringify(b, tabs)
-	b.WriteString(fmt.Sprintf("size: %d\n", es.GetSize()))
-
-	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%senum:\n", tabStr))
-
-	es.enum.stringify(b, tabs+1)
-}
-
-func (es *EnumSignal) String() string {
-	builder := new(strings.Builder)
-	es.stringify(builder, 0)
-	return builder.String()
-}
-
-// Enum returns the [SignalEnum] of the [EnumSignal].
-func (es *EnumSignal) Enum() *SignalEnum {
-	return es.enum
-}
-
-// SetEnum sets the [SignalEnum] of the [EnumSignal] to the given one.
-// It may return an error if the given [SignalEnum] is nil, or if the new enum
-// size cannot fit in the message payload.
-func (es *EnumSignal) SetEnum(enum *SignalEnum) error {
-	if enum == nil {
-		return es.errorf(&ArgumentError{
-			Name: "enum",
-			Err:  ErrIsNil,
-		})
-	}
-
-	if err := es.modifySize(enum.GetSize() - es.GetSize()); err != nil {
-		return es.errorf(err)
-	}
-
-	es.enum.removeRef(es.entityID)
-
-	es.enum = enum
-
-	enum.addRef(es)
-
-	return nil
-}
-
-// AssignAttribute assigns the given attribute/value pair to the [EnumSignal].
-//
-// It returns an [ArgumentError] if the attribute is nil,
-// or an [AttributeValueError] if the value does not conform to the attribute.
-func (es *EnumSignal) AssignAttribute(attribute Attribute, value any) error {
-	if err := es.addAttributeAssignment(attribute, es, value); err != nil {
-		return es.errorf(err)
-	}
-	return nil
+func (s *signal) GetHigh() int {
+	return s.GetLow() + s.size - 1
 }

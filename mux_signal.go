@@ -351,7 +351,7 @@ func (ms *MultiplexerSignal) ToMultiplexer() (*MultiplexerSignal, error) {
 // It will return an [InsertSignalError] if the signal cannot be inserted
 // at the given start bit into the given group. This error can wrap:
 //   - [NameError] in case of an invalid signal name
-//   - [StartBitError] in case of an invalid start bit
+//   - [StartPosError] in case of an invalid start bit
 //   - [GroupIDError] in case of an invalid group ID
 func (ms *MultiplexerSignal) InsertSignal(signal Signal, startBit int, groupIDs ...int) error {
 	if signal == nil {
@@ -595,4 +595,8 @@ func (ms *MultiplexerSignal) AssignAttribute(attribute Attribute, value any) err
 		return ms.errorf(err)
 	}
 	return nil
+}
+
+func (ms *MultiplexerSignal) GetHigh() int {
+	return ms.GetStartBit() + ms.GetSize() - 1
 }

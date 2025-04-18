@@ -2,6 +2,8 @@ package ibst
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // TestInterval is a simple implementation of the Intervalable interface for testing
@@ -9,20 +11,28 @@ type TestInterval struct {
 	Low, High int
 }
 
-func (i TestInterval) GetLow() int {
+func (i *TestInterval) GetLow() int {
 	return i.Low
 }
 
-func (i TestInterval) GetHigh() int {
+func (i *TestInterval) SetLow(low int) {
+	i.Low = low
+}
+
+func (i *TestInterval) GetHigh() int {
 	return i.High
 }
 
-func newTestInterval(low, high int) TestInterval {
-	return TestInterval{Low: low, High: high}
+func (i *TestInterval) SetHigh(high int) {
+	i.High = high
+}
+
+func newTestInterval(low, high int) *TestInterval {
+	return &TestInterval{Low: low, High: high}
 }
 
 func Test_Tree_Insert(t *testing.T) {
-	tree := NewTree[TestInterval]()
+	tree := NewTree[*TestInterval]()
 
 	// Insert single interval
 	tree.Insert(newTestInterval(10, 20))
@@ -49,10 +59,10 @@ func Test_Tree_Insert(t *testing.T) {
 }
 
 func Test_Tree_Delete(t *testing.T) {
-	tree := NewTree[TestInterval]()
+	tree := NewTree[*TestInterval]()
 
 	// Insert intervals
-	intervals := []TestInterval{
+	intervals := []*TestInterval{
 		newTestInterval(10, 20),
 		newTestInterval(5, 15),
 		newTestInterval(25, 35),
@@ -84,7 +94,7 @@ func Test_Tree_Delete(t *testing.T) {
 }
 
 func Test_Tree_Intersects(t *testing.T) {
-	tree := NewTree[TestInterval]()
+	tree := NewTree[*TestInterval]()
 
 	// Test empty tree
 	if tree.Intersects(newTestInterval(10, 20)) {
@@ -127,7 +137,7 @@ func Test_Tree_Intersects(t *testing.T) {
 }
 
 func Test_Tree_GetAllIntervals(t *testing.T) {
-	tree := NewTree[TestInterval]()
+	tree := NewTree[*TestInterval]()
 
 	// Test empty tree
 	intervals := tree.GetAllIntervals()
@@ -136,7 +146,7 @@ func Test_Tree_GetAllIntervals(t *testing.T) {
 	}
 
 	// Insert intervals (not in order)
-	toInsert := []TestInterval{
+	toInsert := []*TestInterval{
 		newTestInterval(30, 40),
 		newTestInterval(10, 20),
 		newTestInterval(50, 60),
@@ -163,10 +173,10 @@ func Test_Tree_GetAllIntervals(t *testing.T) {
 }
 
 func Test_Tree_CanUpdateInterval(t *testing.T) {
-	tree := NewTree[TestInterval]()
+	tree := NewTree[*TestInterval]()
 
 	// Test empty tree
-	if !tree.CanUpdateInterval(newTestInterval(10, 20), 15, 25) {
+	if !tree.CanUpdate(newTestInterval(10, 20), 15, 25) {
 		t.Error("Should be able to update interval in empty tree")
 	}
 
@@ -180,32 +190,32 @@ func Test_Tree_CanUpdateInterval(t *testing.T) {
 	tree.Insert(interval3)
 
 	// Test updating to non-intersecting interval
-	if !tree.CanUpdateInterval(interval1, 15, 25) {
+	if !tree.CanUpdate(interval1, 15, 25) {
 		t.Error("Should be able to update to non-intersecting interval")
 	}
 
 	// Test updating to intersecting interval
-	if tree.CanUpdateInterval(interval1, 25, 35) {
+	if tree.CanUpdate(interval1, 25, 35) {
 		t.Error("Should not be able to update to interval that intersects with others")
 	}
 
 	// Test updating to same interval (should always be possible)
-	if !tree.CanUpdateInterval(interval2, interval2.GetLow(), interval2.GetHigh()) {
+	if !tree.CanUpdate(interval2, interval2.GetLow(), interval2.GetHigh()) {
 		t.Error("Should be able to update to the same interval")
 	}
 
 	// Test single element tree
-	singleTree := NewTree[TestInterval]()
+	singleTree := NewTree[*TestInterval]()
 	singleInterval := newTestInterval(10, 20)
 	singleTree.Insert(singleInterval)
 
-	if !singleTree.CanUpdateInterval(singleInterval, 15, 25) {
+	if !singleTree.CanUpdate(singleInterval, 15, 25) {
 		t.Error("Should be able to update interval in single-element tree")
 	}
 }
 
 func Test_Tree_TreeBalancing(t *testing.T) {
-	tree := NewTree[TestInterval]()
+	tree := NewTree[*TestInterval]()
 
 	// Insert elements in ascending order which would create a skewed tree without balancing
 	for i := 1; i <= 10; i++ {
@@ -213,8 +223,8 @@ func Test_Tree_TreeBalancing(t *testing.T) {
 	}
 
 	// Function to check max height
-	var checkHeight func(node *node[TestInterval]) int
-	checkHeight = func(node *node[TestInterval]) int {
+	var checkHeight func(node *node[*TestInterval]) int
+	checkHeight = func(node *node[*TestInterval]) int {
 		if node == nil {
 			return 0
 		}
@@ -236,8 +246,35 @@ func Test_Tree_TreeBalancing(t *testing.T) {
 	}
 }
 
+func Test_Tree_Update(t *testing.T) {
+	assert := assert.New(t)
+
+	tree := NewTree[*TestInterval]()
+
+	int0 := newTestInterval(10, 20)
+	int1 := newTestInterval(30, 40)
+
+	// Insert some intervals
+	tree.Insert(int0)
+	tree.Insert(int1)
+
+	// Update intervals
+	tree.Update(int0, 5, 15)
+	tree.Update(int1, 35, 45)
+
+	assert.Equal(2, tree.Size())
+
+	assert.Equal(5, int0.GetLow())
+	assert.Equal(15, int0.GetHigh())
+	assert.Equal(35, int1.GetLow())
+	assert.Equal(45, int1.GetHigh())
+
+	// Check if the third interval doesn't intersect
+	assert.False(tree.Intersects(newTestInterval(16, 34)))
+}
+
 func Test_Tree_Clear(t *testing.T) {
-	tree := NewTree[TestInterval]()
+	tree := NewTree[*TestInterval]()
 
 	// Insert some intervals
 	tree.Insert(newTestInterval(10, 20))
@@ -267,7 +304,7 @@ func Test_Tree_Clear(t *testing.T) {
 
 // Test edge cases with overlapping intervals
 func Test_Tree_EdgeCases(t *testing.T) {
-	tree := NewTree[TestInterval]()
+	tree := NewTree[*TestInterval]()
 
 	// Insert intervals with same low value but different high values
 	tree.Insert(newTestInterval(10, 20))
@@ -305,7 +342,7 @@ func Test_Tree_EdgeCases(t *testing.T) {
 
 // Benchmark insertion performance
 func Benchmark_Tree_Insert(b *testing.B) {
-	tree := NewTree[TestInterval]()
+	tree := NewTree[*TestInterval]()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -318,7 +355,7 @@ func Benchmark_Tree_Insert(b *testing.B) {
 
 // Benchmark intersection checking performance
 func Benchmark_Tree_Intersects(b *testing.B) {
-	tree := NewTree[TestInterval]()
+	tree := NewTree[*TestInterval]()
 
 	// Insert some intervals first
 	for i := 0; i < 1000; i += 20 {
@@ -335,10 +372,10 @@ func Benchmark_Tree_Intersects(b *testing.B) {
 
 // Benchmark CanUpdateInterval performance
 func Benchmark_Tree_CanUpdateInterval(b *testing.B) {
-	tree := NewTree[TestInterval]()
+	tree := NewTree[*TestInterval]()
 
 	// Insert some intervals first
-	intervals := make([]TestInterval, 0, 1000)
+	intervals := make([]*TestInterval, 0, 1000)
 	for i := 0; i < 1000; i += 20 {
 		interval := newTestInterval(i, i+10)
 		intervals = append(intervals, interval)
@@ -352,6 +389,6 @@ func Benchmark_Tree_CanUpdateInterval(b *testing.B) {
 
 	b.ResetTimer()
 	for b.Loop() {
-		tree.CanUpdateInterval(testInterval, newLow, newHigh)
+		tree.CanUpdate(testInterval, newLow, newHigh)
 	}
 }

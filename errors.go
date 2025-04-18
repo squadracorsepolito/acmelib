@@ -26,8 +26,8 @@ var ErrIsNil = errors.New("is nil")
 // ErrNoSpaceLeft is returned when there is not enough space left.
 var ErrNoSpaceLeft = errors.New("not enough space left")
 
-// ErrIntersect is returned when two entities are intersecting.
-var ErrIntersect = errors.New("is intersecting")
+// ErrIntersects is returned when two entities are intersecting.
+var ErrIntersects = errors.New("is intersecting")
 
 // ErrInvalidType is returned when an invalid type is used.
 var ErrInvalidType = errors.New("invalid type")
@@ -303,18 +303,18 @@ func (e *MessageSizeError) Error() string {
 
 func (e *MessageSizeError) Unwrap() error { return e.Err }
 
-// StartBitError is returned when a start bit is invalid.
-// The StartBit field is the start bit and the Err field is the cause.
-type StartBitError struct {
-	StartBit int
+// StartPosError is returned when a start position is invalid.
+// The StartPos field is the start bit and the Err field is the cause.
+type StartPosError struct {
+	StartPos int
 	Err      error
 }
 
-func (e *StartBitError) Error() string {
-	return fmt.Sprintf("start bit error; start_bit:%d : %v", e.StartBit, e.Err)
+func (e *StartPosError) Error() string {
+	return fmt.Sprintf("start pos error; start_pos:%d : %v", e.StartPos, e.Err)
 }
 
-func (e *StartBitError) Unwrap() error { return e.Err }
+func (e *StartPosError) Unwrap() error { return e.Err }
 
 // UpdateIndexError is returned when an index cannot be updated.
 // The Err field is the cause.

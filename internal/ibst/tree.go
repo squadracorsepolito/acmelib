@@ -10,7 +10,9 @@ import (
 // to be stored in the [Tree].
 type Intervalable interface {
 	GetLow() int
+	SetLow(int)
 	GetHigh() int
+	SetHigh(int)
 }
 
 // Tree is a binary search tree that stores intervals.
@@ -260,14 +262,23 @@ func (t *Tree[T]) checkOtherIntervals(node *node[T], low, high int, skipItem T) 
 	return t.checkOtherIntervals(node.right, low, high, skipItem)
 }
 
-// CanUpdateInterval checks if the given intervalable item can be updated.
-func (t *Tree[T]) CanUpdateInterval(item T, newLow, newHigh int) bool {
+// CanUpdate checks if the given intervalable item can be updated
+// without intersecting with any other interval.
+func (t *Tree[T]) CanUpdate(item T, newLow, newHigh int) bool {
 	// If tree is empty or has only one item (the one we're updating)
 	if t.size <= 1 {
 		return true
 	}
 
 	return !t.checkOtherIntervals(t.root, newLow, newHigh, item)
+}
+
+// Update updates an intervalable item in the tree with the new low and high values.
+func (t *Tree[T]) Update(item T, newLow, newHigh int) {
+	t.Delete(item)
+	item.SetLow(newLow)
+	item.SetHigh(newHigh)
+	t.Insert(item)
 }
 
 // Clear removes all intervals from the tree
