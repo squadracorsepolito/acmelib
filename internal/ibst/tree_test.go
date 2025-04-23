@@ -11,6 +11,10 @@ type TestInterval struct {
 	Low, High int
 }
 
+func (i *TestInterval) Name() string {
+	return "name"
+}
+
 func (i *TestInterval) GetLow() int {
 	return i.Low
 }
@@ -136,40 +140,44 @@ func Test_Tree_Intersects(t *testing.T) {
 	}
 }
 
-func Test_Tree_GetAllIntervals(t *testing.T) {
-	tree := NewTree[*TestInterval]()
+func Test_Tree_Traversal(t *testing.T) {
+	assert := assert.New(t)
 
-	// Test empty tree
-	intervals := tree.GetAllIntervals()
-	if len(intervals) != 0 {
-		t.Errorf("Empty tree should return empty slice, got %d intervals", len(intervals))
-	}
+	tree := NewTree[*TestInterval]()
 
 	// Insert intervals (not in order)
 	toInsert := []*TestInterval{
-		newTestInterval(30, 40),
-		newTestInterval(10, 20),
-		newTestInterval(50, 60),
+		newTestInterval(40, 50),
+		newTestInterval(0, 10),
+		newTestInterval(20, 30),
 	}
 
 	for _, interval := range toInsert {
 		tree.Insert(interval)
 	}
 
-	// Get all intervals
-	intervals = tree.GetAllIntervals()
+	expectedInOrder := [][]int{{0, 10}, {20, 30}, {40, 50}}
 
-	// Check count
-	if len(intervals) != len(toInsert) {
-		t.Errorf("Expected %d intervals, got %d", len(toInsert), len(intervals))
+	// Visit all intervals in order
+	idx := 0
+	for interval := range tree.InOrder() {
+		assert.Equal(expectedInOrder[idx][0], interval.GetLow())
+		assert.Equal(expectedInOrder[idx][1], interval.GetHigh())
+		idx++
 	}
 
-	// Check if they are sorted by low value
-	for i := 1; i < len(intervals); i++ {
-		if intervals[i-1].GetLow() > intervals[i].GetLow() {
-			t.Error("Intervals should be sorted by low value")
-		}
+	// Check if we have visited all intervals
+	assert.Equal(3, idx)
+
+	// Visit all intervals in reverse order
+	for interval := range tree.ReverseOrder() {
+		idx--
+		assert.Equal(expectedInOrder[idx][0], interval.GetLow())
+		assert.Equal(expectedInOrder[idx][1], interval.GetHigh())
 	}
+
+	// Check if we have visited all intervals
+	assert.Equal(0, idx)
 }
 
 func Test_Tree_CanUpdateInterval(t *testing.T) {
@@ -318,7 +326,7 @@ func Test_Tree_EdgeCases(t *testing.T) {
 	tree.Delete(newTestInterval(10, 20))
 
 	// Check if the correct one remains
-	intervals := tree.GetAllIntervals()
+	intervals := tree.GetInOrder()
 	if len(intervals) != 1 || intervals[0].GetHigh() != 30 {
 		t.Error("Wrong interval was deleted")
 	}

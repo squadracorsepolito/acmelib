@@ -3,7 +3,6 @@ package acmelib
 import (
 	"fmt"
 	"strings"
-	"time"
 )
 
 // SignalKind rappresents the kind of a [Signal].
@@ -17,6 +16,8 @@ const (
 	SignalKindEnum
 	// SignalKindMultiplexer defines a multiplexer signal.
 	SignalKindMultiplexer
+
+	SignalKindMuxor
 )
 
 func (sk SignalKind) String() string {
@@ -27,6 +28,10 @@ func (sk SignalKind) String() string {
 		return "enum"
 	case SignalKindMultiplexer:
 		return "multiplexer"
+
+	case SignalKindMuxor:
+		return "muxor"
+
 	default:
 		return "unknown"
 	}
@@ -80,14 +85,9 @@ func (sst SignalSendType) String() string {
 // Signal interface specifies all common methods of
 // [StandardSignal], [EnumSignal], and [MultiplexerSignal1].
 type Signal interface {
-	errorf(err error) error
+	Entity
 
-	// EntityID returns the entity id of the signal.
-	EntityID() EntityID
-	// EntityKind returns the entity kind of the signal.
-	EntityKind() EntityKind
-	// Name returns the name of the signal.
-	Name() string
+	errorf(err error) error
 
 	// UpdateName updates the name of the signal.
 	//
@@ -96,10 +96,6 @@ type Signal interface {
 
 	// SetDesc stes the description of the signal.
 	SetDesc(desc string)
-	// Desc returns the description of the signal.
-	Desc() string
-	// CreateTime returns the creation time of the signal.
-	CreateTime() time.Time
 
 	// AssignAttribute assigns the given attribute/value pair to the signal.
 	AssignAttribute(attribute Attribute, value any) error
@@ -151,6 +147,8 @@ type Signal interface {
 	ToEnum() (*EnumSignal, error)
 	// ToMultiplexer returns the signal as a multiplexer signal.
 	ToMultiplexer() (*MultiplexerSignal, error)
+
+	ToMuxor() (*MuxorSignal, error)
 
 	// GetSize returns the size of the signal.
 	GetSize() int
@@ -400,4 +398,32 @@ func (s *signal) SetHigh(high int) {
 
 func (s *signal) GetHigh() int {
 	return s.GetLow() + s.size - 1
+}
+
+func (s *signal) ToStandard() (*StandardSignal, error) {
+	return nil, s.errorf(&ConversionError{
+		From: s.kind.String(),
+		To:   SignalKindStandard.String(),
+	})
+}
+
+func (s *signal) ToEnum() (*EnumSignal, error) {
+	return nil, s.errorf(&ConversionError{
+		From: s.kind.String(),
+		To:   SignalKindEnum.String(),
+	})
+}
+
+func (s *signal) ToMultiplexer() (*MultiplexerSignal, error) {
+	return nil, s.errorf(&ConversionError{
+		From: s.kind.String(),
+		To:   SignalKindMultiplexer.String(),
+	})
+}
+
+func (s *signal) ToMuxor() (*MuxorSignal, error) {
+	return nil, s.errorf(&ConversionError{
+		From: s.kind.String(),
+		To:   SignalKindMuxor.String(),
+	})
 }

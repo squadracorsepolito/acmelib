@@ -2,13 +2,16 @@
 package ibst
 
 import (
-	"fmt"
+	"iter"
 	"strings"
+
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // Intervalable is an interface for intervalable items
 // to be stored in the [Tree].
 type Intervalable interface {
+	Name() string
 	GetLow() int
 	SetLow(int)
 	GetHigh() int
@@ -83,7 +86,7 @@ func (t *Tree[T]) insertNode(root *node[T], item T) *node[T] {
 // Insert adds a new intervalable item to the tree.
 func (t *Tree[T]) Insert(item T) {
 	if item.GetLow() > item.GetHigh() {
-		// Invalid interval, silently ignore or could return an error
+		// Invalid interval, silently ignore
 		return
 	}
 	t.root = t.insertNode(t.root, item)
@@ -216,21 +219,79 @@ func (t *Tree[T]) Intersects(item T) bool {
 	return t.intersectsNode(t.root, item.GetLow(), item.GetHigh())
 }
 
-// inOrderTraversal performs an in-order traversal and collects items
-func (t *Tree[T]) inOrderTraversal(root *node[T], result *[]T) {
+// inOrderTraversal recursively traverses the tree in ascending order
+func (t *Tree[T]) inOrderTraversal(root *node[T], yield func(T) bool) bool {
 	if root == nil {
-		return
+		return true
 	}
 
-	t.inOrderTraversal(root.left, result)
-	*result = append(*result, root.item)
-	t.inOrderTraversal(root.right, result)
+	// Visit left subtree
+	if !t.inOrderTraversal(root.left, yield) {
+		return false
+	}
+
+	// Visit current node
+	if !yield(root.item) {
+		return false
+	}
+
+	// Visit right subtree
+	return t.inOrderTraversal(root.right, yield)
 }
 
-// GetAllIntervals returns all intervals in the tree in ascending order by low value
-func (t *Tree[T]) GetAllIntervals() []T {
+// InOrder returns an iterator over all intervals in the tree in ascending order by low value.
+func (t *Tree[T]) InOrder() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		t.inOrderTraversal(t.root, yield)
+	}
+}
+
+// GetInOrder returns all intervals in the tree in ascending order by low value.
+func (t *Tree[T]) GetInOrder() []T {
 	result := make([]T, 0, t.size)
-	t.inOrderTraversal(t.root, &result)
+
+	for item := range t.InOrder() {
+		result = append(result, item)
+	}
+
+	return result
+}
+
+// reverseOrderTraversal recursively traverses the tree in descending order
+func (t *Tree[T]) reverseOrderTraversal(root *node[T], yield func(T) bool) bool {
+	if root == nil {
+		return true
+	}
+
+	// Visit right subtree
+	if !t.reverseOrderTraversal(root.right, yield) {
+		return false
+	}
+
+	// Visit current node
+	if !yield(root.item) {
+		return false
+	}
+
+	// Visit left subtree
+	return t.reverseOrderTraversal(root.left, yield)
+}
+
+// ReverseOrder returns an iterator over all intervals in the tree in descending order by low value.
+func (t *Tree[T]) ReverseOrder() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		t.reverseOrderTraversal(t.root, yield)
+	}
+}
+
+// GetReverseOrder returns all intervals in the tree in descending order by low value.
+func (t *Tree[T]) GetReverseOrder() []T {
+	result := make([]T, 0, t.size)
+
+	for item := range t.ReverseOrder() {
+		result = append(result, item)
+	}
+
 	return result
 }
 
@@ -287,32 +348,32 @@ func (t *Tree[T]) Clear() {
 	t.size = 0
 }
 
-func (t *Tree[T]) stringify(sb *strings.Builder, node *node[T], level int) {
+func (t *Tree[T]) stringify(s *stringer.Stringer, node *node[T], level int) {
 	if node == nil {
 		return
 	}
 
 	// Traverse right subtree first (will appear at the top)
-	t.stringify(sb, node.right, level+1)
+	t.stringify(s, node.right, level+1)
 
 	// Current node with proper indentation
 	indent := strings.Repeat("\t", level)
-	sb.WriteString(fmt.Sprintf("%s[%d, %d] (max: %d)\n",
-		indent, node.getLow(), node.getHigh(), node.max))
+	s.Write("%s[%d, %d] %s (max: %d)\n", indent, node.getLow(), node.getHigh(), node.item.Name(), node.max)
 
 	// Traverse left subtree
-	t.stringify(sb, node.left, level+1)
+	t.stringify(s, node.left, level+1)
+}
+
+// Stringify writes a string representation of the tree into
+// a [stringer.Stringer].
+func (t *Tree[T]) Stringify(s *stringer.Stringer) {
+	s.Write("size: %d\n", t.size)
+	t.stringify(s, t.root, 0)
 }
 
 func (t *Tree[T]) String() string {
-	if t.root == nil {
-		return "Empty IntervalBST"
-	}
-
-	sb := new(strings.Builder)
-
-	sb.WriteString(fmt.Sprintf("IntervalBST with %d intervals:\n", t.size))
-	t.stringify(sb, t.root, 0)
-
-	return sb.String()
+	s := stringer.New()
+	s.Write("interval_bst\n")
+	t.Stringify(s)
+	return s.String()
 }

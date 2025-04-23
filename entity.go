@@ -35,6 +35,8 @@ const (
 	EntityKindAttribute
 	// EntityKindCANIDBuilder represents a [CANIDBuilder] entity.
 	EntityKindCANIDBuilder
+
+	EntityKindMultiplexedLayer
 )
 
 func (ek EntityKind) String() string {
@@ -61,6 +63,8 @@ func (ek EntityKind) String() string {
 		return "attribute"
 	case EntityKindCANIDBuilder:
 		return "canid-builder"
+	case EntityKindMultiplexedLayer:
+		return "multiplexed-layer"
 	default:
 		return "unknown"
 	}
@@ -79,6 +83,14 @@ func newEntityID() EntityID {
 
 func (id EntityID) String() string {
 	return string(id)
+}
+
+type Entity interface {
+	EntityID() EntityID
+	EntityKind() EntityKind
+	Name() string
+	Desc() string
+	CreateTime() time.Time
 }
 
 type entity struct {
