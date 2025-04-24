@@ -51,22 +51,6 @@ func (ss *StandardSignal) ToStandard() (*StandardSignal, error) {
 	return ss, nil
 }
 
-// ToEnum always returns an error, because a [StandardSignal] cannot be converted to an [EnumSignal].
-func (ss *StandardSignal) ToEnum() (*EnumSignal, error) {
-	return nil, ss.errorf(&ConversionError{
-		From: SignalKindStandard.String(),
-		To:   SignalKindEnum.String(),
-	})
-}
-
-// ToMultiplexer always returns an error, because a [StandardSigna] cannot be converted to a [MultiplexerSignal].
-func (ss *StandardSignal) ToMultiplexer() (*MultiplexerSignal, error) {
-	return nil, ss.errorf(&ConversionError{
-		From: SignalKindStandard.String(),
-		To:   SignalKindMultiplexer.String(),
-	})
-}
-
 func (ss *StandardSignal) stringify(b *strings.Builder, tabs int) {
 	ss.signal.stringify(b, tabs)
 

@@ -340,7 +340,7 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 		pMsg.Signals = append(pMsg.Signals, s.saveSignal(sig))
 	}
 
-	pMsg.Payload = s.saveSignalLayout(msg.signalLayout)
+	pMsg.Payload = s.saveSignalLayout(msg.layout)
 
 	pMsg.StaticCanId = uint32(msg.staticCANID)
 	pMsg.HasStaticCanId = msg.hasStaticCANID
@@ -360,9 +360,9 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 
 	pByteOrder := acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_UNSPECIFIED
 	switch msg.byteOrder {
-	case MessageByteOrderLittleEndian:
+	case EndiannessLittleEndian:
 		pByteOrder = acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_LITTLE_ENDIAN
-	case MessageByteOrderBigEndian:
+	case EndiannessBigEndian:
 		pByteOrder = acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_BIG_ENDIAN
 	}
 	pMsg.ByteOrder = pByteOrder
@@ -395,10 +395,10 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 	return pMsg
 }
 
-func (s *saver) saveSignalLayout(layout *SignalLayout) *acmelibv1.SignalPayload {
+func (s *saver) saveSignalLayout(layout *SL) *acmelibv1.SignalPayload {
 	pPayload := new(acmelibv1.SignalPayload)
 
-	for _, sig := range layout.signals {
+	for _, sig := range layout.Signals() {
 		pPayload.Refs = append(pPayload.Refs, &acmelibv1.SignalPayloadRef{
 			SignalEntityId: sig.EntityID().String(),
 			RelStartBit:    uint32(sig.GetRelativeStartPos()),
@@ -473,16 +473,16 @@ func (s *saver) saveSignal(sig Signal) *acmelibv1.Signal {
 			Enum: s.saveEnumSignal(enumSig),
 		}
 
-	case SignalKindMultiplexer:
-		muxSig, err := sig.ToMultiplexer()
-		if err != nil {
-			panic(err)
-		}
-		pKind = acmelibv1.SignalKind_SIGNAL_KIND_MULTIPLEXER
-		pSig.Entity = s.saveEntity(muxSig.entity)
-		pSig.Signal = &acmelibv1.Signal_Multiplexer{
-			Multiplexer: s.saveMultiplexerSignal(muxSig),
-		}
+		// case SignalKindMultiplexer:
+		// 	muxSig, err := sig.ToMultiplexer()
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
+		// 	pKind = acmelibv1.SignalKind_SIGNAL_KIND_MULTIPLEXER
+		// 	pSig.Entity = s.saveEntity(muxSig.entity)
+		// 	pSig.Signal = &acmelibv1.Signal_Multiplexer{
+		// 		Multiplexer: s.saveMultiplexerSignal(muxSig),
+		// 	}
 	}
 	pSig.Kind = pKind
 
@@ -517,34 +517,35 @@ func (s *saver) saveEnumSignal(enumSig *EnumSignal) *acmelibv1.EnumSignal {
 	return pEnumSig
 }
 
-func (s *saver) saveMultiplexerSignal(muxSig *MultiplexerSignal) *acmelibv1.MultiplexerSignal {
-	pMuxSig := new(acmelibv1.MultiplexerSignal)
+// func (s *saver) saveMultiplexerSignal(muxSig *MultiplexerSignal) *acmelibv1.MultiplexerSignal {
+// 	// TODO!
+// 	pMuxSig := new(acmelibv1.MultiplexerSignal)
 
-	pMuxSig.GroupCount = uint32(muxSig.groupCount)
-	pMuxSig.GroupSize = uint32(muxSig.groupSize)
+// 	// pMuxSig.GroupCount = uint32(muxSig.groupCount)
+// 	// pMuxSig.GroupSize = uint32(muxSig.groupSize)
 
-	insFixedSignal := make(map[EntityID]bool)
-	for groupID, group := range muxSig.GetSignalGroups() {
-		for _, muxedSig := range group {
-			entID := muxedSig.EntityID()
+// 	// insFixedSignal := make(map[EntityID]bool)
+// 	// for groupID, group := range muxSig.GetSignalGroups() {
+// 	// 	for _, muxedSig := range group {
+// 	// 		entID := muxedSig.EntityID()
 
-			if muxSig.fixedSignals.hasKey(entID) {
-				if _, ok := insFixedSignal[entID]; ok {
-					continue
-				}
+// 	// 		if muxSig.fixedSignals.hasKey(entID) {
+// 	// 			if _, ok := insFixedSignal[entID]; ok {
+// 	// 				continue
+// 	// 			}
 
-				insFixedSignal[entID] = true
-				pMuxSig.FixedSignalEntityIds = append(pMuxSig.FixedSignalEntityIds, entID.String())
-			}
+// 	// 			insFixedSignal[entID] = true
+// 	// 			pMuxSig.FixedSignalEntityIds = append(pMuxSig.FixedSignalEntityIds, entID.String())
+// 	// 		}
 
-			pMuxSig.Signals = append(pMuxSig.Signals, s.saveSignal(muxedSig))
-		}
+// 	// 		pMuxSig.Signals = append(pMuxSig.Signals, s.saveSignal(muxedSig))
+// 	// 	}
 
-		pMuxSig.Groups = append(pMuxSig.Groups, s.saveSignalLayout(muxSig.groups[groupID]))
-	}
+// 	// 	pMuxSig.Groups = append(pMuxSig.Groups, s.saveSignalLayout(muxSig.groups[groupID]))
+// 	// }
 
-	return pMuxSig
-}
+// 	return pMuxSig
+// }
 
 func (s *saver) saveSignalType(sigType *SignalType) *acmelibv1.SignalType {
 	pSigType := new(acmelibv1.SignalType)

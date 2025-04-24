@@ -14,9 +14,7 @@ const (
 	SignalKindStandard SignalKind = iota
 	// SignalKindEnum defines a enum signal.
 	SignalKindEnum
-	// SignalKindMultiplexer defines a multiplexer signal.
-	SignalKindMultiplexer
-
+	// SignalKindMuxor defines a muxor signal.
 	SignalKindMuxor
 )
 
@@ -26,9 +24,6 @@ func (sk SignalKind) String() string {
 		return "standard"
 	case SignalKindEnum:
 		return "enum"
-	case SignalKindMultiplexer:
-		return "multiplexer"
-
 	case SignalKindMuxor:
 		return "muxor"
 
@@ -82,6 +77,17 @@ func (sst SignalSendType) String() string {
 	}
 }
 
+// Endianness rappresents the byte order of a signal.
+// By default a [Endianness] of [EndiannessLittleEndian] is used.
+type Endianness int
+
+const (
+	// EndiannessLittleEndian defines a little endian byte order.
+	EndiannessLittleEndian Endianness = iota
+	// EndiannessBigEndian defines a big endian byte order.
+	EndiannessBigEndian
+)
+
 // Signal interface specifies all common methods of
 // [StandardSignal], [EnumSignal], and [MultiplexerSignal1].
 type Signal interface {
@@ -118,12 +124,8 @@ type Signal interface {
 
 	// ParentMessage returns the parent message of the signal or nil if not set.
 	ParentMessage() *Message
-	// ParentMultiplexerSignal returns the parent multiplexer signal of the signal
-	// or nil if not set.
-	ParentMultiplexerSignal() *MultiplexerSignal
 
 	setParentMsg(parentMsg *Message)
-	setParentMuxSig(parentMuxSig *MultiplexerSignal)
 
 	// SetStartValue sets the initial raw value of the signal.
 	SetStartValue(startValue float64)
@@ -135,8 +137,8 @@ type Signal interface {
 	SendType() SignalSendType
 
 	// Endianness returns the endianness of the signal.
-	Endianness() MessageByteOrder
-	setEndianness(endianness MessageByteOrder)
+	Endianness() Endianness
+	SetEndianness(endianness Endianness)
 
 	// GetStartBit returns the start bit of the signal.
 	GetStartBit() int
@@ -145,9 +147,7 @@ type Signal interface {
 	ToStandard() (*StandardSignal, error)
 	// ToEnum returns the signal as a enum signal.
 	ToEnum() (*EnumSignal, error)
-	// ToMultiplexer returns the signal as a multiplexer signal.
-	ToMultiplexer() (*MultiplexerSignal, error)
-
+	// ToMultiplexer returns the signal as a muxor signal.
 	ToMuxor() (*MuxorSignal, error)
 
 	// GetSize returns the size of the signal.
@@ -158,7 +158,9 @@ type Signal interface {
 	// It is the same as GetStartBit for non-multiplexed signals.
 	GetRelativeStartPos() int
 	setRelativeStartPos(startPos int)
-	resetStartPos()
+
+	setMultiplexedLayer(ml *MultiplexedLayer)
+	UpdateStartPos(startPos int) error
 
 	GetLow() int
 	SetLow(low int)
@@ -166,22 +168,25 @@ type Signal interface {
 	SetHigh(high int)
 }
 
+var _ Signal = (*signal)(nil)
+
 type signal struct {
 	*entity
 	*withAttributes
 
-	parentMsg    *Message
-	parentMuxSig *MultiplexerSignal
+	parentMsg *Message
 
 	kind SignalKind
 
 	startValue float64
 	sendType   SignalSendType
 
-	endianness MessageByteOrder
+	endianness Endianness
 
 	relStartPos int
 	size        int
+
+	muxLayer *MultiplexedLayer
 }
 
 func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
@@ -189,8 +194,7 @@ func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
 		entity:         ent,
 		withAttributes: newWithAttributes(),
 
-		parentMsg:    nil,
-		parentMuxSig: nil,
+		parentMsg: nil,
 
 		kind: kind,
 
@@ -210,18 +214,14 @@ func (s *signal) hasParentMsg() bool {
 	return s.parentMsg != nil
 }
 
-func (s *signal) hasParentMuxSig() bool {
-	return s.parentMuxSig != nil
-}
-
 func (s *signal) modifySize(amount int) error {
-	if s.hasParentMuxSig() {
-		return s.parentMuxSig.modifySignalSize(s.EntityID(), amount)
-	}
+	// if s.hasParentMuxSig() {
+	// 	return s.parentMuxSig.modifySignalSize(s.EntityID(), amount)
+	// }
 
-	if s.hasParentMsg() {
-		return s.parentMsg.modifySignalSize(s.EntityID(), amount)
-	}
+	// if s.hasParentMsg() {
+	// 	return s.parentMsg.modifySignalSize(s.EntityID(), amount)
+	// }
 
 	return nil
 }
@@ -249,23 +249,11 @@ func (s *signal) ParentMessage() *Message {
 	return s.parentMsg
 }
 
-func (s *signal) ParentMultiplexerSignal() *MultiplexerSignal {
-	return s.parentMuxSig
-}
-
 func (s *signal) setParentMsg(parentMsg *Message) {
 	s.parentMsg = parentMsg
 
 	if parentMsg != nil {
 		s.endianness = parentMsg.byteOrder
-	}
-}
-
-func (s *signal) setParentMuxSig(parentMuxSig *MultiplexerSignal) {
-	s.parentMuxSig = parentMuxSig
-
-	if parentMuxSig != nil && parentMuxSig.hasParentMsg() {
-		s.endianness = parentMuxSig.parentMsg.byteOrder
 	}
 }
 
@@ -307,49 +295,27 @@ func (s *signal) SendType() SignalSendType {
 	return s.sendType
 }
 
-func (s *signal) Endianness() MessageByteOrder {
-	return s.endianness
-}
-
-func (s *signal) setEndianness(endianness MessageByteOrder) {
+func (s *signal) SetEndianness(endianness Endianness) {
 	s.endianness = endianness
 }
 
+func (s *signal) Endianness() Endianness {
+	return s.endianness
+}
+
 func (s *signal) GetStartBit() int {
-	if s.hasParentMuxSig() {
-		return s.parentMuxSig.GetStartBit() + s.parentMuxSig.GetGroupCountSize() + s.relStartPos
-	}
+	// if s.hasParentMuxSig() {
+	// 	return s.parentMuxSig.GetStartBit() + s.parentMuxSig.GetGroupCountSize() + s.relStartPos
+	// }
 	return s.relStartPos
 }
 
+// UpdateName updates the name of the signal.
+//
+// It returns a [NameError] if the new name is not valid.
 func (s *signal) UpdateName(newName string) error {
-	sigID := s.entityID
-	oldName := s.name
-
-	if oldName == newName {
+	if s.name == newName {
 		return nil
-	}
-
-	canUpdMuxSig := false
-	if s.hasParentMuxSig() {
-		if err := s.parentMuxSig.verifySignalName(sigID, newName); err != nil {
-			return s.errorf(&UpdateNameError{Err: err})
-		}
-		canUpdMuxSig = true
-	}
-
-	if s.hasParentMsg() {
-		if err := s.parentMsg.verifySignalName(newName); err != nil {
-			return s.errorf(&UpdateNameError{Err: err})
-		}
-
-		s.parentMsg.signalNames.remove(oldName)
-		s.parentMsg.signalNames.add(newName, sigID)
-	}
-
-	if canUpdMuxSig {
-		s.parentMuxSig.signalNames.remove(oldName)
-		s.parentMuxSig.signalNames.add(newName, sigID)
 	}
 
 	s.name = newName
@@ -384,16 +350,12 @@ func (s *signal) GetLow() int {
 	return s.GetRelativeStartPos()
 }
 
-func (s *signal) resetStartPos() {
-	s.relStartPos = 0
-}
-
 func (s *signal) SetLow(low int) {
 	s.setRelativeStartPos(low)
 }
 
 func (s *signal) SetHigh(high int) {
-	s.size = high - s.GetLow() + 1
+	s.setSize(high - s.GetLow() + 1)
 }
 
 func (s *signal) GetHigh() int {
@@ -414,16 +376,94 @@ func (s *signal) ToEnum() (*EnumSignal, error) {
 	})
 }
 
-func (s *signal) ToMultiplexer() (*MultiplexerSignal, error) {
-	return nil, s.errorf(&ConversionError{
-		From: s.kind.String(),
-		To:   SignalKindMultiplexer.String(),
-	})
-}
-
 func (s *signal) ToMuxor() (*MuxorSignal, error) {
 	return nil, s.errorf(&ConversionError{
 		From: s.kind.String(),
 		To:   SignalKindMuxor.String(),
 	})
+}
+
+func (s *signal) String() string {
+	return ""
+}
+
+func (s *signal) AssignAttribute(attribute Attribute, value any) error {
+	if err := s.addAttributeAssignment(attribute, s, value); err != nil {
+		return s.errorf(err)
+	}
+	return nil
+}
+
+func (s *signal) setMultiplexedLayer(ml *MultiplexedLayer) {
+	s.muxLayer = ml
+}
+
+func (s *signal) hasMuxLayer() bool {
+	return s.muxLayer != nil
+}
+
+// UpdateStartPos updates the start position of the signal.
+//
+// It returns a [StartPosError] if the new start position is invalid.
+func (s *signal) UpdateStartPos(newStartPos int) error {
+	if s.hasMuxLayer() {
+		// Get all IDs of the layouts that contain the signal
+		if layoutIDs, ok := s.muxLayer.singalLayoutIDs.Get(s.entityID); ok {
+			for _, lID := range layoutIDs {
+				// Check if the new start position is valid,
+				// this recursively checks until the base layout is reached (message layout)
+				if err := s.muxLayer.layouts[lID].verifyNewStartPos(s, newStartPos); err != nil {
+					return s.errorf(err)
+				}
+			}
+
+			// The new position is valid, you can update it
+			for _, lID := range layoutIDs {
+				s.muxLayer.layouts[lID].updateStartPos(s, newStartPos)
+			}
+		}
+
+		return nil
+	}
+
+	if s.hasParentMsg() {
+		// Check if the new start position is valid and update it
+		return s.errorf(s.parentMsg.layout.verifyAndUpdateStartPos(s, newStartPos))
+	}
+
+	// The signal is not attached to anything
+	s.setRelativeStartPos(newStartPos)
+
+	return nil
+}
+
+// updateSize updates the size of the signal.
+func (s *signal) updateSize(newSize int) error {
+	if s.hasMuxLayer() {
+		// Get all IDs of the layouts that contain the signal
+		if layoutIDs, ok := s.muxLayer.singalLayoutIDs.Get(s.entityID); ok {
+			for _, lID := range layoutIDs {
+				// Check if the new size is valid,
+				// this recursively checks until the base layout is reached (message layout)
+				if err := s.muxLayer.layouts[lID].verifyNewSize(s, newSize); err != nil {
+					return s.errorf(err)
+				}
+			}
+
+			// The new size is valid, you can update it
+			for _, lID := range layoutIDs {
+				s.muxLayer.layouts[lID].updateSize(s, newSize)
+			}
+		}
+	}
+
+	if s.hasParentMsg() {
+		// Check if the new size is valid and update it
+		return s.errorf(s.parentMsg.layout.verifyAndUpdateSize(s, newSize))
+	}
+
+	// The signal is not attached to anything
+	s.setSize(newSize)
+
+	return nil
 }

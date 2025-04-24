@@ -386,9 +386,9 @@ func (e *exporter) exportSignal(sig Signal, dbcMsgID uint32) {
 		dbcSig.Receivers = receiverNames
 	}
 
-	if sig.ParentMultiplexerSignal() != nil {
-		dbcSig.IsMultiplexed = true
-	}
+	// if sig.ParentMultiplexerSignal() != nil {
+	// 	dbcSig.IsMultiplexed = true
+	// }
 
 	switch sig.Kind() {
 	case SignalKindStandard:
@@ -407,17 +407,17 @@ func (e *exporter) exportSignal(sig Signal, dbcMsgID uint32) {
 		e.exportEnumSignal(enumSig, dbcMsgID, dbcSig)
 		e.currDBCMsg.Signals = append(e.currDBCMsg.Signals, dbcSig)
 
-	case SignalKindMultiplexer:
-		muxSig, err := sig.ToMultiplexer()
-		if err != nil {
-			panic(err)
-		}
-		e.exportMultiplexerSignal(muxSig, dbcMsgID, dbcSig)
+		// case SignalKindMultiplexer:
+		// 	muxSig, err := sig.ToMultiplexer()
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
+		// 	e.exportMultiplexerSignal(muxSig, dbcMsgID, dbcSig)
 	}
 }
 
-func (e *exporter) getStartBit(startBit int, byteOrder MessageByteOrder) (uint32, dbc.SignalByteOrder) {
-	if byteOrder == MessageByteOrderLittleEndian {
+func (e *exporter) getStartBit(startBit int, byteOrder Endianness) (uint32, dbc.SignalByteOrder) {
+	if byteOrder == EndiannessLittleEndian {
 		return uint32(startBit), dbc.SignalLittleEndian
 	}
 
@@ -491,92 +491,92 @@ func (e *exporter) exportSignalEnum(enum *SignalEnum) {
 	})
 }
 
-func (e *exporter) exportMultiplexerSignal(muxSig *MultiplexerSignal, dbcMsgID uint32, dbcSig *dbc.Signal) {
-	dbcSig.Size = uint32(muxSig.GetGroupCountSize())
+// func (e *exporter) exportMultiplexerSignal(muxSig *MultiplexerSignal, dbcMsgID uint32, dbcSig *dbc.Signal) {
+// 	dbcSig.Size = uint32(muxSig.GetGroupCountSize())
 
-	startBit, byteOrder := e.getStartBit(muxSig.GetStartBit(), muxSig.parentMsg.byteOrder)
-	dbcSig.StartBit = startBit
-	dbcSig.ByteOrder = byteOrder
+// 	startBit, byteOrder := e.getStartBit(muxSig.GetStartBit(), muxSig.parentMsg.byteOrder)
+// 	dbcSig.StartBit = startBit
+// 	dbcSig.ByteOrder = byteOrder
 
-	dbcSig.IsMultiplexor = true
+// 	dbcSig.IsMultiplexor = true
 
-	dbcSig.ValueType = dbc.SignalUnsigned
+// 	dbcSig.ValueType = dbc.SignalUnsigned
 
-	dbcSig.Min = 0
-	dbcSig.Max = float64(muxSig.groupCount - 1)
-	dbcSig.Offset = 0
-	dbcSig.Factor = 1
+// 	dbcSig.Min = 0
+// 	dbcSig.Max = float64(muxSig.groupCount - 1)
+// 	dbcSig.Offset = 0
+// 	dbcSig.Factor = 1
 
-	e.currDBCMsg.Signals = append(e.currDBCMsg.Signals, dbcSig)
+// 	e.currDBCMsg.Signals = append(e.currDBCMsg.Signals, dbcSig)
 
-	isExtended := false
-	nestedMux := dbcSig.IsMultiplexed
+// 	isExtended := false
+// 	nestedMux := dbcSig.IsMultiplexed
 
-	sigNames := []string{}
-	sigGroupIDs := make(map[string][]int)
-	for id, group := range muxSig.GetSignalGroups() {
-		for _, tmpSig := range group {
-			tmpSigName := clearSpaces(tmpSig.Name())
-			groupIDs, ok := sigGroupIDs[tmpSigName]
-			if !ok {
-				sigGroupIDs[tmpSigName] = []int{id}
-			}
+// 	sigNames := []string{}
+// 	sigGroupIDs := make(map[string][]int)
+// 	for id, group := range muxSig.GetSignalGroups() {
+// 		for _, tmpSig := range group {
+// 			tmpSigName := clearSpaces(tmpSig.Name())
+// 			groupIDs, ok := sigGroupIDs[tmpSigName]
+// 			if !ok {
+// 				sigGroupIDs[tmpSigName] = []int{id}
+// 			}
 
-			if tmpSig.Kind() == SignalKindMultiplexer {
-				nestedMux = true
-			}
+// 			if tmpSig.Kind() == SignalKindMultiplexer {
+// 				nestedMux = true
+// 			}
 
-			if len(groupIDs) == 0 {
-				sigNames = append(sigNames, tmpSigName)
-				e.exportSignal(tmpSig, dbcMsgID)
-				e.currDBCMsg.Signals[len(e.currDBCMsg.Signals)-1].MuxSwitchValue = uint32(id)
-				continue
-			}
+// 			if len(groupIDs) == 0 {
+// 				sigNames = append(sigNames, tmpSigName)
+// 				e.exportSignal(tmpSig, dbcMsgID)
+// 				e.currDBCMsg.Signals[len(e.currDBCMsg.Signals)-1].MuxSwitchValue = uint32(id)
+// 				continue
+// 			}
 
-			sigGroupIDs[tmpSigName] = append(sigGroupIDs[tmpSigName], id)
-			isExtended = true
-		}
-	}
+// 			sigGroupIDs[tmpSigName] = append(sigGroupIDs[tmpSigName], id)
+// 			isExtended = true
+// 		}
+// 	}
 
-	if !isExtended && !nestedMux {
-		return
-	}
+// 	if !isExtended && !nestedMux {
+// 		return
+// 	}
 
-	for _, tmpSigName := range sigNames {
-		groupIDs := sigGroupIDs[tmpSigName]
+// 	for _, tmpSigName := range sigNames {
+// 		groupIDs := sigGroupIDs[tmpSigName]
 
-		if !nestedMux && len(groupIDs) == 1 {
-			continue
-		}
+// 		if !nestedMux && len(groupIDs) == 1 {
+// 			continue
+// 		}
 
-		dbcExtMux := new(dbc.ExtendedMux)
-		dbcExtMux.MessageID = dbcMsgID
-		dbcExtMux.MultiplexorName = clearSpaces(muxSig.name)
-		dbcExtMux.MultiplexedName = tmpSigName
+// 		dbcExtMux := new(dbc.ExtendedMux)
+// 		dbcExtMux.MessageID = dbcMsgID
+// 		dbcExtMux.MultiplexorName = clearSpaces(muxSig.name)
+// 		dbcExtMux.MultiplexedName = tmpSigName
 
-		from := groupIDs[0]
-		next := from
-		for i := 0; i < len(groupIDs)-1; i++ {
-			curr := groupIDs[i]
-			next = groupIDs[i+1]
+// 		from := groupIDs[0]
+// 		next := from
+// 		for i := 0; i < len(groupIDs)-1; i++ {
+// 			curr := groupIDs[i]
+// 			next = groupIDs[i+1]
 
-			if next == curr+1 {
-				continue
-			}
+// 			if next == curr+1 {
+// 				continue
+// 			}
 
-			dbcExtMux.Ranges = append(dbcExtMux.Ranges, &dbc.ExtendedMuxRange{
-				From: uint32(from),
-				To:   uint32(curr),
-			})
+// 			dbcExtMux.Ranges = append(dbcExtMux.Ranges, &dbc.ExtendedMuxRange{
+// 				From: uint32(from),
+// 				To:   uint32(curr),
+// 			})
 
-			from = next
-		}
+// 			from = next
+// 		}
 
-		dbcExtMux.Ranges = append(dbcExtMux.Ranges, &dbc.ExtendedMuxRange{
-			From: uint32(from),
-			To:   uint32(next),
-		})
+// 		dbcExtMux.Ranges = append(dbcExtMux.Ranges, &dbc.ExtendedMuxRange{
+// 			From: uint32(from),
+// 			To:   uint32(next),
+// 		})
 
-		e.dbcFile.ExtendedMuxes = append(e.dbcFile.ExtendedMuxes, dbcExtMux)
-	}
-}
+// 		e.dbcFile.ExtendedMuxes = append(e.dbcFile.ExtendedMuxes, dbcExtMux)
+// 	}
+// }

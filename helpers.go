@@ -21,6 +21,20 @@ func calcSizeFromValue(val int) int {
 	return maxSize
 }
 
+func getSizeFromCount(count int) int {
+	if count == 0 {
+		return 0
+	}
+
+	for i := range maxSize {
+		if count <= 1<<i {
+			return i
+		}
+	}
+
+	return maxSize
+}
+
 func calcValueFromSize(size int) int {
 	if size <= 0 {
 		return 1

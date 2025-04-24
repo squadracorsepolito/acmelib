@@ -74,7 +74,7 @@ func (sl *SignalLayout) generateFilters() {
 				tmpOffset := startPos % 8
 				length = 8 - tmpOffset
 
-				if endianness == MessageByteOrderBigEndian {
+				if endianness == EndiannessBigEndian {
 					// In case of big endian, shift the mask right
 					// because startPos always refers to the first bit
 					// in little endian
@@ -91,7 +91,7 @@ func (sl *SignalLayout) generateFilters() {
 			length = remainingBits
 			mask = 1<<remainingBits - 1
 
-			if endianness == MessageByteOrderBigEndian {
+			if endianness == EndiannessBigEndian {
 				// For the same reason as above, shift the mask left
 				leftOffset = 8 - remainingBits
 				mask <<= leftOffset
@@ -540,9 +540,9 @@ func (sl *SignalLayout) stringify(b *strings.Builder, tabs int) {
 	b.WriteString(fmt.Sprintf("%ssize: %d\n", tabStr, sl.size))
 	b.WriteString(fmt.Sprintf("%ssignal_count: %d\n", tabStr, len(sl.signals)))
 
-	for _, f := range sl.filters {
-		f.stringify(b, tabs)
-	}
+	// for _, f := range sl.filters {
+	// 	//f.stringify(b, tabs)
+	// }
 }
 
 func (sl *SignalLayout) String() string {
@@ -593,7 +593,7 @@ func (sl *SignalLayout) Decode(data []byte) []*SignalDecoding {
 		tmpData := uint64((data[filter.byteIdx] & filter.mask) >> filter.leftOffset)
 
 		// Little endian
-		if filter.signal.Endianness() == MessageByteOrderLittleEndian {
+		if filter.signal.Endianness() == EndiannessLittleEndian {
 			tmpData <<= consumedBits
 			rawValue |= tmpData
 			consumedBits += filter.length

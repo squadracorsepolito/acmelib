@@ -3,7 +3,6 @@ package ibst
 
 import (
 	"iter"
-	"strings"
 
 	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
@@ -348,27 +347,30 @@ func (t *Tree[T]) Clear() {
 	t.size = 0
 }
 
-func (t *Tree[T]) stringify(s *stringer.Stringer, node *node[T], level int) {
+func (t *Tree[T]) stringify(s *stringer.Stringer, node *node[T]) {
 	if node == nil {
 		return
 	}
 
 	// Traverse right subtree first (will appear at the top)
-	t.stringify(s, node.right, level+1)
+	s.Indent()
+	t.stringify(s, node.right)
+	s.Unindent()
 
-	// Current node with proper indentation
-	indent := strings.Repeat("\t", level)
-	s.Write("%s[%d, %d] %s (max: %d)\n", indent, node.getLow(), node.getHigh(), node.item.Name(), node.max)
+	// Current node
+	s.Write("[%d, %d] %s (max: %d)\n", node.getLow(), node.getHigh(), node.item.Name(), node.max)
 
 	// Traverse left subtree
-	t.stringify(s, node.left, level+1)
+	s.Indent()
+	t.stringify(s, node.left)
+	s.Unindent()
 }
 
 // Stringify writes a string representation of the tree into
 // a [stringer.Stringer].
 func (t *Tree[T]) Stringify(s *stringer.Stringer) {
 	s.Write("size: %d\n", t.size)
-	t.stringify(s, t.root, 0)
+	t.stringify(s, t.root)
 }
 
 func (t *Tree[T]) String() string {

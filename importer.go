@@ -455,7 +455,7 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 	}
 
 	if currByteOrder == dbc.SignalBigEndian {
-		msg.SetByteOrder(MessageByteOrderBigEndian)
+		msg.SetByteOrder(EndiannessBigEndian)
 	}
 
 	for recName := range receivers {
@@ -496,125 +496,125 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 		return nil
 	}
 
-	if muxSigCount == 1 {
-		dbcMuxSig := muxSignals[0]
+	// if muxSigCount == 1 {
+	// 	dbcMuxSig := muxSignals[0]
 
-		lastMuxedStartPos := -1
-		stdSignals := []*importerSignal{}
+	// 	lastMuxedStartPos := -1
+	// 	stdSignals := []*importerSignal{}
 
-		muxedSignals := []*importerSignal{}
-		for _, dbcSig := range dbcMsg.Signals {
-			if dbcSig.Name == dbcMuxSig.Name {
-				continue
-			}
+	// 	muxedSignals := []*importerSignal{}
+	// 	for _, dbcSig := range dbcMsg.Signals {
+	// 		if dbcSig.Name == dbcMuxSig.Name {
+	// 			continue
+	// 		}
 
-			tmpSig, err := i.importSignal(dbcSig, dbcMsg.ID)
-			if err != nil {
-				return err
-			}
+	// 		tmpSig, err := i.importSignal(dbcSig, dbcMsg.ID)
+	// 		if err != nil {
+	// 			return err
+	// 		}
 
-			tmpStartPos := i.getSignalStartBit(dbcSig)
+	// 		tmpStartPos := i.getSignalStartBit(dbcSig)
 
-			if dbcSig.IsMultiplexed {
-				muxedSignals = append(muxedSignals, &importerSignal{sig: tmpSig, dbcSig: dbcSig, startPos: tmpStartPos})
+	// 		if dbcSig.IsMultiplexed {
+	// 			muxedSignals = append(muxedSignals, &importerSignal{sig: tmpSig, dbcSig: dbcSig, startPos: tmpStartPos})
 
-				if tmpStartPos > lastMuxedStartPos {
-					lastMuxedStartPos = tmpStartPos
-				}
+	// 			if tmpStartPos > lastMuxedStartPos {
+	// 				lastMuxedStartPos = tmpStartPos
+	// 			}
 
-				continue
-			}
+	// 			continue
+	// 		}
 
-			stdSignals = append(stdSignals, &importerSignal{sig: tmpSig, dbcSig: dbcSig, startPos: tmpStartPos})
-		}
+	// 		stdSignals = append(stdSignals, &importerSignal{sig: tmpSig, dbcSig: dbcSig, startPos: tmpStartPos})
+	// 	}
 
-		muxorStartPos := i.getSignalStartBit(dbcMuxSig)
+	// 	muxorStartPos := i.getSignalStartBit(dbcMuxSig)
 
-		for _, stdSig := range stdSignals {
-			tmpStartPos := stdSig.startPos
-			if tmpStartPos > muxorStartPos && tmpStartPos < lastMuxedStartPos {
-				muxedSignals = append(muxedSignals, stdSig)
-				continue
-			}
+	// 	for _, stdSig := range stdSignals {
+	// 		tmpStartPos := stdSig.startPos
+	// 		if tmpStartPos > muxorStartPos && tmpStartPos < lastMuxedStartPos {
+	// 			muxedSignals = append(muxedSignals, stdSig)
+	// 			continue
+	// 		}
 
-			if err := msg.InsertSignal(stdSig.sig, tmpStartPos); err != nil {
-				return i.errorf(stdSig.dbcSig, err)
-			}
-		}
+	// 		if err := msg.InsertSignal(stdSig.sig, tmpStartPos); err != nil {
+	// 			return i.errorf(stdSig.dbcSig, err)
+	// 		}
+	// 	}
 
-		muxSig, err := i.importMuxSignal(dbcMuxSig, dbcMsg.ID, muxedSignals)
-		if err != nil {
-			return err
-		}
+	// 	muxSig, err := i.importMuxSignal(dbcMuxSig, dbcMsg.ID, muxedSignals)
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		if err := msg.InsertSignal(muxSig, muxorStartPos); err != nil {
-			return i.errorf(dbcMuxSig, err)
-		}
+	// 	if err := msg.InsertSignal(muxSig, muxorStartPos); err != nil {
+	// 		return i.errorf(dbcMuxSig, err)
+	// 	}
 
-		return nil
-	}
+	// 	return nil
+	// }
 
-	muxedSigGroups := make([][]*importerSignal, muxSigCount)
-	for _, dbcSig := range dbcMsg.Signals {
-		if _, ok := muxSigNames[dbcSig.Name]; ok {
-			continue
-		}
+	// muxedSigGroups := make([][]*importerSignal, muxSigCount)
+	// for _, dbcSig := range dbcMsg.Signals {
+	// 	if _, ok := muxSigNames[dbcSig.Name]; ok {
+	// 		continue
+	// 	}
 
-		tmpSig, err := i.importSignal(dbcSig, dbcMsg.ID)
-		if err != nil {
-			return err
-		}
+	// 	tmpSig, err := i.importSignal(dbcSig, dbcMsg.ID)
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		if dbcSig.IsMultiplexed {
-			dbcExtMux, ok := i.dbcExtMuxes[i.getSignalKey(dbcMsg.ID, dbcSig.Name)]
-			if !ok {
-				return i.errorf(dbcSig, &ErrIsRequired{Item: "extended multiplexing"})
-			}
+	// 	if dbcSig.IsMultiplexed {
+	// 		dbcExtMux, ok := i.dbcExtMuxes[i.getSignalKey(dbcMsg.ID, dbcSig.Name)]
+	// 		if !ok {
+	// 			return i.errorf(dbcSig, &ErrIsRequired{Item: "extended multiplexing"})
+	// 		}
 
-			muxIdx, ok := muxSigNames[dbcExtMux.MultiplexorName]
-			if !ok {
-				return i.errorf(dbcExtMux, &NameError{Name: dbcExtMux.MultiplexorName, Err: ErrNotFound})
-			}
+	// 		muxIdx, ok := muxSigNames[dbcExtMux.MultiplexorName]
+	// 		if !ok {
+	// 			return i.errorf(dbcExtMux, &NameError{Name: dbcExtMux.MultiplexorName, Err: ErrNotFound})
+	// 		}
 
-			muxedSigGroups[muxIdx] = append(muxedSigGroups[muxIdx], &importerSignal{
-				sig:    tmpSig,
-				dbcSig: dbcSig,
-			})
+	// 		muxedSigGroups[muxIdx] = append(muxedSigGroups[muxIdx], &importerSignal{
+	// 			sig:    tmpSig,
+	// 			dbcSig: dbcSig,
+	// 		})
 
-			continue
-		}
+	// 		continue
+	// 	}
 
-		if err := msg.InsertSignal(tmpSig, i.getSignalStartBit(dbcSig)); err != nil {
-			return i.errorf(dbcSig, err)
-		}
-	}
+	// 	if err := msg.InsertSignal(tmpSig, i.getSignalStartBit(dbcSig)); err != nil {
+	// 		return i.errorf(dbcSig, err)
+	// 	}
+	// }
 
-	for j := muxSigCount - 1; j >= 0; j-- {
-		dbcMuxSig := muxSignals[j]
+	// for j := muxSigCount - 1; j >= 0; j-- {
+	// 	dbcMuxSig := muxSignals[j]
 
-		muxSig, err := i.importMuxSignal(dbcMuxSig, dbcMsg.ID, muxedSigGroups[j])
-		if err != nil {
-			return err
-		}
+	// 	muxSig, err := i.importMuxSignal(dbcMuxSig, dbcMsg.ID, muxedSigGroups[j])
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		dbcExtMux, ok := i.dbcExtMuxes[i.getSignalKey(dbcMsg.ID, dbcMuxSig.Name)]
-		if !ok {
-			if err := msg.InsertSignal(muxSig, i.getSignalStartBit(dbcMuxSig)); err != nil {
-				return i.errorf(dbcMuxSig, err)
-			}
-			continue
-		}
+	// 	dbcExtMux, ok := i.dbcExtMuxes[i.getSignalKey(dbcMsg.ID, dbcMuxSig.Name)]
+	// 	if !ok {
+	// 		if err := msg.InsertSignal(muxSig, i.getSignalStartBit(dbcMuxSig)); err != nil {
+	// 			return i.errorf(dbcMuxSig, err)
+	// 		}
+	// 		continue
+	// 	}
 
-		muxIdx, ok := muxSigNames[dbcExtMux.MultiplexorName]
-		if !ok {
-			return i.errorf(dbcExtMux, &NameError{Name: dbcExtMux.MultiplexorName, Err: ErrNotFound})
-		}
+	// 	muxIdx, ok := muxSigNames[dbcExtMux.MultiplexorName]
+	// 	if !ok {
+	// 		return i.errorf(dbcExtMux, &NameError{Name: dbcExtMux.MultiplexorName, Err: ErrNotFound})
+	// 	}
 
-		muxedSigGroups[muxIdx] = append(muxedSigGroups[muxIdx], &importerSignal{
-			sig:    muxSig,
-			dbcSig: dbcMuxSig,
-		})
-	}
+	// 	muxedSigGroups[muxIdx] = append(muxedSigGroups[muxIdx], &importerSignal{
+	// 		sig:    muxSig,
+	// 		dbcSig: dbcMuxSig,
+	// 	})
+	// }
 
 	return nil
 }
@@ -633,67 +633,67 @@ type importerSignal struct {
 	startPos int
 }
 
-func (i *importer) importMuxSignal(dbcMuxSig *dbc.Signal, dbcMsgID uint32, muxedSignals []*importerSignal) (*MultiplexerSignal, error) {
-	groupSize := 0
-	muxedEndBit := 0
-	for _, tmpMuxedSig := range muxedSignals {
-		tmpEndBit := tmpMuxedSig.sig.GetSize() + i.getSignalStartBit(tmpMuxedSig.dbcSig)
-		if tmpEndBit > muxedEndBit {
-			muxedEndBit = tmpEndBit
-		}
-	}
+// func (i *importer) importMuxSignal(dbcMuxSig *dbc.Signal, dbcMsgID uint32, muxedSignals []*importerSignal) (*MultiplexerSignal, error) {
+// 	groupSize := 0
+// 	muxedEndBit := 0
+// 	for _, tmpMuxedSig := range muxedSignals {
+// 		tmpEndBit := tmpMuxedSig.sig.GetSize() + i.getSignalStartBit(tmpMuxedSig.dbcSig)
+// 		if tmpEndBit > muxedEndBit {
+// 			muxedEndBit = tmpEndBit
+// 		}
+// 	}
 
-	muxSigStartBit := i.getSignalStartBit(dbcMuxSig)
-	muxSigSize := int(dbcMuxSig.Size)
+// 	muxSigStartBit := i.getSignalStartBit(dbcMuxSig)
+// 	muxSigSize := int(dbcMuxSig.Size)
 
-	if muxedEndBit > 0 {
-		groupSize = muxedEndBit - muxSigStartBit - muxSigSize
-	}
+// 	if muxedEndBit > 0 {
+// 		groupSize = muxedEndBit - muxSigStartBit - muxSigSize
+// 	}
 
-	muxSig, err := NewMultiplexerSignal(dbcMuxSig.Name, calcValueFromSize(muxSigSize), groupSize)
-	if err != nil {
-		return nil, i.errorf(dbcMuxSig, err)
-	}
+// 	muxSig, err := NewMultiplexerSignal(dbcMuxSig.Name, calcValueFromSize(muxSigSize), groupSize)
+// 	if err != nil {
+// 		return nil, i.errorf(dbcMuxSig, err)
+// 	}
 
-	for _, muxedSig := range muxedSignals {
-		tmpSig := muxedSig.sig
-		tmpDBCSig := muxedSig.dbcSig
+// 	for _, muxedSig := range muxedSignals {
+// 		tmpSig := muxedSig.sig
+// 		tmpDBCSig := muxedSig.dbcSig
 
-		tmpStartBit := i.getSignalStartBit(tmpDBCSig)
-		relStartBit := tmpStartBit - muxSigStartBit - muxSigSize
+// 		tmpStartBit := i.getSignalStartBit(tmpDBCSig)
+// 		relStartBit := tmpStartBit - muxSigStartBit - muxSigSize
 
-		groupIDs := []int{}
-		dbcExtMux, ok := i.dbcExtMuxes[i.getSignalKey(dbcMsgID, tmpSig.Name())]
-		if ok {
-			for _, valRange := range dbcExtMux.Ranges {
-				for j := valRange.From; j <= valRange.To; j++ {
-					groupIDs = append(groupIDs, int(j))
-				}
-			}
+// 		groupIDs := []int{}
+// 		dbcExtMux, ok := i.dbcExtMuxes[i.getSignalKey(dbcMsgID, tmpSig.Name())]
+// 		if ok {
+// 			for _, valRange := range dbcExtMux.Ranges {
+// 				for j := valRange.From; j <= valRange.To; j++ {
+// 					groupIDs = append(groupIDs, int(j))
+// 				}
+// 			}
 
-			if len(groupIDs) == muxSig.groupCount {
-				groupIDs = []int{}
-			}
+// 			if len(groupIDs) == muxSig.groupCount {
+// 				groupIDs = []int{}
+// 			}
 
-		} else if tmpDBCSig.IsMultiplexed {
-			groupIDs = append(groupIDs, int(tmpDBCSig.MuxSwitchValue))
-		}
+// 		} else if tmpDBCSig.IsMultiplexed {
+// 			groupIDs = append(groupIDs, int(tmpDBCSig.MuxSwitchValue))
+// 		}
 
-		if err := muxSig.InsertSignal(tmpSig, relStartBit, groupIDs...); err != nil {
-			return nil, i.errorf(tmpDBCSig, err)
-		}
-	}
+// 		if err := muxSig.InsertSignal(tmpSig, relStartBit, groupIDs...); err != nil {
+// 			return nil, i.errorf(tmpDBCSig, err)
+// 		}
+// 	}
 
-	sigKey := i.getSignalKey(dbcMsgID, muxSig.name)
+// 	sigKey := i.getSignalKey(dbcMsgID, muxSig.name)
 
-	if desc, ok := i.sigDesc[sigKey]; ok {
-		muxSig.SetDesc(desc)
-	}
+// 	if desc, ok := i.sigDesc[sigKey]; ok {
+// 		muxSig.SetDesc(desc)
+// 	}
 
-	i.signals[sigKey] = muxSig
+// 	i.signals[sigKey] = muxSig
 
-	return muxSig, nil
-}
+// 	return muxSig, nil
+// }
 
 func (i *importer) importSignal(dbcSig *dbc.Signal, dbcMsgID uint32) (Signal, error) {
 	var sig Signal

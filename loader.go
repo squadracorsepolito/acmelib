@@ -283,9 +283,9 @@ func (l *loader) loadMessage(pMsg *acmelibv1.Message) (*Message, error) {
 
 	switch pMsg.ByteOrder {
 	case acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_LITTLE_ENDIAN:
-		msg.SetByteOrder(MessageByteOrderLittleEndian)
+		msg.SetByteOrder(EndiannessLittleEndian)
 	case acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_BIG_ENDIAN:
-		msg.SetByteOrder(MessageByteOrderBigEndian)
+		msg.SetByteOrder(EndiannessBigEndian)
 	}
 
 	if pMsg.CycleTime != 0 {
@@ -344,8 +344,8 @@ func (l *loader) loadSignal(pSig *acmelibv1.Signal) (Signal, error) {
 		kind = SignalKindStandard
 	case acmelibv1.SignalKind_SIGNAL_KIND_ENUM:
 		kind = SignalKindEnum
-	case acmelibv1.SignalKind_SIGNAL_KIND_MULTIPLEXER:
-		kind = SignalKindMultiplexer
+		// case acmelibv1.SignalKind_SIGNAL_KIND_MULTIPLEXER:
+		// 	kind = SignalKindMultiplexer
 	}
 
 	baseSig := newSignalFromEntity(l.loadEntity(pSig.Entity, EntityKindSignal), kind)
@@ -379,17 +379,17 @@ func (l *loader) loadSignal(pSig *acmelibv1.Signal) (Signal, error) {
 		sig = enumSig
 
 	case *acmelibv1.Signal_Multiplexer:
-		if kind != SignalKindMultiplexer {
-			return nil, &ErrInvalidOneof{
-				KindTypeField: acmelibv1.SignalKind_SIGNAL_KIND_MULTIPLEXER.String(),
-			}
-		}
+		// if kind != SignalKindMultiplexer {
+		// 	return nil, &ErrInvalidOneof{
+		// 		KindTypeField: acmelibv1.SignalKind_SIGNAL_KIND_MULTIPLEXER.String(),
+		// 	}
+		// }
 
-		muxSig, err := l.loadMultiplexerSignal(baseSig, tmpPSig.Multiplexer)
-		if err != nil {
-			return nil, err
-		}
-		sig = muxSig
+		// muxSig, err := l.loadMultiplexerSignal(baseSig, tmpPSig.Multiplexer)
+		// if err != nil {
+		// 	return nil, err
+		// }
+		// sig = muxSig
 	}
 
 	switch pSig.SendType {
@@ -461,58 +461,58 @@ func (l *loader) loadEnumSignal(baseSig *signal, pEnumSig *acmelibv1.EnumSignal)
 	return newEnumSignalFromBase(baseSig, sigEnum)
 }
 
-func (l *loader) loadMultiplexerSignal(baseSig *signal, pMuxSig *acmelibv1.MultiplexerSignal) (*MultiplexerSignal, error) {
-	muxSig, err := newMultiplexerSignalFromBase(baseSig, int(pMuxSig.GroupCount), int(pMuxSig.GroupSize))
-	if err != nil {
-		return nil, err
-	}
+// func (l *loader) loadMultiplexerSignal(baseSig *signal, pMuxSig *acmelibv1.MultiplexerSignal) (*MultiplexerSignal, error) {
+// 	muxSig, err := newMultiplexerSignalFromBase(baseSig, int(pMuxSig.GroupCount), int(pMuxSig.GroupSize))
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	muxedSignals := make(map[string]Signal)
-	for _, pMuxedSig := range pMuxSig.Signals {
-		sig, err := l.loadSignal(pMuxedSig)
-		if err != nil {
-			return nil, err
-		}
-		muxedSignals[pMuxedSig.Entity.EntityId] = sig
-	}
+// 	muxedSignals := make(map[string]Signal)
+// 	for _, pMuxedSig := range pMuxSig.Signals {
+// 		sig, err := l.loadSignal(pMuxedSig)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		muxedSignals[pMuxedSig.Entity.EntityId] = sig
+// 	}
 
-	fixedSignals := make(map[string]struct{})
-	for _, fixEntID := range pMuxSig.FixedSignalEntityIds {
-		fixedSignals[fixEntID] = struct{}{}
-	}
+// 	fixedSignals := make(map[string]struct{})
+// 	for _, fixEntID := range pMuxSig.FixedSignalEntityIds {
+// 		fixedSignals[fixEntID] = struct{}{}
+// 	}
 
-	insFixedSignals := make(map[string]struct{})
-	for groupID, pGroup := range pMuxSig.Groups {
-		sigMap := l.loadSignalPayload(pGroup)
+// 	insFixedSignals := make(map[string]struct{})
+// 	for groupID, pGroup := range pMuxSig.Groups {
+// 		sigMap := l.loadSignalPayload(pGroup)
 
-		for sigEntID, startPos := range sigMap {
-			muxedSig, ok := muxedSignals[sigEntID]
-			if !ok {
-				return nil, &EntityIDError{
-					EntityID: EntityID(sigEntID),
-					Err:      ErrNotFound,
-				}
-			}
+// 		for sigEntID, startPos := range sigMap {
+// 			muxedSig, ok := muxedSignals[sigEntID]
+// 			if !ok {
+// 				return nil, &EntityIDError{
+// 					EntityID: EntityID(sigEntID),
+// 					Err:      ErrNotFound,
+// 				}
+// 			}
 
-			if _, fixed := fixedSignals[sigEntID]; fixed {
-				if _, inserted := insFixedSignals[sigEntID]; !inserted {
-					if err := muxSig.InsertSignal(muxedSig, startPos); err != nil {
-						return nil, err
-					}
-					insFixedSignals[sigEntID] = struct{}{}
-				}
+// 			if _, fixed := fixedSignals[sigEntID]; fixed {
+// 				if _, inserted := insFixedSignals[sigEntID]; !inserted {
+// 					if err := muxSig.InsertSignal(muxedSig, startPos); err != nil {
+// 						return nil, err
+// 					}
+// 					insFixedSignals[sigEntID] = struct{}{}
+// 				}
 
-				continue
-			}
+// 				continue
+// 			}
 
-			if err := muxSig.InsertSignal(muxedSig, startPos, groupID); err != nil {
-				return nil, err
-			}
-		}
-	}
+// 			if err := muxSig.InsertSignal(muxedSig, startPos, groupID); err != nil {
+// 				return nil, err
+// 			}
+// 		}
+// 	}
 
-	return muxSig, err
-}
+// 	return muxSig, err
+// }
 
 func (l *loader) loadSignalType(pSigType *acmelibv1.SignalType) (*SignalType, error) {
 	var kind SignalTypeKind

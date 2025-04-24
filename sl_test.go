@@ -177,7 +177,7 @@ func Test_SL_updateSize(t *testing.T) {
 	assert.Len(sl.Filters(), 5)
 }
 
-func Test_SL_ApplyMultiplexedLayer(t *testing.T) {
+func Test_SL_AttachMultiplexedLayer(t *testing.T) {
 	assert := assert.New(t)
 
 	sl := newSL(4)
@@ -189,7 +189,7 @@ func Test_SL_ApplyMultiplexedLayer(t *testing.T) {
 	ml0 := NewMultiplexedLayer(4, calcValueFromSize(8)-1, "ml_0_muxor")
 	assert.Equal(8, ml0.Muxor().GetSize())
 
-	assert.NoError(sl.ApplyMultiplexedLayer(ml0))
+	assert.NoError(sl.AttachMultiplexedLayer(ml0))
 
 	// Define 2 signals to be inserted into the multiplexed layer 0
 	ml0Sig0, err := NewStandardSignal("ml_0_sig_0", sigType)
@@ -207,7 +207,7 @@ func Test_SL_ApplyMultiplexedLayer(t *testing.T) {
 	ml1 := NewMultiplexedLayer(4, calcValueFromSize(8)-1, "ml_1_muxor")
 
 	// Should return an error because the muxor start position is set to 0
-	assert.Error(sl.ApplyMultiplexedLayer(ml1))
+	assert.Error(sl.AttachMultiplexedLayer(ml1))
 
 	ml1sig0, err := NewStandardSignal("ml_1_sig_0", sigType)
 	assert.NoError(err)
@@ -215,29 +215,29 @@ func Test_SL_ApplyMultiplexedLayer(t *testing.T) {
 	assert.NoError(err)
 
 	// Update the muxor start position and insert 2 signals
-	assert.NoError(ml1.UpdateMuxorStartPos(16))
+	assert.NoError(ml1.Muxor().UpdateStartPos(16))
 	assert.NoError(ml1.InsertSignal(ml1sig0, 0, 0))
 	assert.NoError(ml1.InsertSignal(ml1sig1, 24, 1))
 
 	// Should return an error because the first signal start position is set to 0
-	assert.Error(sl.ApplyMultiplexedLayer(ml1))
+	assert.Error(sl.AttachMultiplexedLayer(ml1))
 
 	// Update the first signal start position to an invalid position
 	assert.NoError(ml1.DeleteSignal(ml1sig0))
 	assert.NoError(ml1.InsertSignal(ml1sig0, 8, 0))
-	assert.Error(sl.ApplyMultiplexedLayer(ml1))
+	assert.Error(sl.AttachMultiplexedLayer(ml1))
 
 	// Should not return an error
 	assert.NoError(ml1.DeleteSignal(ml1sig0))
 	assert.NoError(ml1.InsertSignal(ml1sig0, 24, 0))
-	assert.NoError(sl.ApplyMultiplexedLayer(ml1))
+	assert.NoError(sl.AttachMultiplexedLayer(ml1))
 
 	// Should return nil because ml1 is already in the signal layout
-	assert.Nil(sl.ApplyMultiplexedLayer(ml1))
+	assert.Nil(sl.AttachMultiplexedLayer(ml1))
 
 	// Should return an error because ml2 size is defferent than the signal layout size
 	ml2 := NewMultiplexedLayer(5, calcValueFromSize(8)-1, "ml_2_muxor")
-	assert.Error(sl.ApplyMultiplexedLayer(ml2))
+	assert.Error(sl.AttachMultiplexedLayer(ml2))
 
 	sig0, err := NewStandardSignal("sig_0", sigType)
 	assert.NoError(err)

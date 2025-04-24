@@ -153,7 +153,7 @@ func main() {
 	checkErr(err)
 	defer mdFile.Close()
 
-	checkErr(acmelib.ExportToMarkdown(sc24, mdFile))
+	// checkErr(acmelib.ExportToMarkdown(sc24, mdFile))
 }
 
 func checkErr(err error) {

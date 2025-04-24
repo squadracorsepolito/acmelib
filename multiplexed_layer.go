@@ -31,7 +31,6 @@ type MultiplexedLayer struct {
 }
 
 func NewMultiplexedLayer(sizeByte, layoutCount int, muxorName string) *MultiplexedLayer {
-	muxor := newMuxorSignal(muxorName, layoutCount)
 
 	ml := &MultiplexedLayer{
 		sizeByte: sizeByte,
@@ -40,17 +39,26 @@ func NewMultiplexedLayer(sizeByte, layoutCount int, muxorName string) *Multiplex
 		signalNames:     collection.NewMap[string, EntityID](),
 		singalLayoutIDs: collection.NewMap[EntityID, []int](),
 
-		muxor: muxor,
-
 		layoutCount: layoutCount,
 		layouts:     make([]*SL, layoutCount),
 	}
 
+	// Generate signal layouts
 	for i := range layoutCount {
 		sl := newSL(sizeByte)
 		sl.setParentMuxLayer(ml)
 		ml.layouts[i] = sl
 	}
+
+	// Generate the muxor signal
+	muxor := newMuxorSignal(muxorName, layoutCount)
+	ml.muxor = muxor
+
+	layoutIDs := make([]int, 0, layoutCount)
+	for lID := range layoutCount {
+		layoutIDs = append(layoutIDs, lID)
+	}
+	ml.addSignal(muxor, layoutIDs)
 
 	return ml
 }
@@ -69,19 +77,18 @@ func (ml *MultiplexedLayer) addSignal(sig Signal, layoutIDs []int) {
 	ml.signals.Set(sig.EntityID(), sig)
 	ml.signalNames.Set(sig.Name(), sig.EntityID())
 	ml.singalLayoutIDs.Set(sig.EntityID(), layoutIDs)
+	sig.setMultiplexedLayer(ml)
 }
 
 func (ml *MultiplexedLayer) removeSignal(sig Signal) {
+	if sig.Kind() == SignalKindMuxor && sig.EntityID() == ml.muxor.EntityID() {
+		return
+	}
+
 	ml.signals.Delete(sig.EntityID())
 	ml.signalNames.Delete(sig.Name())
 	ml.singalLayoutIDs.Delete(sig.EntityID())
-}
-
-func (ml *MultiplexedLayer) verifyName(name string) error {
-	if ml.signalNames.Has(name) {
-		return ErrIsDuplicated
-	}
-	return nil
+	sig.setMultiplexedLayer(nil)
 }
 
 // verifyLayoutID checks if the layout ID is valid.
@@ -101,13 +108,36 @@ func (ml *MultiplexedLayer) verifyLayoutID(layoutID int) error {
 	return nil
 }
 
+func (ml *MultiplexedLayer) stringify(s *stringer.Stringer) {
+	s.Write("layout_count: %d\n", ml.layoutCount)
+
+	s.Write("layouts:\n")
+	s.Indent()
+	for lID, sl := range ml.iterLayouts() {
+		if sl.SignalCount() == 0 {
+			continue
+		}
+
+		s.Write("layout_id: %d\n", lID)
+		sl.stringify(s)
+	}
+	s.Unindent()
+}
+
+func (ml *MultiplexedLayer) String() string {
+	s := stringer.New()
+	s.Write("multiplexed_layer:\n")
+	ml.stringify(s)
+	return s.String()
+}
+
 func (ml *MultiplexedLayer) InsertSignal(signal Signal, startPos int, layoutIDs ...int) error {
 	if err := verifyArgNotNil(signal, "signal"); err != nil {
 		return err
 	}
 
-	if err := ml.verifyName(signal.Name()); err != nil {
-		return newNameError(signal.Name(), err)
+	if err := ml.verifySignalName(signal.Name()); err != nil {
+		return err
 	}
 
 	// Check if it intersects with any signal of the attached layout
@@ -246,32 +276,6 @@ func (ml *MultiplexedLayer) Muxor() *MuxorSignal {
 	return ml.muxor
 }
 
-func (ml *MultiplexedLayer) UpdateMuxorStartPos(startPos int) error {
-	if startPos < 0 {
-		return &StartPosError{StartPos: startPos, Err: ErrIsNegative}
-	}
-
-	if startPos > ml.sizeByte*8 {
-		return &StartPosError{StartPos: startPos, Err: ErrOutOfBounds}
-	}
-
-	for _, sl := range ml.iterLayouts() {
-		if err := sl.verifyNewStartPos(ml.muxor, startPos); err != nil {
-			return err
-		}
-	}
-
-	if ml.attachedLayout != nil {
-		if err := ml.attachedLayout.verifyAndUpdateStartPos(ml.muxor, startPos); err != nil {
-			return err
-		}
-	} else {
-		ml.muxor.setRelativeStartPos(startPos)
-	}
-
-	return nil
-}
-
 func (ml *MultiplexedLayer) Layouts() []*SL {
 	return ml.layouts
 }
@@ -290,18 +294,24 @@ func (ml *MultiplexedLayer) GetSignals(layoutID int) []Signal {
 	return ml.layouts[layoutID].Signals()
 }
 
-func (ml *MultiplexedLayer) stringify(s *stringer.Stringer) {
-	s.Write("layout_count: %d\n", ml.layoutCount)
-
-	s.Write("layouts:\n")
-	s.Indent()
-	for lID, sl := range ml.iterLayouts() {
-		if sl.SignalCount() == 0 {
-			continue
-		}
-
-		s.Write("layout_id: %d\n", lID)
-		sl.stringify(s)
+func (ml *MultiplexedLayer) GetSignalByName(name string) (Signal, error) {
+	entID, ok := ml.signalNames.Get(name)
+	if !ok {
+		return nil, ErrNotFound
 	}
-	s.Unindent()
+
+	sig, ok := ml.signals.Get(entID)
+	if !ok {
+		return nil, ErrNotFound
+	}
+
+	return sig, nil
+}
+
+func (ml *MultiplexedLayer) verifySignalName(name string) error {
+	if ml.signalNames.Has(name) {
+		return newNameError(name, ErrIsDuplicated)
+	}
+
+	return nil
 }

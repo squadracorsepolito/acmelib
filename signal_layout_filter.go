@@ -1,8 +1,7 @@
 package acmelib
 
 import (
-	"fmt"
-	"strings"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // SignalLayoutFilter represents a filter of a [SignalLayout].
@@ -15,17 +14,16 @@ type SignalLayoutFilter struct {
 	leftOffset int
 }
 
-func (slf *SignalLayoutFilter) stringify(b *strings.Builder, tabs int) {
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("%sentity_id: %s; name: %s; byte_index: %d; mask: %08b; length: %d; left_offset: %d\n",
-		tabStr, slf.signal.EntityID(), slf.signal.Name(), slf.byteIdx, slf.mask, slf.length, slf.leftOffset))
+func (slf *SignalLayoutFilter) stringify(s *stringer.Stringer) {
+	s.Write("entity_id: %s; name: %s; byte_index: %d; mask: %08b; length: %d; left_offset: %d\n",
+		slf.signal.EntityID(), slf.signal.Name(), slf.byteIdx, slf.mask, slf.length, slf.leftOffset)
 }
 
 func (slf *SignalLayoutFilter) String() string {
-	b := new(strings.Builder)
-	slf.stringify(b, 0)
-	return b.String()
+	s := stringer.New()
+	s.Write("signal_layout_filter:\n")
+	slf.stringify(s)
+	return s.String()
 }
 
 // Signal returns the [Signal] of the [SignalLayoutFilter].

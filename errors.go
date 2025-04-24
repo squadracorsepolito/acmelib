@@ -343,17 +343,16 @@ func (e *EntityIDError) Error() string {
 func (e *EntityIDError) Unwrap() error { return e.Err }
 
 type SizeError struct {
-	Name string
 	Size int
 	Err  error
 }
 
-func newSizeError(name string, size int, err error) *SizeError {
-	return &SizeError{Name: name, Size: size, Err: err}
+func newSizeError(size int, err error) *SizeError {
+	return &SizeError{Size: size, Err: err}
 }
 
 func (e *SizeError) Error() string {
-	return fmt.Sprintf("size error; name:%s, size:%d : %v", e.Name, e.Size, e.Err)
+	return fmt.Sprintf("size error; size:%d : %v", e.Size, e.Err)
 }
 
 func (e *SizeError) Unwrap() error { return e.Err }
@@ -361,17 +360,16 @@ func (e *SizeError) Unwrap() error { return e.Err }
 // StartPosError is returned when a start position is invalid.
 // The StartPos field is the start bit and the Err field is the cause.
 type StartPosError struct {
-	Name     string
 	StartPos int
 	Err      error
 }
 
-func newStartPosError(name string, startPos int, err error) *StartPosError {
-	return &StartPosError{Name: name, StartPos: startPos, Err: err}
+func newStartPosError(startPos int, err error) *StartPosError {
+	return &StartPosError{StartPos: startPos, Err: err}
 }
 
 func (e *StartPosError) Error() string {
-	return fmt.Sprintf("start pos error; name %s, start_pos:%d : %v", e.Name, e.StartPos, e.Err)
+	return fmt.Sprintf("start pos error; start_pos:%d : %v", e.StartPos, e.Err)
 }
 
 func (e *StartPosError) Unwrap() error { return e.Err }

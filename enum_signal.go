@@ -42,25 +42,9 @@ func (es *EnumSignal) GetSize() int {
 	return es.enum.GetSize()
 }
 
-// ToStandard always returns an error, because an [EnumSignal] cannot be converted to a [StandardSignal].
-func (es *EnumSignal) ToStandard() (*StandardSignal, error) {
-	return nil, es.errorf(&ConversionError{
-		From: SignalKindEnum.String(),
-		To:   SignalKindStandard.String(),
-	})
-}
-
 // ToEnum returns the [EnumSignal] itself.
 func (es *EnumSignal) ToEnum() (*EnumSignal, error) {
 	return es, nil
-}
-
-// ToMultiplexer always returns an error, because an [EnumSignal] cannot be converted to a [MultiplexerSignal].
-func (es *EnumSignal) ToMultiplexer() (*MultiplexerSignal, error) {
-	return nil, es.errorf(&ConversionError{
-		From: SignalKindEnum.String(),
-		To:   SignalKindMultiplexer.String(),
-	})
 }
 
 func (es *EnumSignal) stringify(b *strings.Builder, tabs int) {

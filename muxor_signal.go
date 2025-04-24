@@ -17,7 +17,7 @@ func newMuxorSignal(name string, layoutCount int) *MuxorSignal {
 		layoutCount: layoutCount,
 	}
 
-	ms.signal.setSize(calcSizeFromValue(layoutCount))
+	ms.signal.setSize(getSizeFromCount(layoutCount))
 
 	return ms
 }
@@ -30,11 +30,4 @@ func (ms *MuxorSignal) String() string {
 
 func (ms *MuxorSignal) ToMuxor() (*MuxorSignal, error) {
 	return ms, nil
-}
-
-func (ms *MuxorSignal) AssignAttribute(attribute Attribute, value any) error {
-	if err := ms.addAttributeAssignment(attribute, ms, value); err != nil {
-		return ms.errorf(err)
-	}
-	return nil
 }

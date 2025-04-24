@@ -97,32 +97,32 @@ func (se *SignalEnum) verifyValueIndex(index int) error {
 		return err
 	}
 
-	if index > se.maxIndex {
-		prevSize := se.GetSize()
-		newSize := calcSizeFromValue(index)
+	// if index > se.maxIndex {
+	// 	prevSize := se.GetSize()
+	// 	newSize := calcSizeFromValue(index)
 
-		for _, tmpSig := range se.refs.entries() {
-			if tmpSig.hasParentMsg() {
-				if err := tmpSig.parentMsg.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
-					se.parErrID = tmpSig.entityID
-					return &ValueIndexError{
-						Index: index,
-						Err:   err,
-					}
-				}
-			}
+	// 	for _, tmpSig := range se.refs.entries() {
+	// 		if tmpSig.hasParentMsg() {
+	// 			if err := tmpSig.parentMsg.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
+	// 				se.parErrID = tmpSig.entityID
+	// 				return &ValueIndexError{
+	// 					Index: index,
+	// 					Err:   err,
+	// 				}
+	// 			}
+	// 		}
 
-			if tmpSig.hasParentMuxSig() {
-				if err := tmpSig.parentMuxSig.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
-					se.parErrID = tmpSig.entityID
-					return &ValueIndexError{
-						Index: index,
-						Err:   err,
-					}
-				}
-			}
-		}
-	}
+	// 		if tmpSig.hasParentMuxSig() {
+	// 			if err := tmpSig.parentMuxSig.verifySignalSizeAmount(tmpSig.entityID, newSize-prevSize); err != nil {
+	// 				se.parErrID = tmpSig.entityID
+	// 				return &ValueIndexError{
+	// 					Index: index,
+	// 					Err:   err,
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	return nil
 }

@@ -133,8 +133,8 @@ func Test_Message_RemoveSignal(t *testing.T) {
 	assert.NoError(msg.AppendSignal(sig3))
 	assert.NoError(msg.AppendSignal(sig4))
 
-	assert.NoError(msg.RemoveSignal(sig2.entityID))
-	assert.Error(msg.RemoveSignal(EntityID("invalid_entity_id")))
+	assert.NoError(msg.DeleteSignal(sig2.entityID))
+	assert.Error(msg.DeleteSignal(EntityID("invalid_entity_id")))
 
 	correctOrder := []string{"sig_0", "sig_1", "sig_3", "sig_4"}
 
@@ -375,7 +375,7 @@ func Test_Message_UpdateSizeByte(t *testing.T) {
 	assert.Error(msg.UpdateSizeByte(1))
 
 	// remove the 64 bits signal
-	assert.NoError(msg.RemoveSignal(bigSig.EntityID()))
+	assert.NoError(msg.DeleteSignal(bigSig.EntityID()))
 
 	// add a 32 bits (4 bytes) signal
 	smallSigType, err := NewIntegerSignalType("32_bits", 32, false)
