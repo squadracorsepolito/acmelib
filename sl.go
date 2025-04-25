@@ -495,7 +495,7 @@ func (sl *SL) AttachMultiplexedLayer(ml *MultiplexedLayer) error {
 		return err
 	}
 
-	// Check if the multiplexed layer is already applied
+	// Check if the multiplexed layer is already attached
 	if sl.muxLayers.Has(ml.muxor.entityID) {
 		return nil
 	}
@@ -508,6 +508,18 @@ func (sl *SL) AttachMultiplexedLayer(ml *MultiplexedLayer) error {
 	// Check if the muxor start position is valid
 	if err := sl.verifyInsert(ml.muxor, ml.muxor.GetRelativeStartPos()); err != nil {
 		return err
+	}
+
+	// Check if the muxor name is not duplicated
+	if sl.parentMsg != nil {
+		if err := sl.parentMsg.verifySignalName(ml.muxor.name); err != nil {
+			return err
+		}
+	}
+	if sl.parentMuxLayer != nil {
+		if err := sl.parentMuxLayer.verifySignalName(ml.muxor.name); err != nil {
+			return err
+		}
 	}
 
 	// Check that each signal of the multiplexed layer can be inserted
