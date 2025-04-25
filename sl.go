@@ -14,7 +14,9 @@ type SL struct {
 	tree     *ibst.Tree[Signal]
 	filters  []*SignalLayoutFilter
 
-	muxLayers      *collection.Map[EntityID, *MultiplexedLayer]
+	muxLayers *collection.Map[EntityID, *MultiplexedLayer]
+
+	parentMsg      *Message
 	parentMuxLayer *MultiplexedLayer
 }
 
@@ -24,7 +26,9 @@ func newSL(sizeByte int) *SL {
 		tree:     ibst.NewTree[Signal](),
 		filters:  []*SignalLayoutFilter{},
 
-		muxLayers:      collection.NewMap[EntityID, *MultiplexedLayer](),
+		muxLayers: collection.NewMap[EntityID, *MultiplexedLayer](),
+
+		parentMsg:      nil,
 		parentMuxLayer: nil,
 	}
 }
@@ -120,6 +124,12 @@ func (sl *SL) genFilters() {
 			sl.genFilters()
 		}
 	}
+}
+
+// setParentMsg sets the parent message of the signal layout.
+// It has to be called by the signal layout of a message.
+func (sl *SL) setParentMsg(msg *Message) {
+	sl.parentMsg = msg
 }
 
 // setParentMuxLayer sets the parent mux layer of the signal layout.
@@ -236,6 +246,8 @@ func (sl *SL) insert(sig Signal, startPos int) {
 	sig.setRelativeStartPos(startPos)
 	sl.tree.Insert(sig)
 
+	sig.setLayout(sl)
+
 	// Regenerate the filters
 	sl.genFilters()
 }
@@ -254,6 +266,8 @@ func (sl *SL) verifyAndInsert(sig Signal, startPos int) error {
 // delete removes the signal from the signal layout.
 func (sl *SL) delete(sig Signal) {
 	sl.tree.Delete(sig)
+
+	sig.setLayout(nil)
 
 	// Regenerate the filters
 	sl.genFilters()

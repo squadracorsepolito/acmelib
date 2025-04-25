@@ -103,7 +103,7 @@ type Message struct {
 }
 
 func newMessageFromEntity(ent *entity, id MessageID, sizeByte int) *Message {
-	return &Message{
+	m := &Message{
 		entity:         ent,
 		withAttributes: newWithAttributes(),
 
@@ -111,8 +111,6 @@ func newMessageFromEntity(ent *entity, id MessageID, sizeByte int) *Message {
 
 		signals:     collection.NewMap[EntityID, Signal](),
 		signalNames: collection.NewMap[string, EntityID](),
-
-		layout: newSL(sizeByte),
 
 		sizeByte: sizeByte,
 
@@ -130,6 +128,12 @@ func newMessageFromEntity(ent *entity, id MessageID, sizeByte int) *Message {
 
 		receivers: newSet[EntityID, *NodeInterface](),
 	}
+
+	layout := newSL(sizeByte)
+	layout.setParentMsg(m)
+	m.layout = layout
+
+	return m
 }
 
 // NewMessage creates a new [Message] with the given name, id and size in bytes.
@@ -155,9 +159,36 @@ func (m *Message) errorf(err error) error {
 	return msgErr
 }
 
+// verifySignalName checks if the signal name is already used in the message.
+// It traverses the tree of all the multiplexed layers from the layout of the message
+// and checks if the name is already used.
 func (m *Message) verifySignalName(name string) error {
 	if m.signalNames.Has(name) {
 		return newNameError(name, ErrIsDuplicated)
+	}
+
+	// Check if the name is present in any multiplexed layer
+	muxLayerStack := collection.NewStack[*MultiplexedLayer]()
+
+	// Push multiplexed layers directly attached to the message layout
+	for muxLayer := range m.layout.muxLayers.Values() {
+		muxLayerStack.Push(muxLayer)
+	}
+
+	for muxLayerStack.Size() > 0 {
+		muxLayer := muxLayerStack.Pop()
+
+		// Check if the name is present in the multiplexed layer
+		if muxLayer.signalNames.Has(name) {
+			return newNameError(name, ErrIsDuplicated)
+		}
+
+		// Push multiplexed layers attached to the multiplexed layer
+		for _, innerLayout := range muxLayer.iterLayouts() {
+			for innerMuxLayer := range innerLayout.muxLayers.Values() {
+				muxLayerStack.Push(innerMuxLayer)
+			}
+		}
 	}
 
 	return nil

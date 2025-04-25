@@ -31,7 +31,6 @@ type MultiplexedLayer struct {
 }
 
 func NewMultiplexedLayer(sizeByte, layoutCount int, muxorName string) *MultiplexedLayer {
-
 	ml := &MultiplexedLayer{
 		sizeByte: sizeByte,
 
@@ -53,6 +52,7 @@ func NewMultiplexedLayer(sizeByte, layoutCount int, muxorName string) *Multiplex
 	// Generate the muxor signal
 	muxor := newMuxorSignal(muxorName, layoutCount)
 	ml.muxor = muxor
+	muxor.setMultiplexedLayer(ml)
 
 	layoutIDs := make([]int, 0, layoutCount)
 	for lID := range layoutCount {
@@ -308,9 +308,61 @@ func (ml *MultiplexedLayer) GetSignalByName(name string) (Signal, error) {
 	return sig, nil
 }
 
+// verifySignalName checks if the signal name is already used in the multiplexed layer.
+// It traverses all the multiplexed layers with BFS algorithm
+// and checks if the name is already used.
 func (ml *MultiplexedLayer) verifySignalName(name string) error {
-	if ml.signalNames.Has(name) {
-		return newNameError(name, ErrIsDuplicated)
+	muxLayerQueue := collection.NewQueue[*MultiplexedLayer]()
+	muxLayerQueue.Push(ml)
+
+	visitedMuxLayers := collection.NewSet[EntityID]()
+
+	for muxLayerQueue.Size() > 0 {
+		muxLayer := muxLayerQueue.Pop()
+		visitedMuxLayers.Add(muxLayer.muxor.entityID)
+
+		// Check if the name is present in the current multiplexed layer
+		if muxLayer.signalNames.Has(name) {
+			return newNameError(name, ErrIsDuplicated)
+		}
+
+		// Push multiplexed layers attached to the current multiplexed layer
+		for _, innerLayout := range muxLayer.iterLayouts() {
+			for innerMuxLayer := range innerLayout.muxLayers.Values() {
+				if !visitedMuxLayers.Has(innerMuxLayer.muxor.entityID) {
+					muxLayerQueue.Push(innerMuxLayer)
+				}
+			}
+		}
+
+		attachedLayout := muxLayer.attachedLayout
+		if muxLayer.attachedLayout == nil {
+			continue
+		}
+
+		// Push multiplexed layers directly attached to the attached layout (siblings)
+		for siblingMuxLayer := range attachedLayout.muxLayers.Values() {
+			if !visitedMuxLayers.Has(siblingMuxLayer.muxor.entityID) {
+				muxLayerQueue.Push(siblingMuxLayer)
+			}
+		}
+
+		if attachedLayout.parentMsg != nil {
+			// The current multiplexed layer is directly attached to the parent message,
+			// so check if the name is present in the parent message
+			if attachedLayout.parentMsg.signalNames.Has(name) {
+				return newNameError(name, ErrIsDuplicated)
+			}
+		}
+
+		parentMuxLayer := attachedLayout.parentMuxLayer
+		if parentMuxLayer != nil {
+			if !visitedMuxLayers.Has(parentMuxLayer.muxor.entityID) {
+				// Push the parent layer of the layout attached to
+				// the current multiplexed layer
+				muxLayerQueue.Push(parentMuxLayer)
+			}
+		}
 	}
 
 	return nil

@@ -1,5 +1,62 @@
 package acmelib
 
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func Test_signal_UpdateName(t *testing.T) {
+	assert := assert.New(t)
+
+	muxMsg := initMultiplexedMessage(assert)
+
+	assert.NoError(muxMsg.signals.base.UpdateName("new_base_signal"))
+	assert.Equal("new_base_signal", muxMsg.signals.base.Name())
+	assert.NoError(muxMsg.signals.base.UpdateName("base_signal"))
+
+	assert.Error(muxMsg.signals.base.UpdateName("top_signal_in_0"))
+	assert.Error(muxMsg.signals.base.UpdateName("top_inner_signal_in_0"))
+	assert.Error(muxMsg.signals.base.UpdateName("bottom_signal_in_0"))
+	assert.Error(muxMsg.signals.base.UpdateName("bottom_inner_signal_in_0"))
+
+	assert.NoError(muxMsg.layers.top.signals.in0.UpdateName("new_top_signal_in_0"))
+	assert.Equal("new_top_signal_in_0", muxMsg.layers.top.signals.in0.Name())
+	assert.NoError(muxMsg.layers.top.signals.in0.UpdateName("top_signal_in_0"))
+
+	assert.Error(muxMsg.layers.top.signals.in0.UpdateName("base_signal"))
+	assert.Error(muxMsg.layers.top.signals.in0.UpdateName("top_signal_in_255"))
+	assert.Error(muxMsg.layers.top.signals.in0.UpdateName("top_inner_signal_in_0"))
+	assert.Error(muxMsg.layers.top.signals.in0.UpdateName("bottom_signal_in_0"))
+	assert.Error(muxMsg.layers.top.signals.in0.UpdateName("bottom_inner_signal_in_0"))
+
+	assert.NoError(muxMsg.layers.top.inner.signals.in0.UpdateName("new_top_inner_signal_in_0"))
+	assert.Equal("new_top_inner_signal_in_0", muxMsg.layers.top.inner.signals.in0.Name())
+	assert.NoError(muxMsg.layers.top.inner.signals.in0.UpdateName("top_inner_signal_in_0"))
+
+	assert.Error(muxMsg.layers.top.inner.signals.in0.UpdateName("base_signal"))
+	assert.Error(muxMsg.layers.top.inner.signals.in0.UpdateName("top_signal_in_0"))
+	assert.Error(muxMsg.layers.top.inner.signals.in0.UpdateName("top_inner_signal_in_255"))
+	assert.Error(muxMsg.layers.top.inner.signals.in0.UpdateName("bottom_signal_in_0"))
+	assert.Error(muxMsg.layers.top.inner.signals.in0.UpdateName("bottom_inner_signal_in_0"))
+
+	assert.NoError(muxMsg.layers.top.layer.Muxor().UpdateName("new_top_muxor"))
+	assert.Equal("new_top_muxor", muxMsg.layers.top.layer.Muxor().Name())
+	assert.NoError(muxMsg.layers.top.layer.Muxor().UpdateName("top_muxor"))
+
+	assert.Error(muxMsg.layers.top.layer.Muxor().UpdateName("top_inner_muxor"))
+	assert.Error(muxMsg.layers.top.layer.Muxor().UpdateName("bottom_muxor"))
+	assert.Error(muxMsg.layers.top.layer.Muxor().UpdateName("bottom_inner_muxor"))
+
+	assert.NoError(muxMsg.layers.top.inner.layer.Muxor().UpdateName("new_top_inner_muxor"))
+	assert.Equal("new_top_inner_muxor", muxMsg.layers.top.inner.layer.Muxor().Name())
+	assert.NoError(muxMsg.layers.top.inner.layer.Muxor().UpdateName("top_inner_muxor"))
+
+	assert.Error(muxMsg.layers.top.inner.layer.Muxor().UpdateName("top_muxor"))
+	assert.Error(muxMsg.layers.top.inner.layer.Muxor().UpdateName("bottom_muxor"))
+	assert.Error(muxMsg.layers.top.inner.layer.Muxor().UpdateName("bottom_inner_muxor"))
+}
+
 // import (
 // 	"testing"
 

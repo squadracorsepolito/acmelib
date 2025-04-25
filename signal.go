@@ -3,6 +3,8 @@ package acmelib
 import (
 	"fmt"
 	"strings"
+
+	"github.com/squadracorsepolito/acmelib/internal/collection"
 )
 
 // SignalKind rappresents the kind of a [Signal].
@@ -166,6 +168,8 @@ type Signal interface {
 	SetLow(low int)
 	GetHigh() int
 	SetHigh(high int)
+
+	setLayout(layout *SL)
 }
 
 var _ Signal = (*signal)(nil)
@@ -187,6 +191,8 @@ type signal struct {
 	size        int
 
 	muxLayer *MultiplexedLayer
+
+	layout *SL
 }
 
 func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
@@ -318,7 +324,46 @@ func (s *signal) UpdateName(newName string) error {
 		return nil
 	}
 
+	// Check if the signal is standalone
+	if s.layout == nil {
+		s.name = newName
+		return nil
+	}
+
+	var sigNamesMap *collection.Map[string, EntityID]
+
+	if s.kind == SignalKindMuxor {
+		if err := s.muxLayer.verifySignalName(newName); err != nil {
+			return err
+		}
+
+		sigNamesMap = s.muxLayer.signalNames
+		goto updateName
+	}
+
+	// Check if the signal is attached to a message
+	if s.layout.parentMsg != nil {
+		if err := s.layout.parentMsg.verifySignalName(newName); err != nil {
+			return err
+		}
+
+		sigNamesMap = s.layout.parentMsg.signalNames
+		goto updateName
+	}
+
+	// Check if the signal is attached to a multiplexed layer
+	if s.layout.parentMuxLayer != nil {
+		if err := s.layout.parentMuxLayer.verifySignalName(newName); err != nil {
+			return err
+		}
+
+		sigNamesMap = s.layout.parentMuxLayer.signalNames
+	}
+
+updateName:
+	sigNamesMap.Delete(s.name)
 	s.name = newName
+	sigNamesMap.Set(s.name, s.entityID)
 
 	return nil
 }
@@ -466,4 +511,8 @@ func (s *signal) updateSize(newSize int) error {
 	s.setSize(newSize)
 
 	return nil
+}
+
+func (s *signal) setLayout(sl *SL) {
+	s.layout = sl
 }

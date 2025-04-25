@@ -15,6 +15,10 @@ func (s *Stack[T]) Push(item T) {
 }
 
 func (s *Stack[T]) Pop() T {
+	if len(s.items) == 0 {
+		return *new(T)
+	}
+
 	lastIdx := len(s.items) - 1
 	item := s.items[lastIdx]
 	s.items = s.items[:lastIdx]
