@@ -40,7 +40,7 @@ func (sl *SL) genFilters() {
 
 	for _, sig := range sl.tree.GetInOrder() {
 		sigSize := sig.GetSize()
-		startPos := sig.GetRelativeStartPos()
+		startPos := sig.GetStartPos()
 		endianness := sig.Endianness()
 
 		firstIdx := startPos / 8
@@ -126,16 +126,153 @@ func (sl *SL) genFilters() {
 	}
 }
 
+func (sl *SL) stringify(s *stringer.Stringer) {
+	s.Write("size_byte: %d\n", sl.sizeByte)
+
+	s.Write("interval_bst:\n")
+	s.Indent()
+	sl.tree.Stringify(s)
+	s.Unindent()
+
+	if len(sl.filters) > 0 {
+		s.Write("filters:\n")
+		s.Indent()
+		for _, f := range sl.filters {
+			f.stringify(s)
+		}
+		s.Unindent()
+	}
+
+	if sl.muxLayers.Size() > 0 {
+		s.Write("multiplexed_layers:\n")
+		s.Indent()
+		for _, muxLayer := range sl.MultiplexedLayers() {
+			muxLayer.stringify(s)
+		}
+		s.Unindent()
+	}
+}
+
+func (sl *SL) String() string {
+	s := stringer.New()
+	s.Write("signal_layout:\n")
+	sl.stringify(s)
+	return s.String()
+}
+
+///////////////
+// --------- //
+// UTILITIES //
+// --------- //
+///////////////
+
 // setParentMsg sets the parent message of the signal layout.
 // It has to be called by the signal layout of a message.
 func (sl *SL) setParentMsg(msg *Message) {
 	sl.parentMsg = msg
 }
 
+func (sl *SL) fromMessage() bool {
+	return sl.parentMsg != nil && sl.parentMuxLayer == nil
+}
+
 // setParentMuxLayer sets the parent mux layer of the signal layout.
 // It has to be called by the signal layouts of a multiplexed layers.
 func (sl *SL) setParentMuxLayer(muxLayer *MultiplexedLayer) {
 	sl.parentMuxLayer = muxLayer
+}
+
+func (sl *SL) fromMultiplexedLayer() bool {
+	return sl.parentMsg == nil && sl.parentMuxLayer != nil
+}
+
+// verifyIntersection checks if the signal intersects with any signal in the layout tree
+// excluding the current signal layout.
+func (sl *SL) verifyIntersection(sig Signal) error {
+	// Traverse the tree of signal layouts downwards starting from the current signal layout,
+	// and check the intersection in each child layout
+	layoutStack := collection.NewStack[*SL]()
+
+	// Push to the stack the multiplexed layers directly attached to the signal layout
+	for ml := range sl.muxLayers.Values() {
+		for _, tmpLayout := range ml.iterLayouts() {
+			layoutStack.Push(tmpLayout)
+		}
+	}
+
+	for !layoutStack.IsEmpty() {
+		layout := layoutStack.Pop()
+
+		// Check if the signal intersects in the current signal layout
+		if intSig, ok := layout.tree.Intersects(sig); ok {
+			return newIntersectError(intSig.Name())
+		}
+
+		// Push to the stack the multiplexed layers directly attached to the current signal layout
+		for ml := range layout.muxLayers.Values() {
+			for _, tmpLayout := range ml.iterLayouts() {
+				layoutStack.Push(tmpLayout)
+			}
+		}
+	}
+
+	// If the layout is a direct child of a message, you can stop
+	if sl.fromMessage() || !sl.fromMultiplexedLayer() {
+		return nil
+	}
+
+	// The layout is child of a multiplexed layer, so you have to
+	// traverse the tree backwards to check the intersection in parallel branches
+	skipBranch := sl.parentMuxLayer.getID()
+	parentLayout := sl.parentMuxLayer.attachedLayout
+	if parentLayout == nil {
+		return nil
+	}
+
+	for !parentLayout.fromMessage() && parentLayout.fromMultiplexedLayer() {
+		if intSig, ok := parentLayout.tree.Intersects(sig); ok {
+			return newIntersectError(intSig.Name())
+		}
+
+		skipBranch = parentLayout.parentMuxLayer.getID()
+		parentLayout = parentLayout.parentMuxLayer.attachedLayout
+		if parentLayout == nil {
+			return nil
+		}
+	}
+
+	// The tree was traversed backwards to the root, now check the intersection
+	// in the parallel branches
+	layoutStack.Push(parentLayout)
+	for !layoutStack.IsEmpty() {
+		layout := layoutStack.Pop()
+
+		if intSig, ok := layout.tree.Intersects(sig); ok {
+			return newIntersectError(intSig.Name())
+		}
+
+		for muxLayer := range layout.muxLayers.Values() {
+			if muxLayer.getID() == skipBranch {
+				continue
+			}
+
+			for _, tmpLayout := range muxLayer.iterLayouts() {
+				layoutStack.Push(tmpLayout)
+			}
+		}
+	}
+
+	return nil
+}
+
+////////////////////
+// -------------- //
+// START POSITION //
+// -------------- //
+////////////////////
+
+func (sl *SL) getIntervalFromNewStartPos(sig Signal, newStartPos int) (int, int) {
+	return newStartPos, newStartPos + sig.GetSize() - 1
 }
 
 // verifyStartPos checks if the start position is valid.
@@ -151,138 +288,14 @@ func (sl *SL) verifyStartPos(startPos int) error {
 	return nil
 }
 
-// verifySize checks if the size is valid.
-func (sl *SL) verifySize(size int) error {
-	if size < 0 {
-		return newSizeError(size, ErrIsNegative)
-	}
-
-	if size > sl.sizeByte*8 {
-		return newSizeError(size, ErrOutOfBounds)
-	}
-
-	return nil
-}
-
 // verifyStartPosPlusSize checks if the start position plus the size is valid.
 // It doesn't check if the size or the start position are valid, it only checks if the sum is valid.
 func (sl *SL) verifyStartPosPlusSize(startPos, size int) error {
 	if startPos+size > sl.sizeByte*8 {
-		return newSizeError(size, ErrOutOfBounds)
+		return newStartPosError(startPos, ErrOutOfBounds)
 	}
 
 	return nil
-}
-
-// verifyIntersectsMuxLayers checks if the signal intersects with any signal of multiplexed layers
-func (sl *SL) verifyIntersectsMuxLayers(sig Signal, skipMuxLayers ...EntityID) error {
-	for ml := range sl.muxLayers.Values() {
-		if slices.Contains(skipMuxLayers, ml.muxor.entityID) {
-			continue
-		}
-
-		for _, tmpLayout := range ml.iterLayouts() {
-			if tmpLayout.tree.Intersects(sig) {
-				return ErrIntersects
-			}
-		}
-	}
-	return nil
-}
-
-// verifyInsert checks if the signal does not intersect with another signal.
-// It will skip the multiplexed layers with the given entity IDs.
-func (sl *SL) verifyInsert(sig Signal, startPos int, skipMuxLayers ...EntityID) error {
-	if err := sl.verifyStartPos(startPos); err != nil {
-		return err
-	}
-
-	size := sig.GetSize()
-	if err := sl.verifySize(size); err != nil {
-		return err
-	}
-
-	if err := sl.verifyStartPosPlusSize(startPos, size); err != nil {
-		return err
-	}
-
-	// Set the start position to test the intersection and then reset it
-	oldStartPos := sig.GetRelativeStartPos()
-	sig.setRelativeStartPos(startPos)
-	defer sig.setRelativeStartPos(oldStartPos)
-
-	// Check if the signal intersects with another
-	if sl.tree.Intersects(sig) {
-		return newStartPosError(startPos, ErrIntersects)
-	}
-
-	// Check if the signal intersects with any signal of the parallel multiplexed layers
-	if err := sl.verifyIntersectsMuxLayers(sig, skipMuxLayers...); err != nil {
-		return newStartPosError(startPos, err)
-	}
-
-	// If the layout is part of a multiplexed layer, recursively check
-	// if the signal intersects with any signal of the layout attached
-	// to the parent multiplexed layer
-	parentMuxLayer := sl.parentMuxLayer
-	if parentMuxLayer != nil {
-		attachedLayout := parentMuxLayer.attachedLayout
-		if attachedLayout == nil {
-			return nil
-		}
-
-		muxorEntID := parentMuxLayer.muxor.entityID
-		if err := attachedLayout.verifyInsert(sig, startPos, muxorEntID); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// insert inserts the signal into the signal layout.
-// It must be called after the verify function since it assumes the signal is valid.
-func (sl *SL) insert(sig Signal, startPos int) {
-	sig.setRelativeStartPos(startPos)
-	sl.tree.Insert(sig)
-
-	sig.setLayout(sl)
-
-	// Regenerate the filters
-	sl.genFilters()
-}
-
-// verifyAndInsert checks and inserts the signal into the signal layout.
-func (sl *SL) verifyAndInsert(sig Signal, startPos int) error {
-	if err := sl.verifyInsert(sig, startPos); err != nil {
-		return err
-	}
-
-	sl.insert(sig, startPos)
-
-	return nil
-}
-
-// delete removes the signal from the signal layout.
-func (sl *SL) delete(sig Signal) {
-	sl.tree.Delete(sig)
-
-	sig.setLayout(nil)
-
-	// Regenerate the filters
-	sl.genFilters()
-}
-
-// clear removes all signals from the signal layout.
-func (sl *SL) clear() {
-	sl.tree.Clear()
-
-	// Reset the filters
-	sl.filters = []*SignalLayoutFilter{}
-}
-
-func (sl *SL) getIntervalFromNewStartPos(sig Signal, newStartPos int) (int, int) {
-	return newStartPos, newStartPos + sig.GetSize() - 1
 }
 
 // verifyNewStartPos checks if setting the signal to the new start position
@@ -297,22 +310,16 @@ func (sl *SL) verifyNewStartPos(sig Signal, newStartPos int) error {
 	}
 
 	newLow, newHigh := sl.getIntervalFromNewStartPos(sig, newStartPos)
-
 	if !sl.tree.CanUpdate(sig, newLow, newHigh) {
 		return newStartPosError(newStartPos, ErrIntersects)
 	}
 
 	// Set the start position to test the intersection and then reset it to the previous one
-	prevStartPos := sig.GetRelativeStartPos()
-	sig.setRelativeStartPos(newStartPos)
-	defer sig.setRelativeStartPos(prevStartPos)
+	oldStartPos := sig.GetStartPos()
+	sig.setStartPos(newStartPos)
+	defer sig.setStartPos(oldStartPos)
 
-	// Check if the signal intersects with any signal of multiplexed layers
-	if err := sl.verifyIntersectsMuxLayers(sig); err != nil {
-		return newStartPosError(newStartPos, err)
-	}
-
-	return nil
+	return sl.verifyIntersection(sig)
 }
 
 // updateStartPos updates the start position of the signal in the signal layout.
@@ -337,9 +344,28 @@ func (sl *SL) verifyAndUpdateStartPos(sig Signal, newStartPos int) error {
 	return nil
 }
 
+//////////
+// ---- //
+// SIZE //
+// ---- //
+//////////
+
 func (sl *SL) getIntervalFromNewSize(sig Signal, newSize int) (int, int) {
-	startPos := sig.GetRelativeStartPos()
+	startPos := sig.GetStartPos()
 	return startPos, startPos + newSize - 1
+}
+
+// verifySize checks if the size is valid.
+func (sl *SL) verifySize(size int) error {
+	if size < 0 {
+		return newSizeError(size, ErrIsNegative)
+	}
+
+	if size > sl.sizeByte*8 {
+		return newSizeError(size, ErrOutOfBounds)
+	}
+
+	return nil
 }
 
 // verifyNewSize checks if setting the signal to the new size
@@ -349,27 +375,20 @@ func (sl *SL) verifyNewSize(sig Signal, newSize int) error {
 		return err
 	}
 
-	if err := sl.verifyStartPosPlusSize(sig.GetRelativeStartPos(), newSize); err != nil {
+	if err := sl.verifyStartPosPlusSize(sig.GetStartPos(), newSize); err != nil {
 		return err
 	}
 
 	newLow, newHigh := sl.getIntervalFromNewSize(sig, newSize)
-
 	if !sl.tree.CanUpdate(sig, newLow, newHigh) {
 		return newSizeError(newSize, ErrIntersects)
 	}
 
-	// Set the size to test the intersection and then reset it to the previous one
-	prevSize := sig.GetSize()
+	oldSize := sig.GetSize()
 	sig.setSize(newSize)
-	defer sig.setSize(prevSize)
+	defer sig.setSize(oldSize)
 
-	// Check if the signal intersects with any signal of multiplexed layers
-	if err := sl.verifyIntersectsMuxLayers(sig); err != nil {
-		return newSizeError(newSize, err)
-	}
-
-	return nil
+	return sl.verifyIntersection(sig)
 }
 
 // updateSize updates the size of the signal in the signal layout.
@@ -394,6 +413,87 @@ func (sl *SL) verifyAndUpdateSize(sig Signal, newSize int) error {
 	return nil
 }
 
+////////////
+// ------ //
+// INSERT //
+// ------ //
+////////////
+
+func (sl *SL) verifyInsert(sig Signal, startPos int) error {
+	if err := sl.verifyStartPos(startPos); err != nil {
+		return err
+	}
+
+	if err := sl.verifyStartPosPlusSize(startPos, sig.GetSize()); err != nil {
+		return err
+	}
+
+	oldStartPos := sig.GetStartPos()
+	sig.setStartPos(startPos)
+	defer sig.setStartPos(oldStartPos)
+
+	// Check if the signal intersects in the current signal layout
+	if intSig, ok := sl.tree.Intersects(sig); ok {
+		return newIntersectError(intSig.Name())
+	}
+
+	return sl.verifyIntersection(sig)
+}
+
+// insert inserts the signal into the signal layout.
+// It must be called after the verify function since it assumes the signal is valid.
+func (sl *SL) insert(sig Signal, startPos int) {
+	sig.setStartPos(startPos)
+	sl.tree.Insert(sig)
+
+	sig.setLayout(sl)
+
+	// Regenerate the filters
+	sl.genFilters()
+}
+
+// verifyAndInsert checks and inserts the signal into the signal layout.
+func (sl *SL) verifyAndInsert(sig Signal, startPos int) error {
+	if err := sl.verifyInsert(sig, startPos); err != nil {
+		return err
+	}
+
+	sl.insert(sig, startPos)
+
+	return nil
+}
+
+////////////
+// ------ //
+// DELETE //
+// ------ //
+////////////
+
+// delete removes the signal from the signal layout.
+func (sl *SL) delete(sig Signal) {
+	sl.tree.Delete(sig)
+
+	sig.setLayout(nil)
+
+	// Regenerate the filters
+	sl.genFilters()
+}
+
+// clear removes all signals from the signal layout.
+func (sl *SL) clear() {
+	sl.tree.Clear()
+
+	// Reset the filters
+	sl.filters = []*SignalLayoutFilter{}
+}
+
+////////////
+// ------ //
+// RESIZE //
+// ------ //
+////////////
+
+// verifySizeByte checks if the size byte is valid.
 func (sl *SL) verifySizeByte(sizeByte int) error {
 	if sizeByte < 0 {
 		return newSizeError(sizeByte, ErrIsNegative)
@@ -466,6 +566,12 @@ func (sl *SL) verifyAndResize(newSizeByte int) error {
 	return nil
 }
 
+/////////////
+// ------- //
+// COMPACT //
+// ------- //
+/////////////
+
 // compact compacts the signal layout.
 // It will only compact the signal layout if there are no multiplexed layers.
 func (sl *SL) compact() {
@@ -480,119 +586,6 @@ func (sl *SL) compact() {
 		sl.tree.Update(sig, newStartPos, newStartPos+tmpSize)
 		newStartPos += tmpSize
 	}
-}
-
-// AttachMultiplexedLayer attaches the multiplexed layer to the signal layout.
-//
-// It returns:
-//   - [ArgumentError] if the multiplexed layer is nil.
-//   - [SizeError] that wraps [ErrIsDifferent] if the sizes of the multiplexed layer
-//     and the signal layout are different.
-//   - [StartPosError] or [SizeError] if any signal of the multiplexed layer intersects
-//     with any signal of the signal layout.
-func (sl *SL) AttachMultiplexedLayer(ml *MultiplexedLayer) error {
-	if err := verifyArgNotNil(ml, "ml"); err != nil {
-		return err
-	}
-
-	// Check if the multiplexed layer is already attached
-	if sl.muxLayers.Has(ml.muxor.entityID) {
-		return nil
-	}
-
-	// Check if the sizes (bytes) are the same
-	if sl.sizeByte != ml.sizeByte {
-		return newSizeError(ml.sizeByte, ErrIsDifferent)
-	}
-
-	// Check if the muxor start position is valid
-	if err := sl.verifyInsert(ml.muxor, ml.muxor.GetRelativeStartPos()); err != nil {
-		return err
-	}
-
-	// Check if the muxor name is not duplicated
-	if sl.parentMsg != nil {
-		if err := sl.parentMsg.verifySignalName(ml.muxor.name); err != nil {
-			return err
-		}
-	}
-	if sl.parentMuxLayer != nil {
-		if err := sl.parentMuxLayer.verifySignalName(ml.muxor.name); err != nil {
-			return err
-		}
-	}
-
-	// Check that each signal of the multiplexed layer can be inserted
-	for _, tmpLayout := range ml.iterLayouts() {
-		for tmpSig := range tmpLayout.tree.InOrder() {
-			if err := sl.verifyInsert(tmpSig, tmpSig.GetRelativeStartPos()); err != nil {
-				return err
-			}
-		}
-	}
-
-	// Insert the muxor into the current layout
-	sl.insert(ml.muxor, ml.muxor.GetRelativeStartPos())
-
-	// Add the multiplexed layer to the signal layout
-	sl.muxLayers.Set(ml.muxor.entityID, ml)
-	ml.attachedLayout = sl
-
-	// Regenerate the filters
-	sl.genFilters()
-
-	return nil
-}
-
-// DetachMultiplexedLayer removes the multiplexed layer
-// with the given entity ID from the signal layout.
-//
-// It returns [ErrNotFound] if the multiplexed layer is not found.
-func (sl *SL) DetachMultiplexedLayer(entityID EntityID) error {
-	ml, ok := sl.muxLayers.Get(entityID)
-	if !ok {
-		return ErrNotFound
-	}
-
-	sl.delete(ml.muxor)
-	sl.muxLayers.Delete(entityID)
-	ml.attachedLayout = nil
-
-	return nil
-}
-
-func (sl *SL) stringify(s *stringer.Stringer) {
-	s.Write("size_byte: %d\n", sl.sizeByte)
-
-	s.Write("interval_bst:\n")
-	s.Indent()
-	sl.tree.Stringify(s)
-	s.Unindent()
-
-	if len(sl.filters) > 0 {
-		s.Write("filters:\n")
-		s.Indent()
-		for _, f := range sl.filters {
-			f.stringify(s)
-		}
-		s.Unindent()
-	}
-
-	if sl.muxLayers.Size() > 0 {
-		s.Write("multiplexed_layers:\n")
-		s.Indent()
-		for _, muxLayer := range sl.MultiplexedLayers() {
-			muxLayer.stringify(s)
-		}
-		s.Unindent()
-	}
-}
-
-func (sl *SL) String() string {
-	s := stringer.New()
-	s.Write("signal_layout:\n")
-	sl.stringify(s)
-	return s.String()
 }
 
 // SignalCount returns the number of signals in the signal layout.
@@ -615,7 +608,70 @@ func (sl *SL) Filters() []*SignalLayoutFilter {
 func (sl *SL) MultiplexedLayers() []*MultiplexedLayer {
 	layers := slices.Collect(sl.muxLayers.Values())
 	slices.SortFunc(layers, func(a, b *MultiplexedLayer) int {
-		return cmp.Compare(a.muxor.GetRelativeStartPos(), b.muxor.GetRelativeStartPos())
+		return cmp.Compare(a.muxor.GetStartPos(), b.muxor.GetStartPos())
 	})
 	return layers
+}
+
+// AddMultiplexedLayer creates and adds a new multiplexed layer to the signal layout.
+// A newly created multiplexed layer is returned. It will contain a muxor signal
+// with the given name, start postion, and layout count.
+//
+// It returns:
+//   - [ArgumentError] if an argument is invalid.
+//   - [NameError] if the given muxor name is invalid.
+//   - [StartPosError] if the given muxor start position is invalid.
+func (sl *SL) AddMultiplexedLayer(muxorName string, muxorStartPos, layoutCount int) (*MultiplexedLayer, error) {
+	// Check if the layout count is valid
+	if layoutCount < 0 {
+		return nil, newArgError("layoutCount", ErrIsNegative)
+	} else if layoutCount == 0 {
+		return nil, newArgError("layoutCount", ErrIsZero)
+	}
+
+	// Check if the muxor name is valid
+	if sl.fromMessage() {
+		if err := sl.parentMsg.verifySignalName(muxorName); err != nil {
+			return nil, err
+		}
+	} else if sl.fromMultiplexedLayer() {
+		if err := sl.parentMuxLayer.verifySignalName(muxorName); err != nil {
+			return nil, err
+		}
+	}
+
+	// Create the muxor, but before inserting it, check if the
+	// start position is valid
+	muxor := newMuxorSignal(muxorName, layoutCount)
+	if err := sl.verifyInsert(muxor, muxorStartPos); err != nil {
+		return nil, muxor.errorf(err)
+	}
+	sl.insert(muxor, muxorStartPos)
+
+	// Create the multiplexed layer and add it
+	ml := newMultiplexedLayer(muxor, layoutCount, sl.sizeByte)
+	ml.setAttachedLayout(sl)
+	sl.muxLayers.Set(ml.getID(), ml)
+
+	// Generate filters
+	sl.genFilters()
+
+	return ml, nil
+}
+
+// DeleteMultiplexedLayer removes the multiplexed layer
+// with the given entity ID from the signal layout.
+//
+// It returns [ErrNotFound] if the multiplexed layer is not found.
+func (sl *SL) DeleteMultiplexedLayer(entityID EntityID) error {
+	ml, ok := sl.muxLayers.Get(entityID)
+	if !ok {
+		return ErrNotFound
+	}
+
+	sl.delete(ml.muxor)
+	sl.muxLayers.Delete(entityID)
+	ml.setAttachedLayout(nil)
+
+	return nil
 }

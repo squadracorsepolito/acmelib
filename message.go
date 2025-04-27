@@ -343,8 +343,8 @@ func (m *Message) AppendSignal(signal Signal) error {
 // It may return an error if the signal name is already used within the message,
 // or if the signal cannot fit in the available space left at the start bit.
 func (m *Message) InsertSignal(signal Signal, startPos int) error {
-	if err := verifyArgNotNil(signal, "signal"); err != nil {
-		return m.errorf(err)
+	if signal == nil {
+		return m.errorf(newArgError("signal", ErrIsNil))
 	}
 
 	if err := m.verifySignalName(signal.Name()); err != nil {

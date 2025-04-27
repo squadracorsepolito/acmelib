@@ -1,6 +1,8 @@
 package acmelib
 
-import "github.com/stretchr/testify/assert"
+import (
+	"github.com/stretchr/testify/assert"
+)
 
 var byteSigType, _ = NewIntegerSignalType("uint8_t", 8, false)
 var wordSigType, _ = NewIntegerSignalType("uint16_t", 16, false)
@@ -43,8 +45,8 @@ func initMultiplexedMessage(assert *assert.Assertions) *testdataMuxMsg {
 	layout := msg.SignalLayout()
 
 	// top multiplexed layer
-	top := NewMultiplexedLayer(8, 256, "top_muxor")
-	assert.NoError(layout.AttachMultiplexedLayer(top))
+	top, err := layout.AddMultiplexedLayer("top_muxor", 0, 256)
+	assert.NoError(err)
 
 	topSig0, err := NewStandardSignal("top_signal_in_0", byteSigType)
 	assert.NoError(err)
@@ -59,9 +61,8 @@ func initMultiplexedMessage(assert *assert.Assertions) *testdataMuxMsg {
 	assert.NoError(top.InsertSignal(topSig02, 16, 0, 2))
 
 	// top inner multiplexed layer
-	topInn := NewMultiplexedLayer(8, 256, "top_inner_muxor")
-	assert.NoError(topInn.Muxor().UpdateStartPos(8))
-	assert.NoError(top.GetLayout(1).AttachMultiplexedLayer(topInn))
+	topInn, err := top.GetLayout(1).AddMultiplexedLayer("top_inner_muxor", 8, 256)
+	assert.NoError(err)
 
 	topInnSig0, err := NewStandardSignal("top_inner_signal_in_0", byteSigType)
 	assert.NoError(err)
@@ -72,9 +73,8 @@ func initMultiplexedMessage(assert *assert.Assertions) *testdataMuxMsg {
 	assert.NoError(topInn.InsertSignal(topInnSig255, 16, 255))
 
 	// bottom multiplexed layer
-	bottom := NewMultiplexedLayer(8, 256, "bottom_muxor")
-	assert.NoError(bottom.Muxor().UpdateStartPos(56))
-	assert.NoError(layout.AttachMultiplexedLayer(bottom))
+	bottom, err := layout.AddMultiplexedLayer("bottom_muxor", 56, 256)
+	assert.NoError(err)
 
 	bottomSig0, err := NewStandardSignal("bottom_signal_in_0", byteSigType)
 	assert.NoError(err)
@@ -89,9 +89,8 @@ func initMultiplexedMessage(assert *assert.Assertions) *testdataMuxMsg {
 	assert.NoError(bottom.InsertSignal(bottomSig02, 40, 0, 2))
 
 	// bottom inner multiplexed layer
-	bottomInn := NewMultiplexedLayer(8, 256, "bottom_inner_muxor")
-	assert.NoError(bottomInn.Muxor().UpdateStartPos(48))
-	assert.NoError(bottom.GetLayout(1).AttachMultiplexedLayer(bottomInn))
+	bottomInn, err := bottom.GetLayout(1).AddMultiplexedLayer("bottom_inner_muxor", 48, 256)
+	assert.NoError(err)
 
 	bottomInnSig0, err := NewStandardSignal("bottom_inner_signal_in_0", byteSigType)
 	assert.NoError(err)

@@ -149,19 +149,6 @@ func (e *RemoveEntityError) Error() string {
 
 func (e *RemoveEntityError) Unwrap() error { return e.Err }
 
-// ArgumentError is returned when an argument is invalid.
-// The Name field is the name of the argument and the Err field is the cause.
-type ArgumentError struct {
-	Name string
-	Err  error
-}
-
-func (e *ArgumentError) Error() string {
-	return fmt.Sprintf("argument error; name:%q : %v", e.Name, e.Err)
-}
-
-func (e *ArgumentError) Unwrap() error { return e.Err }
-
 // UpdateNameError is returned when a name cannot be updated.
 type UpdateNameError struct {
 	Err error
@@ -405,3 +392,32 @@ func (e *NameError) Error() string {
 }
 
 func (e *NameError) Unwrap() error { return e.Err }
+
+// ArgumentError is returned when an argument is invalid.
+// The Name field is the name of the argument and the Err field is the cause.
+type ArgumentError struct {
+	Name string
+	Err  error
+}
+
+func newArgError(name string, err error) *ArgumentError {
+	return &ArgumentError{Name: name, Err: err}
+}
+
+func (e *ArgumentError) Error() string {
+	return fmt.Sprintf("argument error; name:%q : %v", e.Name, e.Err)
+}
+
+func (e *ArgumentError) Unwrap() error { return e.Err }
+
+type IntersectError struct {
+	With string
+}
+
+func newIntersectError(with string) *IntersectError {
+	return &IntersectError{With: with}
+}
+
+func (e *IntersectError) Error() string {
+	return fmt.Sprintf("intersect with %q", e.With)
+}

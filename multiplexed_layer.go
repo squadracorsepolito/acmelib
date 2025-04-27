@@ -8,14 +8,6 @@ import (
 	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
-func verifyArgNotNil(arg any, name string) error {
-	if arg == nil {
-		return &ArgumentError{Name: name, Err: ErrIsNil}
-	}
-
-	return nil
-}
-
 type MultiplexedLayer struct {
 	sizeByte int
 
@@ -30,7 +22,7 @@ type MultiplexedLayer struct {
 	layouts     []*SL
 }
 
-func NewMultiplexedLayer(sizeByte, layoutCount int, muxorName string) *MultiplexedLayer {
+func newMultiplexedLayer(muxor *MuxorSignal, layoutCount, sizeByte int) *MultiplexedLayer {
 	ml := &MultiplexedLayer{
 		sizeByte: sizeByte,
 
@@ -38,29 +30,26 @@ func NewMultiplexedLayer(sizeByte, layoutCount int, muxorName string) *Multiplex
 		signalNames:     collection.NewMap[string, EntityID](),
 		singalLayoutIDs: collection.NewMap[EntityID, []int](),
 
+		muxor: muxor,
+
 		layoutCount: layoutCount,
-		layouts:     make([]*SL, layoutCount),
+		layouts:     make([]*SL, 0, layoutCount),
 	}
 
-	// Generate signal layouts
-	for i := range layoutCount {
+	for range layoutCount {
 		sl := newSL(sizeByte)
 		sl.setParentMuxLayer(ml)
-		ml.layouts[i] = sl
+		ml.layouts = append(ml.layouts, sl)
 	}
 
-	// Generate the muxor signal
-	muxor := newMuxorSignal(muxorName, layoutCount)
-	ml.muxor = muxor
-	muxor.setMultiplexedLayer(ml)
-
-	layoutIDs := make([]int, 0, layoutCount)
-	for lID := range layoutCount {
-		layoutIDs = append(layoutIDs, lID)
-	}
-	ml.addSignal(muxor, layoutIDs)
+	muxor.setparentMuxLayer(ml)
+	ml.signalNames.Set(muxor.Name(), muxor.EntityID())
 
 	return ml
+}
+
+func (ml *MultiplexedLayer) getID() EntityID {
+	return ml.muxor.entityID
 }
 
 func (ml *MultiplexedLayer) iterLayouts() iter.Seq2[int, *SL] {
@@ -77,7 +66,7 @@ func (ml *MultiplexedLayer) addSignal(sig Signal, layoutIDs []int) {
 	ml.signals.Set(sig.EntityID(), sig)
 	ml.signalNames.Set(sig.Name(), sig.EntityID())
 	ml.singalLayoutIDs.Set(sig.EntityID(), layoutIDs)
-	sig.setMultiplexedLayer(ml)
+	sig.setparentMuxLayer(ml)
 }
 
 func (ml *MultiplexedLayer) removeSignal(sig Signal) {
@@ -88,7 +77,7 @@ func (ml *MultiplexedLayer) removeSignal(sig Signal) {
 	ml.signals.Delete(sig.EntityID())
 	ml.signalNames.Delete(sig.Name())
 	ml.singalLayoutIDs.Delete(sig.EntityID())
-	sig.setMultiplexedLayer(nil)
+	sig.setparentMuxLayer(nil)
 }
 
 // verifyLayoutID checks if the layout ID is valid.
@@ -132,19 +121,12 @@ func (ml *MultiplexedLayer) String() string {
 }
 
 func (ml *MultiplexedLayer) InsertSignal(signal Signal, startPos int, layoutIDs ...int) error {
-	if err := verifyArgNotNil(signal, "signal"); err != nil {
-		return err
+	if signal == nil {
+		return newArgError("signal", ErrIsNil)
 	}
 
 	if err := ml.verifySignalName(signal.Name()); err != nil {
-		return err
-	}
-
-	// Check if it intersects with any signal of the attached layout
-	if ml.attachedLayout != nil {
-		if err := ml.attachedLayout.verifyInsert(signal, startPos, ml.muxor.entityID); err != nil {
-			return err
-		}
+		return signal.errorf(err)
 	}
 
 	// Check if the signal has to be inserted into all layouts
@@ -156,7 +138,7 @@ func (ml *MultiplexedLayer) InsertSignal(signal Signal, startPos int, layoutIDs 
 		// Check if the start position is valid
 		for _, sl := range ml.iterLayouts() {
 			if err := sl.verifyInsert(signal, startPos); err != nil {
-				return err
+				return signal.errorf(err)
 			}
 		}
 
@@ -187,12 +169,12 @@ func (ml *MultiplexedLayer) InsertSignal(signal Signal, startPos int, layoutIDs 
 
 			// Check if the current layout ID is already present
 			if slices.Contains(prevLayoutIDs, lID) {
-				return &GroupIDError{GroupID: lID, Err: ErrIsDuplicated}
+				return signal.errorf(&GroupIDError{GroupID: lID, Err: ErrIsDuplicated})
 			}
 
 			// Check if the start position is valid
 			if err := ml.layouts[lID].verifyInsert(signal, startPos); err != nil {
-				return err
+				return signal.errorf(err)
 			}
 		}
 
@@ -319,7 +301,7 @@ func (ml *MultiplexedLayer) verifySignalName(name string) error {
 
 	for muxLayerQueue.Size() > 0 {
 		muxLayer := muxLayerQueue.Pop()
-		visitedMuxLayers.Add(muxLayer.muxor.entityID)
+		visitedMuxLayers.Add(muxLayer.getID())
 
 		// Check if the name is present in the current multiplexed layer
 		if muxLayer.signalNames.Has(name) {
@@ -366,4 +348,12 @@ func (ml *MultiplexedLayer) verifySignalName(name string) error {
 	}
 
 	return nil
+}
+
+func (ml *MultiplexedLayer) setAttachedLayout(layout *SL) {
+	ml.attachedLayout = layout
+}
+
+func (ml *MultiplexedLayer) AttachedLayout() *SL {
+	return ml.attachedLayout
 }

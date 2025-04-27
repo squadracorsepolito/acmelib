@@ -126,8 +126,21 @@ type Signal interface {
 
 	// ParentMessage returns the parent message of the signal or nil if not set.
 	ParentMessage() *Message
-
 	setParentMsg(parentMsg *Message)
+
+	setparentMuxLayer(ml *MultiplexedLayer)
+	setLayout(layout *SL)
+
+	// GetStartPos returns the start postion of the signal.
+	GetStartPos() int
+	setStartPos(startPos int)
+	// UpdateStartPos updates the start position of the signal.
+	UpdateStartPos(startPos int) error
+
+	// GetSize returns the size of the signal.
+	GetSize() int
+	setSize(size int)
+	updateSize(newSize int) error
 
 	// SetStartValue sets the initial raw value of the signal.
 	SetStartValue(startValue float64)
@@ -142,34 +155,21 @@ type Signal interface {
 	Endianness() Endianness
 	SetEndianness(endianness Endianness)
 
-	// GetStartBit returns the start bit of the signal.
-	GetStartBit() int
-
 	// ToStandard returns the signal as a standard signal.
 	ToStandard() (*StandardSignal, error)
 	// ToEnum returns the signal as a enum signal.
 	ToEnum() (*EnumSignal, error)
-	// ToMultiplexer returns the signal as a muxor signal.
+	// ToMuxor returns the signal as a muxor signal.
 	ToMuxor() (*MuxorSignal, error)
 
-	// GetSize returns the size of the signal.
-	GetSize() int
-	setSize(size int)
-
-	// GetRelativeStartPos returns the relative start postion of the signal.
-	// It is the same as GetStartBit for non-multiplexed signals.
-	GetRelativeStartPos() int
-	setRelativeStartPos(startPos int)
-
-	setMultiplexedLayer(ml *MultiplexedLayer)
-	UpdateStartPos(startPos int) error
-
+	// GetLow is used for the ibst
 	GetLow() int
+	// SetLow is used for the ibst
 	SetLow(low int)
+	// GetHigh is used for the ibst
 	GetHigh() int
+	// SetHigh is used for the ibst
 	SetHigh(high int)
-
-	setLayout(layout *SL)
 }
 
 var _ Signal = (*signal)(nil)
@@ -178,7 +178,10 @@ type signal struct {
 	*entity
 	*withAttributes
 
-	parentMsg *Message
+	parentMsg      *Message
+	parentMuxLayer *MultiplexedLayer
+
+	layout *SL
 
 	kind SignalKind
 
@@ -189,10 +192,6 @@ type signal struct {
 
 	relStartPos int
 	size        int
-
-	muxLayer *MultiplexedLayer
-
-	layout *SL
 }
 
 func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
@@ -200,7 +199,10 @@ func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
 		entity:         ent,
 		withAttributes: newWithAttributes(),
 
-		parentMsg: nil,
+		parentMsg:      nil,
+		parentMuxLayer: nil,
+
+		layout: nil,
 
 		kind: kind,
 
@@ -263,11 +265,11 @@ func (s *signal) setParentMsg(parentMsg *Message) {
 	}
 }
 
-func (s *signal) GetRelativeStartPos() int {
+func (s *signal) GetStartPos() int {
 	return s.relStartPos
 }
 
-func (s *signal) setRelativeStartPos(startPos int) {
+func (s *signal) setStartPos(startPos int) {
 	s.relStartPos = startPos
 }
 
@@ -333,11 +335,11 @@ func (s *signal) UpdateName(newName string) error {
 	var sigNamesMap *collection.Map[string, EntityID]
 
 	if s.kind == SignalKindMuxor {
-		if err := s.muxLayer.verifySignalName(newName); err != nil {
+		if err := s.parentMuxLayer.verifySignalName(newName); err != nil {
 			return err
 		}
 
-		sigNamesMap = s.muxLayer.signalNames
+		sigNamesMap = s.parentMuxLayer.signalNames
 		goto updateName
 	}
 
@@ -392,11 +394,11 @@ func (s *signal) setSize(size int) {
 }
 
 func (s *signal) GetLow() int {
-	return s.GetRelativeStartPos()
+	return s.GetStartPos()
 }
 
 func (s *signal) SetLow(low int) {
-	s.setRelativeStartPos(low)
+	s.setStartPos(low)
 }
 
 func (s *signal) SetHigh(high int) {
@@ -439,32 +441,32 @@ func (s *signal) AssignAttribute(attribute Attribute, value any) error {
 	return nil
 }
 
-func (s *signal) setMultiplexedLayer(ml *MultiplexedLayer) {
-	s.muxLayer = ml
+func (s *signal) setparentMuxLayer(ml *MultiplexedLayer) {
+	s.parentMuxLayer = ml
 }
 
-func (s *signal) hasMuxLayer() bool {
-	return s.muxLayer != nil
+func (s *signal) hasParentMuxLayer() bool {
+	return s.parentMuxLayer != nil
 }
 
 // UpdateStartPos updates the start position of the signal.
 //
 // It returns a [StartPosError] if the new start position is invalid.
 func (s *signal) UpdateStartPos(newStartPos int) error {
-	if s.hasMuxLayer() {
+	if s.hasParentMuxLayer() {
 		// Get all IDs of the layouts that contain the signal
-		if layoutIDs, ok := s.muxLayer.singalLayoutIDs.Get(s.entityID); ok {
+		if layoutIDs, ok := s.parentMuxLayer.singalLayoutIDs.Get(s.entityID); ok {
 			for _, lID := range layoutIDs {
 				// Check if the new start position is valid,
 				// this recursively checks until the base layout is reached (message layout)
-				if err := s.muxLayer.layouts[lID].verifyNewStartPos(s, newStartPos); err != nil {
+				if err := s.parentMuxLayer.layouts[lID].verifyNewStartPos(s, newStartPos); err != nil {
 					return s.errorf(err)
 				}
 			}
 
 			// The new position is valid, you can update it
 			for _, lID := range layoutIDs {
-				s.muxLayer.layouts[lID].updateStartPos(s, newStartPos)
+				s.parentMuxLayer.layouts[lID].updateStartPos(s, newStartPos)
 			}
 		}
 
@@ -473,38 +475,42 @@ func (s *signal) UpdateStartPos(newStartPos int) error {
 
 	if s.hasParentMsg() {
 		// Check if the new start position is valid and update it
-		return s.errorf(s.parentMsg.layout.verifyAndUpdateStartPos(s, newStartPos))
+		if err := s.parentMsg.layout.verifyAndUpdateStartPos(s, newStartPos); err != nil {
+			return s.errorf(err)
+		}
 	}
 
 	// The signal is not attached to anything
-	s.setRelativeStartPos(newStartPos)
+	s.setStartPos(newStartPos)
 
 	return nil
 }
 
 // updateSize updates the size of the signal.
 func (s *signal) updateSize(newSize int) error {
-	if s.hasMuxLayer() {
+	if s.hasParentMuxLayer() {
 		// Get all IDs of the layouts that contain the signal
-		if layoutIDs, ok := s.muxLayer.singalLayoutIDs.Get(s.entityID); ok {
+		if layoutIDs, ok := s.parentMuxLayer.singalLayoutIDs.Get(s.entityID); ok {
 			for _, lID := range layoutIDs {
 				// Check if the new size is valid,
 				// this recursively checks until the base layout is reached (message layout)
-				if err := s.muxLayer.layouts[lID].verifyNewSize(s, newSize); err != nil {
+				if err := s.parentMuxLayer.layouts[lID].verifyNewSize(s, newSize); err != nil {
 					return s.errorf(err)
 				}
 			}
 
 			// The new size is valid, you can update it
 			for _, lID := range layoutIDs {
-				s.muxLayer.layouts[lID].updateSize(s, newSize)
+				s.parentMuxLayer.layouts[lID].updateSize(s, newSize)
 			}
 		}
 	}
 
 	if s.hasParentMsg() {
 		// Check if the new size is valid and update it
-		return s.errorf(s.parentMsg.layout.verifyAndUpdateSize(s, newSize))
+		if err := s.parentMsg.layout.verifyAndUpdateSize(s, newSize); err != nil {
+			return s.errorf(err)
+		}
 	}
 
 	// The signal is not attached to anything

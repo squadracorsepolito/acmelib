@@ -101,7 +101,8 @@ func Test_Tree_Intersects(t *testing.T) {
 	tree := NewTree[*TestInterval]()
 
 	// Test empty tree
-	if tree.Intersects(newTestInterval(10, 20)) {
+	_, ok := tree.Intersects(newTestInterval(10, 20))
+	if ok {
 		t.Error("Empty tree should not have intersections")
 	}
 
@@ -111,31 +112,37 @@ func Test_Tree_Intersects(t *testing.T) {
 	tree.Insert(newTestInterval(50, 60))
 
 	// Test intersecting interval
-	if !tree.Intersects(newTestInterval(15, 25)) {
+	_, ok = tree.Intersects(newTestInterval(15, 25))
+	if !ok {
 		t.Error("Should detect intersection with (10, 20)")
 	}
 
 	// Test non-intersecting interval
-	if tree.Intersects(newTestInterval(21, 29)) {
+	_, ok = tree.Intersects(newTestInterval(21, 29))
+	if ok {
 		t.Error("Should not detect intersection with (21, 29)")
 	}
 
 	// Test interval that contains an existing interval
-	if !tree.Intersects(newTestInterval(5, 25)) {
+	_, ok = tree.Intersects(newTestInterval(5, 25))
+	if !ok {
 		t.Error("Should detect intersection when new interval contains existing one")
 	}
 
 	// Test interval that is contained by an existing interval
-	if !tree.Intersects(newTestInterval(12, 18)) {
+	_, ok = tree.Intersects(newTestInterval(12, 18))
+	if !ok {
 		t.Error("Should detect intersection when new interval is contained by existing one")
 	}
 
 	// Test boundary cases
-	if !tree.Intersects(newTestInterval(20, 30)) {
+	_, ok = tree.Intersects(newTestInterval(20, 30))
+	if !ok {
 		t.Error("Should detect intersection at boundary (20)")
 	}
 
-	if !tree.Intersects(newTestInterval(40, 50)) {
+	_, ok = tree.Intersects(newTestInterval(40, 50))
+	if !ok {
 		t.Error("Should detect intersection at boundary (40)")
 	}
 }
@@ -278,7 +285,8 @@ func Test_Tree_Update(t *testing.T) {
 	assert.Equal(45, int1.GetHigh())
 
 	// Check if the third interval doesn't intersect
-	assert.False(tree.Intersects(newTestInterval(16, 34)))
+	_, ok := tree.Intersects(newTestInterval(16, 34))
+	assert.False(ok)
 }
 
 func Test_Tree_Clear(t *testing.T) {

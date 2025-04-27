@@ -30,7 +30,7 @@ func (sl *SignalLayout) generateFilters() {
 
 	for _, sig := range sl.signals {
 		sigSize := sig.GetSize()
-		startPos := sig.GetRelativeStartPos()
+		startPos := sig.GetStartPos()
 		endianness := sig.Endianness()
 
 		firstIdx := startPos / 8
@@ -128,7 +128,7 @@ func (sl *SignalLayout) verifyBeforeAppend(sig Signal) error {
 	}
 
 	lastSig := sl.signals[sigCount-1]
-	trailingSpace := sl.size - (lastSig.GetRelativeStartPos() + lastSig.GetSize())
+	trailingSpace := sl.size - (lastSig.GetStartPos() + lastSig.GetSize())
 
 	if sigSize > trailingSpace {
 		return &SignalSizeError{
@@ -150,10 +150,10 @@ func (sl *SignalLayout) append(sig Signal) error {
 	}
 
 	if len(sl.signals) == 0 {
-		sig.setRelativeStartPos(0)
+		sig.setStartPos(0)
 	} else {
 		lastSig := sl.signals[len(sl.signals)-1]
-		sig.setRelativeStartPos(lastSig.GetRelativeStartPos() + lastSig.GetSize())
+		sig.setStartPos(lastSig.GetStartPos() + lastSig.GetSize())
 	}
 
 	sl.signals = append(sl.signals, sig)
@@ -189,7 +189,7 @@ func (sl *SignalLayout) verifyBeforeInsert(sig Signal, startBit int) error {
 	}
 
 	for _, tmpSig := range sl.signals {
-		tmpStartBit := tmpSig.GetRelativeStartPos()
+		tmpStartBit := tmpSig.GetStartPos()
 		tmpEndBit := tmpStartBit + tmpSig.GetSize()
 
 		if endBit <= tmpStartBit {
@@ -213,7 +213,7 @@ func (sl *SignalLayout) verifyBeforeInsert(sig Signal, startBit int) error {
 
 func (sl *SignalLayout) insert(sig Signal, startBit int) {
 	if len(sl.signals) == 0 {
-		sig.setRelativeStartPos(startBit)
+		sig.setStartPos(startBit)
 		sl.signals = append(sl.signals, sig)
 		sl.generateFilters()
 		return
@@ -221,7 +221,7 @@ func (sl *SignalLayout) insert(sig Signal, startBit int) {
 
 	inserted := false
 	for idx, tmpSig := range sl.signals {
-		tmpStartBit := tmpSig.GetRelativeStartPos()
+		tmpStartBit := tmpSig.GetStartPos()
 
 		if tmpStartBit > startBit {
 			inserted = true
@@ -234,7 +234,7 @@ func (sl *SignalLayout) insert(sig Signal, startBit int) {
 		sl.signals = append(sl.signals, sig)
 	}
 
-	sig.setRelativeStartPos(startBit)
+	sig.setStartPos(startBit)
 
 	sl.generateFilters()
 }
@@ -267,7 +267,7 @@ func (sl *SignalLayout) removeAll() {
 func (sl *SignalLayout) compact() {
 	lastStartBit := 0
 	for _, sig := range sl.signals {
-		tmpStartBit := sig.GetRelativeStartPos()
+		tmpStartBit := sig.GetStartPos()
 
 		if tmpStartBit == lastStartBit {
 			lastStartBit += sig.GetSize()
@@ -275,7 +275,7 @@ func (sl *SignalLayout) compact() {
 		}
 
 		if lastStartBit < tmpStartBit {
-			sig.setRelativeStartPos(lastStartBit)
+			sig.setStartPos(lastStartBit)
 			lastStartBit += sig.GetSize()
 		}
 	}
@@ -315,7 +315,7 @@ func (sl *SignalLayout) modifyStartBitsOnShrink(sig Signal, amount int) error {
 	found := false
 	for _, tmpSig := range sl.signals {
 		if found {
-			tmpSig.setRelativeStartPos(tmpSig.GetRelativeStartPos() - amount)
+			tmpSig.setStartPos(tmpSig.GetStartPos() - amount)
 			continue
 		}
 
@@ -339,7 +339,7 @@ func (sl *SignalLayout) verifyBeforeGrow(sig Signal, amount int) error {
 	found := false
 
 	for _, tmpSig := range sl.signals {
-		tmpStartBit := tmpSig.GetRelativeStartPos()
+		tmpStartBit := tmpSig.GetStartPos()
 
 		if found {
 			availableSpace += tmpStartBit - prevEndBit
@@ -377,7 +377,7 @@ func (sl *SignalLayout) modifyStartBitsOnGrow(sig Signal, amount int) error {
 	found := false
 
 	for idx, tmpSig := range sl.signals {
-		tmpStartBit := tmpSig.GetRelativeStartPos()
+		tmpStartBit := tmpSig.GetStartPos()
 
 		if found {
 			space := tmpStartBit - prevEndBit
@@ -408,7 +408,7 @@ func (sl *SignalLayout) modifyStartBitsOnGrow(sig Signal, amount int) error {
 
 		acc -= tmpSpace
 		tmpSig := sl.signals[i]
-		tmpSig.setRelativeStartPos(tmpSig.GetRelativeStartPos() + acc)
+		tmpSig.setStartPos(tmpSig.GetStartPos() + acc)
 		spaceIdx++
 	}
 
@@ -427,7 +427,7 @@ func (sl *SignalLayout) verifyBeforeResize(newSize int) error {
 	}
 
 	lastSig := sl.signals[len(sl.signals)-1]
-	if lastSig.GetRelativeStartPos()+lastSig.GetSize() > newSize {
+	if lastSig.GetStartPos()+lastSig.GetSize() > newSize {
 		return ErrTooSmall
 	}
 
@@ -463,7 +463,7 @@ func (sl *SignalLayout) shiftLeft(sigID EntityID, amount int) int {
 		}
 
 		if sigID == tmpSig.EntityID() {
-			tmpStartBit := tmpSig.GetRelativeStartPos()
+			tmpStartBit := tmpSig.GetStartPos()
 			targetStartBit := tmpStartBit - amount
 
 			if targetStartBit < 0 {
@@ -471,14 +471,14 @@ func (sl *SignalLayout) shiftLeft(sigID EntityID, amount int) int {
 			}
 
 			if prevSig != nil {
-				prevEndBit := prevSig.GetRelativeStartPos() + prevSig.GetSize()
+				prevEndBit := prevSig.GetStartPos() + prevSig.GetSize()
 
 				if targetStartBit < prevEndBit {
 					targetStartBit = prevEndBit
 				}
 			}
 
-			tmpSig.setRelativeStartPos(targetStartBit)
+			tmpSig.setStartPos(targetStartBit)
 			perfShift = tmpStartBit - targetStartBit
 
 			break
@@ -506,7 +506,7 @@ func (sl *SignalLayout) shiftRight(sigID EntityID, amount int) int {
 		}
 
 		if sigID == tmpSig.EntityID() {
-			tmpStartBit := tmpSig.GetRelativeStartPos()
+			tmpStartBit := tmpSig.GetStartPos()
 			targetStartBit := tmpStartBit + amount
 			targetEndBit := targetStartBit + tmpSig.GetSize()
 
@@ -515,14 +515,14 @@ func (sl *SignalLayout) shiftRight(sigID EntityID, amount int) int {
 			}
 
 			if nextSig != nil {
-				nextStartBit := nextSig.GetRelativeStartPos()
+				nextStartBit := nextSig.GetStartPos()
 
 				if targetEndBit > nextStartBit {
 					targetStartBit = nextStartBit - tmpSig.GetSize()
 				}
 			}
 
-			tmpSig.setRelativeStartPos(targetStartBit)
+			tmpSig.setStartPos(targetStartBit)
 			perfShift = targetStartBit - tmpStartBit
 
 			break

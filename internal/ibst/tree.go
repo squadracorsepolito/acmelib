@@ -185,35 +185,38 @@ func (t *Tree[T]) IsEmpty() bool {
 }
 
 // intersectsNode recursively checks for any intersection with the given interval
-func (t *Tree[T]) intersectsNode(root *node[T], low, high int) bool {
+func (t *Tree[T]) intersectsNode(root *node[T], low, high int) (T, bool) {
 	if root == nil {
-		return false
+		return *new(T), false
 	}
 
 	// Early pruning: if root.max < low, then no interval in this subtree can overlap
 	if root.max < low {
-		return false
+		return *new(T), false
 	}
 
 	// If current node overlaps, return true immediately
 	if root.getLow() <= high && low <= root.getHigh() {
-		return true
+		return root.item, true
 	}
 
 	// More efficient traversal based on BST properties
 	// If low value is less than root's low, we need to check left subtree
-	if low < root.getLow() && t.intersectsNode(root.left, low, high) {
-		return true
+	if low < root.getLow() {
+		if item, ok := t.intersectsNode(root.left, low, high); ok {
+			return item, true
+		}
 	}
 
 	// Always check right subtree (intervals with same low value might be on the right)
 	return t.intersectsNode(root.right, low, high)
 }
 
-// Intersects states whether the given intervalable item intersects any already in the tree.
-func (t *Tree[T]) Intersects(item T) bool {
+// Intersects check if the given intervalable item intersects any already in the tree.
+// Returns the first intersecting interval and true if found.
+func (t *Tree[T]) Intersects(item T) (T, bool) {
 	if t.IsEmpty() {
-		return false
+		return *new(T), false
 	}
 	return t.intersectsNode(t.root, item.GetLow(), item.GetHigh())
 }

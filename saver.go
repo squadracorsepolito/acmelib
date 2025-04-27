@@ -401,7 +401,7 @@ func (s *saver) saveSignalLayout(layout *SL) *acmelibv1.SignalPayload {
 	for _, sig := range layout.Signals() {
 		pPayload.Refs = append(pPayload.Refs, &acmelibv1.SignalPayloadRef{
 			SignalEntityId: sig.EntityID().String(),
-			RelStartBit:    uint32(sig.GetRelativeStartPos()),
+			RelStartBit:    uint32(sig.GetStartPos()),
 		})
 	}
 
