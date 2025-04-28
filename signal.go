@@ -1,9 +1,6 @@
 package acmelib
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/squadracorsepolito/acmelib/internal/collection"
 	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
@@ -91,6 +88,17 @@ const (
 	EndiannessBigEndian
 )
 
+func (e Endianness) String() string {
+	switch e {
+	case EndiannessLittleEndian:
+		return "little-endian"
+	case EndiannessBigEndian:
+		return "big-endian"
+	default:
+		return "unknown"
+	}
+}
+
 // Signal interface specifies all common methods of
 // [StandardSignal], [EnumSignal], and [MultiplexerSignal1].
 type Signal interface {
@@ -119,9 +127,6 @@ type Signal interface {
 	// with the given attribute entity id from the signal.
 	GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error)
 
-	//TODO! delete me
-	stringifyOld(b *strings.Builder, tabs int)
-
 	stringify(s *stringer.Stringer)
 	String() string
 
@@ -144,7 +149,10 @@ type Signal interface {
 	// GetSize returns the size of the signal.
 	GetSize() int
 	setSize(size int)
-	updateSize(newSize int) error
+
+	verifyNewSize(newSize int) error
+	updateSize(newSize int)
+	verifyAndUpdateSize(newSize int) error
 
 	// SetStartValue sets the initial raw value of the signal.
 	SetStartValue(startValue float64)
@@ -253,23 +261,10 @@ func (s *signal) errorf(err error) error {
 	return sigErr
 }
 
-func (s *signal) stringifyOld(b *strings.Builder, tabs int) {
-	s.entity.stringify(b, tabs)
-
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, s.kind))
-
-	if s.sendType != SignalSendTypeUnset {
-		b.WriteString(fmt.Sprintf("%ssend_type: %q\n", tabStr, s.sendType))
-	}
-
-	b.WriteString(fmt.Sprintf("%sstart_pos: %d; ", tabStr, s.startPos))
-}
-
 func (s *signal) stringify(str *stringer.Stringer) {
-	str.Write("kind: %s\n", s.kind)
+	s.entity.stringify(str)
 
+	str.Write("kind: %s\n", s.kind)
 	str.Write("start_pos: %d\n", s.startPos)
 	str.Write("size: %d\n", s.size)
 
@@ -409,43 +404,6 @@ func (s *signal) setSize(size int) {
 	s.size = size
 }
 
-func (s *signal) GetLow() int {
-	return s.GetStartPos()
-}
-
-func (s *signal) SetLow(low int) {
-	s.setStartPos(low)
-}
-
-func (s *signal) SetHigh(high int) {
-	s.setSize(high - s.GetLow() + 1)
-}
-
-func (s *signal) GetHigh() int {
-	return s.GetLow() + s.size - 1
-}
-
-func (s *signal) ToStandard() (*StandardSignal, error) {
-	return nil, s.errorf(&ConversionError{
-		From: s.kind.String(),
-		To:   SignalKindStandard.String(),
-	})
-}
-
-func (s *signal) ToEnum() (*EnumSignal, error) {
-	return nil, s.errorf(&ConversionError{
-		From: s.kind.String(),
-		To:   SignalKindEnum.String(),
-	})
-}
-
-func (s *signal) ToMuxor() (*MuxorSignal, error) {
-	return nil, s.errorf(&ConversionError{
-		From: s.kind.String(),
-		To:   SignalKindMuxor.String(),
-	})
-}
-
 func (s *signal) setparentMuxLayer(ml *MultiplexedLayer) {
 	s.parentMuxLayer = ml
 }
@@ -498,11 +456,79 @@ updateStartPos:
 	return nil
 }
 
-// updateSize updates the size of the signal.
-func (s *signal) updateSize(newSize int) error {
+// verifyNewSize checks if setting the signal to the new size does not intersect with another one.
+func (s *signal) verifyNewSize(newSize int) error {
 	// If the new size is smaller than the original, it cannot be invalid
 	if newSize < s.size {
-		goto updateSize
+		return nil
+	}
+
+	if s.kind == SignalKindMuxor {
+		if err := s.layout.verifyNewSize(s, newSize); err != nil {
+			return s.errorf(err)
+		}
+
+		return nil
+	}
+
+	if s.hasParentMuxLayer() {
+		// Get all IDs of the layouts that contain the signal
+		if layoutIDs, ok := s.parentMuxLayer.singalLayoutIDs.Get(s.entityID); ok {
+			for _, lID := range layoutIDs {
+				// Check if the new size is valid,
+				// this recursively checks until the base layout is reached (message layout)
+				if err := s.parentMuxLayer.layouts[lID].verifyNewSize(s, newSize); err != nil {
+					return s.errorf(err)
+				}
+			}
+		}
+
+		return nil
+	}
+
+	if s.hasParentMsg() {
+		// Check if the new size is valid and update it
+		if err := s.parentMsg.layout.verifyNewSize(s, newSize); err != nil {
+			return s.errorf(err)
+		}
+	}
+
+	return nil
+}
+
+// updateSize updates the size of the signal.
+// It does not check if the new size is valid.
+func (s *signal) updateSize(newSize int) {
+	if s.kind == SignalKindMuxor {
+		s.layout.updateSize(s, newSize)
+		goto setSize
+	}
+
+	if s.hasParentMuxLayer() {
+		// Get all IDs of the layouts that contain the signal
+		if layoutIDs, ok := s.parentMuxLayer.singalLayoutIDs.Get(s.entityID); ok {
+			for _, lID := range layoutIDs {
+				s.parentMuxLayer.layouts[lID].updateSize(s, newSize)
+			}
+		}
+
+		goto setSize
+	}
+
+	if s.hasParentMsg() {
+		s.parentMsg.layout.updateSize(s, newSize)
+	}
+
+setSize:
+	s.setSize(newSize)
+}
+
+// verifyAndUpdateSize checks and updates the size of the signal.
+// It is a combination of [verifyNewSize] and [updateSize].
+func (s *signal) verifyAndUpdateSize(newSize int) error {
+	// If the new size is smaller than the original, it cannot be invalid
+	if newSize < s.size {
+		goto setSize
 	}
 
 	if s.kind == SignalKindMuxor {
@@ -510,7 +536,7 @@ func (s *signal) updateSize(newSize int) error {
 			return s.errorf(err)
 		}
 
-		goto updateSize
+		goto setSize
 	}
 
 	if s.hasParentMuxLayer() {
@@ -530,7 +556,7 @@ func (s *signal) updateSize(newSize int) error {
 			}
 		}
 
-		goto updateSize
+		goto setSize
 	}
 
 	if s.hasParentMsg() {
@@ -540,9 +566,21 @@ func (s *signal) updateSize(newSize int) error {
 		}
 	}
 
-updateSize:
+setSize:
 	s.setSize(newSize)
 	return nil
+}
+
+func (s *signal) ToStandard() (*StandardSignal, error) {
+	return nil, s.errorf(newConversionError(s.kind.String(), SignalKindStandard.String()))
+}
+
+func (s *signal) ToEnum() (*EnumSignal, error) {
+	return nil, s.errorf(newConversionError(s.kind.String(), SignalKindEnum.String()))
+}
+
+func (s *signal) ToMuxor() (*MuxorSignal, error) {
+	return nil, s.errorf(newConversionError(s.kind.String(), SignalKindMuxor.String()))
 }
 
 func (s *signal) RemoveAttributeAssignment(attributeEntityID EntityID) error {
@@ -565,4 +603,20 @@ func (s *signal) AssignAttribute(attribute Attribute, value any) error {
 		return s.errorf(err)
 	}
 	return nil
+}
+
+func (s *signal) GetLow() int {
+	return s.GetStartPos()
+}
+
+func (s *signal) SetLow(low int) {
+	s.setStartPos(low)
+}
+
+func (s *signal) SetHigh(high int) {
+	s.setSize(high - s.GetLow() + 1)
+}
+
+func (s *signal) GetHigh() int {
+	return s.GetLow() + s.size - 1
 }

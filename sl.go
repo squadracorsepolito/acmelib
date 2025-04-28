@@ -523,7 +523,7 @@ func (sl *SL) verifyResize(newSizeByte int) error {
 		break
 	}
 
-	if endPos >= newSizeByte {
+	if endPos >= newSizeByte*8 {
 		return newSizeError(newSizeByte, ErrTooSmall)
 	}
 
@@ -571,19 +571,32 @@ func (sl *SL) verifyAndResize(newSizeByte int) error {
 // ------- //
 /////////////
 
-// compact compacts the signal layout.
-// It will only compact the signal layout if there are no multiplexed layers.
-func (sl *SL) compact() {
+// Compact compacts the signal layout.
+// It will only compact the signal layout if there are no multiplexed layers attached.
+func (sl *SL) Compact() {
 	if sl.ibst.Size() == 0 || sl.muxLayers.Size() != 0 {
 		return
 	}
 
-	// Compact the signal layout
+	type signalToUpdate struct {
+		sig             Signal
+		newLow, newHigh int
+	}
+
+	signalsToUpdate := []signalToUpdate{}
+
+	// Get the signals that need to be updated
 	newStartPos := 0
 	for sig := range sl.ibst.InOrder() {
 		tmpSize := sig.GetSize()
-		sl.ibst.Update(sig, newStartPos, newStartPos+tmpSize)
+		signalsToUpdate = append(signalsToUpdate, signalToUpdate{sig, newStartPos, newStartPos + tmpSize})
 		newStartPos += tmpSize
+	}
+
+	// Update the start position of signals
+	for _, sigToUpd := range signalsToUpdate {
+		sl.ibst.Update(sigToUpd.sig, sigToUpd.newLow, sigToUpd.newHigh)
+		sigToUpd.sig.setStartPos(sigToUpd.newLow)
 	}
 }
 
@@ -617,7 +630,7 @@ func (sl *SL) MultiplexedLayers() []*MultiplexedLayer {
 // with the given name, start postion, and layout count.
 //
 // It returns:
-//   - [ArgumentError] if an argument is invalid.
+//   - [ArgError] if an argument is invalid.
 //   - [NameError] if the given muxor name is invalid.
 //   - [StartPosError] if the given muxor start position is invalid.
 func (sl *SL) AddMultiplexedLayer(muxorName string, muxorStartPos, layoutCount int) (*MultiplexedLayer, error) {

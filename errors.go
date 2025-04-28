@@ -41,8 +41,10 @@ var ErrTooSmall = errors.New("too small")
 // ErrTooBig is returned when a value is too big.
 var ErrTooBig = errors.New("too big")
 
+// ErrIsDifferent is returned when a value is different.
 var ErrIsDifferent = errors.New("is different")
 
+// ErrNotClear is returned when a value is not clear.
 var ErrNotClear = errors.New("not clear")
 
 // ErrInvalidOneof is returned when a oneof field does not match
@@ -245,16 +247,6 @@ func (e *AppendSignalError) Error() string {
 
 func (e *AppendSignalError) Unwrap() error { return e.Err }
 
-// ConversionError is returned when a signal cannot be converted.
-type ConversionError struct {
-	From string
-	To   string
-}
-
-func (e *ConversionError) Error() string {
-	return fmt.Sprintf("conversion error; from:%q, to:%q", e.From, e.To)
-}
-
 // SignalSizeError is returned when a signal size is invalid.
 // The Size field is the size and the Err field is the cause.
 type SignalSizeError struct {
@@ -331,6 +323,13 @@ func (e *EntityIDError) Error() string {
 
 func (e *EntityIDError) Unwrap() error { return e.Err }
 
+//
+//
+//
+//
+//
+//
+
 type SizeError struct {
 	Size int
 	Err  error
@@ -395,22 +394,22 @@ func (e *NameError) Error() string {
 
 func (e *NameError) Unwrap() error { return e.Err }
 
-// ArgumentError is returned when an argument is invalid.
+// ArgError is returned when an argument is invalid.
 // The Name field is the name of the argument and the Err field is the cause.
-type ArgumentError struct {
+type ArgError struct {
 	Name string
 	Err  error
 }
 
-func newArgError(name string, err error) *ArgumentError {
-	return &ArgumentError{Name: name, Err: err}
+func newArgError(name string, err error) *ArgError {
+	return &ArgError{Name: name, Err: err}
 }
 
-func (e *ArgumentError) Error() string {
+func (e *ArgError) Error() string {
 	return fmt.Sprintf("argument error; name:%q : %v", e.Name, e.Err)
 }
 
-func (e *ArgumentError) Unwrap() error { return e.Err }
+func (e *ArgError) Unwrap() error { return e.Err }
 
 type IntersectError struct {
 	With string
@@ -423,3 +422,32 @@ func newIntersectError(with string) *IntersectError {
 func (e *IntersectError) Error() string {
 	return fmt.Sprintf("intersect with %q", e.With)
 }
+
+// ConversionError is returned when a signal cannot be converted.
+type ConversionError struct {
+	From string
+	To   string
+}
+
+func newConversionError(from string, to string) *ConversionError {
+	return &ConversionError{From: from, To: to}
+}
+
+func (e *ConversionError) Error() string {
+	return fmt.Sprintf("conversion error; from:%q, to:%q", e.From, e.To)
+}
+
+type IndexError struct {
+	Index int
+	Err   error
+}
+
+func newIndexError(index int, err error) *IndexError {
+	return &IndexError{Index: index, Err: err}
+}
+
+func (e *IndexError) Error() string {
+	return fmt.Sprintf("index error; index:%d : %v", e.Index, e.Err)
+}
+
+func (e *IndexError) Unwrap() error { return e.Err }

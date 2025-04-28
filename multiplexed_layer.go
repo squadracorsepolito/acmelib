@@ -8,6 +8,8 @@ import (
 	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
+// MultiplexedLayer represents a layer on top of a [SL] that has
+// a [MuxorSignal] and N inner [SL] where N is the layout count.
 type MultiplexedLayer struct {
 	sizeByte int
 
@@ -189,7 +191,7 @@ func (ml *MultiplexedLayer) String() string {
 // InsertSignal inserts a signal at the given start position in the given layout IDs.
 //
 // It returns:
-//   - [ArgumentError] if the given signal is nil.
+//   - [ArgError] if the given signal is nil.
 //   - [NameError] if the signal name is invalid.
 //   - [StartPosError] if the given start position is invalid.
 //   - [LayoutIDError] if the given layout ID is invalid.

@@ -1,10 +1,79 @@
 package acmelib
 
 import (
+	"cmp"
 	"fmt"
 	"slices"
 	"strings"
+
+	"github.com/squadracorsepolito/acmelib/internal/collection"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
+
+type SignalEnumValue0 struct {
+	index int
+	name  string
+	desc  string
+
+	parentEnum *SignalEnum
+}
+
+func newSignalEnumValue0(index int, name string) *SignalEnumValue0 {
+	return &SignalEnumValue0{
+		index: index,
+		name:  name,
+		desc:  "",
+
+		parentEnum: nil,
+	}
+}
+
+func (v *SignalEnumValue0) setParentEnum(enum *SignalEnum) {
+	v.parentEnum = enum
+}
+
+func (v *SignalEnumValue0) stringify(s *stringer.Stringer) {
+	s.Write("index: %d; name: %q\n", v.index, v.name)
+
+	if len(v.desc) > 0 {
+		s.Write(" desc: %q\n", v.desc)
+	}
+}
+
+func (v *SignalEnumValue0) String() string {
+	s := stringer.New()
+	s.Write("signal_enum_value:\n")
+	v.stringify(s)
+	return s.String()
+}
+
+func (v *SignalEnumValue0) Index() int {
+	return v.index
+}
+
+func (v *SignalEnumValue0) UpdateIndex(newIndex int) error {
+	if v.parentEnum == nil || v.index == newIndex {
+		return nil
+	}
+
+	return v.parentEnum.updateValueIndex(v, newIndex)
+}
+
+func (v *SignalEnumValue0) Name() string {
+	return v.name
+}
+
+func (v *SignalEnumValue0) SetName(name string) {
+	v.name = name
+}
+
+func (v *SignalEnumValue0) Desc() string {
+	return v.desc
+}
+
+func (v *SignalEnumValue0) SetDesc(desc string) {
+	v.desc = desc
+}
 
 // SignalEnum is the representation of an enum that can be assigned
 // to a signal.
@@ -17,6 +86,11 @@ type SignalEnum struct {
 	values       *set[EntityID, *SignalEnumValue]
 	valueNames   *set[string, EntityID]
 	valueIndexes *set[int, EntityID]
+
+	values0       []*SignalEnumValue0
+	valueIndexes0 *collection.Set[int]
+
+	currentSize int
 
 	maxIndex int
 	minSize  int
@@ -32,6 +106,11 @@ func newSignalEnumFromEntity(ent *entity) *SignalEnum {
 		values:       newSet[EntityID, *SignalEnumValue](),
 		valueNames:   newSet[string, EntityID](),
 		valueIndexes: newSet[int, EntityID](),
+
+		values0:       []*SignalEnumValue0{},
+		valueIndexes0: collection.NewSet[int](),
+
+		currentSize: 1,
 
 		maxIndex: 0,
 		minSize:  1,
@@ -139,7 +218,7 @@ func (se *SignalEnum) modifyValueIndex(value *SignalEnumValue, newIndex int) {
 	}
 
 	if gtMaxIndex || updateMaxIdx {
-		amount := calcSizeFromValue(newIndex) - se.GetSize()
+		amount := getSizeFromValue(newIndex) - se.GetSize()
 
 		for _, tmpSig := range se.refs.entries() {
 			if err := tmpSig.modifySize(amount); err != nil {
@@ -177,8 +256,8 @@ func (se *SignalEnum) UpdateName(newName string) {
 	se.name = newName
 }
 
-func (se *SignalEnum) stringify(b *strings.Builder, tabs int) {
-	se.entity.stringify(b, tabs)
+func (se *SignalEnum) stringifyOld(b *strings.Builder, tabs int) {
+	se.entity.stringifyOld(b, tabs)
 
 	tabStr := getTabString(tabs)
 
@@ -202,7 +281,7 @@ func (se *SignalEnum) stringify(b *strings.Builder, tabs int) {
 
 func (se *SignalEnum) String() string {
 	builder := new(strings.Builder)
-	se.stringify(builder, 0)
+	se.stringifyOld(builder, 0)
 	return builder.String()
 }
 
@@ -211,7 +290,7 @@ func (se *SignalEnum) String() string {
 // the signal enum, or if it has an invalid index.
 func (se *SignalEnum) AddValue(value *SignalEnumValue) error {
 	if value == nil {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "value",
 			Err:  ErrIsNil,
 		}
@@ -276,6 +355,138 @@ func (se *SignalEnum) RemoveValue(valueEntityID EntityID) error {
 	return nil
 }
 
+//
+//
+//
+//
+//
+
+func (se *SignalEnum) sortValues() {
+	slices.SortFunc(se.values0, func(a, b *SignalEnumValue0) int {
+		return cmp.Compare(a.index, b.index)
+	})
+}
+
+func (se *SignalEnum) updateValueIndex(val *SignalEnumValue0, newIndex int) error {
+	if err := se.verifyIndex(newIndex); err != nil {
+		return se.errorf(err)
+	}
+
+	oldIndex := val.index
+	se.valueIndexes0.Delete(oldIndex)
+	se.valueIndexes0.Add(newIndex)
+	val.index = newIndex
+
+	se.sortValues()
+
+	return nil
+}
+
+// verifyIndex checks if the given index is valid.
+// It will update the size of the referenced signals if necessary.
+func (se *SignalEnum) verifyIndex(index int) error {
+	if index < 0 {
+		return newIndexError(index, ErrIsNegative)
+	}
+
+	if index > se.maxIndex {
+		return newIndexError(index, ErrOutOfBounds)
+	}
+
+	if se.valueIndexes0.Has(index) {
+		return newIndexError(index, ErrIsDuplicated)
+	}
+
+	newSize := getSizeFromValue(index)
+	if newSize > se.currentSize {
+		// Check if the signal can grow to the new size
+		for _, ref := range se.refs.entries() {
+			if err := ref.verifyNewSize(newSize); err != nil {
+				return newIndexError(index, err)
+			}
+		}
+
+		// Update the size of all referenced signals
+		for _, ref := range se.refs.entries() {
+			ref.updateSize(newSize)
+		}
+
+		se.currentSize = newSize
+	}
+
+	return nil
+}
+
+func (se *SignalEnum) addValue(val *SignalEnumValue0) {
+	se.values0 = append(se.values0, val)
+	se.valueIndexes0.Add(val.index)
+	val.setParentEnum(se)
+
+	se.sortValues()
+}
+
+func (se *SignalEnum) AddValue0(index int, name string) (*SignalEnumValue0, error) {
+	// Check if the index is valid
+	if err := se.verifyIndex(index); err != nil {
+		return nil, se.errorf(err)
+	}
+
+	// Create and add the value
+	val := newSignalEnumValue0(index, name)
+	se.addValue(val)
+
+	return val, nil
+}
+
+func (se *SignalEnum) DeleteValue(index int) {
+	se.values0 = slices.DeleteFunc(se.values0, func(v *SignalEnumValue0) bool {
+		if v.index != index {
+			return false
+		}
+
+		v.setParentEnum(nil)
+		se.valueIndexes0.Delete(index)
+
+		return true
+	})
+}
+
+func (se *SignalEnum) GetValue0(index int) *SignalEnumValue0 {
+	if !se.valueIndexes0.Has(index) {
+		return nil
+	}
+
+	for _, val := range se.values0 {
+		if val.index == index {
+			return val
+		}
+	}
+
+	return nil
+}
+
+func (se *SignalEnum) genMaxIndex() {
+	if len(se.values0) == 0 {
+		se.maxIndex = 0
+		return
+	}
+
+	lastVal := se.values0[len(se.values0)-1]
+	se.maxIndex = lastVal.index
+}
+
+func (se *SignalEnum) Clear() {
+	se.values0 = []*SignalEnumValue0{}
+	se.valueIndexes0.Clear()
+	se.genMaxIndex()
+}
+
+//
+//
+//
+//
+//
+
 // RemoveAllValues removes all enum values from the [SignalEnum].
 func (se *SignalEnum) RemoveAllValues() {
 	for _, tmpVal := range se.values.entries() {
@@ -310,7 +521,7 @@ func (se *SignalEnum) GetValue(valueEntityID EntityID) (*SignalEnumValue, error)
 
 // GetSize returns the size of the [SignalEnum] in bits.
 func (se *SignalEnum) GetSize() int {
-	maxIdxSize := calcSizeFromValue(se.maxIndex)
+	maxIdxSize := getSizeFromValue(se.maxIndex)
 	if se.minSize > maxIdxSize {
 		return se.minSize
 	}
@@ -320,12 +531,6 @@ func (se *SignalEnum) GetSize() int {
 // MaxIndex returns the highest index of the enum values of the [SignalEnum].
 func (se *SignalEnum) MaxIndex() int {
 	return se.maxIndex
-}
-
-// SetMinSize sets the minimum size in bit of the [SignalEnum].
-// By defaul it is set to 1.
-func (se *SignalEnum) SetMinSize(minSize int) {
-	se.minSize = minSize
 }
 
 // MinSize return the minimum size of the [SignalEnum] in bits.
@@ -386,8 +591,14 @@ func (sev *SignalEnumValue) errorf(err error) error {
 	return enumValErr
 }
 
+// SetMinSize sets the minimum size in bit of the [SignalEnum].
+// By defaul it is set to 1.
+func (se *SignalEnum) SetMinSize(minSize int) {
+	se.minSize = minSize
+}
+
 func (sev *SignalEnumValue) stringify(b *strings.Builder, tabs int) {
-	sev.entity.stringify(b, tabs)
+	sev.entity.stringifyOld(b, tabs)
 	tabStr := getTabString(tabs)
 	b.WriteString(fmt.Sprintf("%sindex: %d\n", tabStr, sev.index))
 }

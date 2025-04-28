@@ -72,7 +72,7 @@ func (n *Node) errorf(err error) error {
 }
 
 func (n *Node) stringify(b *strings.Builder, tabs int) {
-	n.entity.stringify(b, tabs)
+	n.entity.stringifyOld(b, tabs)
 	tabStr := getTabString(tabs)
 	b.WriteString(fmt.Sprintf("%snode_id: %s\n", tabStr, n.id.String()))
 }
@@ -157,17 +157,17 @@ func (n *Node) AddInterface() {
 // It will update the interface numbers of the remaining interfaces
 // in order to keep the interface numbers contiguous.
 //
-// It returns an [ArgumentError] if the interface number is negative or out of bounds.
+// It returns an [ArgError] if the interface number is negative or out of bounds.
 func (n *Node) RemoveInterface(interfaceNumber int) error {
 	if interfaceNumber < 0 {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "interfaceNumber",
 			Err:  ErrIsNegative,
 		}
 	}
 
 	if interfaceNumber >= n.interfaceCount {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "interfaceNumber",
 			Err:  ErrOutOfBounds,
 		}
@@ -206,17 +206,17 @@ func (n *Node) Interfaces() []*NodeInterface {
 
 // GetInterface returns the [NodeInterface] with the given interface number.
 //
-// It returns an [ArgumentError] if the interface number is negative or out of bounds.
+// It returns an [ArgError] if the interface number is negative or out of bounds.
 func (n *Node) GetInterface(interfaceNumber int) (*NodeInterface, error) {
 	if interfaceNumber < 0 {
-		return nil, &ArgumentError{
+		return nil, &ArgError{
 			Name: "interfaceNumber",
 			Err:  ErrIsNegative,
 		}
 	}
 
 	if interfaceNumber >= n.interfaceCount {
-		return nil, &ArgumentError{
+		return nil, &ArgError{
 			Name: "interfaceNumber",
 			Err:  ErrOutOfBounds,
 		}
@@ -232,7 +232,7 @@ func (n *Node) ID() NodeID {
 
 // AssignAttribute assigns the given attribute/value pair to the [Node].
 //
-// It returns an [ArgumentError] if the attribute is nil,
+// It returns an [ArgError] if the attribute is nil,
 // or an [AttributeValueError] if the value does not conform to the attribute.
 func (n *Node) AssignAttribute(attribute Attribute, value any) error {
 	if err := n.addAttributeAssignment(attribute, n, value); err != nil {

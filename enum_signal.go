@@ -14,7 +14,7 @@ type EnumSignal struct {
 
 func newEnumSignalFromBase(base *signal, enum *SignalEnum) (*EnumSignal, error) {
 	if enum == nil {
-		return nil, &ArgumentError{
+		return nil, &ArgError{
 			Name: "enum",
 			Err:  ErrIsNil,
 		}
@@ -54,7 +54,7 @@ func (es *EnumSignal) stringifyOld(b *strings.Builder, tabs int) {
 	tabStr := getTabString(tabs)
 	b.WriteString(fmt.Sprintf("%senum:\n", tabStr))
 
-	es.enum.stringify(b, tabs+1)
+	es.enum.stringifyOld(b, tabs+1)
 }
 
 func (es *EnumSignal) String() string {
@@ -73,7 +73,7 @@ func (es *EnumSignal) Enum() *SignalEnum {
 // size cannot fit in the message payload.
 func (es *EnumSignal) SetEnum(enum *SignalEnum) error {
 	if enum == nil {
-		return es.errorf(&ArgumentError{
+		return es.errorf(&ArgError{
 			Name: "enum",
 			Err:  ErrIsNil,
 		})
@@ -94,7 +94,7 @@ func (es *EnumSignal) SetEnum(enum *SignalEnum) error {
 
 // AssignAttribute assigns the given attribute/value pair to the [EnumSignal].
 //
-// It returns an [ArgumentError] if the attribute is nil,
+// It returns an [ArgError] if the attribute is nil,
 // or an [AttributeValueError] if the value does not conform to the attribute.
 func (es *EnumSignal) AssignAttribute(attribute Attribute, value any) error {
 	if err := es.addAttributeAssignment(attribute, es, value); err != nil {

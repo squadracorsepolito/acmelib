@@ -106,7 +106,7 @@ func (a *attribute) errorf(err error) error {
 }
 
 func (a *attribute) stringify(b *strings.Builder, tabs int) {
-	a.entity.stringify(b, tabs)
+	a.entity.stringifyOld(b, tabs)
 
 	tabStr := getTabString(tabs)
 	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, a.typ))
@@ -209,21 +209,21 @@ type IntegerAttribute struct {
 
 func newIntegerAttributeFromBase(base *attribute, defValue, min, max int) (*IntegerAttribute, error) {
 	if min > max {
-		return nil, &ArgumentError{
+		return nil, &ArgError{
 			Name: "min",
 			Err:  &ErrGreaterThen{Target: "max"},
 		}
 	}
 
 	if defValue > max {
-		return nil, &ArgumentError{
+		return nil, &ArgError{
 			Name: "defValue",
 			Err:  &ErrGreaterThen{Target: "max"},
 		}
 	}
 
 	if defValue < min {
-		return nil, &ArgumentError{
+		return nil, &ArgError{
 			Name: "defValue",
 			Err:  &ErrLowerThen{Target: "min"},
 		}
@@ -339,21 +339,21 @@ type FloatAttribute struct {
 
 func newFloatAttributeFromBase(base *attribute, defValue, min, max float64) (*FloatAttribute, error) {
 	if min > max {
-		return nil, &ArgumentError{
+		return nil, &ArgError{
 			Name: "min",
 			Err:  &ErrGreaterThen{Target: "max"},
 		}
 	}
 
 	if defValue > max {
-		return nil, &ArgumentError{
+		return nil, &ArgError{
 			Name: "defValue",
 			Err:  &ErrGreaterThen{Target: "max"},
 		}
 	}
 
 	if defValue < min {
-		return nil, &ArgumentError{
+		return nil, &ArgError{
 			Name: "defValue",
 			Err:  &ErrLowerThen{Target: "min"},
 		}
@@ -449,7 +449,7 @@ type EnumAttribute struct {
 
 func newEnumAttributeFromBase(base *attribute, values ...string) (*EnumAttribute, error) {
 	if len(values) == 0 {
-		return nil, &ArgumentError{
+		return nil, &ArgError{
 			Name: "values",
 			Err:  ErrIsNil,
 		}

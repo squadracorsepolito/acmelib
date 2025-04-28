@@ -1,8 +1,7 @@
 package acmelib
 
 import (
-	"fmt"
-	"strings"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // StandardSignal is the representation of a normal signal that has a [SignalType],
@@ -16,23 +15,19 @@ type StandardSignal struct {
 
 func newStandardSignalFromBase(base *signal, typ *SignalType) (*StandardSignal, error) {
 	if typ == nil {
-		return nil, &ArgumentError{
-			Name: "typ",
-			Err:  ErrIsNil,
-		}
+		return nil, newArgError("typ", ErrIsNil)
 	}
 
-	sig := &StandardSignal{
+	ss := &StandardSignal{
 		signal: base,
 
-		typ:  typ,
 		unit: nil,
 	}
 
-	typ.addRef(sig)
-	sig.setSize(typ.size)
+	ss.addType(typ)
+	ss.setSize(typ.size)
 
-	return sig, nil
+	return ss, nil
 }
 
 // NewStandardSignal creates a new [StandardSignal] with the given name and [SignalType].
@@ -41,36 +36,42 @@ func NewStandardSignal(name string, typ *SignalType) (*StandardSignal, error) {
 	return newStandardSignalFromBase(newSignal(name, SignalKindStandard), typ)
 }
 
-// // GetSize returns the size of the [StandardSignal].
-// func (ss *StandardSignal) GetSize() int {
-// 	return ss.typ.size
-// }
-
 // ToStandard returns the [StandardSignal] itself.
 func (ss *StandardSignal) ToStandard() (*StandardSignal, error) {
 	return ss, nil
 }
 
-func (ss *StandardSignal) stringifyOld(b *strings.Builder, tabs int) {
-	ss.signal.stringifyOld(b, tabs)
+func (ss *StandardSignal) stringify(s *stringer.Stringer) {
+	ss.signal.stringify(s)
 
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("size: %d\n", ss.GetSize()))
-
-	b.WriteString(fmt.Sprintf("%stype:\n", tabStr))
-	ss.typ.stringify(b, tabs+1)
+	s.Write("type:\n")
+	s.Indent()
+	ss.typ.stringify(s)
+	s.Unindent()
 
 	if ss.unit != nil {
-		b.WriteString(fmt.Sprintf("%sunit:\n", tabStr))
-		ss.unit.stringify(b, tabs+1)
+		s.Write("unit:\n")
+		s.Indent()
+		ss.unit.stringify(s)
+		s.Unindent()
 	}
 }
 
 func (ss *StandardSignal) String() string {
-	builder := new(strings.Builder)
-	ss.stringifyOld(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("standard_signal:\n")
+	ss.stringify(s)
+	return s.String()
+}
+
+func (ss *StandardSignal) addType(typ *SignalType) {
+	typ.addRef(ss)
+	ss.typ = typ
+}
+
+func (ss *StandardSignal) removeType() {
+	ss.typ.removeRef(ss.entityID)
+	ss.typ = nil
 }
 
 // Type returns the [SignalType] of the [StandardSignal].
@@ -78,28 +79,24 @@ func (ss *StandardSignal) Type() *SignalType {
 	return ss.typ
 }
 
-// SetType sets the [SignalType] of the [StandardSignal].
-// It resets the physical values.
-// It may return an error if the given [SignalType] is nil, or if the new signal type
-// size cannot fit in the message payload.
-func (ss *StandardSignal) SetType(typ *SignalType) error {
-	if typ == nil {
-		return ss.errorf(&ArgumentError{
-			Name: "typ",
-			Err:  ErrIsNil,
-		})
+// UpdateType updates the [SignalType] of the signal.
+//
+// It returns:
+//   - [ArgError] if the given signal type is nil.
+//   - [SizeError] if the new signal type size cannot fit in the layout.
+func (ss *StandardSignal) UpdateType(newType *SignalType) error {
+	if newType == nil {
+		return ss.errorf(newArgError("newType", ErrIsNil))
 	}
 
-	if err := ss.modifySize(typ.size - ss.typ.size); err != nil {
+	// Check if the new type can fit in the layout
+	if err := ss.verifyAndUpdateSize(newType.size); err != nil {
 		return ss.errorf(err)
 	}
 
-	ss.typ.removeRef(ss.entityID)
-
-	ss.typ = typ
-
-	typ.addRef(ss)
-	ss.setSize(typ.size)
+	// Swap the types
+	ss.removeType()
+	ss.addType(newType)
 
 	return nil
 }
@@ -122,19 +119,4 @@ func (ss *StandardSignal) SetUnit(unit *SignalUnit) {
 // Unit returns the [SignalUnit] of the [StandardSignal].
 func (ss *StandardSignal) Unit() *SignalUnit {
 	return ss.unit
-}
-
-func (ss *StandardSignal) GetHigh() int {
-	return ss.GetStartBit() + ss.GetSize() - 1
-}
-
-// AssignAttribute assigns the given attribute/value pair to the [StandardSignal].
-//
-// It returns an [ArgumentError] if the attribute is nil,
-// or an [AttributeValueError] if the value does not conform to the attribute.
-func (ss *StandardSignal) AssignAttribute(attribute Attribute, value any) error {
-	if err := ss.addAttributeAssignment(attribute, ss, value); err != nil {
-		return ss.errorf(err)
-	}
-	return nil
 }

@@ -9,12 +9,12 @@ import (
 func Test_calcSizeFromValue(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.Equal(1, calcSizeFromValue(1))
-	assert.Equal(2, calcSizeFromValue(3))
-	assert.Equal(2, calcSizeFromValue(2))
-	assert.Equal(6, calcSizeFromValue(32))
-	assert.Equal(7, calcSizeFromValue(127))
-	assert.Equal(9, calcSizeFromValue(256))
+	assert.Equal(1, getSizeFromValue(1))
+	assert.Equal(2, getSizeFromValue(3))
+	assert.Equal(2, getSizeFromValue(2))
+	assert.Equal(6, getSizeFromValue(32))
+	assert.Equal(7, getSizeFromValue(127))
+	assert.Equal(9, getSizeFromValue(256))
 }
 
 func Test_calcValueFromSize(t *testing.T) {

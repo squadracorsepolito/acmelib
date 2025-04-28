@@ -57,7 +57,7 @@ func (ms *MuxorSignal) UpdateLayoutCount(newLayoutCount int) error {
 		return nil
 	}
 
-	if err := ms.updateSize(getSizeFromCount(newLayoutCount)); err != nil {
+	if err := ms.verifyAndUpdateSize(getSizeFromCount(newLayoutCount)); err != nil {
 		return ms.errorf(err)
 	}
 

@@ -18,19 +18,19 @@ type MessageLoad struct {
 // The default cycle time is used when a message within the bus does not have one set.
 // If the bus does not have the baudrate set, it returns 0.
 //
-// It returns an [ArgumentError] if the given default cycle time is invalid.
+// It returns an [ArgError] if the given default cycle time is invalid.
 func CalculateBusLoad(bus *Bus, defCycleTime int) (float64, []*MessageLoad, error) {
 	msgLoads := []*MessageLoad{}
 
 	if defCycleTime < 0 {
-		return 0, msgLoads, &ArgumentError{
+		return 0, msgLoads, &ArgError{
 			Name: "defCycleTime",
 			Err:  ErrIsNegative,
 		}
 	}
 
 	if defCycleTime == 0 {
-		return 0, msgLoads, &ArgumentError{
+		return 0, msgLoads, &ArgError{
 			Name: "defCycleTime",
 			Err:  ErrIsZero,
 		}

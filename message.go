@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/squadracorsepolito/acmelib/internal/collection"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // MessageID rappresents the ID of a [Message].
@@ -61,17 +62,6 @@ func (mst MessageSendType) String() string {
 	}
 }
 
-func (mbo Endianness) String() string {
-	switch mbo {
-	case EndiannessLittleEndian:
-		return "little-endian"
-	case EndiannessBigEndian:
-		return "big-endian"
-	default:
-		return "unknown"
-	}
-}
-
 // Message is the representation of data sent by a node thought the bus.
 // It holds a list of signals that are contained in the message payload.
 type Message struct {
@@ -91,7 +81,9 @@ type Message struct {
 	staticCANID    CANID
 	hasStaticCANID bool
 
-	priority  MessagePriority
+	priority MessagePriority
+
+	// TODO! detete me
 	byteOrder Endianness
 
 	cycleTime      int
@@ -194,8 +186,9 @@ func (m *Message) verifySignalName(name string) error {
 	return nil
 }
 
-func (m *Message) stringify(b *strings.Builder, tabs int) {
-	m.entity.stringify(b, tabs)
+// TODO! delete me
+func (m *Message) stringify0(b *strings.Builder, tabs int) {
+	m.entity.stringifyOld(b, tabs)
 
 	tabStr := getTabString(tabs)
 
@@ -233,11 +226,66 @@ func (m *Message) stringify(b *strings.Builder, tabs int) {
 		return
 	}
 
-	b.WriteString(fmt.Sprintf("%ssignals:\n", tabStr))
-	for _, sig := range m.Signals() {
-		sig.stringifyOld(b, tabs+1)
-		b.WriteRune('\n')
+	// b.WriteString(fmt.Sprintf("%ssignals:\n", tabStr))
+	// for _, sig := range m.Signals() {
+	// 	sig.stringifyOld(b, tabs+1)
+	// 	b.WriteRune('\n')
+	// }
+}
+
+func (m *Message) stringify(s *stringer.Stringer) {
+	m.entity.stringify(s)
+
+	if m.id != 0 {
+		s.Write("message_id: %d\n", m.id)
 	}
+
+	s.Write("priority: %d (very_high=0; low=3)\n", m.priority)
+	s.Write("size: %d bytes\n", m.sizeByte)
+
+	if m.cycleTime != 0 {
+		s.Write("cycle_time: %d ms\n", m.cycleTime)
+	}
+
+	if m.delayTime != 0 {
+		s.Write("delay_time: %d ms\n", m.delayTime)
+	}
+
+	if m.startDelayTime != 0 {
+		s.Write("start_delay_time: %d ms\n", m.startDelayTime)
+	}
+
+	if m.sendType != MessageSendTypeUnset {
+		s.Write("send_type: %q\n", m.sendType)
+	}
+
+	if m.receivers.size() > 0 {
+		s.Write("receivers:\n")
+		s.Indent()
+		for _, rec := range m.Receivers() {
+			s.Write("\tname: %s; node_id: %d; entity_id: %s\n", rec.node.name, rec.node.id, rec.node.entityID)
+		}
+		s.Unindent()
+	}
+
+	if m.signals.Size() == 0 {
+		return
+	}
+
+	s.Write("signals:\n")
+	s.Indent()
+	for _, sig := range m.Signals() {
+		sig.stringify(s)
+		s.Write("\n")
+	}
+	s.Unindent()
+}
+
+func (m *Message) String() string {
+	s := stringer.New()
+	s.Write("message:\n")
+	m.stringify(s)
+	return s.String()
 }
 
 func (m *Message) addSignal(sig Signal) {
@@ -252,12 +300,6 @@ func (m *Message) removeSignal(sig Signal) {
 	m.signalNames.Delete(sig.Name())
 	sig.setParentMsg(nil)
 	m.layout.delete(sig)
-}
-
-func (m *Message) String() string {
-	builder := new(strings.Builder)
-	m.stringify(builder, 0)
-	return builder.String()
 }
 
 // UpdateName updates the name of the [Message].
@@ -338,10 +380,13 @@ func (m *Message) AppendSignal(signal Signal) error {
 	return nil
 }
 
-// InsertSignal inserts a [Signal] at the given position of the [Message] payload.
-// The start bit defines the index of the message payload where the signal will start.
-// It may return an error if the signal name is already used within the message,
-// or if the signal cannot fit in the available space left at the start bit.
+// InsertSignal inserts the given [Signal] at the given start position.
+//
+// It returns:
+//   - [ArgError] if the given signal is nil.
+//   - [NameError] if the name of the given signal is duplicated.
+//   - [StartPosError] if the given start position is invalid.
+//   - [SizeError] if the size of the given signal cannot fit at the given start position.
 func (m *Message) InsertSignal(signal Signal, startPos int) error {
 	if signal == nil {
 		return m.errorf(newArgError("signal", ErrIsNil))
@@ -360,8 +405,9 @@ func (m *Message) InsertSignal(signal Signal, startPos int) error {
 	return nil
 }
 
-// DeleteSignal removes a [Signal] that matches the given entity id from the [Message].
-// It may return an error if the signal with the given entity id is not part of the message payload.
+// DeleteSignal removes the signal with the given entity id from the message.
+//
+// It returns [ErrNotFound] if the signal with the given entity id is not found.
 func (m *Message) DeleteSignal(signalEntityID EntityID) error {
 	sig, ok := m.signals.Get(signalEntityID)
 	if !ok {
@@ -406,11 +452,6 @@ func (m *Message) ShiftSignalRight(signalEntityID EntityID, amount int) int {
 
 	// return m.signalLayout.shiftRight(sig.EntityID(), amount)
 	return 0
-}
-
-// CompactSignals compacts the [Message] payload.
-func (m *Message) CompactSignals() {
-	m.layout.compact()
 }
 
 // Signals returns a slice of all signals in the [Message].
@@ -500,12 +541,12 @@ func (m *Message) StartDelayTime() int {
 
 // AddReceiver adds a receiver to the [Message].
 //
-// It returns an [ArgumentError] if the given receiver is nil or
+// It returns an [ArgError] if the given receiver is nil or
 // a [ErrReceiverIsSender] wrapped by an [AddEntityError]
 // if the receiver is the same as the sender.
 func (m *Message) AddReceiver(receiver *NodeInterface) error {
 	if receiver == nil {
-		return m.errorf(&ArgumentError{
+		return m.errorf(&ArgError{
 			Name: "receiver",
 			Err:  ErrIsNil,
 		})
@@ -668,7 +709,7 @@ func (m *Message) SignalLayout() *SL {
 
 // AssignAttribute assigns the given attribute/value pair to the [Message].
 //
-// It returns an [ArgumentError] if the attribute is nil,
+// It returns an [ArgError] if the attribute is nil,
 // or an [AttributeValueError] if the value does not conform to the attribute.
 func (m *Message) AssignAttribute(attribute Attribute, value any) error {
 	if err := m.addAttributeAssignment(attribute, m, value); err != nil {

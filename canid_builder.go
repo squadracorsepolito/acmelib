@@ -108,7 +108,7 @@ func NewCANIDBuilder(name string) *CANIDBuilder {
 }
 
 func (b *CANIDBuilder) stringify(builder *strings.Builder, tabs int) {
-	b.entity.stringify(builder, tabs)
+	b.entity.stringifyOld(builder, tabs)
 
 	tabStr := getTabString(tabs)
 
@@ -227,24 +227,24 @@ func (b *CANIDBuilder) UseBitMask(from, len int) *CANIDBuilder {
 
 // InsertOperation inserts an operation at the given index in the [CANIDBuilder].
 //
-// It returns an [ArgumentError] if one of the arguments is out of bounds.
+// It returns an [ArgError] if one of the arguments is out of bounds.
 func (b *CANIDBuilder) InsertOperation(kind CANIDBuilderOpKind, from, length, opIndex int) error {
 	if from < 0 || from > 31 {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "from",
 			Err:  ErrOutOfBounds,
 		}
 	}
 
 	if length < 0 || length > 32-from {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "length",
 			Err:  ErrOutOfBounds,
 		}
 	}
 
 	if opIndex < 0 || opIndex > len(b.operations) {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "opIndex",
 			Err:  ErrOutOfBounds,
 		}
@@ -258,10 +258,10 @@ func (b *CANIDBuilder) InsertOperation(kind CANIDBuilderOpKind, from, length, op
 
 // RemoveOperation removes the operation at the given index from the [CANIDBuilder].
 //
-// It returns an [ArgumentError] if the operation's index is out of bounds.
+// It returns an [ArgError] if the operation's index is out of bounds.
 func (b *CANIDBuilder) RemoveOperation(opIndex int) error {
 	if opIndex < 0 || opIndex >= len(b.operations) {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "opIndex",
 			Err:  ErrOutOfBounds,
 		}

@@ -517,8 +517,8 @@ func (l *loader) loadEnumSignal(baseSig *signal, pEnumSig *acmelibv1.EnumSignal)
 func (l *loader) loadSignalType(pSigType *acmelibv1.SignalType) (*SignalType, error) {
 	var kind SignalTypeKind
 	switch pSigType.Kind {
-	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_CUSTOM:
-		kind = SignalTypeKindCustom
+	// case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_CUSTOM:
+	// 	kind = SignalTypeKindCustom
 	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_FLAG:
 		kind = SignalTypeKindFlag
 	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_INTEGER:

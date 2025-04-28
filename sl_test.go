@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_SL_insert(t *testing.T) {
+func Test_SignalLayout_insert(t *testing.T) {
 	assert := assert.New(t)
 
 	sl := newSL(8)
@@ -48,7 +48,7 @@ func Test_SL_insert(t *testing.T) {
 	assert.Len(sl.Filters(), 3)
 }
 
-func Test_SL_delete(t *testing.T) {
+func Test_SignalLayout_delete(t *testing.T) {
 	assert := assert.New(t)
 
 	sl := newSL(8)
@@ -79,7 +79,7 @@ func Test_SL_delete(t *testing.T) {
 	assert.Len(sl.Filters(), 2)
 }
 
-func Test_SL_clear(t *testing.T) {
+func Test_SignalLayout_clear(t *testing.T) {
 	assert := assert.New(t)
 
 	sl := newSL(8)
@@ -108,7 +108,7 @@ func Test_SL_clear(t *testing.T) {
 	assert.Len(sl.Filters(), 0)
 }
 
-func Test_SL_updateStartPos(t *testing.T) {
+func Test_SignalLayout_updateStartPos(t *testing.T) {
 	assert := assert.New(t)
 
 	sl := newSL(8)
@@ -145,7 +145,7 @@ func Test_SL_updateStartPos(t *testing.T) {
 	assert.Len(sl.Filters(), 2)
 }
 
-func Test_SL_updateSize(t *testing.T) {
+func Test_SignalLayout_updateSize(t *testing.T) {
 	assert := assert.New(t)
 
 	sl := newSL(8)
@@ -175,4 +175,18 @@ func Test_SL_updateSize(t *testing.T) {
 	// Should have 2 signals and 5 filters
 	assert.Len(sl.Signals(), 2)
 	assert.Len(sl.Filters(), 5)
+}
+
+func Test_SignalLayout_Compact(t *testing.T) {
+	assert := assert.New(t)
+
+	tdBasicMsg := initBasicMessage(assert)
+
+	msgBasic := tdBasicMsg.message
+	assert.NoError(msgBasic.InsertSignal(dummySignal, 56))
+
+	tdBasicMsg.layout.Compact()
+	assert.Equal(48, dummySignal.GetStartPos())
+
+	assert.NoError(msgBasic.DeleteSignal(dummySignal.EntityID()))
 }

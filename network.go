@@ -53,7 +53,7 @@ func (n *Network) verifyBusName(name string) error {
 func (n *Network) String() string {
 	var builder strings.Builder
 
-	n.entity.stringify(&builder, 0)
+	n.entity.stringifyOld(&builder, 0)
 
 	if n.buses.size() == 0 {
 		return builder.String()
@@ -77,7 +77,7 @@ func (n *Network) UpdateName(newName string) {
 // It may return an error if the bus name is already taken.
 func (n *Network) AddBus(bus *Bus) error {
 	if bus == nil {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "bus",
 			Err:  ErrIsNil,
 		}

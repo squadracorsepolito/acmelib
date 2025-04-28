@@ -34,22 +34,24 @@ BS_:
 
 BU_: node_0 rec_node_0
 
+BO_ 1 basic_message : 8 node_0
+ SG_ basic_signal_0 : 0|12@1+ (1,0) [0|4095] "" rec_node_0
+ SG_ basic_signal_1 : 12|12@1+ (1,0) [0|4095] "" rec_node_0
+ SG_ basic_signal_2 : 24|12@1+ (1,0) [0|4095] "" rec_node_0
+ SG_ basic_signal_3 : 36|12@1+ (1,0) [0|4095] "" rec_node_0
+
 BO_ 16 mux_message : 8 node_0
  SG_ top_muxor M : 0|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ top_signal_in_0 m0 : 8|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ top_signal_in_255 m255 : 8|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ top_signal_in_0_2 m0 : 16|8@1+ (1,0) [0|255] "" rec_node_0
-
  SG_ top_inner_muxor m1M : 8|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ top_inner_signal_in_0 m0 : 16|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ top_inner_signal_in_255 m255 : 16|8@1+ (1,0) [0|255] "" rec_node_0
-
  SG_ base_signal : 24|16@1+ (1,0) [0|255] "" rec_node_0
-
  SG_ bottom_inner_signal_in_0 m0 : 40|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ bottom_inner_signal_in_255 m255 : 40|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ bottom_inner_muxor m1M : 48|8@1+ (1,0) [0|255] "" rec_node_0
-
  SG_ bottom_signal_in_0_2 m0 : 40|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ bottom_signal_in_0 m0 : 48|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ bottom_signal_in_255 m255 : 48|8@1+ (1,0) [0|255] "" rec_node_0
@@ -61,19 +63,15 @@ BO_ 32 simple_mux_message : 4 node_0
  SG_ signal_in_1 m1 : 8|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ signal_in_2 m2 : 16|8@1+ (1,0) [0|255] "" rec_node_0
 
-
 SG_MUL_VAL_ 16 top_signal_in_0 top_muxor 0-0;
 SG_MUL_VAL_ 16 top_signal_in_255 top_muxor 255-255;
 SG_MUL_VAL_ 16 top_signal_in_0_2 top_muxor 0-0, 2-2;
-
 SG_MUL_VAL_ 16 top_inner_muxor top_muxor 1-1;
 SG_MUL_VAL_ 16 top_inner_signal_in_0 top_inner_muxor 0-0;
 SG_MUL_VAL_ 16 top_inner_signal_in_255 top_inner_muxor 255-255;
-
 SG_MUL_VAL_ 16 bottom_inner_muxor bottom_muxor 1-1;
 SG_MUL_VAL_ 16 bottom_inner_signal_in_0 bottom_inner_muxor 0-0;
 SG_MUL_VAL_ 16 bottom_inner_signal_in_255 bottom_inner_muxor 255-255;
-
 SG_MUL_VAL_ 16 bottom_signal_in_0 bottom_muxor 0-0;
 SG_MUL_VAL_ 16 bottom_signal_in_255 bottom_muxor 255-255;
 SG_MUL_VAL_ 16 bottom_signal_in_0_2 bottom_muxor 0-0, 2-2;

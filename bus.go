@@ -147,7 +147,7 @@ func (b *Bus) verifyMessageSize(sizeByte int) error {
 }
 
 func (b *Bus) stringify(builder *strings.Builder, tabs int) {
-	b.entity.stringify(builder, tabs)
+	b.entity.stringifyOld(builder, tabs)
 
 	tabStr := getTabString(tabs)
 
@@ -201,14 +201,14 @@ func (b *Bus) ParentNetwork() *Network {
 // AddNodeInterface adds a [NodeInterface] to the [Bus].
 //
 // It returns:
-//   - [ArgumentError] if the given node interface is nil.
+//   - [ArgError] if the given node interface is nil.
 //   - [NameError] if the node name is invalid.
 //   - [NodeIDError] if the node id is invalid.
 //   - [MessageSizeError] if one of the size of a message sent by the node is invalid.
 //   - [CANIDError] if one of the static CAN-ID of a message sent by the node is invalid.
 func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 	if nodeInterface == nil {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "nodeInterface",
 			Err:  ErrIsNil,
 		}
@@ -358,7 +358,7 @@ func (b *Bus) Type() BusType {
 
 // AssignAttribute assigns the given attribute/value pair to the [Bus].
 //
-// It returns an [ArgumentError] if the attribute is nil,
+// It returns an [ArgError] if the attribute is nil,
 // or an [AttributeValueError] if the value does not conform to the attribute.
 func (b *Bus) AssignAttribute(attribute Attribute, value any) error {
 	if err := b.addAttributeAssignment(attribute, b, value); err != nil {

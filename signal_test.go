@@ -94,30 +94,30 @@ func Test_signal_updateSize(t *testing.T) {
 	muxMsg := initMultiplexedMessage(assert)
 
 	sigBase := muxMsg.signals.base
-	assert.NoError(sigBase.updateSize(15))
+	assert.NoError(sigBase.verifyAndUpdateSize(15))
 	assert.Equal(15, sigBase.GetSize())
-	assert.Error(sigBase.updateSize(17))
-	assert.NoError(sigBase.updateSize(16))
+	assert.Error(sigBase.verifyAndUpdateSize(17))
+	assert.NoError(sigBase.verifyAndUpdateSize(16))
 
 	sigTopIn0 := muxMsg.layers.top.signals.in0
-	assert.NoError(sigTopIn0.updateSize(7))
+	assert.NoError(sigTopIn0.verifyAndUpdateSize(7))
 	assert.Equal(7, sigTopIn0.GetSize())
-	assert.Error(sigTopIn0.updateSize(9))
-	assert.NoError(sigTopIn0.updateSize(8))
+	assert.Error(sigTopIn0.verifyAndUpdateSize(9))
+	assert.NoError(sigTopIn0.verifyAndUpdateSize(8))
 
 	sigTopIn255 := muxMsg.layers.top.signals.in255
-	assert.NoError(sigTopIn255.updateSize(16))
+	assert.NoError(sigTopIn255.verifyAndUpdateSize(16))
 	assert.Equal(16, sigTopIn255.GetSize())
-	assert.Error(sigTopIn255.updateSize(17))
+	assert.Error(sigTopIn255.verifyAndUpdateSize(17))
 
 	sigTopInnerIn0 := muxMsg.layers.top.inner.signals.in0
-	assert.NoError(sigTopInnerIn0.updateSize(7))
+	assert.NoError(sigTopInnerIn0.verifyAndUpdateSize(7))
 	assert.Equal(7, sigTopInnerIn0.GetSize())
-	assert.Error(sigTopInnerIn0.updateSize(9))
-	assert.NoError(sigTopInnerIn0.updateSize(8))
+	assert.Error(sigTopInnerIn0.verifyAndUpdateSize(9))
+	assert.NoError(sigTopInnerIn0.verifyAndUpdateSize(8))
 
 	sigTopMuxor := muxMsg.layers.top.layer.Muxor()
-	assert.NoError(sigTopMuxor.updateSize(3))
+	assert.NoError(sigTopMuxor.verifyAndUpdateSize(3))
 	assert.Equal(3, sigTopMuxor.GetSize())
-	assert.NoError(sigTopMuxor.updateSize(8))
+	assert.NoError(sigTopMuxor.verifyAndUpdateSize(8))
 }

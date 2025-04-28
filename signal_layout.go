@@ -666,9 +666,9 @@ func (sl *SignalLayout) decodeStandardSignal(stdSig *StandardSignal, rawValue ui
 			value = rawValue*uint64(sigType.scale) - uint64(sigType.offset)
 		}
 
-	case SignalTypeKindDecimal, SignalTypeKindCustom:
-		valueType = SignalValueTypeFloat
-		value = float64(rawValue)*sigType.scale + sigType.offset
+		// case SignalTypeKindDecimal, SignalTypeKindCustom:
+		// 	valueType = SignalValueTypeFloat
+		// 	value = float64(rawValue)*sigType.scale + sigType.offset
 	}
 
 	return &SignalDecoding{

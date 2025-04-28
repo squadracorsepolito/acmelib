@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jaevor/go-nanoid"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // EntityKind is the kind of an entity.
@@ -35,8 +36,6 @@ const (
 	EntityKindAttribute
 	// EntityKindCANIDBuilder represents a [CANIDBuilder] entity.
 	EntityKindCANIDBuilder
-
-	EntityKindMultiplexedLayer
 )
 
 func (ek EntityKind) String() string {
@@ -63,8 +62,6 @@ func (ek EntityKind) String() string {
 		return "attribute"
 	case EntityKindCANIDBuilder:
 		return "canid-builder"
-	case EntityKindMultiplexedLayer:
-		return "multiplexed-layer"
 	default:
 		return "unknown"
 	}
@@ -85,6 +82,7 @@ func (id EntityID) String() string {
 	return string(id)
 }
 
+// Entity interface represents an entity.
 type Entity interface {
 	EntityID() EntityID
 	EntityKind() EntityKind
@@ -144,7 +142,8 @@ func (e *entity) SetDesc(desc string) {
 	e.desc = desc
 }
 
-func (e *entity) stringify(b *strings.Builder, tabs int) {
+// TODO! delete me
+func (e *entity) stringifyOld(b *strings.Builder, tabs int) {
 	tabStr := getTabString(tabs)
 
 	b.WriteString(fmt.Sprintf("%sentity_id: %s; entity_kind: %s\n", tabStr, e.entityID, e.entityKind))
@@ -155,6 +154,17 @@ func (e *entity) stringify(b *strings.Builder, tabs int) {
 	}
 
 	b.WriteString(fmt.Sprintf("%screate_time: %s\n", tabStr, e.createTime.Format(time.RFC3339)))
+}
+
+func (e *entity) stringify(s *stringer.Stringer) {
+	s.Write("entity_id: %s; entity_kind: %s\n", e.entityID, e.entityKind)
+	s.Write("name: %s\n", e.name)
+
+	if len(e.desc) > 0 {
+		s.Write("desc: %s\n", e.desc)
+	}
+
+	s.Write("create_time: %s\n", e.createTime.Format(time.RFC3339))
 }
 
 func (e *entity) clone() *entity {
@@ -179,7 +189,7 @@ func newWithAttributes() *withAttributes {
 
 func (wa *withAttributes) addAttributeAssignment(attribute Attribute, ent AttributableEntity, val any) error {
 	if attribute == nil {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "attribute",
 			Err:  ErrIsNil,
 		}

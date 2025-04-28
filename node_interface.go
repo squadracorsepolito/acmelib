@@ -63,13 +63,13 @@ func (ni *NodeInterface) stringify(b *strings.Builder, tabs int) {
 
 	b.WriteString(fmt.Sprintf("%ssent_messages:\n", tabStr))
 	for _, msg := range ni.SentMessages() {
-		msg.stringify(b, tabs+1)
+		msg.stringify0(b, tabs+1)
 		b.WriteRune('\n')
 	}
 
 	b.WriteString(fmt.Sprintf("%sreceived_messages:\n", tabStr))
 	for _, msg := range ni.ReceivedMessages() {
-		msg.stringify(b, tabs+1)
+		msg.stringify0(b, tabs+1)
 		b.WriteRune('\n')
 	}
 }
@@ -144,14 +144,14 @@ func (ni *NodeInterface) removeReceivedMessage(msg *Message) {
 // AddSentMessage adds a [Message] that the [NodeInterface] can send.
 //
 // It returns:
-//   - [ArgumentError] if the given message is nil.
+//   - [ArgError] if the given message is nil.
 //   - [AddEntityError] that wraps a [NameError] if the message name is invalid.
 //   - [AddEntityError] that wraps a [CANIDError] if the message static can id is invalid.
 //   - [AddEntityError] that wraps a [MessageIDError] if the message id is invalid.
 //   - [AddEntityError] that wraps a [MessageSizeError] if the message size is invalid.
 func (ni *NodeInterface) AddSentMessage(message *Message) error {
 	if message == nil {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "message",
 			Err:  ErrIsNil,
 		}
@@ -277,12 +277,12 @@ func (ni *NodeInterface) SentMessages() []*Message {
 
 // AddReceivedMessage adds a [Message] that the [NodeInterface] can receive.
 //
-// It returns an [ArgumentError] if the given message is nil or
+// It returns an [ArgError] if the given message is nil or
 // a [ErrReceiverIsSender] wrapped by a [AddEntityError]
 // if the message is already sent by the [NodeInterface].
 func (ni *NodeInterface) AddReceivedMessage(message *Message) error {
 	if message == nil {
-		return ni.errorf(&ArgumentError{
+		return ni.errorf(&ArgError{
 			Name: "message",
 			Err:  ErrIsNil,
 		})

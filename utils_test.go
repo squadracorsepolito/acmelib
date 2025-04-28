@@ -36,7 +36,7 @@ func Test_CalculateBusLoad(t *testing.T) {
 		assert.Equal(expectedBitsPerSec[idx], msgLoad.BitsPerSec)
 	}
 
-	argErr := &ArgumentError{}
+	argErr := &ArgError{}
 
 	_, _, err = CalculateBusLoad(bus, 0)
 	assert.ErrorAs(err, &argErr)

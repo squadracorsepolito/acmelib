@@ -5,6 +5,7 @@ import (
 )
 
 var byteSigType, _ = NewIntegerSignalType("uint8_t", 8, false)
+var sigType12, _ = NewIntegerSignalType("uint12_t", 12, false)
 var wordSigType, _ = NewIntegerSignalType("uint16_t", 16, false)
 
 var dummySignal, _ = NewStandardSignal("dummy_signal", byteSigType)
@@ -173,5 +174,46 @@ func initSimpleMuxMessage(assert *assert.Assertions) *testdataSimpleMuxMsg {
 			in1 Signal
 			in2 Signal
 		}{sigIn0, sigIn1, sigIn2},
+	}
+}
+
+type testdataBasicMessage struct {
+	message *Message
+	layout  *SL
+
+	signals struct {
+		basic0, basic1, basic2, basic3 Signal
+	}
+}
+
+func initBasicMessage(assert *assert.Assertions) *testdataBasicMessage {
+	msg := NewMessage("basic_message", 1, 8)
+
+	sigBasic0, err := NewStandardSignal("basic_signal_0", sigType12)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(sigBasic0, 0))
+
+	sigBasic1, err := NewStandardSignal("basic_signal_1", sigType12)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(sigBasic1, 12))
+
+	sigBasic2, err := NewStandardSignal("basic_signal_2", sigType12)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(sigBasic2, 24))
+
+	sigBasic3, err := NewStandardSignal("basic_signal_3", sigType12)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(sigBasic3, 36))
+
+	return &testdataBasicMessage{
+		message: msg,
+		layout:  msg.SignalLayout(),
+
+		signals: struct {
+			basic0 Signal
+			basic1 Signal
+			basic2 Signal
+			basic3 Signal
+		}{sigBasic0, sigBasic1, sigBasic2, sigBasic3},
 	}
 }

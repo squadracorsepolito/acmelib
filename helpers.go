@@ -7,12 +7,12 @@ import (
 
 const maxSize = 64
 
-func calcSizeFromValue(val int) int {
+func getSizeFromValue(val int) int {
 	if val == 0 {
 		return 1
 	}
 
-	for i := 0; i < maxSize; i++ {
+	for i := range maxSize {
 		if val < 1<<i {
 			return i
 		}

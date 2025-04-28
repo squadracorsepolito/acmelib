@@ -29,7 +29,7 @@ const (
 // by the encoding. It is possible to select more than one encoding by
 // using the "|" operator.
 //
-// It returns an [ArgumentError] that wraps an [ErrIsNil] if the selected
+// It returns an [ArgError] that wraps an [ErrIsNil] if the selected
 // writer is nil, or a proto/protojson/prototext error if marshal function fails.
 func SaveNetwork(network *Network, encoding SaveEncoding, wWire, wJSON, wText io.Writer) error {
 	saver := newSaver()
@@ -37,7 +37,7 @@ func SaveNetwork(network *Network, encoding SaveEncoding, wWire, wJSON, wText io
 
 	if encoding&SaveEncodingWire == SaveEncodingWire {
 		if wWire == nil {
-			return &ArgumentError{
+			return &ArgError{
 				Name: "wWire",
 				Err:  ErrIsNil,
 			}
@@ -55,7 +55,7 @@ func SaveNetwork(network *Network, encoding SaveEncoding, wWire, wJSON, wText io
 
 	if encoding&SaveEncodingJSON == SaveEncodingJSON {
 		if wJSON == nil {
-			return &ArgumentError{
+			return &ArgError{
 				Name: "wJSON",
 				Err:  ErrIsNil,
 			}
@@ -73,7 +73,7 @@ func SaveNetwork(network *Network, encoding SaveEncoding, wWire, wJSON, wText io
 
 	if encoding&SaveEncodingText == SaveEncodingText {
 		if wText == nil {
-			return &ArgumentError{
+			return &ArgError{
 				Name: "wText",
 				Err:  ErrIsNil,
 			}
@@ -554,8 +554,8 @@ func (s *saver) saveSignalType(sigType *SignalType) *acmelibv1.SignalType {
 
 	pKind := acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_UNSPECIFIED
 	switch sigType.kind {
-	case SignalTypeKindCustom:
-		pKind = acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_CUSTOM
+	// case SignalTypeKindCustom:
+	// 	pKind = acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_CUSTOM
 	case SignalTypeKindFlag:
 		pKind = acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_FLAG
 	case SignalTypeKindInteger:
