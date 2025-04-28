@@ -5,13 +5,12 @@ import (
 	"slices"
 
 	"github.com/squadracorsepolito/acmelib/internal/collection"
-	"github.com/squadracorsepolito/acmelib/internal/ibst"
 	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 type SL struct {
 	sizeByte int
-	tree     *ibst.Tree[Signal]
+	ibst     *collection.IBST[Signal]
 	filters  []*SignalLayoutFilter
 
 	muxLayers *collection.Map[EntityID, *MultiplexedLayer]
@@ -23,7 +22,7 @@ type SL struct {
 func newSL(sizeByte int) *SL {
 	return &SL{
 		sizeByte: sizeByte,
-		tree:     ibst.NewTree[Signal](),
+		ibst:     collection.NewIBST[Signal](),
 		filters:  []*SignalLayoutFilter{},
 
 		muxLayers: collection.NewMap[EntityID, *MultiplexedLayer](),
@@ -38,7 +37,7 @@ func newSL(sizeByte int) *SL {
 func (sl *SL) genFilters() {
 	sl.filters = []*SignalLayoutFilter{}
 
-	for _, sig := range sl.tree.GetInOrder() {
+	for _, sig := range sl.ibst.GetInOrder() {
 		sigSize := sig.GetSize()
 		startPos := sig.GetStartPos()
 		endianness := sig.Endianness()
@@ -131,7 +130,7 @@ func (sl *SL) stringify(s *stringer.Stringer) {
 
 	s.Write("interval_bst:\n")
 	s.Indent()
-	sl.tree.Stringify(s)
+	sl.ibst.Stringify(s)
 	s.Unindent()
 
 	if len(sl.filters) > 0 {
@@ -204,7 +203,7 @@ func (sl *SL) verifyIntersection(sig Signal) error {
 		layout := layoutStack.Pop()
 
 		// Check if the signal intersects in the current signal layout
-		if intSig, ok := layout.tree.Intersects(sig); ok {
+		if intSig, ok := layout.ibst.Intersects(sig); ok {
 			return newIntersectError(intSig.Name())
 		}
 
@@ -230,7 +229,7 @@ func (sl *SL) verifyIntersection(sig Signal) error {
 	}
 
 	for !parentLayout.fromMessage() && parentLayout.fromMultiplexedLayer() {
-		if intSig, ok := parentLayout.tree.Intersects(sig); ok {
+		if intSig, ok := parentLayout.ibst.Intersects(sig); ok {
 			return newIntersectError(intSig.Name())
 		}
 
@@ -247,7 +246,7 @@ func (sl *SL) verifyIntersection(sig Signal) error {
 	for !layoutStack.IsEmpty() {
 		layout := layoutStack.Pop()
 
-		if intSig, ok := layout.tree.Intersects(sig); ok {
+		if intSig, ok := layout.ibst.Intersects(sig); ok {
 			return newIntersectError(intSig.Name())
 		}
 
@@ -310,7 +309,7 @@ func (sl *SL) verifyNewStartPos(sig Signal, newStartPos int) error {
 	}
 
 	newLow, newHigh := sl.getIntervalFromNewStartPos(sig, newStartPos)
-	if !sl.tree.CanUpdate(sig, newLow, newHigh) {
+	if !sl.ibst.CanUpdate(sig, newLow, newHigh) {
 		return newStartPosError(newStartPos, ErrIntersects)
 	}
 
@@ -327,7 +326,7 @@ func (sl *SL) verifyNewStartPos(sig Signal, newStartPos int) error {
 // new start position is valid.
 func (sl *SL) updateStartPos(sig Signal, newStartPos int) {
 	newLow, newHigh := sl.getIntervalFromNewStartPos(sig, newStartPos)
-	sl.tree.Update(sig, newLow, newHigh)
+	sl.ibst.Update(sig, newLow, newHigh)
 
 	// Regenerate the filters
 	sl.genFilters()
@@ -380,7 +379,7 @@ func (sl *SL) verifyNewSize(sig Signal, newSize int) error {
 	}
 
 	newLow, newHigh := sl.getIntervalFromNewSize(sig, newSize)
-	if !sl.tree.CanUpdate(sig, newLow, newHigh) {
+	if !sl.ibst.CanUpdate(sig, newLow, newHigh) {
 		return newSizeError(newSize, ErrIntersects)
 	}
 
@@ -396,7 +395,7 @@ func (sl *SL) verifyNewSize(sig Signal, newSize int) error {
 // the new size is valid.
 func (sl *SL) updateSize(sig Signal, newSize int) {
 	newLow, newHigh := sl.getIntervalFromNewSize(sig, newSize)
-	sl.tree.Update(sig, newLow, newHigh)
+	sl.ibst.Update(sig, newLow, newHigh)
 
 	// Regenerate the filters
 	sl.genFilters()
@@ -433,7 +432,7 @@ func (sl *SL) verifyInsert(sig Signal, startPos int) error {
 	defer sig.setStartPos(oldStartPos)
 
 	// Check if the signal intersects in the current signal layout
-	if intSig, ok := sl.tree.Intersects(sig); ok {
+	if intSig, ok := sl.ibst.Intersects(sig); ok {
 		return newIntersectError(intSig.Name())
 	}
 
@@ -444,7 +443,7 @@ func (sl *SL) verifyInsert(sig Signal, startPos int) error {
 // It must be called after the verify function since it assumes the signal is valid.
 func (sl *SL) insert(sig Signal, startPos int) {
 	sig.setStartPos(startPos)
-	sl.tree.Insert(sig)
+	sl.ibst.Insert(sig)
 
 	sig.setLayout(sl)
 
@@ -471,7 +470,7 @@ func (sl *SL) verifyAndInsert(sig Signal, startPos int) error {
 
 // delete removes the signal from the signal layout.
 func (sl *SL) delete(sig Signal) {
-	sl.tree.Delete(sig)
+	sl.ibst.Delete(sig)
 
 	sig.setLayout(nil)
 
@@ -481,7 +480,7 @@ func (sl *SL) delete(sig Signal) {
 
 // clear removes all signals from the signal layout.
 func (sl *SL) clear() {
-	sl.tree.Clear()
+	sl.ibst.Clear()
 
 	// Reset the filters
 	sl.filters = []*SignalLayoutFilter{}
@@ -513,13 +512,13 @@ func (sl *SL) verifyResize(newSizeByte int) error {
 	}
 
 	// Return early if the new size is the same or there are no signals
-	if newSizeByte == sl.sizeByte || sl.tree.Size() == 0 {
+	if newSizeByte == sl.sizeByte || sl.ibst.Size() == 0 {
 		return nil
 	}
 
 	// Check if the new size is too small by looking the last signal
 	endPos := 0
-	for sig := range sl.tree.ReverseOrder() {
+	for sig := range sl.ibst.ReverseOrder() {
 		endPos = sig.GetHigh()
 		break
 	}
@@ -575,27 +574,27 @@ func (sl *SL) verifyAndResize(newSizeByte int) error {
 // compact compacts the signal layout.
 // It will only compact the signal layout if there are no multiplexed layers.
 func (sl *SL) compact() {
-	if sl.tree.Size() == 0 || sl.muxLayers.Size() != 0 {
+	if sl.ibst.Size() == 0 || sl.muxLayers.Size() != 0 {
 		return
 	}
 
 	// Compact the signal layout
 	newStartPos := 0
-	for sig := range sl.tree.InOrder() {
+	for sig := range sl.ibst.InOrder() {
 		tmpSize := sig.GetSize()
-		sl.tree.Update(sig, newStartPos, newStartPos+tmpSize)
+		sl.ibst.Update(sig, newStartPos, newStartPos+tmpSize)
 		newStartPos += tmpSize
 	}
 }
 
 // SignalCount returns the number of signals in the signal layout.
 func (sl *SL) SignalCount() int {
-	return sl.tree.Size()
+	return sl.ibst.Size()
 }
 
 // Signals returns the signals in the signal layout ordered by the start position.
 func (sl *SL) Signals() []Signal {
-	return sl.tree.GetInOrder()
+	return sl.ibst.GetInOrder()
 }
 
 // Filters returns the signal filters of the layout.

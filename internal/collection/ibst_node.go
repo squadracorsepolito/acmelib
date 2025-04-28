@@ -1,22 +1,22 @@
-package ibst
+package collection
 
-type node[T Intervalable] struct {
+type ibstNode[T IBSTItem] struct {
 	item        T
 	max         int
-	left, right *node[T]
+	left, right *ibstNode[T]
 	height      int
 }
 
-func (n *node[T]) getLow() int {
+func (n *ibstNode[T]) getLow() int {
 	return n.item.GetLow()
 }
 
-func (n *node[T]) getHigh() int {
+func (n *ibstNode[T]) getHigh() int {
 	return n.item.GetHigh()
 }
 
 // updateHeight recalculates the height of a node based on its children
-func (n *node[T]) updateHeight() {
+func (n *ibstNode[T]) updateHeight() {
 	leftH := 0
 	if n.left != nil {
 		leftH = n.left.height
@@ -31,7 +31,7 @@ func (n *node[T]) updateHeight() {
 }
 
 // updateMax recalculates the max value of a node based on itself and its children
-func (n *node[T]) updateMax() {
+func (n *ibstNode[T]) updateMax() {
 	n.max = n.item.GetHigh()
 
 	if n.left != nil && n.left.max > n.max {
@@ -44,7 +44,7 @@ func (n *node[T]) updateMax() {
 }
 
 // balanceFactor returns the balance factor of a node
-func (n *node[T]) balanceFactor() int {
+func (n *ibstNode[T]) balanceFactor() int {
 	leftH := 0
 	if n.left != nil {
 		leftH = n.left.height
@@ -59,7 +59,7 @@ func (n *node[T]) balanceFactor() int {
 }
 
 // rotateRight performs a right rotation on the given node
-func (n *node[T]) rotateRight() *node[T] {
+func (n *ibstNode[T]) rotateRight() *ibstNode[T] {
 	leftNode := n.left
 	leftRightNode := leftNode.right
 
@@ -77,7 +77,7 @@ func (n *node[T]) rotateRight() *node[T] {
 }
 
 // rotateLeft performs a left rotation on the given node
-func (n *node[T]) rotateLeft() *node[T] {
+func (n *ibstNode[T]) rotateLeft() *ibstNode[T] {
 	rightNode := n.right
 	rightLeftNode := rightNode.left
 
@@ -95,7 +95,7 @@ func (n *node[T]) rotateLeft() *node[T] {
 }
 
 // findMin returns the node with the minimum low value in the subtree
-func (n *node[T]) findMin() *node[T] {
+func (n *ibstNode[T]) findMin() *ibstNode[T] {
 	for n.left != nil {
 		return n.left
 	}

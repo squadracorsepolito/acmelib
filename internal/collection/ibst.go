@@ -1,5 +1,4 @@
-// Package ibst contains the implementation of the interval binary search tree.
-package ibst
+package collection
 
 import (
 	"iter"
@@ -7,9 +6,9 @@ import (
 	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
-// Intervalable is an interface for intervalable items
-// to be stored in the [Tree].
-type Intervalable interface {
+// IBSTItem is an interface for intervalable items
+// to be stored in the [IBST].
+type IBSTItem interface {
 	Name() string
 	GetLow() int
 	SetLow(int)
@@ -17,26 +16,26 @@ type Intervalable interface {
 	SetHigh(int)
 }
 
-// Tree is a binary search tree that stores intervals.
-type Tree[T Intervalable] struct {
-	root *node[T]
+// IBST is a binary search tree that stores intervals.
+type IBST[T IBSTItem] struct {
+	root *ibstNode[T]
 	size int
 }
 
-// NewTree returns a new [Tree].
-func NewTree[T Intervalable]() *Tree[T] {
-	return &Tree[T]{
+// NewIBST returns a new [IBST].
+func NewIBST[T IBSTItem]() *IBST[T] {
+	return &IBST[T]{
 		root: nil,
 		size: 0,
 	}
 }
 
 // insertNode recursively inserts a new interval into the tree and balances it
-func (t *Tree[T]) insertNode(root *node[T], item T) *node[T] {
+func (t *IBST[T]) insertNode(root *ibstNode[T], item T) *ibstNode[T] {
 	// Standard BST insertion
 	if root == nil {
 		t.size++
-		return &node[T]{
+		return &ibstNode[T]{
 			item:   item,
 			max:    item.GetHigh(),
 			height: 1,
@@ -83,7 +82,7 @@ func (t *Tree[T]) insertNode(root *node[T], item T) *node[T] {
 }
 
 // Insert adds a new intervalable item to the tree.
-func (t *Tree[T]) Insert(item T) {
+func (t *IBST[T]) Insert(item T) {
 	if item.GetLow() > item.GetHigh() {
 		// Invalid interval, silently ignore
 		return
@@ -92,7 +91,7 @@ func (t *Tree[T]) Insert(item T) {
 }
 
 // deleteNode recursively deletes a node with the given interval
-func (t *Tree[T]) deleteNode(root *node[T], item T) *node[T] {
+func (t *IBST[T]) deleteNode(root *ibstNode[T], item T) *ibstNode[T] {
 	if root == nil {
 		return nil
 	}
@@ -170,22 +169,22 @@ func (t *Tree[T]) deleteNode(root *node[T], item T) *node[T] {
 }
 
 // Delete removes an intervalable item from the tree.
-func (t *Tree[T]) Delete(item T) {
+func (t *IBST[T]) Delete(item T) {
 	t.root = t.deleteNode(t.root, item)
 }
 
 // Size returns the number of intervals in the tree.
-func (t *Tree[T]) Size() int {
+func (t *IBST[T]) Size() int {
 	return t.size
 }
 
 // IsEmpty returns true if the tree is empty.
-func (t *Tree[T]) IsEmpty() bool {
+func (t *IBST[T]) IsEmpty() bool {
 	return t.size == 0
 }
 
 // intersectsNode recursively checks for any intersection with the given interval
-func (t *Tree[T]) intersectsNode(root *node[T], low, high int) (T, bool) {
+func (t *IBST[T]) intersectsNode(root *ibstNode[T], low, high int) (T, bool) {
 	if root == nil {
 		return *new(T), false
 	}
@@ -214,7 +213,7 @@ func (t *Tree[T]) intersectsNode(root *node[T], low, high int) (T, bool) {
 
 // Intersects check if the given intervalable item intersects any already in the tree.
 // Returns the first intersecting interval and true if found.
-func (t *Tree[T]) Intersects(item T) (T, bool) {
+func (t *IBST[T]) Intersects(item T) (T, bool) {
 	if t.IsEmpty() {
 		return *new(T), false
 	}
@@ -222,7 +221,7 @@ func (t *Tree[T]) Intersects(item T) (T, bool) {
 }
 
 // inOrderTraversal recursively traverses the tree in ascending order
-func (t *Tree[T]) inOrderTraversal(root *node[T], yield func(T) bool) bool {
+func (t *IBST[T]) inOrderTraversal(root *ibstNode[T], yield func(T) bool) bool {
 	if root == nil {
 		return true
 	}
@@ -242,14 +241,14 @@ func (t *Tree[T]) inOrderTraversal(root *node[T], yield func(T) bool) bool {
 }
 
 // InOrder returns an iterator over all intervals in the tree in ascending order by low value.
-func (t *Tree[T]) InOrder() iter.Seq[T] {
+func (t *IBST[T]) InOrder() iter.Seq[T] {
 	return func(yield func(T) bool) {
 		t.inOrderTraversal(t.root, yield)
 	}
 }
 
 // GetInOrder returns all intervals in the tree in ascending order by low value.
-func (t *Tree[T]) GetInOrder() []T {
+func (t *IBST[T]) GetInOrder() []T {
 	result := make([]T, 0, t.size)
 
 	for item := range t.InOrder() {
@@ -260,7 +259,7 @@ func (t *Tree[T]) GetInOrder() []T {
 }
 
 // reverseOrderTraversal recursively traverses the tree in descending order
-func (t *Tree[T]) reverseOrderTraversal(root *node[T], yield func(T) bool) bool {
+func (t *IBST[T]) reverseOrderTraversal(root *ibstNode[T], yield func(T) bool) bool {
 	if root == nil {
 		return true
 	}
@@ -280,14 +279,14 @@ func (t *Tree[T]) reverseOrderTraversal(root *node[T], yield func(T) bool) bool 
 }
 
 // ReverseOrder returns an iterator over all intervals in the tree in descending order by low value.
-func (t *Tree[T]) ReverseOrder() iter.Seq[T] {
+func (t *IBST[T]) ReverseOrder() iter.Seq[T] {
 	return func(yield func(T) bool) {
 		t.reverseOrderTraversal(t.root, yield)
 	}
 }
 
 // GetReverseOrder returns all intervals in the tree in descending order by low value.
-func (t *Tree[T]) GetReverseOrder() []T {
+func (t *IBST[T]) GetReverseOrder() []T {
 	result := make([]T, 0, t.size)
 
 	for item := range t.ReverseOrder() {
@@ -299,7 +298,7 @@ func (t *Tree[T]) GetReverseOrder() []T {
 
 // checkOtherIntervals a helper function to check if an interval intersects with any other interval
 // except the one we are skipping.
-func (t *Tree[T]) checkOtherIntervals(node *node[T], low, high int, skipItem T) bool {
+func (t *IBST[T]) checkOtherIntervals(node *ibstNode[T], low, high int, skipItem T) bool {
 	if node == nil {
 		return false
 	}
@@ -327,7 +326,7 @@ func (t *Tree[T]) checkOtherIntervals(node *node[T], low, high int, skipItem T) 
 
 // CanUpdate checks if the given intervalable item can be updated
 // without intersecting with any other interval.
-func (t *Tree[T]) CanUpdate(item T, newLow, newHigh int) bool {
+func (t *IBST[T]) CanUpdate(item T, newLow, newHigh int) bool {
 	// If tree is empty or has only one item (the one we're updating)
 	if t.size <= 1 {
 		return true
@@ -337,7 +336,7 @@ func (t *Tree[T]) CanUpdate(item T, newLow, newHigh int) bool {
 }
 
 // Update updates an intervalable item in the tree with the new low and high values.
-func (t *Tree[T]) Update(item T, newLow, newHigh int) {
+func (t *IBST[T]) Update(item T, newLow, newHigh int) {
 	t.Delete(item)
 	item.SetLow(newLow)
 	item.SetHigh(newHigh)
@@ -345,12 +344,12 @@ func (t *Tree[T]) Update(item T, newLow, newHigh int) {
 }
 
 // Clear removes all intervals from the tree
-func (t *Tree[T]) Clear() {
+func (t *IBST[T]) Clear() {
 	t.root = nil
 	t.size = 0
 }
 
-func (t *Tree[T]) stringify(s *stringer.Stringer, node *node[T]) {
+func (t *IBST[T]) stringify(s *stringer.Stringer, node *ibstNode[T]) {
 	if node == nil {
 		return
 	}
@@ -371,12 +370,12 @@ func (t *Tree[T]) stringify(s *stringer.Stringer, node *node[T]) {
 
 // Stringify writes a string representation of the tree into
 // a [stringer.Stringer].
-func (t *Tree[T]) Stringify(s *stringer.Stringer) {
+func (t *IBST[T]) Stringify(s *stringer.Stringer) {
 	s.Write("size: %d\n", t.size)
 	t.stringify(s, t.root)
 }
 
-func (t *Tree[T]) String() string {
+func (t *IBST[T]) String() string {
 	s := stringer.New()
 	s.Write("interval_bst\n")
 	t.Stringify(s)
