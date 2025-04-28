@@ -34,7 +34,7 @@ BS_:
 
 BU_: node_0 rec_node_0
 
-BO_ 16 message_mux : 8 node_0
+BO_ 16 mux_message : 8 node_0
  SG_ top_muxor M : 0|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ top_signal_in_0 m0 : 8|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ top_signal_in_255 m255 : 8|8@1+ (1,0) [0|255] "" rec_node_0
@@ -54,6 +54,13 @@ BO_ 16 message_mux : 8 node_0
  SG_ bottom_signal_in_0 m0 : 48|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ bottom_signal_in_255 m255 : 48|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ bottom_muxor M : 56|8@1+ (1,0) [0|255] "" rec_node_0
+
+BO_ 32 simple_mux_message : 4 node_0
+ SG_ muxor M : 0|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ signal_in_0 m0 : 8|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ signal_in_1 m1 : 8|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ signal_in_2 m2 : 16|8@1+ (1,0) [0|255] "" rec_node_0
+
 
 SG_MUL_VAL_ 16 top_signal_in_0 top_muxor 0-0;
 SG_MUL_VAL_ 16 top_signal_in_255 top_muxor 255-255;

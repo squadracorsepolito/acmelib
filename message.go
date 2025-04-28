@@ -235,7 +235,7 @@ func (m *Message) stringify(b *strings.Builder, tabs int) {
 
 	b.WriteString(fmt.Sprintf("%ssignals:\n", tabStr))
 	for _, sig := range m.Signals() {
-		sig.stringify(b, tabs+1)
+		sig.stringifyOld(b, tabs+1)
 		b.WriteRune('\n')
 	}
 }

@@ -51,8 +51,8 @@ func (ss *StandardSignal) ToStandard() (*StandardSignal, error) {
 	return ss, nil
 }
 
-func (ss *StandardSignal) stringify(b *strings.Builder, tabs int) {
-	ss.signal.stringify(b, tabs)
+func (ss *StandardSignal) stringifyOld(b *strings.Builder, tabs int) {
+	ss.signal.stringifyOld(b, tabs)
 
 	tabStr := getTabString(tabs)
 
@@ -69,7 +69,7 @@ func (ss *StandardSignal) stringify(b *strings.Builder, tabs int) {
 
 func (ss *StandardSignal) String() string {
 	builder := new(strings.Builder)
-	ss.stringify(builder, 0)
+	ss.stringifyOld(builder, 0)
 	return builder.String()
 }
 

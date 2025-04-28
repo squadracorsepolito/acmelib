@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/squadracorsepolito/acmelib/internal/collection"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // SignalKind rappresents the kind of a [Signal].
@@ -118,7 +119,10 @@ type Signal interface {
 	// with the given attribute entity id from the signal.
 	GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error)
 
-	stringify(b *strings.Builder, tabs int)
+	//TODO! delete me
+	stringifyOld(b *strings.Builder, tabs int)
+
+	stringify(s *stringer.Stringer)
 	String() string
 
 	// Kind returns the kind of the signal.
@@ -190,8 +194,8 @@ type signal struct {
 
 	endianness Endianness
 
-	relStartPos int
-	size        int
+	startPos int
+	size     int
 }
 
 func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
@@ -209,8 +213,8 @@ func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
 		startValue: 0,
 		sendType:   SignalSendTypeUnset,
 
-		size:        0,
-		relStartPos: 0,
+		size:     0,
+		startPos: 0,
 	}
 }
 
@@ -249,6 +253,38 @@ func (s *signal) errorf(err error) error {
 	return sigErr
 }
 
+func (s *signal) stringifyOld(b *strings.Builder, tabs int) {
+	s.entity.stringify(b, tabs)
+
+	tabStr := getTabString(tabs)
+
+	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, s.kind))
+
+	if s.sendType != SignalSendTypeUnset {
+		b.WriteString(fmt.Sprintf("%ssend_type: %q\n", tabStr, s.sendType))
+	}
+
+	b.WriteString(fmt.Sprintf("%sstart_pos: %d; ", tabStr, s.startPos))
+}
+
+func (s *signal) stringify(str *stringer.Stringer) {
+	str.Write("kind: %s\n", s.kind)
+
+	str.Write("start_pos: %d\n", s.startPos)
+	str.Write("size: %d\n", s.size)
+
+	if s.sendType != SignalSendTypeUnset {
+		str.Write("send_type: %q\n", s.sendType)
+	}
+}
+
+func (s *signal) String() string {
+	str := stringer.New()
+	str.Write("signal:\n")
+	s.stringify(str)
+	return str.String()
+}
+
 func (s *signal) Kind() SignalKind {
 	return s.kind
 }
@@ -266,25 +302,15 @@ func (s *signal) setParentMsg(parentMsg *Message) {
 }
 
 func (s *signal) GetStartPos() int {
-	return s.relStartPos
+	return s.startPos
 }
 
 func (s *signal) setStartPos(startPos int) {
-	s.relStartPos = startPos
+	s.startPos = startPos
 }
 
-func (s *signal) stringify(b *strings.Builder, tabs int) {
-	s.entity.stringify(b, tabs)
-
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, s.kind))
-
-	if s.sendType != SignalSendTypeUnset {
-		b.WriteString(fmt.Sprintf("%ssend_type: %q\n", tabStr, s.sendType))
-	}
-
-	b.WriteString(fmt.Sprintf("%sstart_pos: %d; ", tabStr, s.relStartPos))
+func (s *signal) setLayout(sl *SL) {
+	s.layout = sl
 }
 
 func (s *signal) SetStartValue(startValue float64) {
@@ -305,17 +331,22 @@ func (s *signal) SendType() SignalSendType {
 
 func (s *signal) SetEndianness(endianness Endianness) {
 	s.endianness = endianness
+
+	if s.layout != nil {
+		s.layout.genFilters()
+	}
 }
 
 func (s *signal) Endianness() Endianness {
 	return s.endianness
 }
 
+// TODO! delete this method
 func (s *signal) GetStartBit() int {
 	// if s.hasParentMuxSig() {
 	// 	return s.parentMuxSig.GetStartBit() + s.parentMuxSig.GetGroupCountSize() + s.relStartPos
 	// }
-	return s.relStartPos
+	return s.startPos
 }
 
 // UpdateName updates the name of the signal.
@@ -370,21 +401,6 @@ updateName:
 	return nil
 }
 
-func (s *signal) RemoveAttributeAssignment(attributeEntityID EntityID) error {
-	if err := s.removeAttributeAssignment(attributeEntityID); err != nil {
-		return s.errorf(err)
-	}
-	return nil
-}
-
-func (s *signal) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
-	attAss, err := s.getAttributeAssignment(attributeEntityID)
-	if err != nil {
-		return nil, s.errorf(err)
-	}
-	return attAss, nil
-}
-
 func (s *signal) GetSize() int {
 	return s.size
 }
@@ -430,17 +446,6 @@ func (s *signal) ToMuxor() (*MuxorSignal, error) {
 	})
 }
 
-func (s *signal) String() string {
-	return ""
-}
-
-func (s *signal) AssignAttribute(attribute Attribute, value any) error {
-	if err := s.addAttributeAssignment(attribute, s, value); err != nil {
-		return s.errorf(err)
-	}
-	return nil
-}
-
 func (s *signal) setparentMuxLayer(ml *MultiplexedLayer) {
 	s.parentMuxLayer = ml
 }
@@ -453,6 +458,14 @@ func (s *signal) hasParentMuxLayer() bool {
 //
 // It returns a [StartPosError] if the new start position is invalid.
 func (s *signal) UpdateStartPos(newStartPos int) error {
+	if s.kind == SignalKindMuxor {
+		if err := s.layout.verifyAndUpdateStartPos(s, newStartPos); err != nil {
+			return s.errorf(err)
+		}
+
+		goto updateStartPos
+	}
+
 	if s.hasParentMuxLayer() {
 		// Get all IDs of the layouts that contain the signal
 		if layoutIDs, ok := s.parentMuxLayer.singalLayoutIDs.Get(s.entityID); ok {
@@ -470,7 +483,7 @@ func (s *signal) UpdateStartPos(newStartPos int) error {
 			}
 		}
 
-		return nil
+		goto updateStartPos
 	}
 
 	if s.hasParentMsg() {
@@ -480,14 +493,26 @@ func (s *signal) UpdateStartPos(newStartPos int) error {
 		}
 	}
 
-	// The signal is not attached to anything
+updateStartPos:
 	s.setStartPos(newStartPos)
-
 	return nil
 }
 
 // updateSize updates the size of the signal.
 func (s *signal) updateSize(newSize int) error {
+	// If the new size is smaller than the original, it cannot be invalid
+	if newSize < s.size {
+		goto updateSize
+	}
+
+	if s.kind == SignalKindMuxor {
+		if err := s.layout.verifyAndUpdateSize(s, newSize); err != nil {
+			return s.errorf(err)
+		}
+
+		goto updateSize
+	}
+
 	if s.hasParentMuxLayer() {
 		// Get all IDs of the layouts that contain the signal
 		if layoutIDs, ok := s.parentMuxLayer.singalLayoutIDs.Get(s.entityID); ok {
@@ -504,6 +529,8 @@ func (s *signal) updateSize(newSize int) error {
 				s.parentMuxLayer.layouts[lID].updateSize(s, newSize)
 			}
 		}
+
+		goto updateSize
 	}
 
 	if s.hasParentMsg() {
@@ -513,12 +540,29 @@ func (s *signal) updateSize(newSize int) error {
 		}
 	}
 
-	// The signal is not attached to anything
+updateSize:
 	s.setSize(newSize)
-
 	return nil
 }
 
-func (s *signal) setLayout(sl *SL) {
-	s.layout = sl
+func (s *signal) RemoveAttributeAssignment(attributeEntityID EntityID) error {
+	if err := s.removeAttributeAssignment(attributeEntityID); err != nil {
+		return s.errorf(err)
+	}
+	return nil
+}
+
+func (s *signal) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
+	attAss, err := s.getAttributeAssignment(attributeEntityID)
+	if err != nil {
+		return nil, s.errorf(err)
+	}
+	return attAss, nil
+}
+
+func (s *signal) AssignAttribute(attribute Attribute, value any) error {
+	if err := s.addAttributeAssignment(attribute, s, value); err != nil {
+		return s.errorf(err)
+	}
+	return nil
 }

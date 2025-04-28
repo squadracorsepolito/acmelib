@@ -43,6 +43,8 @@ var ErrTooBig = errors.New("too big")
 
 var ErrIsDifferent = errors.New("is different")
 
+var ErrNotClear = errors.New("not clear")
+
 // ErrInvalidOneof is returned when a oneof field does not match
 // a kind/type field.
 type ErrInvalidOneof struct {

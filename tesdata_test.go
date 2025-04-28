@@ -7,6 +7,8 @@ import (
 var byteSigType, _ = NewIntegerSignalType("uint8_t", 8, false)
 var wordSigType, _ = NewIntegerSignalType("uint16_t", 16, false)
 
+var dummySignal, _ = NewStandardSignal("dummy_signal", byteSigType)
+
 type testdataMuxMsgLayerInner struct {
 	layer   *MultiplexedLayer
 	signals struct {
@@ -36,7 +38,7 @@ type testdataMuxMsg struct {
 }
 
 func initMultiplexedMessage(assert *assert.Assertions) *testdataMuxMsg {
-	msg := NewMessage("multiplexed_message", 1, 8)
+	msg := NewMessage("mux_message", 16, 8)
 
 	baseSignal, err := NewStandardSignal("base_signal", wordSigType)
 	assert.NoError(err)
@@ -129,5 +131,47 @@ func initMultiplexedMessage(assert *assert.Assertions) *testdataMuxMsg {
 			},
 		},
 	}
+}
 
+type testdataSimpleMuxMsg struct {
+	message *Message
+	layout  *SL
+
+	layer        *MultiplexedLayer
+	layerSignals struct {
+		in0, in1, in2 Signal
+	}
+}
+
+func initSimpleMuxMessage(assert *assert.Assertions) *testdataSimpleMuxMsg {
+	msg := NewMessage("simple_mux_message", 32, 4)
+
+	layout := msg.SignalLayout()
+
+	muxLayer, err := layout.AddMultiplexedLayer("muxor", 0, 256)
+	assert.NoError(err)
+
+	sigIn0, err := NewStandardSignal("signal_in_0", byteSigType)
+	assert.NoError(err)
+	assert.NoError(muxLayer.InsertSignal(sigIn0, 8, 0))
+
+	sigIn1, err := NewStandardSignal("signal_in_1", byteSigType)
+	assert.NoError(err)
+	assert.NoError(muxLayer.InsertSignal(sigIn1, 8, 1))
+
+	sigIn2, err := NewStandardSignal("signal_in_2", byteSigType)
+	assert.NoError(err)
+	assert.NoError(muxLayer.InsertSignal(sigIn2, 8, 2))
+
+	return &testdataSimpleMuxMsg{
+		message: msg,
+		layout:  layout,
+
+		layer: muxLayer,
+		layerSignals: struct {
+			in0 Signal
+			in1 Signal
+			in2 Signal
+		}{sigIn0, sigIn1, sigIn2},
+	}
 }

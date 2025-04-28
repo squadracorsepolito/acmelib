@@ -47,8 +47,8 @@ func (es *EnumSignal) ToEnum() (*EnumSignal, error) {
 	return es, nil
 }
 
-func (es *EnumSignal) stringify(b *strings.Builder, tabs int) {
-	es.signal.stringify(b, tabs)
+func (es *EnumSignal) stringifyOld(b *strings.Builder, tabs int) {
+	es.signal.stringifyOld(b, tabs)
 	b.WriteString(fmt.Sprintf("size: %d\n", es.GetSize()))
 
 	tabStr := getTabString(tabs)
@@ -59,7 +59,7 @@ func (es *EnumSignal) stringify(b *strings.Builder, tabs int) {
 
 func (es *EnumSignal) String() string {
 	builder := new(strings.Builder)
-	es.stringify(builder, 0)
+	es.stringifyOld(builder, 0)
 	return builder.String()
 }
 
