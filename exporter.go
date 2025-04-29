@@ -467,7 +467,8 @@ func (e *exporter) exportEnumSignal(enumSig *EnumSignal, dbcMsgID uint32, dbcSig
 	dbcValEnc.Kind = dbc.ValueEncodingSignal
 	dbcValEnc.MessageID = dbcMsgID
 	dbcValEnc.SignalName = clearSpaces(enumSig.Name())
-	dbcValEnc.Values = e.getDBCValueDescription(enumSig.enum.Values())
+
+	// dbcValEnc.Values = e.getDBCValueDescription(enumSig.enum.Values())
 
 	e.dbcFile.ValueEncodings = append(e.dbcFile.ValueEncodings, dbcValEnc)
 	e.sigEnums[enumSig.enum.entityID] = enumSig.enum
@@ -486,8 +487,8 @@ func (e *exporter) getDBCValueDescription(enumValues []*SignalEnumValue) []*dbc.
 
 func (e *exporter) exportSignalEnum(enum *SignalEnum) {
 	e.dbcFile.ValueTables = append(e.dbcFile.ValueTables, &dbc.ValueTable{
-		Name:   enum.name,
-		Values: e.getDBCValueDescription(enum.Values()),
+		Name: enum.name,
+		// Values: e.getDBCValueDescription(enum.Values()),
 	})
 }
 

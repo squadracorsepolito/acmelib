@@ -9,7 +9,7 @@ import (
 func Test_signal_UpdateName(t *testing.T) {
 	assert := assert.New(t)
 
-	muxMsg := initMultiplexedMessage(assert)
+	muxMsg := initMuxMessage(assert)
 
 	sigBase := muxMsg.signals.base
 	assert.NoError(sigBase.UpdateName("new_base_signal"))
@@ -60,7 +60,7 @@ func Test_signal_UpdateName(t *testing.T) {
 func Test_signal_UpdateStartPos(t *testing.T) {
 	assert := assert.New(t)
 
-	muxMsg := initMultiplexedMessage(assert)
+	muxMsg := initMuxMessage(assert)
 
 	sigBase := muxMsg.signals.base
 	assert.Error(sigBase.UpdateStartPos(0))
@@ -91,7 +91,7 @@ func Test_signal_UpdateStartPos(t *testing.T) {
 func Test_signal_updateSize(t *testing.T) {
 	assert := assert.New(t)
 
-	muxMsg := initMultiplexedMessage(assert)
+	muxMsg := initMuxMessage(assert)
 
 	sigBase := muxMsg.signals.base
 	assert.NoError(sigBase.verifyAndUpdateSize(15))

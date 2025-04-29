@@ -320,11 +320,11 @@ func (i *importer) importAttributes(dbcAtts []*dbc.Attribute, dbcAttDefs []*dbc.
 func (i *importer) importValueTable(dbcValTable *dbc.ValueTable) error {
 	sigEnum := NewSignalEnum(dbcValTable.Name)
 
-	for _, dbcVal := range dbcValTable.Values {
-		if err := sigEnum.AddValue(NewSignalEnumValue(dbcVal.Name, int(dbcVal.ID))); err != nil {
-			return i.errorf(dbcVal, err)
-		}
-	}
+	// for _, dbcVal := range dbcValTable.Values {
+	// 	if err := sigEnum.AddValue(NewSignalEnumValue(dbcVal.Name, int(dbcVal.ID))); err != nil {
+	// 		return i.errorf(dbcVal, err)
+	// 	}
+	// }
 
 	i.signalEnumRegistry = append(i.signalEnumRegistry, sigEnum)
 
@@ -332,48 +332,48 @@ func (i *importer) importValueTable(dbcValTable *dbc.ValueTable) error {
 }
 
 func (i *importer) importValueEncoding(dbcValEnc *dbc.ValueEncoding) error {
-	if dbcValEnc.Kind != dbc.ValueEncodingSignal {
-		return nil
-	}
+	// if dbcValEnc.Kind != dbc.ValueEncodingSignal {
+	// 	return nil
+	// }
 
-	values := dbcValEnc.Values
-	slices.SortFunc(values, func(a, b *dbc.ValueDescription) int { return int(a.ID) - int(b.ID) })
+	// values := dbcValEnc.Values
+	// slices.SortFunc(values, func(a, b *dbc.ValueDescription) int { return int(a.ID) - int(b.ID) })
 
-	sigEnum := new(SignalEnum)
-	inRegistry := false
-	for _, tmpSigEnum := range i.signalEnumRegistry {
-		if len(values) != tmpSigEnum.values.size() {
-			continue
-		}
+	// sigEnum := new(SignalEnum)
+	// inRegistry := false
+	// for _, tmpSigEnum := range i.signalEnumRegistry {
+	// 	if len(values) != tmpSigEnum.values.size() {
+	// 		continue
+	// 	}
 
-		for idx, tmpVal := range tmpSigEnum.Values() {
-			if tmpVal.name != values[idx].Name || tmpVal.index != int(values[idx].ID) {
-				break
-			}
+	// 	for idx, tmpVal := range tmpSigEnum.Values() {
+	// 		if tmpVal.name != values[idx].Name || tmpVal.index != int(values[idx].ID) {
+	// 			break
+	// 		}
 
-			if idx == (len(values) - 1) {
-				inRegistry = true
-			}
-		}
+	// 		if idx == (len(values) - 1) {
+	// 			inRegistry = true
+	// 		}
+	// 	}
 
-		if inRegistry {
-			sigEnum = tmpSigEnum
-			break
-		}
-	}
+	// 	if inRegistry {
+	// 		sigEnum = tmpSigEnum
+	// 		break
+	// 	}
+	// }
 
-	sigName := dbcValEnc.SignalName
-	if !inRegistry {
-		sigEnum = NewSignalEnum(fmt.Sprintf("%s_Enum", sigName))
-		for _, dbcVal := range dbcValEnc.Values {
-			if err := sigEnum.AddValue(NewSignalEnumValue(dbcVal.Name, int(dbcVal.ID))); err != nil {
-				return i.errorf(dbcVal, err)
-			}
-		}
+	// sigName := dbcValEnc.SignalName
+	// if !inRegistry {
+	// 	sigEnum = NewSignalEnum(fmt.Sprintf("%s_Enum", sigName))
+	// 	for _, dbcVal := range dbcValEnc.Values {
+	// 		if err := sigEnum.AddValue(NewSignalEnumValue(dbcVal.Name, int(dbcVal.ID))); err != nil {
+	// 			return i.errorf(dbcVal, err)
+	// 		}
+	// 	}
 
-	}
+	// }
 
-	i.signalEnums[i.getSignalKey(dbcValEnc.MessageID, sigName)] = sigEnum
+	// i.signalEnums[i.getSignalKey(dbcValEnc.MessageID, sigName)] = sigEnum
 
 	return nil
 }
@@ -709,7 +709,7 @@ func (i *importer) importSignal(dbcSig *dbc.Signal, dbcMsgID uint32) (Signal, er
 
 		dbcSigSize := int(dbcSig.Size)
 		if enumSig.GetSize() < dbcSigSize {
-			sigEnum.SetMinSize(dbcSigSize)
+			// sigEnum.SetMinSize(dbcSigSize)
 		}
 
 		sig = enumSig

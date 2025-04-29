@@ -549,23 +549,23 @@ func (l *loader) loadSignalUnit(pSigUnit *acmelibv1.SignalUnit) *SignalUnit {
 func (l *loader) loadSignalEnum(pSigEnum *acmelibv1.SignalEnum) (*SignalEnum, error) {
 	sigEnum := newSignalEnumFromEntity(l.loadEntity(pSigEnum.Entity, EntityKindSignalEnum))
 
-	for _, pVal := range pSigEnum.Values {
-		val := l.loadSignalEnumValue(pVal)
-		if err := sigEnum.AddValue(val); err != nil {
-			return nil, err
-		}
-	}
+	// for _, pVal := range pSigEnum.Values {
+	// 	val := l.loadSignalEnumValue(pVal)
+	// 	if err := sigEnum.AddValue(val); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
 
-	if pSigEnum.MinSize != 0 {
-		sigEnum.minSize = int(pSigEnum.MinSize)
-	}
+	// if pSigEnum.MinSize != 0 {
+	// 	sigEnum.minSize = int(pSigEnum.MinSize)
+	// }
 
 	return sigEnum, nil
 }
 
-func (l *loader) loadSignalEnumValue(pVal *acmelibv1.SignalEnumValue) *SignalEnumValue {
-	return newSignalEnumValueFromEntity(l.loadEntity(pVal.Entity, EntityKindSignalEnumValue), int(pVal.Index))
-}
+// func (l *loader) loadSignalEnumValue(pVal *acmelibv1.SignalEnumValue) *SignalEnumValue {
+// 	return newSignalEnumValueFromEntity(l.loadEntity(pVal.Entity, EntityKindSignalEnumValue), int(pVal.Index))
+// }
 
 func (l *loader) loadAttribute(pAtt *acmelibv1.Attribute) (Attribute, error) {
 	var typ AttributeType

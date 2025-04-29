@@ -9,7 +9,7 @@ import (
 func Test_MultiplexedLayer_InsertDeleteSignal(t *testing.T) {
 	assert := assert.New(t)
 
-	muxMsg := initMultiplexedMessage(assert)
+	muxMsg := initMuxMessage(assert)
 
 	mlTop := muxMsg.layers.top.layer
 	layoutIDs := []int{3, 4, 5}

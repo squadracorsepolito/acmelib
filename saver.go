@@ -601,15 +601,15 @@ func (s *saver) saveSignalUnit(sigUnit *SignalUnit) *acmelibv1.SignalUnit {
 func (s *saver) saveSignalEnum(sigEnum *SignalEnum) *acmelibv1.SignalEnum {
 	pSigEnum := new(acmelibv1.SignalEnum)
 
-	pSigEnum.Entity = s.saveEntity(sigEnum.entity)
+	// pSigEnum.Entity = s.saveEntity(sigEnum.entity)
 
-	for _, val := range sigEnum.Values() {
-		pSigEnum.Values = append(pSigEnum.Values, s.saveSignalENumValue(val))
-	}
+	// for _, val := range sigEnum.Values() {
+	// 	pSigEnum.Values = append(pSigEnum.Values, s.saveSignalENumValue(val))
+	// }
 
-	if sigEnum.minSize != 0 {
-		pSigEnum.MinSize = uint32(sigEnum.minSize)
-	}
+	// if sigEnum.minSize != 0 {
+	// 	pSigEnum.MinSize = uint32(sigEnum.minSize)
+	// }
 
 	return pSigEnum
 }
@@ -617,8 +617,8 @@ func (s *saver) saveSignalEnum(sigEnum *SignalEnum) *acmelibv1.SignalEnum {
 func (s *saver) saveSignalENumValue(val *SignalEnumValue) *acmelibv1.SignalEnumValue {
 	pVal := new(acmelibv1.SignalEnumValue)
 
-	pVal.Entity = s.saveEntity(val.entity)
-	pVal.Index = uint32(val.index)
+	// pVal.Entity = s.saveEntity(val.entity)
+	// pVal.Index = uint32(val.index)
 
 	return pVal
 }
