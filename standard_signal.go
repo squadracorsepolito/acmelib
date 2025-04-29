@@ -82,8 +82,8 @@ func (ss *StandardSignal) Type() *SignalType {
 // UpdateType updates the [SignalType] of the signal.
 //
 // It returns:
-//   - [ArgError] if the given signal type is nil.
-//   - [SizeError] if the new signal type size cannot fit in the layout.
+//   - [ArgError] if the given type is nil.
+//   - [SizeError] if the new type size cannot fit in the layout.
 func (ss *StandardSignal) UpdateType(newType *SignalType) error {
 	if newType == nil {
 		return ss.errorf(newArgError("newType", ErrIsNil))

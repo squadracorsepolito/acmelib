@@ -1,6 +1,8 @@
 package acmelib
 
 import (
+	"fmt"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -215,5 +217,68 @@ func initBasicMessage(assert *assert.Assertions) *testdataBasicMessage {
 			basic2 Signal
 			basic3 Signal
 		}{sigBasic0, sigBasic1, sigBasic2, sigBasic3},
+	}
+}
+
+type testdataMessage[S any] struct {
+	message *Message
+	layout  *SL
+	signals S
+}
+
+type testdataEnumMessageSignal struct {
+	signal *EnumSignal
+	enum   *SignalEnum
+}
+
+type testdataEnumMessage = testdataMessage[struct {
+	with4Values, with8Values, fixedSize testdataEnumMessageSignal
+}]
+
+func initEnumMessage(assert *assert.Assertions) *testdataEnumMessage {
+	msg := NewMessage("enum_message", 4, 4)
+
+	enum4 := NewSignalEnum("enum_with_4_values")
+	for i := range 4 {
+		_, err := enum4.AddValue0(i, fmt.Sprintf("enum_value_%d", i))
+		assert.NoError(err)
+	}
+	sig4, err := NewEnumSignal("enum_signal_4_values", enum4)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(sig4, 0))
+
+	enum8 := NewSignalEnum("enum_signal_8_values")
+	for i := range 8 {
+		_, err := enum8.AddValue0(i, fmt.Sprintf("enum_value_%d", i))
+		assert.NoError(err)
+	}
+	sig8, err := NewEnumSignal("signal_with_8_values", enum8)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(sig8, 8))
+
+	enumFixed := NewSignalEnum("enum_signal_fixed_size")
+	enumFixed.SetFixedSize(true)
+	assert.NoError(enumFixed.UpdateSize(8))
+	_, err = enumFixed.AddValue0(0, "enum_value_0")
+	assert.NoError(err)
+	_, err = enumFixed.AddValue0(127, "enum_value_127")
+	assert.NoError(err)
+	sigFixed, err := NewEnumSignal("enum_signal_fixed_size", enumFixed)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(sigFixed, 16))
+
+	return &testdataEnumMessage{
+		message: msg,
+		layout:  msg.SignalLayout(),
+
+		signals: struct {
+			with4Values testdataEnumMessageSignal
+			with8Values testdataEnumMessageSignal
+			fixedSize   testdataEnumMessageSignal
+		}{
+			with4Values: testdataEnumMessageSignal{signal: sig4, enum: enum4},
+			with8Values: testdataEnumMessageSignal{signal: sig8, enum: enum8},
+			fixedSize:   testdataEnumMessageSignal{signal: sigFixed, enum: enumFixed},
+		},
 	}
 }

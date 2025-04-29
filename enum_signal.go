@@ -1,8 +1,7 @@
 package acmelib
 
 import (
-	"fmt"
-	"strings"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // EnumSignal is a signal that holds a [SignalEnum].
@@ -14,21 +13,17 @@ type EnumSignal struct {
 
 func newEnumSignalFromBase(base *signal, enum *SignalEnum) (*EnumSignal, error) {
 	if enum == nil {
-		return nil, &ArgError{
-			Name: "enum",
-			Err:  ErrIsNil,
-		}
+		return nil, newArgError("enum", ErrIsNil)
 	}
 
-	sig := &EnumSignal{
+	es := &EnumSignal{
 		signal: base,
-
-		enum: enum,
 	}
 
-	enum.addRef(sig)
+	es.addEnum(enum)
+	es.setSize(enum.size)
 
-	return sig, nil
+	return es, nil
 }
 
 // NewEnumSignal creates a new [EnumSignal] with the given name and [SignalEnum].
@@ -37,30 +32,35 @@ func NewEnumSignal(name string, enum *SignalEnum) (*EnumSignal, error) {
 	return newEnumSignalFromBase(newSignal(name, SignalKindEnum), enum)
 }
 
-// GetSize returns the size of the [EnumSignal].
-func (es *EnumSignal) GetSize() int {
-	return es.enum.GetSize()
-}
-
 // ToEnum returns the [EnumSignal] itself.
 func (es *EnumSignal) ToEnum() (*EnumSignal, error) {
 	return es, nil
 }
 
-func (es *EnumSignal) stringifyOld(b *strings.Builder, tabs int) {
-	es.signal.stringifyOld(b, tabs)
-	b.WriteString(fmt.Sprintf("size: %d\n", es.GetSize()))
+func (es *EnumSignal) stringify(s *stringer.Stringer) {
+	es.signal.stringify(s)
 
-	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%senum:\n", tabStr))
-
-	es.enum.stringifyOld(b, tabs+1)
+	s.Write("enum:\n")
+	s.Indent()
+	es.enum.stringify(s)
+	s.Unindent()
 }
 
 func (es *EnumSignal) String() string {
-	builder := new(strings.Builder)
-	es.stringifyOld(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("enum_signal:\n")
+	es.stringify(s)
+	return s.String()
+}
+
+func (es *EnumSignal) addEnum(enum *SignalEnum) {
+	enum.addRef(es)
+	es.enum = enum
+}
+
+func (es *EnumSignal) removeEnum() {
+	es.enum.removeRef(es.entityID)
+	es.enum = nil
 }
 
 // Enum returns the [SignalEnum] of the [EnumSignal].
@@ -68,41 +68,24 @@ func (es *EnumSignal) Enum() *SignalEnum {
 	return es.enum
 }
 
-// SetEnum sets the [SignalEnum] of the [EnumSignal] to the given one.
-// It may return an error if the given [SignalEnum] is nil, or if the new enum
-// size cannot fit in the message payload.
-func (es *EnumSignal) SetEnum(enum *SignalEnum) error {
-	if enum == nil {
-		return es.errorf(&ArgError{
-			Name: "enum",
-			Err:  ErrIsNil,
-		})
-	}
-
-	if err := es.modifySize(enum.GetSize() - es.GetSize()); err != nil {
-		return es.errorf(err)
-	}
-
-	es.enum.removeRef(es.entityID)
-
-	es.enum = enum
-
-	enum.addRef(es)
-
-	return nil
-}
-
-// AssignAttribute assigns the given attribute/value pair to the [EnumSignal].
+// UpdateEnum updates the [EnumSignal] to use the signal.
 //
-// It returns an [ArgError] if the attribute is nil,
-// or an [AttributeValueError] if the value does not conform to the attribute.
-func (es *EnumSignal) AssignAttribute(attribute Attribute, value any) error {
-	if err := es.addAttributeAssignment(attribute, es, value); err != nil {
+// It returns:
+//   - [ArgError] if the given enum is nil.
+//   - [SizeError] if the new enum size cannot fit in the layout.
+func (es *EnumSignal) UpdateEnum(newEnum *SignalEnum) error {
+	if newEnum == nil {
+		return es.errorf(newArgError("newEnum", ErrIsNil))
+	}
+
+	// Check if the new enum can fit in the layout
+	if err := es.verifyAndUpdateSize(newEnum.size); err != nil {
 		return es.errorf(err)
 	}
-	return nil
-}
 
-func (es *EnumSignal) GetHigh() int {
-	return es.GetStartBit() + es.GetSize() - 1
+	// Swap the enums
+	es.removeEnum()
+	es.addEnum(newEnum)
+
+	return nil
 }

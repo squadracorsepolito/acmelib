@@ -39,6 +39,11 @@ BO_ 1 basic_message : 8 node_0
  SG_ basic_signal_1 : 12|12@1+ (1,0) [0|4095] "" rec_node_0
  SG_ basic_signal_2 : 24|12@1+ (1,0) [0|4095] "" rec_node_0
  SG_ basic_signal_3 : 36|12@1+ (1,0) [0|4095] "" rec_node_0
+ 
+BO_ 4 enum_message : 4 node_0
+ SG_ enum_signal_4_values : 0|2@1+ (1,0) [0|3] "" rec_node_0
+ SG_ enum_signal_8_values : 8|3@1+ (1,0) [0|7] "" rec_node_0
+ SG_ enum_signal_fixed_size : 16|8@1+ (1,0) [0|128] "" rec_node_0
 
 BO_ 16 mux_message : 8 node_0
  SG_ top_muxor M : 0|8@1+ (1,0) [0|255] "" rec_node_0
