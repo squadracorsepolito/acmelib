@@ -373,3 +373,81 @@ func (b *Bus) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssi
 func (b *Bus) ToBus() (*Bus, error) {
 	return b, nil
 }
+
+// BusLoadMessage is a struct that represents the load caused by a [Message] in a [Bus].
+type BusLoadMessage struct {
+	// Message is the examined message.
+	Message *Message
+	// BitsPerSec is the number of bits occupied by the message per second.
+	BitsPerSec float64
+	// Percentage is the load in percentage relative to the total number of bits sent in the bus.
+	Percentage float64
+}
+
+// EstimateLoad estimates the load of the bus in the worst case scenario.
+// It returns the load percentage and a slice of [BusLoadMessage] structs sorted from the message
+// that causes the most load to the message that causes the least load.
+// The default cycle time is used when a message within the bus does not have one set.
+// If the bus does not have the baudrate set, it returns 0.
+//
+// It returns an [ArgError] if the given default cycle time is invalid.
+func (b *Bus) EstimateLoad(defCycleTime int) (float64, []*BusLoadMessage, error) {
+	msgLoads := []*BusLoadMessage{}
+
+	if defCycleTime < 0 {
+		return 0, msgLoads, newArgError("defCycleTime", ErrIsNegative)
+	}
+
+	if defCycleTime == 0 {
+		return 0, msgLoads, newArgError("defCycleTime", ErrIsZero)
+	}
+
+	if b.baudrate == 0 {
+		return 0, msgLoads, nil
+	}
+
+	var headerBits int
+	var trailerBits int
+	var headerStuffingBits int
+	switch b.typ {
+	case BusTypeCAN2A:
+		// start of frame + id + rtr + ide + r0 + dlc
+		headerBits = 19
+		// crc + delim crc + slot ack + delim ack + eof
+		trailerBits = 25
+		// from bit stuffing section of wikipedia (https://en.wikipedia.org/wiki/CAN_bus#Bit_stuffing)
+		headerStuffingBits = 34
+	}
+
+	totConsumedBitsPerSec := float64(0)
+	for tmpInt := range b.nodeInts.Values() {
+		for tmpMsg := range tmpInt.sentMessages.Values() {
+			stuffingBits := (headerStuffingBits + tmpMsg.sizeByte*8 - 1) / 4
+			msgBits := tmpMsg.sizeByte*8 + headerBits + trailerBits + stuffingBits
+
+			cycleTime := tmpMsg.cycleTime
+			if cycleTime == 0 {
+				cycleTime = defCycleTime
+			}
+
+			msgBitsPerSec := float64(msgBits) / float64(cycleTime) * 1000
+			totConsumedBitsPerSec += msgBitsPerSec
+
+			msgLoads = append(msgLoads, &BusLoadMessage{
+				Message:    tmpMsg,
+				BitsPerSec: msgBitsPerSec,
+			})
+		}
+	}
+
+	for _, tmpMsgLoad := range msgLoads {
+		tmpMsgLoad.Percentage = tmpMsgLoad.BitsPerSec / totConsumedBitsPerSec * 100
+	}
+
+	slices.SortFunc(msgLoads, func(a, b *BusLoadMessage) int {
+		diff := b.BitsPerSec - a.BitsPerSec
+		return int(diff)
+	})
+
+	return totConsumedBitsPerSec / float64(b.baudrate) * 100, msgLoads, nil
+}
