@@ -4,6 +4,8 @@ import (
 	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
+var _ Signal = (*EnumSignal)(nil)
+
 // EnumSignal is a signal that holds a [SignalEnum].
 type EnumSignal struct {
 	*signal
@@ -79,7 +81,7 @@ func (es *EnumSignal) UpdateEnum(newEnum *SignalEnum) error {
 	}
 
 	// Check if the new enum can fit in the layout
-	if err := es.verifyAndUpdateSize(newEnum.size); err != nil {
+	if err := es.verifyAndUpdateSize(es, newEnum.size); err != nil {
 		return es.errorf(err)
 	}
 
@@ -90,7 +92,19 @@ func (es *EnumSignal) UpdateEnum(newEnum *SignalEnum) error {
 	return nil
 }
 
+// UpdateStartPos updates the start position of the signal.
+//
+// It returns a [StartPosError] if the new start position is invalid.
+func (es *EnumSignal) UpdateStartPos(newStartPos int) error {
+	return es.signal.updateStartPos(es, newStartPos)
+}
+
 // ToSignal returns the signal itself.
 func (es *EnumSignal) ToSignal() (Signal, error) {
 	return es, nil
+}
+
+// AssignAttribute assigns the given attribute/value pair to the signal.
+func (es *EnumSignal) AssignAttribute(attribute Attribute, value any) error {
+	return es.signal.assignAttribute(es, attribute, value)
 }

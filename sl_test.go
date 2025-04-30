@@ -190,3 +190,44 @@ func Test_SignalLayout_Compact(t *testing.T) {
 
 	assert.NoError(msgBasic.DeleteSignal(dummySignal.EntityID()))
 }
+
+func Test_SignalLayout_Decode(t *testing.T) {
+	assert := assert.New(t)
+
+	tdBasicMsg := initBasicMessage(assert)
+	layout := tdBasicMsg.layout
+
+	// Every raw value will be 11xxx1 where x are all 0s depending on the size of the signal
+	data := []byte{
+		0b00000001,
+		0b00011100,
+		0b11000000,
+		0b00000001,
+		0b00011100,
+		0b11000000,
+		0b00000000,
+		0b00000000,
+	}
+
+	expectedRaw := []any{uint64(3073), uint64(3073), uint64(3073), uint64(3073)}
+	decodings := layout.Decode(data)
+	assert.Len(decodings, 4)
+	for idx, dec := range decodings {
+		assert.Equal(expectedRaw[idx], dec.RawValue)
+	}
+
+	// Sets the first signal to use a decimal signal type
+	decSigType, err := NewDecimalSignalType("decimal", 12, false)
+	assert.NoError(err)
+	decSigType.SetScale(0.5)
+	decSigType.SetOffset(1000)
+	basic0Sig, err := tdBasicMsg.signals.basic0.ToStandard()
+	assert.NoError(err)
+	assert.NoError(basic0Sig.UpdateType(decSigType))
+	expectedVal := []any{float64(2536.5), uint64(3073), uint64(3073), uint64(3073)}
+	decodings = layout.Decode(data)
+	assert.Len(decodings, 4)
+	for idx, dec := range decodings {
+		assert.Equal(expectedVal[idx], dec.Value)
+	}
+}

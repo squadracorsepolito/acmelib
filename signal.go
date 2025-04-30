@@ -149,10 +149,7 @@ type Signal interface {
 	// Size returns the size of the signal.
 	Size() int
 	setSize(size int)
-
-	verifyNewSize(newSize int) error
-	updateSize(newSize int)
-	verifyAndUpdateSize(newSize int) error
+	verifyAndUpdateSize(instance Signal, newSize int) error
 
 	// SetStartValue sets the initial raw value of the signal.
 	SetStartValue(startValue float64)
@@ -183,8 +180,6 @@ type Signal interface {
 	// SetHigh is used for the ibst
 	SetHigh(high int)
 }
-
-var _ Signal = (*signal)(nil)
 
 type signal struct {
 	*entity
@@ -390,16 +385,21 @@ func (s *signal) hasParentMuxLayer() bool {
 	return s.parentMuxLayer != nil
 }
 
-// UpdateStartPos updates the start position of the signal.
-//
-// It returns a [StartPosError] if the new start position is invalid.
-func (s *signal) UpdateStartPos(newStartPos int) error {
+// updateStartPos updates the start position of the signal.
+// The instance is required because of golang composition,
+// otherwise the layout tree will be set update the item
+// to *signal instead of StandardSignal/EnumSignal/MuxorSignal.
+func (s *signal) updateStartPos(instance Signal, newStartPos int) error {
+	if newStartPos == s.startPos {
+		return nil
+	}
+
 	if s.kind == SignalKindMuxor {
-		if err := s.layout.verifyAndUpdateStartPos(s, newStartPos); err != nil {
+		if err := s.layout.verifyAndUpdateStartPos(instance, newStartPos); err != nil {
 			return s.errorf(err)
 		}
 
-		goto updateStartPos
+		goto setStartPos
 	}
 
 	if s.hasParentMuxLayer() {
@@ -408,41 +408,44 @@ func (s *signal) UpdateStartPos(newStartPos int) error {
 			for _, lID := range layoutIDs {
 				// Check if the new start position is valid,
 				// this recursively checks until the base layout is reached (message layout)
-				if err := s.parentMuxLayer.layouts[lID].verifyNewStartPos(s, newStartPos); err != nil {
+				if err := s.parentMuxLayer.layouts[lID].verifyNewStartPos(instance, newStartPos); err != nil {
 					return s.errorf(err)
 				}
 			}
 
 			// The new position is valid, you can update it
 			for _, lID := range layoutIDs {
-				s.parentMuxLayer.layouts[lID].updateStartPos(s, newStartPos)
+				s.parentMuxLayer.layouts[lID].updateStartPos(instance, newStartPos)
 			}
 		}
 
-		goto updateStartPos
+		goto setStartPos
 	}
 
 	if s.hasParentMsg() {
 		// Check if the new start position is valid and update it
-		if err := s.parentMsg.layout.verifyAndUpdateStartPos(s, newStartPos); err != nil {
+		if err := s.parentMsg.layout.verifyAndUpdateStartPos(instance, newStartPos); err != nil {
 			return s.errorf(err)
 		}
 	}
 
-updateStartPos:
+setStartPos:
 	s.setStartPos(newStartPos)
 	return nil
 }
 
 // verifyNewSize checks if setting the signal to the new size does not intersect with another one.
-func (s *signal) verifyNewSize(newSize int) error {
+// The instance is required because of golang composition,
+// otherwise the layout tree will be set update the item
+// to *signal instead of StandardSignal/EnumSignal/MuxorSignal.
+func (s *signal) verifyNewSize(instance Signal, newSize int) error {
 	// If the new size is smaller than the original, it cannot be invalid
 	if newSize < s.size {
 		return nil
 	}
 
 	if s.kind == SignalKindMuxor {
-		if err := s.layout.verifyNewSize(s, newSize); err != nil {
+		if err := s.layout.verifyNewSize(instance, newSize); err != nil {
 			return s.errorf(err)
 		}
 
@@ -455,7 +458,7 @@ func (s *signal) verifyNewSize(newSize int) error {
 			for _, lID := range layoutIDs {
 				// Check if the new size is valid,
 				// this recursively checks until the base layout is reached (message layout)
-				if err := s.parentMuxLayer.layouts[lID].verifyNewSize(s, newSize); err != nil {
+				if err := s.parentMuxLayer.layouts[lID].verifyNewSize(instance, newSize); err != nil {
 					return s.errorf(err)
 				}
 			}
@@ -466,7 +469,7 @@ func (s *signal) verifyNewSize(newSize int) error {
 
 	if s.hasParentMsg() {
 		// Check if the new size is valid and update it
-		if err := s.parentMsg.layout.verifyNewSize(s, newSize); err != nil {
+		if err := s.parentMsg.layout.verifyNewSize(instance, newSize); err != nil {
 			return s.errorf(err)
 		}
 	}
@@ -476,9 +479,12 @@ func (s *signal) verifyNewSize(newSize int) error {
 
 // updateSize updates the size of the signal.
 // It does not check if the new size is valid.
-func (s *signal) updateSize(newSize int) {
+// The instance is required because of golang composition,
+// otherwise the layout tree will be set update the item
+// to *signal instead of StandardSignal/EnumSignal/MuxorSignal.
+func (s *signal) updateSize(instance Signal, newSize int) {
 	if s.kind == SignalKindMuxor {
-		s.layout.updateSize(s, newSize)
+		s.layout.updateSize(instance, newSize)
 		goto setSize
 	}
 
@@ -486,7 +492,7 @@ func (s *signal) updateSize(newSize int) {
 		// Get all IDs of the layouts that contain the signal
 		if layoutIDs, ok := s.parentMuxLayer.singalLayoutIDs.Get(s.entityID); ok {
 			for _, lID := range layoutIDs {
-				s.parentMuxLayer.layouts[lID].updateSize(s, newSize)
+				s.parentMuxLayer.layouts[lID].updateSize(instance, newSize)
 			}
 		}
 
@@ -494,7 +500,7 @@ func (s *signal) updateSize(newSize int) {
 	}
 
 	if s.hasParentMsg() {
-		s.parentMsg.layout.updateSize(s, newSize)
+		s.parentMsg.layout.updateSize(instance, newSize)
 	}
 
 setSize:
@@ -503,14 +509,21 @@ setSize:
 
 // verifyAndUpdateSize checks and updates the size of the signal.
 // It is a combination of [verifyNewSize] and [updateSize].
-func (s *signal) verifyAndUpdateSize(newSize int) error {
+// The instance is required because of golang composition,
+// otherwise the layout tree will be set update the item
+// to *signal instead of StandardSignal/EnumSignal/MuxorSignal.
+func (s *signal) verifyAndUpdateSize(instance Signal, newSize int) error {
+	if newSize == s.size {
+		return nil
+	}
+
 	// If the new size is smaller than the original, it cannot be invalid
 	if newSize < s.size {
 		goto setSize
 	}
 
 	if s.kind == SignalKindMuxor {
-		if err := s.layout.verifyAndUpdateSize(s, newSize); err != nil {
+		if err := s.layout.verifyAndUpdateSize(instance, newSize); err != nil {
 			return s.errorf(err)
 		}
 
@@ -523,14 +536,14 @@ func (s *signal) verifyAndUpdateSize(newSize int) error {
 			for _, lID := range layoutIDs {
 				// Check if the new size is valid,
 				// this recursively checks until the base layout is reached (message layout)
-				if err := s.parentMuxLayer.layouts[lID].verifyNewSize(s, newSize); err != nil {
+				if err := s.parentMuxLayer.layouts[lID].verifyNewSize(instance, newSize); err != nil {
 					return s.errorf(err)
 				}
 			}
 
 			// The new size is valid, you can update it
 			for _, lID := range layoutIDs {
-				s.parentMuxLayer.layouts[lID].updateSize(s, newSize)
+				s.parentMuxLayer.layouts[lID].updateSize(instance, newSize)
 			}
 		}
 
@@ -539,7 +552,7 @@ func (s *signal) verifyAndUpdateSize(newSize int) error {
 
 	if s.hasParentMsg() {
 		// Check if the new size is valid and update it
-		if err := s.parentMsg.layout.verifyAndUpdateSize(s, newSize); err != nil {
+		if err := s.parentMsg.layout.verifyAndUpdateSize(instance, newSize); err != nil {
 			return s.errorf(err)
 		}
 	}
@@ -576,8 +589,8 @@ func (s *signal) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeA
 	return attAss, nil
 }
 
-func (s *signal) AssignAttribute(attribute Attribute, value any) error {
-	if err := s.addAttributeAssignment(attribute, s, value); err != nil {
+func (s *signal) assignAttribute(instance Signal, att Attribute, value any) error {
+	if err := s.addAttributeAssignment(att, instance, value); err != nil {
 		return s.errorf(err)
 	}
 	return nil

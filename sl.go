@@ -32,99 +32,6 @@ func newSL(sizeByte int) *SL {
 	}
 }
 
-// genFilters generates the signal layout filters.
-// It must be called every time the layout is changed.
-func (sl *SL) genFilters() {
-	sl.filters = []*SignalLayoutFilter{}
-
-	for _, sig := range sl.ibst.GetInOrder() {
-		sigSize := sig.Size()
-		startPos := sig.StartPos()
-		endianness := sig.Endianness()
-
-		firstIdx := startPos / 8
-		lastIdx := (startPos + sigSize - 1) / 8
-
-		// Check if signal fit in a single row
-		if firstIdx == lastIdx {
-			// Calculate left offset
-			leftOffset := startPos % 8
-
-			// Make the mask of the size of the signal and shift it to the left offset
-			mask := 1<<sigSize - 1
-			mask <<= leftOffset
-
-			sl.filters = append(sl.filters, &SignalLayoutFilter{
-				signal:     sig,
-				byteIdx:    firstIdx,
-				mask:       uint8(mask),
-				length:     sigSize,
-				leftOffset: leftOffset,
-			})
-
-			continue
-		}
-
-		remainingBits := sigSize
-		for i := firstIdx; i <= lastIdx; i++ {
-			// Set mask, length and left offset to default
-			mask := 0xff
-			length := 8
-			leftOffset := 0
-
-			// Check if it is not the first or last byte
-			if i != firstIdx && i != lastIdx {
-				goto appendFilter
-			}
-
-			// Check if it is the first byte
-			if i == firstIdx {
-				tmpOffset := startPos % 8
-				length = 8 - tmpOffset
-
-				if endianness == EndiannessBigEndian {
-					// In case of big endian, shift the mask right
-					// because startPos always refers to the first bit
-					// in little endian
-					mask >>= tmpOffset
-				} else {
-					mask <<= tmpOffset
-					leftOffset = tmpOffset
-				}
-
-				goto appendFilter
-			}
-
-			// Last byte
-			length = remainingBits
-			mask = 1<<remainingBits - 1
-
-			if endianness == EndiannessBigEndian {
-				// For the same reason as above, shift the mask left
-				leftOffset = 8 - remainingBits
-				mask <<= leftOffset
-			}
-
-		appendFilter:
-			sl.filters = append(sl.filters, &SignalLayoutFilter{
-				signal:     sig,
-				byteIdx:    i,
-				mask:       uint8(mask),
-				length:     length,
-				leftOffset: leftOffset,
-			})
-
-			remainingBits -= length
-		}
-	}
-
-	for muxLayer := range sl.muxLayers.Values() {
-		for _, sl := range muxLayer.iterLayouts() {
-			sl.genFilters()
-		}
-	}
-}
-
 func (sl *SL) stringify(s *stringer.Stringer) {
 	s.Write("size_byte: %d\n", sl.sizeByte)
 
@@ -600,20 +507,11 @@ func (sl *SL) Compact() {
 	}
 }
 
-// SignalCount returns the number of signals in the signal layout.
-func (sl *SL) SignalCount() int {
-	return sl.ibst.Size()
-}
-
-// Signals returns the signals in the signal layout ordered by the start position.
-func (sl *SL) Signals() []Signal {
-	return sl.ibst.GetInOrder()
-}
-
-// Filters returns the signal filters of the layout.
-func (sl *SL) Filters() []*SignalLayoutFilter {
-	return sl.filters
-}
+///////////////////////
+// ----------------- //
+// MULTIPLEXED LAYER //
+// ----------------- //
+///////////////////////
 
 // MultiplexedLayers returns the multiplexed layers in the signal layout
 // ordered by the start position of the muxor signal.
@@ -686,4 +584,365 @@ func (sl *SL) DeleteMultiplexedLayer(entityID EntityID) error {
 	ml.setAttachedLayout(nil)
 
 	return nil
+}
+
+/////////////////////
+// --------------- //
+// EXPORTED VALUES //
+// --------------- //
+/////////////////////
+
+// SignalCount returns the number of signals in the signal layout.
+func (sl *SL) SignalCount() int {
+	return sl.ibst.Size()
+}
+
+// Signals returns the signals in the signal layout ordered by the start position.
+func (sl *SL) Signals() []Signal {
+	return sl.ibst.GetInOrder()
+}
+
+// Filters returns the signal filters of the layout.
+func (sl *SL) Filters() []*SignalLayoutFilter {
+	return sl.filters
+}
+
+////////////
+// ------ //
+// DECODE //
+// ------ //
+////////////
+
+// genFilters generates the signal layout filters.
+// It must be called every time the layout is changed.
+func (sl *SL) genFilters() {
+	sl.filters = []*SignalLayoutFilter{}
+
+	for _, sig := range sl.ibst.GetInOrder() {
+		sigSize := sig.Size()
+		startPos := sig.StartPos()
+		endianness := sig.Endianness()
+
+		firstIdx := startPos / 8
+		lastIdx := (startPos + sigSize - 1) / 8
+
+		// Check if signal fit in a single row
+		if firstIdx == lastIdx {
+			// Calculate left offset
+			leftOffset := startPos % 8
+
+			// Make the mask of the size of the signal and shift it to the left offset
+			mask := 1<<sigSize - 1
+			mask <<= leftOffset
+
+			sl.filters = append(sl.filters, &SignalLayoutFilter{
+				signal:     sig,
+				byteIdx:    firstIdx,
+				mask:       uint8(mask),
+				length:     sigSize,
+				leftOffset: leftOffset,
+			})
+
+			continue
+		}
+
+		remainingBits := sigSize
+		for i := firstIdx; i <= lastIdx; i++ {
+			// Set mask, length and left offset to default
+			mask := 0xff
+			length := 8
+			leftOffset := 0
+
+			// Check if it is not the first or last byte
+			if i != firstIdx && i != lastIdx {
+				goto appendFilter
+			}
+
+			// Check if it is the first byte
+			if i == firstIdx {
+				tmpOffset := startPos % 8
+				length = 8 - tmpOffset
+
+				if endianness == EndiannessBigEndian {
+					// In case of big endian, shift the mask right
+					// because startPos always refers to the first bit
+					// in little endian
+					mask >>= tmpOffset
+				} else {
+					mask <<= tmpOffset
+					leftOffset = tmpOffset
+				}
+
+				goto appendFilter
+			}
+
+			// Last byte
+			length = remainingBits
+			mask = 1<<remainingBits - 1
+
+			if endianness == EndiannessBigEndian {
+				// For the same reason as above, shift the mask left
+				leftOffset = 8 - remainingBits
+				mask <<= leftOffset
+			}
+
+		appendFilter:
+			sl.filters = append(sl.filters, &SignalLayoutFilter{
+				signal:     sig,
+				byteIdx:    i,
+				mask:       uint8(mask),
+				length:     length,
+				leftOffset: leftOffset,
+			})
+
+			remainingBits -= length
+		}
+	}
+
+	for muxLayer := range sl.muxLayers.Values() {
+		for _, sl := range muxLayer.iterLayouts() {
+			sl.genFilters()
+		}
+	}
+}
+
+func (sl *SL) decodeSignal(sig Signal, rawValue uint64) *SignalDecoding {
+	switch sig.Kind() {
+	case SignalKindStandard:
+		stdSig, err := sig.ToStandard()
+		if err != nil {
+			panic(err)
+		}
+
+		return sl.decodeStandardSignal(stdSig, rawValue)
+
+	case SignalKindEnum:
+		enumSig, err := sig.ToEnum()
+		if err != nil {
+			panic(err)
+		}
+
+		return sl.decodeEnumSignal(enumSig, rawValue)
+	}
+
+	return nil
+}
+
+func (sl *SL) decodeStandardSignal(stdSig *StandardSignal, rawValue uint64) *SignalDecoding {
+	var value any
+	var valueType SignalValueType
+	var unit string
+
+	sigUnit := stdSig.unit
+	if sigUnit != nil {
+		unit = sigUnit.symbol
+	}
+
+	sigType := stdSig.typ
+	switch sigType.kind {
+	case SignalTypeKindFlag:
+		valueType = SignalValueTypeFlag
+		value = rawValue != 0
+
+	case SignalTypeKindInteger:
+		if sigType.signed {
+			valueType = SignalValueTypeInt
+
+			if rawValue&(1<<sigType.size-1) != 0 {
+				// extend sign of raw value
+				rawValue |= (1<<64 - 1) << sigType.size
+			}
+
+			value = int64(rawValue)*int64(sigType.scale) - int64(sigType.offset)
+
+		} else {
+			valueType = SignalValueTypeUint
+			value = rawValue*uint64(sigType.scale) - uint64(sigType.offset)
+		}
+
+	case SignalTypeKindDecimal:
+		valueType = SignalValueTypeFloat
+		value = float64(rawValue)*sigType.scale + sigType.offset
+	}
+
+	return &SignalDecoding{
+		Signal:    stdSig,
+		RawValue:  rawValue,
+		ValueType: valueType,
+		Value:     value,
+		Unit:      unit,
+	}
+}
+
+func (sl *SL) decodeEnumSignal(enumSig *EnumSignal, rawValue uint64) *SignalDecoding {
+	res := &SignalDecoding{
+		Signal:    enumSig,
+		RawValue:  rawValue,
+		ValueType: SignalValueTypeEnum,
+		Value:     "",
+	}
+
+	sigEnum := enumSig.enum
+
+	for _, enumVal := range sigEnum.values {
+		if enumVal.index == int(rawValue) {
+			res.Value = enumVal.name
+			break
+		}
+	}
+
+	return res
+}
+
+func (sl *SL) decodeMuxorSignal(muxorSig *MuxorSignal, data []byte, rawValue uint64) []*SignalDecoding {
+	layoutID := int(rawValue)
+
+	muxLayout := muxorSig.parentMuxLayer.GetLayout(layoutID)
+	if muxLayout == nil {
+		return []*SignalDecoding{}
+	}
+
+	return muxLayout.Decode(data)
+}
+
+func (sl *SL) Decode(data []byte) []*SignalDecoding {
+	signalCount := sl.ibst.Size()
+
+	if signalCount == 0 {
+		return nil
+	}
+
+	decodings := make([]*SignalDecoding, 0, signalCount)
+
+	// Only used for shifting left little endian data
+	consumedBits := 0
+
+	prevEntID := EntityID("")
+	var currSig Signal
+	var rawValue uint64
+
+	// Filters are sorted by entity id, so only adiacent filters belong to the same signal
+	for _, filter := range sl.filters {
+		entID := filter.signal.EntityID()
+
+		// New signal to filter
+		if entID != prevEntID {
+			if currSig != nil {
+				if currSig.Kind() == SignalKindMuxor {
+					muxorSig, err := currSig.ToMuxor()
+					if err != nil {
+						panic(err)
+					}
+					decodings = append(decodings, sl.decodeMuxorSignal(muxorSig, data, rawValue)...)
+
+				} else {
+					decodings = append(decodings, sl.decodeSignal(currSig, rawValue))
+				}
+			}
+
+			prevEntID = entID
+			consumedBits = 0
+			currSig = filter.signal
+			rawValue = 0
+		}
+
+		tmpData := uint64((data[filter.byteIdx] & filter.mask) >> filter.leftOffset)
+
+		// Little endian
+		if filter.signal.Endianness() == EndiannessLittleEndian {
+			tmpData <<= consumedBits
+			rawValue |= tmpData
+			consumedBits += filter.length
+			continue
+		}
+
+		// Big endian
+		rawValue <<= uint64(filter.length)
+		rawValue |= tmpData
+	}
+
+	if currSig != nil {
+		if currSig.Kind() == SignalKindMuxor {
+			muxorSig, err := currSig.ToMuxor()
+			if err != nil {
+				panic(err)
+			}
+			decodings = append(decodings, sl.decodeMuxorSignal(muxorSig, data, rawValue)...)
+
+		} else {
+			decodings = append(decodings, sl.decodeSignal(currSig, rawValue))
+		}
+	}
+
+	return decodings
+}
+
+// SignalValueType defines the value type of a [Signal] when decoded.
+type SignalValueType string
+
+const (
+	// SignalValueTypeFlag defines a flag signal value type.
+	SignalValueTypeFlag SignalValueType = "flag"
+	// SignalValueTypeInt defines an integer signal value type.
+	SignalValueTypeInt SignalValueType = "int"
+	// SignalValueTypeUint defines an unsigned integer signal value type.
+	SignalValueTypeUint SignalValueType = "uint"
+	// SignalValueTypeFloat defines a float signal value type.
+	SignalValueTypeFloat SignalValueType = "float"
+	// SignalValueTypeEnum defines an enum signal value type.
+	SignalValueTypeEnum SignalValueType = "enum"
+)
+
+// SignalDecoding represents a decoded of a signal.
+type SignalDecoding struct {
+	Signal    Signal
+	RawValue  uint64
+	ValueType SignalValueType
+	Value     any
+	Unit      string
+}
+
+// ValueAsFlag returns the decoded value as a flag.
+// Returns false if the value type is not a flag.
+func (sd *SignalDecoding) ValueAsFlag() bool {
+	if sd.ValueType != SignalValueTypeFlag {
+		return false
+	}
+	return sd.Value.(bool)
+}
+
+// ValueAsInt returns the decoded value as an integer.
+// Returns 0 if the value type is not an integer.
+func (sd *SignalDecoding) ValueAsInt() int64 {
+	if sd.ValueType != SignalValueTypeInt {
+		return 0
+	}
+	return sd.Value.(int64)
+}
+
+// ValueAsUint returns the decoded value as an unsigned integer.
+// Returns 0 if the value type is not an unsigned integer.
+func (sd *SignalDecoding) ValueAsUint() uint64 {
+	if sd.ValueType != SignalValueTypeUint {
+		return 0
+	}
+	return sd.Value.(uint64)
+}
+
+// ValueAsFloat returns the decoded value as a float.
+// Returns 0 if the value type is not a float.
+func (sd *SignalDecoding) ValueAsFloat() float64 {
+	if sd.ValueType != SignalValueTypeFloat {
+		return 0
+	}
+	return sd.Value.(float64)
+}
+
+// ValueAsEnum returns the decoded value as an enum.
+// Returns an empty string if the value type is not an enum.
+func (sd *SignalDecoding) ValueAsEnum() string {
+	if sd.ValueType != SignalValueTypeEnum {
+		return ""
+	}
+	return sd.Value.(string)
 }

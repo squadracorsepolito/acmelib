@@ -207,7 +207,7 @@ func (se *SignalEnum) updateValueIndex(val *SignalEnumValue, newIndex int) error
 // verifyRefNewSize checks if each referenced signal can grow to the new size.
 func (se *SignalEnum) verifyRefNewSize(newSize int) error {
 	for ref := range se.refs.Values() {
-		if err := ref.verifyNewSize(newSize); err != nil {
+		if err := ref.verifyNewSize(ref, newSize); err != nil {
 			se.parErrID = ref.entityID
 			return err
 		}
@@ -245,7 +245,7 @@ func (se *SignalEnum) verifyIndex(index int) error {
 // updateSize updates the size of the enum and all referenced signals.
 func (se *SignalEnum) updateSize(newSize int) {
 	for ref := range se.refs.Values() {
-		ref.updateSize(newSize)
+		ref.updateSize(ref, newSize)
 	}
 
 	se.size = newSize

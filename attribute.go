@@ -137,6 +137,8 @@ func (a *attribute) ToEnum() (*EnumAttribute, error) {
 	return nil, a.errorf(newConversionError(a.typ.String(), AttributeTypeEnum.String()))
 }
 
+var _ Attribute = (*StringAttribute)(nil)
+
 // StringAttribute is an [Attribute] that holds a string value.
 type StringAttribute struct {
 	*attribute
@@ -189,6 +191,8 @@ func (sa *StringAttribute) ToString() (*StringAttribute, error) {
 func (sa *StringAttribute) ToAttribute() (Attribute, error) {
 	return sa, nil
 }
+
+var _ Attribute = (*IntegerAttribute)(nil)
 
 // IntegerAttribute is an [Attribute] that holds an integer value.
 type IntegerAttribute struct {
@@ -294,6 +298,8 @@ func (ia *IntegerAttribute) ToAttribute() (Attribute, error) {
 	return ia, nil
 }
 
+var _ Attribute = (*FloatAttribute)(nil)
+
 // FloatAttribute is an [Attribute] that holds a float value.
 type FloatAttribute struct {
 	*attribute
@@ -376,6 +382,8 @@ func (fa *FloatAttribute) ToFloat() (*FloatAttribute, error) {
 func (fa *FloatAttribute) ToAttribute() (Attribute, error) {
 	return fa, nil
 }
+
+var _ Attribute = (*EnumAttribute)(nil)
 
 // EnumAttribute is an [Attribute] that holds an enum as value.
 type EnumAttribute struct {

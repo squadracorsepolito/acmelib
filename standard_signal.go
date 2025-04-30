@@ -4,6 +4,8 @@ import (
 	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
+var _ Signal = (*StandardSignal)(nil)
+
 // StandardSignal is the representation of a normal signal that has a [SignalType],
 // a min, a max, an offset, a scale, and can have a [SignalUnit].
 type StandardSignal struct {
@@ -90,7 +92,7 @@ func (ss *StandardSignal) UpdateType(newType *SignalType) error {
 	}
 
 	// Check if the new type can fit in the layout
-	if err := ss.verifyAndUpdateSize(newType.size); err != nil {
+	if err := ss.verifyAndUpdateSize(ss, newType.size); err != nil {
 		return ss.errorf(err)
 	}
 
@@ -121,7 +123,19 @@ func (ss *StandardSignal) Unit() *SignalUnit {
 	return ss.unit
 }
 
+// UpdateStartPos updates the start position of the signal.
+//
+// It returns a [StartPosError] if the new start position is invalid.
+func (ss *StandardSignal) UpdateStartPos(newStartPos int) error {
+	return ss.signal.updateStartPos(ss, newStartPos)
+}
+
 // ToSignal returns the signal itself.
 func (ss *StandardSignal) ToSignal() (Signal, error) {
 	return ss, nil
+}
+
+// AssignAttribute assigns the given attribute/value pair to the signal.
+func (ss *StandardSignal) AssignAttribute(attribute Attribute, value any) error {
+	return ss.signal.assignAttribute(ss, attribute, value)
 }

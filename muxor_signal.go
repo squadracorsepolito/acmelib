@@ -4,6 +4,8 @@ import (
 	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
+var _ Signal = (*MuxorSignal)(nil)
+
 // MuxorSignal represents a multiplexor signal.
 // It cannot be directly created since it is created when
 // a [MultiplexedLayer] is added to a [SL].
@@ -57,7 +59,7 @@ func (ms *MuxorSignal) UpdateLayoutCount(newLayoutCount int) error {
 		return nil
 	}
 
-	if err := ms.verifyAndUpdateSize(getSizeFromCount(newLayoutCount)); err != nil {
+	if err := ms.verifyAndUpdateSize(ms, getSizeFromCount(newLayoutCount)); err != nil {
 		return ms.errorf(err)
 	}
 
@@ -87,7 +89,19 @@ func (ms *MuxorSignal) UpdateLayoutCount(newLayoutCount int) error {
 	return nil
 }
 
+// UpdateStartPos updates the start position of the signal.
+//
+// It returns a [StartPosError] if the new start position is invalid.
+func (ms *MuxorSignal) UpdateStartPos(newStartPos int) error {
+	return ms.signal.updateStartPos(ms, newStartPos)
+}
+
 // ToSignal returns the signal itself.
 func (ms *MuxorSignal) ToSignal() (Signal, error) {
 	return ms, nil
+}
+
+// AssignAttribute assigns the given attribute/value pair to the signal.
+func (ms *MuxorSignal) AssignAttribute(attribute Attribute, value any) error {
+	return ms.signal.assignAttribute(ms, attribute, value)
 }
