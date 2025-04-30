@@ -368,3 +368,8 @@ func (b *Bus) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssi
 	}
 	return attAss, nil
 }
+
+// ToBus returns the bus itself.
+func (b *Bus) ToBus() (*Bus, error) {
+	return b, nil
+}

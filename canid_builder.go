@@ -273,3 +273,8 @@ func (b *CANIDBuilder) RemoveOperation(opIndex int) error {
 func (b *CANIDBuilder) RemoveAllOperations() {
 	b.operations = []*CANIDBuilderOp{}
 }
+
+// ToCANIDBuilder returns the CAN-ID builder itself.
+func (b *CANIDBuilder) ToCANIDBuilder() (*CANIDBuilder, error) {
+	return b, nil
+}

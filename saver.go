@@ -130,8 +130,8 @@ func (s *saver) getEntityKind(ek EntityKind) acmelibv1.EntityKind {
 		return acmelibv1.EntityKind_ENTITY_KIND_SIGNAL_UNIT
 	case EntityKindSignalEnum:
 		return acmelibv1.EntityKind_ENTITY_KIND_SIGNAL_ENUM
-	case EntityKindSignalEnumValue:
-		return acmelibv1.EntityKind_ENTITY_KIND_SIGNAL_ENUM_VALUE
+	// case EntityKindSignalEnumValue:
+	// 	return acmelibv1.EntityKind_ENTITY_KIND_SIGNAL_ENUM_VALUE
 	case EntityKindAttribute:
 		return acmelibv1.EntityKind_ENTITY_KIND_ATTRIBUTE
 	case EntityKindCANIDBuilder:

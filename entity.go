@@ -30,8 +30,6 @@ const (
 	EntityKindSignalUnit
 	// EntityKindSignalEnum represents a [SignalEnum] entity.
 	EntityKindSignalEnum
-	// EntityKindSignalEnumValue represents a [SignalEnumValue] entity.
-	EntityKindSignalEnumValue
 	// EntityKindAttribute represents a [Attribute] entity.
 	EntityKindAttribute
 	// EntityKindCANIDBuilder represents a [CANIDBuilder] entity.
@@ -56,8 +54,6 @@ func (ek EntityKind) String() string {
 		return "signal-unit"
 	case EntityKindSignalEnum:
 		return "signal-enum"
-	case EntityKindSignalEnumValue:
-		return "signal-enum-value"
 	case EntityKindAttribute:
 		return "attribute"
 	case EntityKindCANIDBuilder:
@@ -84,12 +80,38 @@ func (id EntityID) String() string {
 
 // Entity interface represents an entity.
 type Entity interface {
+	// EntityID returns the unique identifier of the entity.
 	EntityID() EntityID
+
+	// EntityKind returns the kind of the entity.
 	EntityKind() EntityKind
+
+	// Name returns the name of the entity.
 	Name() string
+	// UpdateName updates the name of the entity.
+	UpdateName(newName string) error
+
+	// Desc returns the description of the entity.
 	Desc() string
+	// SetDesc updates the description of the entity.
+	SetDesc(desc string)
+
+	// CreateTime returns the time of creation of the entity.
 	CreateTime() time.Time
+
+	ToNetwork() (*Network, error)
+	ToBus() (*Bus, error)
+	ToNode() (*Node, error)
+	ToMessage() (*Message, error)
+	ToSignal() (Signal, error)
+	ToSignalType() (*SignalType, error)
+	ToSignalUnit() (*SignalUnit, error)
+	ToSignalEnum() (*SignalEnum, error)
+	ToAttribute() (Attribute, error)
+	ToCANIDBuilder() (*CANIDBuilder, error)
 }
+
+var _ Entity = (*entity)(nil)
 
 type entity struct {
 	entityID   EntityID
@@ -127,6 +149,16 @@ func (e *entity) Name() string {
 	return e.name
 }
 
+// UpdateName updates the name of the entity.
+func (e *entity) UpdateName(newName string) error {
+	if e.name == newName {
+		return nil
+	}
+
+	e.name = newName
+	return nil
+}
+
 // Desc returns the description of the entity.
 func (e *entity) Desc() string {
 	return e.desc
@@ -161,6 +193,46 @@ func (e *entity) clone() *entity {
 		desc:       e.desc,
 		createTime: e.createTime,
 	}
+}
+
+func (e *entity) ToNetwork() (*Network, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindNetwork.String())
+}
+
+func (e *entity) ToBus() (*Bus, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindBus.String())
+}
+
+func (e *entity) ToNode() (*Node, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindNode.String())
+}
+
+func (e *entity) ToMessage() (*Message, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindMessage.String())
+}
+
+func (e *entity) ToSignal() (Signal, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindSignal.String())
+}
+
+func (e *entity) ToSignalType() (*SignalType, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindSignalType.String())
+}
+
+func (e *entity) ToSignalUnit() (*SignalUnit, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindSignalUnit.String())
+}
+
+func (e *entity) ToSignalEnum() (*SignalEnum, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindSignalEnum.String())
+}
+
+func (e *entity) ToAttribute() (Attribute, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindAttribute.String())
+}
+
+func (e *entity) ToCANIDBuilder() (*CANIDBuilder, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindCANIDBuilder.String())
 }
 
 type withAttributes struct {

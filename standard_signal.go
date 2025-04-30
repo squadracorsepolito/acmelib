@@ -120,3 +120,8 @@ func (ss *StandardSignal) SetUnit(unit *SignalUnit) {
 func (ss *StandardSignal) Unit() *SignalUnit {
 	return ss.unit
 }
+
+// ToSignal returns the signal itself.
+func (ss *StandardSignal) ToSignal() (Signal, error) {
+	return ss, nil
+}

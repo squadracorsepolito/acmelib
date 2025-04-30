@@ -393,3 +393,8 @@ func (se *SignalEnum) Clear() {
 func (se *SignalEnum) MaxIndex() int {
 	return se.maxIndex
 }
+
+// ToSignalEnum returns the enum itself.
+func (se *SignalEnum) ToSignalEnum() (*SignalEnum, error) {
+	return se, nil
+}

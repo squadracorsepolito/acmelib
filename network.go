@@ -70,11 +70,6 @@ func (n *Network) String() string {
 	return s.String()
 }
 
-// UpdateName updates the name of the [Network].
-func (n *Network) UpdateName(newName string) {
-	n.name = newName
-}
-
 // AddBus adds a [Bus] to the [Network].
 // It may return an error if the bus name is already taken.
 func (n *Network) AddBus(bus *Bus) error {
@@ -127,4 +122,9 @@ func (n *Network) Buses() []*Bus {
 		return strings.Compare(a.name, b.name)
 	})
 	return busSlice
+}
+
+// ToNetwork returns the network itself.
+func (n *Network) ToNetwork() (*Network, error) {
+	return n, nil
 }

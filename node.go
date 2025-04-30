@@ -269,3 +269,8 @@ func (n *Node) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAss
 	}
 	return attAss, nil
 }
+
+// ToNode returns the node itself.
+func (n *Node) ToNode() (*Node, error) {
+	return n, nil
+}

@@ -617,3 +617,8 @@ func (m *Message) GetAttributeAssignment(attributeEntityID EntityID) (*Attribute
 	}
 	return attAss, nil
 }
+
+// ToMessage returns the message itself.
+func (m *Message) ToMessage() (*Message, error) {
+	return m, nil
+}

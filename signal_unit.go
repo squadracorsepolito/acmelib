@@ -112,3 +112,8 @@ func (su *SignalUnit) SetKind(kind SignalUnitKind) {
 func (su *SignalUnit) SetSymbol(symbol string) {
 	su.symbol = symbol
 }
+
+// ToSignalUnit returns the unit itself.
+func (su *SignalUnit) ToSignalUnit() (*SignalUnit, error) {
+	return su, nil
+}

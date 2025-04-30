@@ -209,3 +209,8 @@ func (st *SignalType) SetOffset(offset float64) {
 func (st *SignalType) Offset() float64 {
 	return st.offset
 }
+
+// ToSignalType returns the type itself.
+func (st *SignalType) ToSignalType() (*SignalType, error) {
+	return st, nil
+}

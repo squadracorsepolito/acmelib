@@ -89,3 +89,8 @@ func (es *EnumSignal) UpdateEnum(newEnum *SignalEnum) error {
 
 	return nil
 }
+
+// ToSignal returns the signal itself.
+func (es *EnumSignal) ToSignal() (Signal, error) {
+	return es, nil
+}

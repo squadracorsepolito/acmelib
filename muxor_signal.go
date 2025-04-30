@@ -86,3 +86,8 @@ func (ms *MuxorSignal) UpdateLayoutCount(newLayoutCount int) error {
 
 	return nil
 }
+
+// ToSignal returns the signal itself.
+func (ms *MuxorSignal) ToSignal() (Signal, error) {
+	return ms, nil
+}
