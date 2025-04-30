@@ -455,7 +455,7 @@ func (i *importer) importMessage(dbcMsg *dbc.Message) error {
 	}
 
 	if currByteOrder == dbc.SignalBigEndian {
-		msg.SetByteOrder(EndiannessBigEndian)
+		// msg.SetByteOrder(EndiannessBigEndian)
 	}
 
 	for recName := range receivers {
@@ -708,7 +708,7 @@ func (i *importer) importSignal(dbcSig *dbc.Signal, dbcMsgID uint32) (Signal, er
 		}
 
 		dbcSigSize := int(dbcSig.Size)
-		if enumSig.GetSize() < dbcSigSize {
+		if enumSig.Size() < dbcSigSize {
 			// sigEnum.SetMinSize(dbcSigSize)
 		}
 

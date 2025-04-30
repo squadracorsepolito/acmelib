@@ -358,14 +358,14 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 	}
 	pMsg.Priority = pPriority
 
-	pByteOrder := acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_UNSPECIFIED
-	switch msg.byteOrder {
-	case EndiannessLittleEndian:
-		pByteOrder = acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_LITTLE_ENDIAN
-	case EndiannessBigEndian:
-		pByteOrder = acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_BIG_ENDIAN
-	}
-	pMsg.ByteOrder = pByteOrder
+	// pByteOrder := acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_UNSPECIFIED
+	// switch msg.byteOrder {
+	// case EndiannessLittleEndian:
+	// 	pByteOrder = acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_LITTLE_ENDIAN
+	// case EndiannessBigEndian:
+	// 	pByteOrder = acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_BIG_ENDIAN
+	// }
+	// pMsg.ByteOrder = pByteOrder
 
 	pMsg.CycleTime = uint32(msg.cycleTime)
 
@@ -401,7 +401,7 @@ func (s *saver) saveSignalLayout(layout *SL) *acmelibv1.SignalPayload {
 	for _, sig := range layout.Signals() {
 		pPayload.Refs = append(pPayload.Refs, &acmelibv1.SignalPayloadRef{
 			SignalEntityId: sig.EntityID().String(),
-			RelStartBit:    uint32(sig.GetStartPos()),
+			RelStartBit:    uint32(sig.StartPos()),
 		})
 	}
 

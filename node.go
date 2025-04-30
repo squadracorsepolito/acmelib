@@ -2,7 +2,8 @@ package acmelib
 
 import (
 	"fmt"
-	"strings"
+
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // NodeID is a unique identifier for a [Node].
@@ -71,16 +72,19 @@ func (n *Node) errorf(err error) error {
 	return nodeErr
 }
 
-func (n *Node) stringify(b *strings.Builder, tabs int) {
-	n.entity.stringifyOld(b, tabs)
-	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%snode_id: %s\n", tabStr, n.id.String()))
+func (n *Node) stringify(s *stringer.Stringer) {
+	n.entity.stringify(s)
+
+	s.Write("node_id: %s\n", n.id.String())
+
+	n.withAttributes.stringify(s)
 }
 
 func (n *Node) String() string {
-	builder := new(strings.Builder)
-	n.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("node:\n")
+	n.stringify(s)
+	return s.String()
 }
 
 // UpdateName updates the name of the [Node].
@@ -101,14 +105,15 @@ func (n *Node) UpdateName(newName string) error {
 		tmpBus := tmpInt.parentBus
 		if err := tmpBus.verifyNodeName(newName); err != nil {
 			n.intErrNum = tmpInt.number
-			return n.errorf(&UpdateNameError{Err: err})
+			return n.errorf(err)
 		}
 
 		buses = append(buses, tmpBus)
 	}
 
 	for _, tmpBus := range buses {
-		tmpBus.nodeNames.modifyKey(n.name, newName, n.entityID)
+		tmpBus.nodeNames.Delete(n.name)
+		tmpBus.nodeNames.Set(newName, n.entityID)
 	}
 
 	n.name = newName
@@ -138,7 +143,8 @@ func (n *Node) UpdateID(newID NodeID) error {
 	}
 
 	for _, tmpBus := range buses {
-		tmpBus.nodeIDs.modifyKey(n.id, newID, tmpBus.entityID)
+		tmpBus.nodeIDs.Delete(n.id)
+		tmpBus.nodeIDs.Set(newID, n.entityID)
 	}
 
 	n.id = newID

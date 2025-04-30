@@ -134,18 +134,18 @@ func (se *SignalEnum) errorf(err error) error {
 		Err:      err,
 	}
 
-	if se.refs.size() > 0 {
+	if se.refs.Size() > 0 {
 		if se.parErrID != "" {
-			parSig, err := se.refs.getValue(se.parErrID)
-			if err != nil {
-				panic(err)
+			parSig, ok := se.refs.Get(se.parErrID)
+			if !ok {
+				return enumErr
 			}
 
 			se.parErrID = ""
 			return parSig.errorf(enumErr)
 		}
 
-		return se.refs.getValues()[0].errorf(enumErr)
+		return slices.Collect(se.refs.Values())[0].errorf(enumErr)
 	}
 
 	return enumErr
@@ -206,7 +206,7 @@ func (se *SignalEnum) updateValueIndex(val *SignalEnumValue, newIndex int) error
 
 // verifyRefNewSize checks if each referenced signal can grow to the new size.
 func (se *SignalEnum) verifyRefNewSize(newSize int) error {
-	for _, ref := range se.refs.entries() {
+	for ref := range se.refs.Values() {
 		if err := ref.verifyNewSize(newSize); err != nil {
 			se.parErrID = ref.entityID
 			return err
@@ -244,7 +244,7 @@ func (se *SignalEnum) verifyIndex(index int) error {
 
 // updateSize updates the size of the enum and all referenced signals.
 func (se *SignalEnum) updateSize(newSize int) {
-	for _, ref := range se.refs.entries() {
+	for ref := range se.refs.Values() {
 		ref.updateSize(newSize)
 	}
 

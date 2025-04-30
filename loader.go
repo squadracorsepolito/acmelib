@@ -281,12 +281,12 @@ func (l *loader) loadMessage(pMsg *acmelibv1.Message) (*Message, error) {
 		msg.SetPriority(MessagePriorityLow)
 	}
 
-	switch pMsg.ByteOrder {
-	case acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_LITTLE_ENDIAN:
-		msg.SetByteOrder(EndiannessLittleEndian)
-	case acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_BIG_ENDIAN:
-		msg.SetByteOrder(EndiannessBigEndian)
-	}
+	// switch pMsg.ByteOrder {
+	// case acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_LITTLE_ENDIAN:
+	// 	msg.SetByteOrder(EndiannessLittleEndian)
+	// case acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_BIG_ENDIAN:
+	// 	msg.SetByteOrder(EndiannessBigEndian)
+	// }
 
 	if pMsg.CycleTime != 0 {
 		msg.SetCycleTime(int(pMsg.CycleTime))

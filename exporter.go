@@ -426,52 +426,52 @@ func (e *exporter) getStartBit(startBit int, byteOrder Endianness) (uint32, dbc.
 }
 
 func (e *exporter) exportStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Signal) {
-	dbcSig.Size = uint32(stdSig.GetSize())
+	dbcSig.Size = uint32(stdSig.Size())
 
-	startBit, byteOrder := e.getStartBit(stdSig.GetStartBit(), stdSig.parentMsg.byteOrder)
-	dbcSig.StartBit = startBit
-	dbcSig.ByteOrder = byteOrder
+	// startBit, byteOrder := e.getStartBit(stdSig.GetStartBit(), stdSig.parentMsg.byteOrder)
+	// dbcSig.StartBit = startBit
+	// dbcSig.ByteOrder = byteOrder
 
-	if stdSig.typ.signed {
-		dbcSig.ValueType = dbc.SignalSigned
-	} else {
-		dbcSig.ValueType = dbc.SignalUnsigned
-	}
+	// if stdSig.typ.signed {
+	// 	dbcSig.ValueType = dbc.SignalSigned
+	// } else {
+	// 	dbcSig.ValueType = dbc.SignalUnsigned
+	// }
 
-	dbcSig.Min = stdSig.typ.min
-	dbcSig.Max = stdSig.typ.max
-	dbcSig.Offset = stdSig.typ.offset
-	dbcSig.Factor = stdSig.typ.scale
+	// dbcSig.Min = stdSig.typ.min
+	// dbcSig.Max = stdSig.typ.max
+	// dbcSig.Offset = stdSig.typ.offset
+	// dbcSig.Factor = stdSig.typ.scale
 
-	unit := stdSig.unit
-	if unit != nil {
-		dbcSig.Unit = unit.symbol
-	}
+	// unit := stdSig.unit
+	// if unit != nil {
+	// 	dbcSig.Unit = unit.symbol
+	// }
 }
 
 func (e *exporter) exportEnumSignal(enumSig *EnumSignal, dbcMsgID uint32, dbcSig *dbc.Signal) {
-	dbcSig.Size = uint32(enumSig.GetSize())
+	dbcSig.Size = uint32(enumSig.Size())
 
-	startBit, byteOrder := e.getStartBit(enumSig.GetStartBit(), enumSig.parentMsg.byteOrder)
-	dbcSig.StartBit = startBit
-	dbcSig.ByteOrder = byteOrder
+	// startBit, byteOrder := e.getStartBit(enumSig.GetStartBit(), enumSig.parentMsg.byteOrder)
+	// dbcSig.StartBit = startBit
+	// dbcSig.ByteOrder = byteOrder
 
-	dbcSig.ValueType = dbc.SignalUnsigned
+	// dbcSig.ValueType = dbc.SignalUnsigned
 
-	dbcSig.Min = 0
-	dbcSig.Max = float64(enumSig.enum.maxIndex)
-	dbcSig.Offset = 0
-	dbcSig.Factor = 1
+	// dbcSig.Min = 0
+	// dbcSig.Max = float64(enumSig.enum.maxIndex)
+	// dbcSig.Offset = 0
+	// dbcSig.Factor = 1
 
-	dbcValEnc := new(dbc.ValueEncoding)
-	dbcValEnc.Kind = dbc.ValueEncodingSignal
-	dbcValEnc.MessageID = dbcMsgID
-	dbcValEnc.SignalName = clearSpaces(enumSig.Name())
+	// dbcValEnc := new(dbc.ValueEncoding)
+	// dbcValEnc.Kind = dbc.ValueEncodingSignal
+	// dbcValEnc.MessageID = dbcMsgID
+	// dbcValEnc.SignalName = clearSpaces(enumSig.Name())
 
-	// dbcValEnc.Values = e.getDBCValueDescription(enumSig.enum.Values())
+	// // dbcValEnc.Values = e.getDBCValueDescription(enumSig.enum.Values())
 
-	e.dbcFile.ValueEncodings = append(e.dbcFile.ValueEncodings, dbcValEnc)
-	e.sigEnums[enumSig.enum.entityID] = enumSig.enum
+	// e.dbcFile.ValueEncodings = append(e.dbcFile.ValueEncodings, dbcValEnc)
+	// e.sigEnums[enumSig.enum.entityID] = enumSig.enum
 }
 
 func (e *exporter) getDBCValueDescription(enumValues []*SignalEnumValue) []*dbc.ValueDescription {

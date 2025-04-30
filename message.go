@@ -1,7 +1,6 @@
 package acmelib
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 
@@ -83,15 +82,12 @@ type Message struct {
 
 	priority MessagePriority
 
-	// TODO! detete me
-	byteOrder Endianness
-
 	cycleTime      int
 	sendType       MessageSendType
 	delayTime      int
 	startDelayTime int
 
-	receivers *set[EntityID, *NodeInterface]
+	receivers *collection.Map[EntityID, *NodeInterface]
 }
 
 func newMessageFromEntity(ent *entity, id MessageID, sizeByte int) *Message {
@@ -110,15 +106,14 @@ func newMessageFromEntity(ent *entity, id MessageID, sizeByte int) *Message {
 		staticCANID:    0,
 		hasStaticCANID: false,
 
-		priority:  MessagePriorityVeryHigh,
-		byteOrder: EndiannessLittleEndian,
+		priority: MessagePriorityVeryHigh,
 
 		cycleTime:      0,
 		sendType:       MessageSendTypeUnset,
 		delayTime:      0,
 		startDelayTime: 0,
 
-		receivers: newSet[EntityID, *NodeInterface](),
+		receivers: collection.NewMap[EntityID, *NodeInterface](),
 	}
 
 	layout := newSL(sizeByte)
@@ -186,53 +181,6 @@ func (m *Message) verifySignalName(name string) error {
 	return nil
 }
 
-// TODO! delete me
-func (m *Message) stringify0(b *strings.Builder, tabs int) {
-	m.entity.stringifyOld(b, tabs)
-
-	tabStr := getTabString(tabs)
-
-	if m.id != 0 {
-		b.WriteString(fmt.Sprintf("%smessage_id: %d\n", tabStr, m.id))
-	}
-
-	b.WriteString(fmt.Sprintf("%spriority: %d (very_high=0; low=3)\n", tabStr, m.priority))
-	b.WriteString(fmt.Sprintf("%ssize: %d bytes\n", tabStr, m.sizeByte))
-
-	if m.cycleTime != 0 {
-		b.WriteString(fmt.Sprintf("%scycle_time: %d ms\n", tabStr, m.cycleTime))
-	}
-
-	if m.delayTime != 0 {
-		b.WriteString(fmt.Sprintf("%sdelay_time: %d ms\n", tabStr, m.delayTime))
-	}
-
-	if m.startDelayTime != 0 {
-		b.WriteString(fmt.Sprintf("%sstart_delay_time: %d ms\n", tabStr, m.startDelayTime))
-	}
-
-	if m.sendType != MessageSendTypeUnset {
-		b.WriteString(fmt.Sprintf("%ssend_type: %q\n", tabStr, m.sendType))
-	}
-
-	if m.receivers.size() > 0 {
-		b.WriteString(fmt.Sprintf("%sreceivers:\n", tabStr))
-		for _, rec := range m.Receivers() {
-			b.WriteString(fmt.Sprintf("%s\tname: %s; node_id: %d; entity_id: %s\n", tabStr, rec.node.name, rec.node.id, rec.node.entityID))
-		}
-	}
-
-	if m.signals.Size() == 0 {
-		return
-	}
-
-	// b.WriteString(fmt.Sprintf("%ssignals:\n", tabStr))
-	// for _, sig := range m.Signals() {
-	// 	sig.stringifyOld(b, tabs+1)
-	// 	b.WriteRune('\n')
-	// }
-}
-
 func (m *Message) stringify(s *stringer.Stringer) {
 	m.entity.stringify(s)
 
@@ -259,7 +207,7 @@ func (m *Message) stringify(s *stringer.Stringer) {
 		s.Write("send_type: %q\n", m.sendType)
 	}
 
-	if m.receivers.size() > 0 {
+	if m.receivers.Size() > 0 {
 		s.Write("receivers:\n")
 		s.Indent()
 		for _, rec := range m.Receivers() {
@@ -279,6 +227,8 @@ func (m *Message) stringify(s *stringer.Stringer) {
 		s.Write("\n")
 	}
 	s.Unindent()
+
+	m.withAttributes.stringify(s)
 }
 
 func (m *Message) String() string {
@@ -310,16 +260,12 @@ func (m *Message) UpdateName(newName string) error {
 	}
 
 	if m.hasSenderNodeInt() {
-		if err := m.senderNodeInt.sentMessageNames.verifyKeyUnique(newName); err != nil {
-			return m.errorf(&UpdateNameError{
-				Err: &NameError{
-					Name: newName,
-					Err:  err,
-				},
-			})
+		if err := m.senderNodeInt.verifyMessageName(newName); err != nil {
+			return err
 		}
 
-		m.senderNodeInt.sentMessageNames.modifyKey(m.name, newName, m.entityID)
+		m.senderNodeInt.sentMessageNames.Delete(m.name)
+		m.senderNodeInt.sentMessageNames.Set(newName, m.entityID)
 	}
 
 	m.name = newName
@@ -350,34 +296,6 @@ func (m *Message) UpdateSizeByte(newSizeByte int) error {
 // If the [Message] is not sent by a [NodeInterface], it will return nil.
 func (m *Message) SenderNodeInterface() *NodeInterface {
 	return m.senderNodeInt
-}
-
-// AppendSignal appends a [Signal] to the last position of the [Message] payload.
-// It may return an error if the signal name is already used within the message,
-// or if the signal cannot fit in the available space left at the end of the message payload.
-func (m *Message) AppendSignal(signal Signal) error {
-	// if signal == nil {
-	// 	return &ArgumentError{
-	// 		Name: "signal",
-	// 		Err:  ErrIsNil,
-	// 	}
-	// }
-
-	// if err := m.verifySignalName(signal.Name()); err != nil {
-	// 	return m.errorf(&AppendSignalError{
-	// 		EntityID: signal.EntityID(),
-	// 		Name:     signal.Name(),
-	// 		Err:      err,
-	// 	})
-	// }
-
-	// if err := m.signalLayout.append(signal); err != nil {
-	// 	return m.errorf(err)
-	// }
-
-	// m.addSignal(signal)
-
-	return nil
 }
 
 // InsertSignal inserts the given [Signal] at the given start position.
@@ -428,30 +346,6 @@ func (m *Message) ClearSignals() {
 	m.signals.Clear()
 	m.signalNames.Clear()
 	m.layout.clear()
-}
-
-// ShiftSignalLeft shifts the signal with the given entity id left by the given amount.
-// It returns the amount of bits shifted.
-func (m *Message) ShiftSignalLeft(signalEntityID EntityID, amount int) int {
-	// sig, err := m.signals.getValue(signalEntityID)
-	// if err != nil {
-	// 	return 0
-	// }
-
-	// return m.signalLayout.shiftLeft(sig.EntityID(), amount)
-	return 0
-}
-
-// ShiftSignalRight shifts the signal with the given entity id right by the given amount.
-// It returns the amount of bits shifted.
-func (m *Message) ShiftSignalRight(signalEntityID EntityID, amount int) int {
-	// sig, err := m.signals.getValue(signalEntityID)
-	// if err != nil {
-	// 	return 0
-	// }
-
-	// return m.signalLayout.shiftRight(sig.EntityID(), amount)
-	return 0
 }
 
 // Signals returns a slice of all signals in the [Message].
@@ -565,15 +459,11 @@ func (m *Message) AddReceiver(receiver *NodeInterface) error {
 
 // RemoveReceiver removes a receiver from the [Message].
 //
-// It returns an [ErrNotFound] wrapped by a [RemoveEntityError]
-// if the receiver with the given entity id is not found.
+// It returns an [ErrNotFound] if the receiver with the given entity id is not found.
 func (m *Message) RemoveReceiver(receiverEntityID EntityID) error {
-	receiver, err := m.receivers.getValue(receiverEntityID)
-	if err != nil {
-		return m.errorf(&RemoveEntityError{
-			EntityID: receiverEntityID,
-			Err:      err,
-		})
+	receiver, ok := m.receivers.Get(receiverEntityID)
+	if !ok {
+		return m.errorf(ErrNotFound)
 	}
 
 	receiver.removeReceivedMessage(m)
@@ -583,27 +473,11 @@ func (m *Message) RemoveReceiver(receiverEntityID EntityID) error {
 
 // Receivers returns a slice of all receivers of the [Message].
 func (m *Message) Receivers() []*NodeInterface {
-	recSlice := m.receivers.getValues()
+	recSlice := slices.Collect(m.receivers.Values())
 	slices.SortFunc(recSlice, func(a, b *NodeInterface) int {
 		return strings.Compare(a.node.name, b.node.name)
 	})
 	return recSlice
-}
-
-// SetByteOrder sets the byte order of the [Message].
-func (m *Message) SetByteOrder(byteOrder Endianness) {
-	m.byteOrder = byteOrder
-
-	for sig := range m.signals.Values() {
-		sig.SetEndianness(byteOrder)
-	}
-
-	m.layout.genFilters()
-}
-
-// ByteOrder returns the byte order of the [Message].
-func (m *Message) ByteOrder() Endianness {
-	return m.byteOrder
 }
 
 // UpdateID updates the id of the [Message].
@@ -623,13 +497,14 @@ func (m *Message) UpdateID(newID MessageID) error {
 		}
 
 		if m.hasStaticCANID {
-			nodeInt.sentMessageStaticCANIDs.remove(m.staticCANID)
+			nodeInt.sentMessageStaticCANIDs.Delete(m.staticCANID)
 
 			if nodeInt.hasParentBus() {
-				nodeInt.parentBus.messageStaticCANIDs.remove(m.staticCANID)
+				nodeInt.parentBus.messageStaticCANIDs.Delete(m.staticCANID)
 			}
 		} else {
-			nodeInt.sentMessageIDs.modifyKey(m.id, newID, m.entityID)
+			nodeInt.sentMessageIDs.Delete(m.id)
+			nodeInt.sentMessageIDs.Set(newID, m.entityID)
 		}
 	}
 
@@ -679,14 +554,16 @@ func (m *Message) SetStaticCANID(staticCANID CANID) error {
 		}
 
 		if m.hasStaticCANID {
-			nodeInt.sentMessageStaticCANIDs.modifyKey(m.staticCANID, staticCANID, m.entityID)
+			nodeInt.sentMessageStaticCANIDs.Delete(m.staticCANID)
+			nodeInt.sentMessageStaticCANIDs.Set(staticCANID, m.entityID)
 
 			if nodeInt.hasParentBus() {
-				nodeInt.parentBus.messageStaticCANIDs.modifyKey(m.staticCANID, staticCANID, m.entityID)
+				nodeInt.parentBus.messageStaticCANIDs.Delete(m.staticCANID)
+				nodeInt.parentBus.messageStaticCANIDs.Set(staticCANID, m.entityID)
 			}
 		} else {
-			nodeInt.sentMessageIDs.remove(m.id)
-			nodeInt.sentMessageStaticCANIDs.add(staticCANID, m.entityID)
+			nodeInt.sentMessageIDs.Delete(m.id)
+			nodeInt.sentMessageStaticCANIDs.Set(staticCANID, m.entityID)
 		}
 	}
 

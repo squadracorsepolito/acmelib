@@ -1,9 +1,10 @@
 package acmelib
 
 import (
-	"fmt"
-	"strings"
 	"time"
+
+	"github.com/squadracorsepolito/acmelib/internal/collection"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // AttributeType defines the type of an [Attribute].
@@ -105,20 +106,10 @@ func (a *attribute) errorf(err error) error {
 	}
 }
 
-func (a *attribute) stringify(b *strings.Builder, tabs int) {
-	a.entity.stringifyOld(b, tabs)
-
-	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, a.typ))
-
-	if a.refs.size() == 0 {
-		return
-	}
-
-	b.WriteString(fmt.Sprintf("%sreferences:\n", tabStr))
-	for _, ref := range a.References() {
-		ref.stringify(b, tabs+1)
-	}
+func (a *attribute) stringify(s *stringer.Stringer) {
+	a.entity.stringify(s)
+	s.Write("type: %s\n", a.typ)
+	a.withRefs.stringify(s)
 }
 
 func (a *attribute) Type() AttributeType {
@@ -151,15 +142,16 @@ func (sa *StringAttribute) Clone() (Attribute, error) {
 	return newStringAttributeFromBase(sa.attribute.clone(), sa.defValue), nil
 }
 
-func (sa *StringAttribute) stringify(b *strings.Builder, tabs int) {
-	sa.attribute.stringify(b, tabs)
-	b.WriteString(fmt.Sprintf("%sdefault_value: %s\n", getTabString(tabs), sa.defValue))
+func (sa *StringAttribute) stringify(s *stringer.Stringer) {
+	sa.attribute.stringify(s)
+	s.Write("default_value: %s\n", sa.defValue)
 }
 
 func (sa *StringAttribute) String() string {
-	builder := new(strings.Builder)
-	sa.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("string_attribute:\n")
+	sa.stringify(s)
+	return s.String()
 }
 
 // DefValue returns the default value of the [StringAttribute].
@@ -260,18 +252,18 @@ func (ia *IntegerAttribute) Clone() (Attribute, error) {
 	return cloned, nil
 }
 
-func (ia *IntegerAttribute) stringify(b *strings.Builder, tabs int) {
-	ia.attribute.stringify(b, tabs)
+func (ia *IntegerAttribute) stringify(s *stringer.Stringer) {
+	ia.attribute.stringify(s)
 
-	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%smin: %d; max: %d; hex_format: %t\n", tabStr, ia.min, ia.max, ia.isHexFormat))
-	b.WriteString(fmt.Sprintf("%sdefault_value: %d\n", tabStr, ia.defValue))
+	s.Write("min: %d; max: %d; hex_format: %t\n", ia.min, ia.max, ia.isHexFormat)
+	s.Write("default_value: %d\n", ia.defValue)
 }
 
 func (ia *IntegerAttribute) String() string {
-	builder := new(strings.Builder)
-	ia.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("integer_attribute:\n")
+	ia.stringify(s)
+	return s.String()
 }
 
 // DefValue returns the default value of the [IntegerAttribute].
@@ -381,18 +373,18 @@ func (fa *FloatAttribute) Clone() (Attribute, error) {
 	return newFloatAttributeFromBase(fa.attribute.clone(), fa.defValue, fa.min, fa.max)
 }
 
-func (fa *FloatAttribute) stringify(b *strings.Builder, tabs int) {
-	fa.attribute.stringify(b, tabs)
+func (fa *FloatAttribute) stringify(s *stringer.Stringer) {
+	fa.attribute.stringify(s)
 
-	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%smin: %g; max: %g\n", tabStr, fa.min, fa.max))
-	b.WriteString(fmt.Sprintf("%sdefault_value: %g\n", tabStr, fa.defValue))
+	s.Write("min: %g; max: %g\n", fa.min, fa.max)
+	s.Write("default_value: %g\n", fa.defValue)
 }
 
 func (fa *FloatAttribute) String() string {
-	builder := new(strings.Builder)
-	fa.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("float_attribute:\n")
+	fa.stringify(s)
+	return s.String()
 }
 
 // DefValue returns the default value of the [FloatAttribute].
@@ -444,7 +436,7 @@ type EnumAttribute struct {
 	*attribute
 
 	defValue string
-	values   *set[string, int]
+	values   *collection.Map[string, int]
 }
 
 func newEnumAttributeFromBase(base *attribute, values ...string) (*EnumAttribute, error) {
@@ -455,14 +447,14 @@ func newEnumAttributeFromBase(base *attribute, values ...string) (*EnumAttribute
 		}
 	}
 
-	valSet := newSet[string, int]()
+	valSet := collection.NewMap[string, int]()
 	currIdx := 0
 	for _, val := range values {
-		if valSet.hasKey(val) {
+		if valSet.Has(val) {
 			continue
 		}
 
-		valSet.add(val, currIdx)
+		valSet.Set(val, currIdx)
 		currIdx++
 	}
 
@@ -493,22 +485,26 @@ func (ea *EnumAttribute) Clone() (Attribute, error) {
 	return cloned, nil
 }
 
-func (ea *EnumAttribute) stringify(b *strings.Builder, tabs int) {
-	ea.attribute.stringify(b, tabs)
+func (ea *EnumAttribute) stringify(s *stringer.Stringer) {
+	ea.attribute.stringify(s)
 
-	tabStr := getTabString(tabs)
-
-	for idx, val := range ea.Values() {
-		b.WriteString(fmt.Sprintf("%value: %s; index: %d\n", tabStr, val, idx))
+	if len(ea.Values()) > 0 {
+		s.Write("values:\n")
+		s.Indent()
+		for idx, val := range ea.Values() {
+			s.Write("value: %s; index: %d\n", val, idx)
+		}
+		s.Unindent()
 	}
 
-	b.WriteString(fmt.Sprintf("%sdefault_value: %s\n", tabStr, ea.defValue))
+	s.Write("default_value: %s\n", ea.defValue)
 }
 
 func (ea *EnumAttribute) String() string {
-	builder := new(strings.Builder)
-	ea.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("enum_attribute:\n")
+	ea.stringify(s)
+	return s.String()
 }
 
 // DefValue returns the default value of the [EnumAttribute].
@@ -518,8 +514,8 @@ func (ea *EnumAttribute) DefValue() string {
 
 // Values returns the values of the [EnumAttribute] in the order specified in the factory method.
 func (ea *EnumAttribute) Values() []string {
-	valSlice := make([]string, ea.values.size())
-	for val, valIdx := range ea.values.entries() {
+	valSlice := make([]string, ea.values.Size())
+	for val, valIdx := range ea.values.Entries() {
 		valSlice[valIdx] = val
 	}
 	return valSlice
@@ -530,21 +526,11 @@ func (ea *EnumAttribute) Values() []string {
 // It may return an error if the index is out of range.
 func (ea *EnumAttribute) GetValueAtIndex(valueIndex int) (string, error) {
 	if valueIndex < 0 {
-		return "", ea.errorf(&GetEntityError{
-			Err: &ValueIndexError{
-				Index: valueIndex,
-				Err:   ErrIsNegative,
-			},
-		})
+		return "", ea.errorf(newArgError("valueIndex", ErrIsNegative))
 	}
 
-	if valueIndex >= ea.values.size() {
-		return "", ea.errorf(&GetEntityError{
-			Err: &ValueIndexError{
-				Index: valueIndex,
-				Err:   ErrOutOfBounds,
-			},
-		})
+	if valueIndex >= ea.values.Size() {
+		return "", ea.errorf(newArgError("valueIndex", ErrOutOfBounds))
 	}
 
 	return ea.Values()[valueIndex], nil
@@ -620,11 +606,9 @@ func newAttributeAssignment(att Attribute, ent AttributableEntity, val any) *Att
 	}
 }
 
-func (aa *AttributeAssignment) stringify(b *strings.Builder, tabs int) {
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("%sentity_id: %s; entity_kind: %s; name: %s; value: %v;\n",
-		tabStr, aa.EntityID(), aa.entity.EntityKind(), aa.entity.Name(), aa.value))
+func (aa *AttributeAssignment) stringify(s *stringer.Stringer) {
+	s.Write("entity_id: %s; entity_kind: %s; name: %s; value: %v;\n",
+		aa.EntityID(), aa.entity.EntityKind(), aa.entity.Name(), aa.value)
 }
 
 // EntityID returns the entity id of the [AttributableEntity] of the [AttributeAssignment].

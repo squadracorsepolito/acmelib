@@ -67,7 +67,7 @@ func Test_signal_UpdateStartPos(t *testing.T) {
 	assert.Error(sigBase.UpdateStartPos(8))
 
 	assert.NoError(muxMsg.layers.top.signals.in255.UpdateStartPos(16))
-	assert.Equal(16, muxMsg.layers.top.signals.in255.GetStartPos())
+	assert.Equal(16, muxMsg.layers.top.signals.in255.StartPos())
 	assert.NoError(muxMsg.layers.top.signals.in255.UpdateStartPos(8))
 
 	sigTopIn02 := muxMsg.layers.top.signals.in02
@@ -83,7 +83,7 @@ func Test_signal_UpdateStartPos(t *testing.T) {
 	simpleMuxMsg := initSimpleMuxMessage(assert)
 	sigMuxor := simpleMuxMsg.layer.Muxor()
 	assert.NoError(sigMuxor.UpdateStartPos(16))
-	assert.Equal(16, sigMuxor.GetStartPos())
+	assert.Equal(16, sigMuxor.StartPos())
 	assert.NoError(sigMuxor.UpdateStartPos(0))
 	assert.Error(sigMuxor.UpdateStartPos(8))
 }
@@ -95,29 +95,29 @@ func Test_signal_updateSize(t *testing.T) {
 
 	sigBase := muxMsg.signals.base
 	assert.NoError(sigBase.verifyAndUpdateSize(15))
-	assert.Equal(15, sigBase.GetSize())
+	assert.Equal(15, sigBase.Size())
 	assert.Error(sigBase.verifyAndUpdateSize(17))
 	assert.NoError(sigBase.verifyAndUpdateSize(16))
 
 	sigTopIn0 := muxMsg.layers.top.signals.in0
 	assert.NoError(sigTopIn0.verifyAndUpdateSize(7))
-	assert.Equal(7, sigTopIn0.GetSize())
+	assert.Equal(7, sigTopIn0.Size())
 	assert.Error(sigTopIn0.verifyAndUpdateSize(9))
 	assert.NoError(sigTopIn0.verifyAndUpdateSize(8))
 
 	sigTopIn255 := muxMsg.layers.top.signals.in255
 	assert.NoError(sigTopIn255.verifyAndUpdateSize(16))
-	assert.Equal(16, sigTopIn255.GetSize())
+	assert.Equal(16, sigTopIn255.Size())
 	assert.Error(sigTopIn255.verifyAndUpdateSize(17))
 
 	sigTopInnerIn0 := muxMsg.layers.top.inner.signals.in0
 	assert.NoError(sigTopInnerIn0.verifyAndUpdateSize(7))
-	assert.Equal(7, sigTopInnerIn0.GetSize())
+	assert.Equal(7, sigTopInnerIn0.Size())
 	assert.Error(sigTopInnerIn0.verifyAndUpdateSize(9))
 	assert.NoError(sigTopInnerIn0.verifyAndUpdateSize(8))
 
 	sigTopMuxor := muxMsg.layers.top.layer.Muxor()
 	assert.NoError(sigTopMuxor.verifyAndUpdateSize(3))
-	assert.Equal(3, sigTopMuxor.GetSize())
+	assert.Equal(3, sigTopMuxor.Size())
 	assert.NoError(sigTopMuxor.verifyAndUpdateSize(8))
 }

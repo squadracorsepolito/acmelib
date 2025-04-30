@@ -140,14 +140,14 @@ type Signal interface {
 	setparentMuxLayer(ml *MultiplexedLayer)
 	setLayout(layout *SL)
 
-	// GetStartPos returns the start postion of the signal.
-	GetStartPos() int
+	// StartPos returns the start postion of the signal.
+	StartPos() int
 	setStartPos(startPos int)
 	// UpdateStartPos updates the start position of the signal.
 	UpdateStartPos(startPos int) error
 
-	// GetSize returns the size of the signal.
-	GetSize() int
+	// Size returns the size of the signal.
+	Size() int
 	setSize(size int)
 
 	verifyNewSize(newSize int) error
@@ -234,18 +234,6 @@ func (s *signal) hasParentMsg() bool {
 	return s.parentMsg != nil
 }
 
-func (s *signal) modifySize(amount int) error {
-	// if s.hasParentMuxSig() {
-	// 	return s.parentMuxSig.modifySignalSize(s.EntityID(), amount)
-	// }
-
-	// if s.hasParentMsg() {
-	// 	return s.parentMsg.modifySignalSize(s.EntityID(), amount)
-	// }
-
-	return nil
-}
-
 func (s *signal) errorf(err error) error {
 	sigErr := &EntityError{
 		Kind:     EntityKindSignal,
@@ -271,6 +259,8 @@ func (s *signal) stringify(str *stringer.Stringer) {
 	if s.sendType != SignalSendTypeUnset {
 		str.Write("send_type: %q\n", s.sendType)
 	}
+
+	s.withAttributes.stringify(str)
 }
 
 func (s *signal) String() string {
@@ -290,13 +280,9 @@ func (s *signal) ParentMessage() *Message {
 
 func (s *signal) setParentMsg(parentMsg *Message) {
 	s.parentMsg = parentMsg
-
-	if parentMsg != nil {
-		s.endianness = parentMsg.byteOrder
-	}
 }
 
-func (s *signal) GetStartPos() int {
+func (s *signal) StartPos() int {
 	return s.startPos
 }
 
@@ -334,14 +320,6 @@ func (s *signal) SetEndianness(endianness Endianness) {
 
 func (s *signal) Endianness() Endianness {
 	return s.endianness
-}
-
-// TODO! delete this method
-func (s *signal) GetStartBit() int {
-	// if s.hasParentMuxSig() {
-	// 	return s.parentMuxSig.GetStartBit() + s.parentMuxSig.GetGroupCountSize() + s.relStartPos
-	// }
-	return s.startPos
 }
 
 // UpdateName updates the name of the signal.
@@ -396,7 +374,7 @@ updateName:
 	return nil
 }
 
-func (s *signal) GetSize() int {
+func (s *signal) Size() int {
 	return s.size
 }
 
@@ -606,7 +584,7 @@ func (s *signal) AssignAttribute(attribute Attribute, value any) error {
 }
 
 func (s *signal) GetLow() int {
-	return s.GetStartPos()
+	return s.StartPos()
 }
 
 func (s *signal) SetLow(low int) {

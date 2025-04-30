@@ -1,9 +1,9 @@
 package acmelib
 
 import (
-	"fmt"
 	"slices"
-	"strings"
+
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 func newDefaultCANIDBuilder() *CANIDBuilder {
@@ -62,11 +62,8 @@ func newCANIDBuilderOp(kind CANIDBuilderOpKind, from, len int) *CANIDBuilderOp {
 	}
 }
 
-func (bo *CANIDBuilderOp) stringify(b *strings.Builder, tabs int) {
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, bo.kind))
-	b.WriteString(fmt.Sprintf("%sfrom: %d; len: %d\n", tabStr, bo.from, bo.len))
+func (bo *CANIDBuilderOp) stringify(s *stringer.Stringer) {
+	s.Write("kind: %s; from: %d; len: %d\n", bo.kind, bo.from, bo.len)
 }
 
 // Kind returns the kind of the operation.
@@ -107,26 +104,26 @@ func NewCANIDBuilder(name string) *CANIDBuilder {
 	return newCANIDBuilderFromEntity(newEntity(name, EntityKindCANIDBuilder))
 }
 
-func (b *CANIDBuilder) stringify(builder *strings.Builder, tabs int) {
-	b.entity.stringifyOld(builder, tabs)
+func (b *CANIDBuilder) stringify(s *stringer.Stringer) {
+	b.entity.stringify(s)
 
-	tabStr := getTabString(tabs)
-
-	builder.WriteString(fmt.Sprintf("%soperations:\n", tabStr))
-	for _, op := range b.operations {
-		op.stringify(builder, tabs+1)
+	if len(b.operations) > 0 {
+		s.Write("operations:\n")
+		s.Indent()
+		for _, op := range b.operations {
+			op.stringify(s)
+		}
+		s.Unindent()
 	}
 
-	refCount := b.ReferenceCount()
-	if refCount > 0 {
-		builder.WriteString(fmt.Sprintf("%sreference_count: %d\n", tabStr, refCount))
-	}
+	b.withRefs.stringify(s)
 }
 
 func (b *CANIDBuilder) String() string {
-	builder := new(strings.Builder)
-	b.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("can_id_builder:\n")
+	b.stringify(s)
+	return s.String()
 }
 
 // UpdateName updates the name of the [CANIDBuilder].

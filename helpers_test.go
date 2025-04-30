@@ -20,8 +20,8 @@ func Test_calcSizeFromValue(t *testing.T) {
 func Test_calcValueFromSize(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.Equal(1, calcValueFromSize(0))
-	assert.Equal(256, calcValueFromSize(8))
-	assert.Equal(32, calcValueFromSize(5))
-	assert.Equal(8, calcValueFromSize(3))
+	assert.Equal(1, getValueFromSize(0))
+	assert.Equal(256, getValueFromSize(8))
+	assert.Equal(32, getValueFromSize(5))
+	assert.Equal(8, getValueFromSize(3))
 }

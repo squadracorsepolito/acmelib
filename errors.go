@@ -23,9 +23,6 @@ var ErrIsZero = errors.New("is zero")
 // ErrIsNil is returned when a value or entity is nil.
 var ErrIsNil = errors.New("is nil")
 
-// ErrNoSpaceLeft is returned when there is not enough space left.
-var ErrNoSpaceLeft = errors.New("not enough space left")
-
 // ErrIntersects is returned when two entities are intersecting.
 var ErrIntersects = errors.New("is intersecting")
 
@@ -40,9 +37,6 @@ var ErrTooSmall = errors.New("too small")
 
 // ErrTooBig is returned when a value is too big.
 var ErrTooBig = errors.New("too big")
-
-// ErrIsDifferent is returned when a value is different.
-var ErrIsDifferent = errors.New("is different")
 
 // ErrNotClear is returned when a value is not clear.
 var ErrNotClear = errors.New("not clear")
@@ -112,19 +106,6 @@ func (e *EntityError) Error() string {
 
 func (e *EntityError) Unwrap() error { return e.Err }
 
-// GetEntityError is returned when an entity cannot be retrieved.
-// The EntityID field is the ID of the entity and the Err field is the cause.
-type GetEntityError struct {
-	EntityID EntityID
-	Err      error
-}
-
-func (e *GetEntityError) Error() string {
-	return fmt.Sprintf("get entity error; entity_id:%q : %v", e.EntityID, e.Err)
-}
-
-func (e *GetEntityError) Unwrap() error { return e.Err }
-
 // AddEntityError is returned when an entity cannot be added.
 // The EntityID field is the ID of the entity and the Name field is the name,
 // and the Err field is the cause.
@@ -139,164 +120,6 @@ func (e *AddEntityError) Error() string {
 }
 
 func (e *AddEntityError) Unwrap() error { return e.Err }
-
-// RemoveEntityError is returned when an entity cannot be removed.
-// The EntityID field is the ID of the entity and the Err field is the cause.
-type RemoveEntityError struct {
-	EntityID EntityID
-	Err      error
-}
-
-func (e *RemoveEntityError) Error() string {
-	return fmt.Sprintf("remove entity error; entity_id:%q : %v", e.EntityID.String(), e.Err)
-}
-
-func (e *RemoveEntityError) Unwrap() error { return e.Err }
-
-// UpdateNameError is returned when a name cannot be updated.
-type UpdateNameError struct {
-	Err error
-}
-
-func (e *UpdateNameError) Error() string {
-	return fmt.Sprintf("update name error : %v", e.Err)
-}
-
-func (e *UpdateNameError) Unwrap() error { return e.Err }
-
-// NodeIDError is returned when a [NodeID] is invalid.
-// The NodeID field is the node ID and the Err field is the cause.
-type NodeIDError struct {
-	NodeID NodeID
-	Err    error
-}
-
-func (e *NodeIDError) Error() string {
-	return fmt.Sprintf("node id error; node_id:%d : %v", e.NodeID, e.Err)
-}
-
-func (e *NodeIDError) Unwrap() error { return e.Err }
-
-// CANIDError is returned when a [CANID] is invalid.
-// The CANID field is the CAN-ID and the Err field is the cause.
-type CANIDError struct {
-	CANID CANID
-	Err   error
-}
-
-func (e *CANIDError) Error() string {
-	return fmt.Sprintf("can id error; can_id:%d : %v", e.CANID, e.Err)
-}
-
-func (e *CANIDError) Unwrap() error { return e.Err }
-
-// MessageIDError is returned when a [MessageCANID] is invalid.
-// The MessageID field is the message ID and the Err field is the cause.
-type MessageIDError struct {
-	MessageID MessageID
-	Err       error
-}
-
-func (e *MessageIDError) Error() string {
-	return fmt.Sprintf("message id error; message_id:%d : %v", e.MessageID, e.Err)
-}
-
-func (e *MessageIDError) Unwrap() error { return e.Err }
-
-// GroupIDError is returned when a group ID is invalid.
-// The GroupID field is the group ID and the Err field is the cause.
-type GroupIDError struct {
-	GroupID int
-	Err     error
-}
-
-func (e *GroupIDError) Error() string {
-	return fmt.Sprintf("group id error; group_id:%d : %v", e.GroupID, e.Err)
-}
-
-func (e *GroupIDError) Unwrap() error { return e.Err }
-
-// InsertSignalError is returned when a signal cannot be inserted.
-// The EntityID field is the ID of the signal, the Name field is the name,
-// the StartBit field is the start bit, and the Err field is the cause.
-type InsertSignalError struct {
-	EntityID EntityID
-	Name     string
-	StartBit int
-	Err      error
-}
-
-func (e *InsertSignalError) Error() string {
-	return fmt.Sprintf("insert signal error; entity_id:%q, name:%q, start_bit:%d : %v", e.EntityID.String(), e.Name, e.StartBit, e.Err)
-}
-
-func (e *InsertSignalError) Unwrap() error { return e.Err }
-
-// AppendSignalError is returned when a signal cannot be appended.
-// The EntityID field is the ID of the signal, the Name field is the name,
-// and the Err field is the cause.
-type AppendSignalError struct {
-	EntityID EntityID
-	Name     string
-	Err      error
-}
-
-func (e *AppendSignalError) Error() string {
-	return fmt.Sprintf("append signal error; entity_id:%q, name:%q : %v", e.EntityID.String(), e.Name, e.Err)
-}
-
-func (e *AppendSignalError) Unwrap() error { return e.Err }
-
-// SignalSizeError is returned when a signal size is invalid.
-// The Size field is the size and the Err field is the cause.
-type SignalSizeError struct {
-	Size int
-	Err  error
-}
-
-func (e *SignalSizeError) Error() string {
-	return fmt.Sprintf("signal size error; size:%d : %v", e.Size, e.Err)
-}
-
-func (e *SignalSizeError) Unwrap() error { return e.Err }
-
-// MessageSizeError is returned when a message size is invalid.
-// The Size field is the size and the Err field is the cause.
-type MessageSizeError struct {
-	Size int
-	Err  error
-}
-
-func (e *MessageSizeError) Error() string {
-	return fmt.Sprintf("message size error; size:%d : %v", e.Size, e.Err)
-}
-
-func (e *MessageSizeError) Unwrap() error { return e.Err }
-
-// UpdateIndexError is returned when an index cannot be updated.
-// The Err field is the cause.
-type UpdateIndexError struct {
-	Err error
-}
-
-func (e *UpdateIndexError) Error() string {
-	return fmt.Sprintf("update index value error : %v", e.Err)
-}
-
-func (e *UpdateIndexError) Unwrap() error { return e.Err }
-
-// ValueIndexError is returned when a value index is invalid.
-// The Index field is the index and the Err field is the cause.
-type ValueIndexError struct {
-	Index int
-	Err   error
-}
-
-func (e *ValueIndexError) Error() string {
-	return fmt.Sprintf("value index error; index:%d : %v", e.Index, e.Err)
-}
-
-func (e *ValueIndexError) Unwrap() error { return e.Err }
 
 // AttributeValueError is returned when an attribute value is invalid.
 // The Err field contains the cause.
@@ -323,13 +146,8 @@ func (e *EntityIDError) Error() string {
 
 func (e *EntityIDError) Unwrap() error { return e.Err }
 
-//
-//
-//
-//
-//
-//
-
+// SizeError is returned when a size is invalid.
+// The Size field is the size and the Err field is the cause.
 type SizeError struct {
 	Size int
 	Err  error
@@ -362,6 +180,8 @@ func (e *StartPosError) Error() string {
 
 func (e *StartPosError) Unwrap() error { return e.Err }
 
+// LayoutIDError is returned when a layout id is invalid.
+// The LayoutID field is the id of the layout and the Err field is the cause.
 type LayoutIDError struct {
 	LayoutID int
 	Err      error
@@ -411,15 +231,17 @@ func (e *ArgError) Error() string {
 
 func (e *ArgError) Unwrap() error { return e.Err }
 
-type IntersectError struct {
+// IntersectionError is returned when two signals intersect.
+// The With field is the name of the other signal.
+type IntersectionError struct {
 	With string
 }
 
-func newIntersectError(with string) *IntersectError {
-	return &IntersectError{With: with}
+func newIntersectionError(with string) *IntersectionError {
+	return &IntersectionError{With: with}
 }
 
-func (e *IntersectError) Error() string {
+func (e *IntersectionError) Error() string {
 	return fmt.Sprintf("intersect with %q", e.With)
 }
 
@@ -437,6 +259,8 @@ func (e *ConversionError) Error() string {
 	return fmt.Sprintf("conversion error; from:%q, to:%q", e.From, e.To)
 }
 
+// IndexError is returned when an index is invalid.
+// The Index field is the index and the Err field is the cause.
 type IndexError struct {
 	Index int
 	Err   error
@@ -451,3 +275,54 @@ func (e *IndexError) Error() string {
 }
 
 func (e *IndexError) Unwrap() error { return e.Err }
+
+// NodeIDError is returned when a [NodeID] is invalid.
+// The NodeID field is the node ID and the Err field is the cause.
+type NodeIDError struct {
+	NodeID NodeID
+	Err    error
+}
+
+func newNodeIDError(nodeID NodeID, err error) *NodeIDError {
+	return &NodeIDError{NodeID: nodeID, Err: err}
+}
+
+func (e *NodeIDError) Error() string {
+	return fmt.Sprintf("node id error; node_id:%d : %v", e.NodeID, e.Err)
+}
+
+func (e *NodeIDError) Unwrap() error { return e.Err }
+
+// CANIDError is returned when a [CANID] is invalid.
+// The CANID field is the CAN-ID and the Err field is the cause.
+type CANIDError struct {
+	CANID CANID
+	Err   error
+}
+
+func newCANIDError(canID CANID, err error) *CANIDError {
+	return &CANIDError{CANID: canID, Err: err}
+}
+
+func (e *CANIDError) Error() string {
+	return fmt.Sprintf("can id error; can_id:%d : %v", e.CANID, e.Err)
+}
+
+func (e *CANIDError) Unwrap() error { return e.Err }
+
+// MessageIDError is returned when a [MessageCANID] is invalid.
+// The MessageID field is the message ID and the Err field is the cause.
+type MessageIDError struct {
+	MessageID MessageID
+	Err       error
+}
+
+func newMessageIDError(msgID MessageID, err error) *MessageIDError {
+	return &MessageIDError{MessageID: msgID, Err: err}
+}
+
+func (e *MessageIDError) Error() string {
+	return fmt.Sprintf("message id error; message_id:%d : %v", e.MessageID, e.Err)
+}
+
+func (e *MessageIDError) Unwrap() error { return e.Err }

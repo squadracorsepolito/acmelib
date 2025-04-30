@@ -1,22 +1,23 @@
 package acmelib
 
 import (
-	"fmt"
-	"strings"
+	"cmp"
+	"slices"
 
-	"golang.org/x/exp/slices"
+	"github.com/squadracorsepolito/acmelib/internal/collection"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // NodeInterface represents an interface between a [Bus] and a [Node].
 type NodeInterface struct {
 	parentBus *Bus
 
-	sentMessages            *set[EntityID, *Message]
-	sentMessageNames        *set[string, EntityID]
-	sentMessageIDs          *set[MessageID, EntityID]
-	sentMessageStaticCANIDs *set[CANID, EntityID]
+	sentMessages            *collection.Map[EntityID, *Message]
+	sentMessageNames        *collection.Map[string, EntityID]
+	sentMessageIDs          *collection.Map[MessageID, EntityID]
+	sentMessageStaticCANIDs *collection.Map[CANID, EntityID]
 
-	receivedMessages *set[EntityID, *Message]
+	receivedMessages *collection.Map[EntityID, *Message]
 
 	number int
 	node   *Node
@@ -26,12 +27,12 @@ func newNodeInterface(number int, node *Node) *NodeInterface {
 	return &NodeInterface{
 		parentBus: nil,
 
-		sentMessages:            newSet[EntityID, *Message](),
-		sentMessageNames:        newSet[string, EntityID](),
-		sentMessageIDs:          newSet[MessageID, EntityID](),
-		sentMessageStaticCANIDs: newSet[CANID, EntityID](),
+		sentMessages:            collection.NewMap[EntityID, *Message](),
+		sentMessageNames:        collection.NewMap[string, EntityID](),
+		sentMessageIDs:          collection.NewMap[MessageID, EntityID](),
+		sentMessageStaticCANIDs: collection.NewMap[CANID, EntityID](),
 
-		receivedMessages: newSet[EntityID, *Message](),
+		receivedMessages: collection.NewMap[EntityID, *Message](),
 
 		number: number,
 		node:   node,
@@ -49,65 +50,57 @@ func (ni *NodeInterface) errorf(err error) error {
 	return err
 }
 
-func (ni *NodeInterface) stringify(b *strings.Builder, tabs int) {
-	tabStr := getTabString(tabs)
+func (ni *NodeInterface) stringify(s *stringer.Stringer) {
+	s.Write("number: %d\n", ni.number)
 
-	b.WriteString(fmt.Sprintf("%snumber: %d\n", tabStr, ni.number))
+	s.Write("node:\n")
+	s.Indent()
+	ni.node.stringify(s)
+	s.Unindent()
 
-	b.WriteString(fmt.Sprintf("%snode:\n", tabStr))
-	ni.node.stringify(b, tabs+1)
-
-	if ni.sentMessages.size() == 0 {
-		return
+	if ni.sentMessages.Size() > 0 {
+		s.Write("sent_messages:\n")
+		s.Indent()
+		for _, msg := range ni.SentMessages() {
+			msg.stringify(s)
+		}
+		s.Unindent()
 	}
 
-	b.WriteString(fmt.Sprintf("%ssent_messages:\n", tabStr))
-	for _, msg := range ni.SentMessages() {
-		msg.stringify0(b, tabs+1)
-		b.WriteRune('\n')
-	}
-
-	b.WriteString(fmt.Sprintf("%sreceived_messages:\n", tabStr))
-	for _, msg := range ni.ReceivedMessages() {
-		msg.stringify0(b, tabs+1)
-		b.WriteRune('\n')
+	if ni.receivedMessages.Size() > 0 {
+		s.Write("received_messages:\n")
+		s.Indent()
+		for _, msg := range ni.ReceivedMessages() {
+			msg.stringify(s)
+		}
+		s.Unindent()
 	}
 }
 
 func (ni *NodeInterface) String() string {
-	builder := new(strings.Builder)
-	ni.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("node_interface:\n")
+	ni.stringify(s)
+	return s.String()
 }
 
 func (ni *NodeInterface) verifyMessageName(name string) error {
-	err := ni.sentMessageNames.verifyKeyUnique(name)
-	if err != nil {
-		return &NameError{
-			Name: name,
-			Err:  err,
-		}
+	if ni.sentMessageNames.Has(name) {
+		return newNameError(name, ErrIsDuplicated)
 	}
 	return nil
 }
 
 func (ni *NodeInterface) verifyMessageID(msgID MessageID) error {
-	err := ni.sentMessageIDs.verifyKeyUnique(msgID)
-	if err != nil {
-		return &MessageIDError{
-			MessageID: msgID,
-			Err:       err,
-		}
+	if ni.sentMessageIDs.Has(msgID) {
+		return newMessageIDError(msgID, ErrIsDuplicated)
 	}
 	return nil
 }
 
 func (ni *NodeInterface) verifyStaticCANID(staticCANID CANID) error {
-	if err := ni.sentMessageStaticCANIDs.verifyKeyUnique(staticCANID); err != nil {
-		return &CANIDError{
-			CANID: staticCANID,
-			Err:   err,
-		}
+	if ni.sentMessageStaticCANIDs.Has(staticCANID) {
+		return newCANIDError(staticCANID, ErrIsDuplicated)
 	}
 
 	if ni.hasParentBus() {
@@ -126,19 +119,19 @@ func (ni *NodeInterface) verifyMessageSize(sizeByte int) error {
 }
 
 func (ni *NodeInterface) addReceivedMessage(msg *Message) error {
-	if ni.sentMessages.hasKey(msg.entityID) {
+	if ni.sentMessages.Has(msg.entityID) {
 		return ErrReceiverIsSender
 	}
 
-	ni.receivedMessages.add(msg.entityID, msg)
-	msg.receivers.add(ni.node.entityID, ni)
+	ni.receivedMessages.Set(msg.entityID, msg)
+	msg.receivers.Set(ni.node.entityID, ni)
 
 	return nil
 }
 
 func (ni *NodeInterface) removeReceivedMessage(msg *Message) {
-	ni.receivedMessages.remove(msg.entityID)
-	msg.receivers.remove(ni.node.entityID)
+	ni.receivedMessages.Delete(msg.entityID)
+	msg.receivers.Delete(ni.node.entityID)
 }
 
 // AddSentMessage adds a [Message] that the [NodeInterface] can send.
@@ -151,10 +144,7 @@ func (ni *NodeInterface) removeReceivedMessage(msg *Message) {
 //   - [AddEntityError] that wraps a [MessageSizeError] if the message size is invalid.
 func (ni *NodeInterface) AddSentMessage(message *Message) error {
 	if message == nil {
-		return &ArgError{
-			Name: "message",
-			Err:  ErrIsNil,
-		}
+		return newArgError("message", ErrIsNil)
 	}
 
 	addMsgErr := &AddEntityError{
@@ -179,21 +169,21 @@ func (ni *NodeInterface) AddSentMessage(message *Message) error {
 		}
 
 		if ni.hasParentBus() {
-			ni.parentBus.messageStaticCANIDs.add(message.staticCANID, message.entityID)
+			ni.parentBus.messageStaticCANIDs.Set(message.staticCANID, message.entityID)
 		}
 
-		ni.sentMessageStaticCANIDs.add(message.staticCANID, message.entityID)
+		ni.sentMessageStaticCANIDs.Set(message.staticCANID, message.entityID)
 
 	} else {
 		if err := ni.verifyMessageID(message.id); err != nil {
 			addMsgErr.Err = err
 			return ni.errorf(addMsgErr)
 		}
-		ni.sentMessageIDs.add(message.id, message.entityID)
+		ni.sentMessageIDs.Set(message.id, message.entityID)
 	}
 
-	ni.sentMessages.add(message.entityID, message)
-	ni.sentMessageNames.add(message.name, message.entityID)
+	ni.sentMessages.Set(message.entityID, message)
+	ni.sentMessageNames.Set(message.name, message.entityID)
 
 	message.senderNodeInt = ni
 
@@ -205,28 +195,25 @@ func (ni *NodeInterface) AddSentMessage(message *Message) error {
 // It returns an [ErrNotFound] if the given entity id does not match
 // any message.
 func (ni *NodeInterface) RemoveSentMessage(messageEntityID EntityID) error {
-	msg, err := ni.sentMessages.getValue(messageEntityID)
-	if err != nil {
-		return ni.errorf(&RemoveEntityError{
-			EntityID: messageEntityID,
-			Err:      err,
-		})
+	msg, ok := ni.sentMessages.Get(messageEntityID)
+	if !ok {
+		return ni.errorf(ErrNotFound)
 	}
 
 	msg.senderNodeInt = nil
 
-	ni.sentMessages.remove(messageEntityID)
-	ni.sentMessageNames.remove(msg.name)
+	ni.sentMessages.Delete(messageEntityID)
+	ni.sentMessageNames.Delete(msg.name)
 
 	if msg.hasStaticCANID {
-		ni.sentMessageStaticCANIDs.remove(msg.staticCANID)
+		ni.sentMessageStaticCANIDs.Delete(msg.staticCANID)
 
 		if ni.hasParentBus() {
-			ni.parentBus.messageStaticCANIDs.remove(msg.staticCANID)
+			ni.parentBus.messageStaticCANIDs.Delete(msg.staticCANID)
 		}
 
 	} else {
-		ni.sentMessageIDs.remove(msg.id)
+		ni.sentMessageIDs.Delete(msg.id)
 	}
 
 	return nil
@@ -234,33 +221,32 @@ func (ni *NodeInterface) RemoveSentMessage(messageEntityID EntityID) error {
 
 // RemoveAllSentMessages removes all the messages sent by the [NodeInterface].
 func (ni *NodeInterface) RemoveAllSentMessages() {
-	for _, tmpMsg := range ni.sentMessages.entries() {
+	for tmpMsg := range ni.sentMessages.Values() {
 		tmpMsg.senderNodeInt = nil
 
 		if ni.hasParentBus() && tmpMsg.hasStaticCANID {
-			ni.parentBus.messageStaticCANIDs.remove(tmpMsg.staticCANID)
+			ni.parentBus.messageStaticCANIDs.Delete(tmpMsg.staticCANID)
 		}
 	}
 
-	ni.sentMessages.clear()
-	ni.sentMessageNames.clear()
-	ni.sentMessageIDs.clear()
-	ni.sentMessageStaticCANIDs.clear()
+	ni.sentMessages.Clear()
+	ni.sentMessageNames.Clear()
+	ni.sentMessageIDs.Clear()
+	ni.sentMessageStaticCANIDs.Clear()
 }
 
 // GetSentMessageByName returns the sent [Message] with the given name.
 //
-// It returns an [ErrNotFound] wrapped by a [NameError]
-// if the name does not match any message.
+// It returns [ErrNotFound] if the name does not match any message.
 func (ni *NodeInterface) GetSentMessageByName(name string) (*Message, error) {
-	id, err := ni.sentMessageNames.getValue(name)
-	if err != nil {
-		return nil, ni.errorf(&NameError{Name: name, Err: err})
+	id, ok := ni.sentMessageNames.Get(name)
+	if !ok {
+		return nil, ni.errorf(ErrNotFound)
 	}
 
-	msg, err := ni.sentMessages.getValue(id)
-	if err != nil {
-		panic(err)
+	msg, ok := ni.sentMessages.Get(id)
+	if !ok {
+		return nil, ni.errorf(ErrNotFound)
 	}
 
 	return msg, nil
@@ -268,9 +254,9 @@ func (ni *NodeInterface) GetSentMessageByName(name string) (*Message, error) {
 
 // SentMessages returns a slice of messages sent by the [NodeInterface].
 func (ni *NodeInterface) SentMessages() []*Message {
-	msgSlice := ni.sentMessages.getValues()
+	msgSlice := slices.Collect(ni.sentMessages.Values())
 	slices.SortFunc(msgSlice, func(a, b *Message) int {
-		return int(a.id) - int(b.id)
+		return cmp.Compare(a.id, b.id)
 	})
 	return msgSlice
 }
@@ -304,12 +290,9 @@ func (ni *NodeInterface) AddReceivedMessage(message *Message) error {
 // It returns an [ErrNotFound] wrapped by a [RemoveEntityError]
 // if the given entity id does not match any received message.
 func (ni *NodeInterface) RemoveReceivedMessage(messageEntityID EntityID) error {
-	msg, err := ni.receivedMessages.getValue(messageEntityID)
-	if err != nil {
-		return ni.errorf(&RemoveEntityError{
-			EntityID: messageEntityID,
-			Err:      err,
-		})
+	msg, ok := ni.receivedMessages.Get(messageEntityID)
+	if !ok {
+		return ni.errorf(ErrNotFound)
 	}
 
 	ni.removeReceivedMessage(msg)
@@ -319,18 +302,18 @@ func (ni *NodeInterface) RemoveReceivedMessage(messageEntityID EntityID) error {
 
 // RemoveAllReceivedMessages removes all the messages received by the [NodeInterface].
 func (ni *NodeInterface) RemoveAllReceivedMessages() {
-	for _, tmpMsg := range ni.receivedMessages.entries() {
-		tmpMsg.receivers.remove(ni.node.entityID)
+	for tmpMsg := range ni.receivedMessages.Values() {
+		tmpMsg.receivers.Delete(ni.node.entityID)
 	}
 
-	ni.receivedMessages.clear()
+	ni.receivedMessages.Clear()
 }
 
 // ReceivedMessages returns a slice of messages received by the [NodeInterface].
 func (ni *NodeInterface) ReceivedMessages() []*Message {
-	msgSlice := ni.receivedMessages.getValues()
+	msgSlice := slices.Collect(ni.receivedMessages.Values())
 	slices.SortFunc(msgSlice, func(a, b *Message) int {
-		return int(a.id) - int(b.id)
+		return cmp.Compare(a.id, b.id)
 	})
 	return msgSlice
 }

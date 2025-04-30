@@ -1,12 +1,12 @@
 package acmelib
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 	"time"
 
 	"github.com/jaevor/go-nanoid"
+	"github.com/squadracorsepolito/acmelib/internal/collection"
 	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
@@ -142,20 +142,6 @@ func (e *entity) SetDesc(desc string) {
 	e.desc = desc
 }
 
-// TODO! delete me
-func (e *entity) stringifyOld(b *strings.Builder, tabs int) {
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("%sentity_id: %s; entity_kind: %s\n", tabStr, e.entityID, e.entityKind))
-	b.WriteString(fmt.Sprintf("%sname: %s\n", tabStr, e.name))
-
-	if len(e.desc) > 0 {
-		b.WriteString(fmt.Sprintf("%sdesc: %s\n", tabStr, e.desc))
-	}
-
-	b.WriteString(fmt.Sprintf("%screate_time: %s\n", tabStr, e.createTime.Format(time.RFC3339)))
-}
-
 func (e *entity) stringify(s *stringer.Stringer) {
 	s.Write("entity_id: %s; entity_kind: %s\n", e.entityID, e.entityKind)
 	s.Write("name: %s\n", e.name)
@@ -178,12 +164,23 @@ func (e *entity) clone() *entity {
 }
 
 type withAttributes struct {
-	attAssignments *set[EntityID, *AttributeAssignment]
+	attAssignments *collection.Map[EntityID, *AttributeAssignment]
 }
 
 func newWithAttributes() *withAttributes {
 	return &withAttributes{
-		attAssignments: newSet[EntityID, *AttributeAssignment](),
+		attAssignments: collection.NewMap[EntityID, *AttributeAssignment](),
+	}
+}
+
+func (wa *withAttributes) stringify(s *stringer.Stringer) {
+	if wa.attAssignments.Size() > 0 {
+		s.Write("attribute_assignments:\n")
+		s.Indent()
+		for _, attAss := range wa.AttributeAssignments() {
+			attAss.stringify(s)
+		}
+		s.Unindent()
 	}
 }
 
@@ -230,7 +227,7 @@ func (wa *withAttributes) addAttributeAssignment(attribute Attribute, ent Attrib
 			if err != nil {
 				panic(err)
 			}
-			if !enumAtt.values.hasKey(v) {
+			if !enumAtt.values.Has(v) {
 				return &AttributeValueError{Err: ErrNotFound}
 			}
 
@@ -244,19 +241,19 @@ func (wa *withAttributes) addAttributeAssignment(attribute Attribute, ent Attrib
 
 	attAss := newAttributeAssignment(attribute, ent, val)
 
-	wa.attAssignments.add(attribute.EntityID(), attAss)
+	wa.attAssignments.Set(attribute.EntityID(), attAss)
 	attribute.addRef(attAss)
 
 	return nil
 }
 
 func (wa *withAttributes) removeAttributeAssignment(attEntID EntityID) error {
-	attAss, err := wa.attAssignments.getValue(attEntID)
-	if err != nil {
-		return err
+	attAss, ok := wa.attAssignments.Get(attEntID)
+	if !ok {
+		return ErrNotFound
 	}
 
-	wa.attAssignments.remove(attEntID)
+	wa.attAssignments.Delete(attEntID)
 	attAss.attribute.removeRef(attAss.EntityID())
 
 	return nil
@@ -264,15 +261,15 @@ func (wa *withAttributes) removeAttributeAssignment(attEntID EntityID) error {
 
 // RemoveAllAttributeAssignments removes all the attribute assignments from the entity.
 func (wa *withAttributes) RemoveAllAttributeAssignments() {
-	for _, attVal := range wa.attAssignments.entries() {
+	for attVal := range wa.attAssignments.Values() {
 		attVal.attribute.removeRef(attVal.EntityID())
 	}
-	wa.attAssignments.clear()
+	wa.attAssignments.Clear()
 }
 
 // AttributeAssignments returns a slice of all attribute assignments of the entity.
 func (wa *withAttributes) AttributeAssignments() []*AttributeAssignment {
-	attSlice := wa.attAssignments.getValues()
+	attSlice := slices.Collect(wa.attAssignments.Values())
 	slices.SortFunc(attSlice, func(a, b *AttributeAssignment) int {
 		return strings.Compare(a.attribute.Name(), b.attribute.Name())
 	})
@@ -280,9 +277,9 @@ func (wa *withAttributes) AttributeAssignments() []*AttributeAssignment {
 }
 
 func (wa *withAttributes) getAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
-	attVal, err := wa.attAssignments.getValue(attributeEntityID)
-	if err != nil {
-		return nil, err
+	attVal, ok := wa.attAssignments.Get(attributeEntityID)
+	if !ok {
+		return nil, ErrNotFound
 	}
 	return attVal, nil
 }
@@ -292,27 +289,34 @@ type referenceableEntity interface {
 }
 
 type withRefs[R referenceableEntity] struct {
-	refs *set[EntityID, R]
+	refs *collection.Map[EntityID, R]
 }
 
 func newWithRefs[R referenceableEntity]() *withRefs[R] {
 	return &withRefs[R]{
-		refs: newSet[EntityID, R](),
+		refs: collection.NewMap[EntityID, R](),
+	}
+}
+
+func (t *withRefs[R]) stringify(s *stringer.Stringer) {
+	refCount := t.ReferenceCount()
+	if refCount > 0 {
+		s.Write("reference_count: %d\n", refCount)
 	}
 }
 
 func (t *withRefs[R]) addRef(ref R) {
-	t.refs.add(ref.EntityID(), ref)
+	t.refs.Set(ref.EntityID(), ref)
 }
 
 func (t *withRefs[R]) removeRef(refID EntityID) {
-	t.refs.remove(refID)
+	t.refs.Delete(refID)
 }
 
 func (t *withRefs[R]) ReferenceCount() int {
-	return t.refs.size()
+	return t.refs.Size()
 }
 
 func (t *withRefs[R]) References() []R {
-	return t.refs.getValues()
+	return slices.Collect(t.refs.Values())
 }

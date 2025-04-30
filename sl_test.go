@@ -165,7 +165,7 @@ func Test_SignalLayout_updateSize(t *testing.T) {
 	// Should not return an error
 	assert.NoError(sl.verifyAndUpdateSize(sig1, 32))
 
-	assert.Equal(32, sig1.GetSize())
+	assert.Equal(32, sig1.Size())
 
 	// Should return an error
 	assert.Error(sl.verifyAndUpdateSize(sig0, -1))
@@ -186,7 +186,7 @@ func Test_SignalLayout_Compact(t *testing.T) {
 	assert.NoError(msgBasic.InsertSignal(dummySignal, 56))
 
 	tdBasicMsg.layout.Compact()
-	assert.Equal(48, dummySignal.GetStartPos())
+	assert.Equal(48, dummySignal.StartPos())
 
 	assert.NoError(msgBasic.DeleteSignal(dummySignal.EntityID()))
 }

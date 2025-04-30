@@ -38,8 +38,8 @@ func (sl *SL) genFilters() {
 	sl.filters = []*SignalLayoutFilter{}
 
 	for _, sig := range sl.ibst.GetInOrder() {
-		sigSize := sig.GetSize()
-		startPos := sig.GetStartPos()
+		sigSize := sig.Size()
+		startPos := sig.StartPos()
 		endianness := sig.Endianness()
 
 		firstIdx := startPos / 8
@@ -204,7 +204,7 @@ func (sl *SL) verifyIntersection(sig Signal) error {
 
 		// Check if the signal intersects in the current signal layout
 		if intSig, ok := layout.ibst.Intersects(sig); ok {
-			return newIntersectError(intSig.Name())
+			return newIntersectionError(intSig.Name())
 		}
 
 		// Push to the stack the multiplexed layers directly attached to the current signal layout
@@ -230,7 +230,7 @@ func (sl *SL) verifyIntersection(sig Signal) error {
 
 	for !parentLayout.fromMessage() && parentLayout.fromMultiplexedLayer() {
 		if intSig, ok := parentLayout.ibst.Intersects(sig); ok {
-			return newIntersectError(intSig.Name())
+			return newIntersectionError(intSig.Name())
 		}
 
 		skipBranch = parentLayout.parentMuxLayer.getID()
@@ -247,7 +247,7 @@ func (sl *SL) verifyIntersection(sig Signal) error {
 		layout := layoutStack.Pop()
 
 		if intSig, ok := layout.ibst.Intersects(sig); ok {
-			return newIntersectError(intSig.Name())
+			return newIntersectionError(intSig.Name())
 		}
 
 		for muxLayer := range layout.muxLayers.Values() {
@@ -271,7 +271,7 @@ func (sl *SL) verifyIntersection(sig Signal) error {
 ////////////////////
 
 func (sl *SL) getIntervalFromNewStartPos(sig Signal, newStartPos int) (int, int) {
-	return newStartPos, newStartPos + sig.GetSize() - 1
+	return newStartPos, newStartPos + sig.Size() - 1
 }
 
 // verifyStartPos checks if the start position is valid.
@@ -304,7 +304,7 @@ func (sl *SL) verifyNewStartPos(sig Signal, newStartPos int) error {
 		return err
 	}
 
-	if err := sl.verifyStartPosPlusSize(newStartPos, sig.GetSize()); err != nil {
+	if err := sl.verifyStartPosPlusSize(newStartPos, sig.Size()); err != nil {
 		return err
 	}
 
@@ -314,7 +314,7 @@ func (sl *SL) verifyNewStartPos(sig Signal, newStartPos int) error {
 	}
 
 	// Set the start position to test the intersection and then reset it to the previous one
-	oldStartPos := sig.GetStartPos()
+	oldStartPos := sig.StartPos()
 	sig.setStartPos(newStartPos)
 	defer sig.setStartPos(oldStartPos)
 
@@ -350,7 +350,7 @@ func (sl *SL) verifyAndUpdateStartPos(sig Signal, newStartPos int) error {
 //////////
 
 func (sl *SL) getIntervalFromNewSize(sig Signal, newSize int) (int, int) {
-	startPos := sig.GetStartPos()
+	startPos := sig.StartPos()
 	return startPos, startPos + newSize - 1
 }
 
@@ -374,7 +374,7 @@ func (sl *SL) verifyNewSize(sig Signal, newSize int) error {
 		return err
 	}
 
-	if err := sl.verifyStartPosPlusSize(sig.GetStartPos(), newSize); err != nil {
+	if err := sl.verifyStartPosPlusSize(sig.StartPos(), newSize); err != nil {
 		return err
 	}
 
@@ -383,7 +383,7 @@ func (sl *SL) verifyNewSize(sig Signal, newSize int) error {
 		return newSizeError(newSize, ErrIntersects)
 	}
 
-	oldSize := sig.GetSize()
+	oldSize := sig.Size()
 	sig.setSize(newSize)
 	defer sig.setSize(oldSize)
 
@@ -423,17 +423,17 @@ func (sl *SL) verifyInsert(sig Signal, startPos int) error {
 		return err
 	}
 
-	if err := sl.verifyStartPosPlusSize(startPos, sig.GetSize()); err != nil {
+	if err := sl.verifyStartPosPlusSize(startPos, sig.Size()); err != nil {
 		return err
 	}
 
-	oldStartPos := sig.GetStartPos()
+	oldStartPos := sig.StartPos()
 	sig.setStartPos(startPos)
 	defer sig.setStartPos(oldStartPos)
 
 	// Check if the signal intersects in the current signal layout
 	if intSig, ok := sl.ibst.Intersects(sig); ok {
-		return newIntersectError(intSig.Name())
+		return newIntersectionError(intSig.Name())
 	}
 
 	return sl.verifyIntersection(sig)
@@ -588,7 +588,7 @@ func (sl *SL) Compact() {
 	// Get the signals that need to be updated
 	newStartPos := 0
 	for sig := range sl.ibst.InOrder() {
-		tmpSize := sig.GetSize()
+		tmpSize := sig.Size()
 		signalsToUpdate = append(signalsToUpdate, signalToUpdate{sig, newStartPos, newStartPos + tmpSize})
 		newStartPos += tmpSize
 	}
@@ -620,7 +620,7 @@ func (sl *SL) Filters() []*SignalLayoutFilter {
 func (sl *SL) MultiplexedLayers() []*MultiplexedLayer {
 	layers := slices.Collect(sl.muxLayers.Values())
 	slices.SortFunc(layers, func(a, b *MultiplexedLayer) int {
-		return cmp.Compare(a.muxor.GetStartPos(), b.muxor.GetStartPos())
+		return cmp.Compare(a.muxor.StartPos(), b.muxor.StartPos())
 	})
 	return layers
 }
