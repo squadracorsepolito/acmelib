@@ -112,8 +112,29 @@ func (a *attribute) stringify(s *stringer.Stringer) {
 	a.withRefs.stringify(s)
 }
 
+// Type returns the type of the attribute.
 func (a *attribute) Type() AttributeType {
 	return a.typ
+}
+
+// ToString returns a [ConversionError].
+func (a *attribute) ToString() (*StringAttribute, error) {
+	return nil, a.errorf(newConversionError(a.typ.String(), AttributeTypeString.String()))
+}
+
+// ToInteger returns a [ConversionError].
+func (a *attribute) ToInteger() (*IntegerAttribute, error) {
+	return nil, a.errorf(newConversionError(a.typ.String(), AttributeTypeInteger.String()))
+}
+
+// ToFloat returns a [ConversionError].
+func (a *attribute) ToFloat() (*FloatAttribute, error) {
+	return nil, a.errorf(newConversionError(a.typ.String(), AttributeTypeFloat.String()))
+}
+
+// ToEnum returns a [ConversionError].
+func (a *attribute) ToEnum() (*EnumAttribute, error) {
+	return nil, a.errorf(newConversionError(a.typ.String(), AttributeTypeEnum.String()))
 }
 
 // StringAttribute is an [Attribute] that holds a string value.
@@ -164,30 +185,6 @@ func (sa *StringAttribute) ToString() (*StringAttribute, error) {
 	return sa, nil
 }
 
-// ToInteger always returns an error.
-func (sa *StringAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, sa.errorf(&ConversionError{
-		From: AttributeTypeString.String(),
-		To:   AttributeTypeInteger.String(),
-	})
-}
-
-// ToFloat always returns an error.
-func (sa *StringAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, sa.errorf(&ConversionError{
-		From: AttributeTypeString.String(),
-		To:   AttributeTypeFloat.String(),
-	})
-}
-
-// ToEnum always returns an error.
-func (sa *StringAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, sa.errorf(&ConversionError{
-		From: AttributeTypeString.String(),
-		To:   AttributeTypeEnum.String(),
-	})
-}
-
 // ToAttribute returns the attribute itself.
 func (sa *StringAttribute) ToAttribute() (Attribute, error) {
 	return sa, nil
@@ -206,24 +203,15 @@ type IntegerAttribute struct {
 
 func newIntegerAttributeFromBase(base *attribute, defValue, min, max int) (*IntegerAttribute, error) {
 	if min > max {
-		return nil, &ArgError{
-			Name: "min",
-			Err:  &ErrGreaterThen{Target: "max"},
-		}
+		return nil, newArgError("min", newGreaterError("max"))
 	}
 
 	if defValue > max {
-		return nil, &ArgError{
-			Name: "defValue",
-			Err:  &ErrGreaterThen{Target: "max"},
-		}
+		return nil, newArgError("defValue", newGreaterError("max"))
 	}
 
 	if defValue < min {
-		return nil, &ArgError{
-			Name: "defValue",
-			Err:  &ErrLowerThen{Target: "min"},
-		}
+		return nil, newArgError("defValue", newLowerError("min"))
 	}
 
 	return &IntegerAttribute{
@@ -296,33 +284,9 @@ func (ia *IntegerAttribute) IsHexFormat() bool {
 	return ia.isHexFormat
 }
 
-// ToString always returns an error.
-func (ia *IntegerAttribute) ToString() (*StringAttribute, error) {
-	return nil, ia.errorf(&ConversionError{
-		From: AttributeTypeInteger.String(),
-		To:   AttributeTypeString.String(),
-	})
-}
-
 // ToInteger returns the [IntegerAttribute] itself.
 func (ia *IntegerAttribute) ToInteger() (*IntegerAttribute, error) {
 	return ia, nil
-}
-
-// ToFloat always returns an error.
-func (ia *IntegerAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, ia.errorf(&ConversionError{
-		From: AttributeTypeInteger.String(),
-		To:   AttributeTypeFloat.String(),
-	})
-}
-
-// ToEnum always returns an error.
-func (ia *IntegerAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, ia.errorf(&ConversionError{
-		From: AttributeTypeInteger.String(),
-		To:   AttributeTypeEnum.String(),
-	})
 }
 
 // ToAttribute returns the attribute itself.
@@ -341,24 +305,15 @@ type FloatAttribute struct {
 
 func newFloatAttributeFromBase(base *attribute, defValue, min, max float64) (*FloatAttribute, error) {
 	if min > max {
-		return nil, &ArgError{
-			Name: "min",
-			Err:  &ErrGreaterThen{Target: "max"},
-		}
+		return nil, newArgError("min", newGreaterError("max"))
 	}
 
 	if defValue > max {
-		return nil, &ArgError{
-			Name: "defValue",
-			Err:  &ErrGreaterThen{Target: "max"},
-		}
+		return nil, newArgError("defValue", newGreaterError("max"))
 	}
 
 	if defValue < min {
-		return nil, &ArgError{
-			Name: "defValue",
-			Err:  &ErrLowerThen{Target: "min"},
-		}
+		return nil, newArgError("defValue", newLowerError("min"))
 	}
 
 	return &FloatAttribute{
@@ -412,33 +367,9 @@ func (fa *FloatAttribute) Max() float64 {
 	return fa.max
 }
 
-// ToString always returns an error.
-func (fa *FloatAttribute) ToString() (*StringAttribute, error) {
-	return nil, fa.errorf(&ConversionError{
-		From: AttributeTypeFloat.String(),
-		To:   AttributeTypeString.String(),
-	})
-}
-
-// ToInteger always returns an error.
-func (fa *FloatAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, fa.errorf(&ConversionError{
-		From: AttributeTypeFloat.String(),
-		To:   AttributeTypeInteger.String(),
-	})
-}
-
 // ToFloat returns the [FloatAttribute] itself.
 func (fa *FloatAttribute) ToFloat() (*FloatAttribute, error) {
 	return fa, nil
-}
-
-// ToEnum always returns an error.
-func (fa *FloatAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, fa.errorf(&ConversionError{
-		From: AttributeTypeFloat.String(),
-		To:   AttributeTypeEnum.String(),
-	})
 }
 
 // ToAttribute returns the attribute itself.
@@ -456,10 +387,7 @@ type EnumAttribute struct {
 
 func newEnumAttributeFromBase(base *attribute, values ...string) (*EnumAttribute, error) {
 	if len(values) == 0 {
-		return nil, &ArgError{
-			Name: "values",
-			Err:  ErrIsNil,
-		}
+		return nil, newArgError("values", ErrIsNil)
 	}
 
 	valSet := collection.NewMap[string, int]()
@@ -549,30 +477,6 @@ func (ea *EnumAttribute) GetValueAtIndex(valueIndex int) (string, error) {
 	}
 
 	return ea.Values()[valueIndex], nil
-}
-
-// ToString always returns an error.
-func (ea *EnumAttribute) ToString() (*StringAttribute, error) {
-	return nil, ea.errorf(&ConversionError{
-		From: AttributeTypeEnum.String(),
-		To:   AttributeTypeString.String(),
-	})
-}
-
-// ToInteger always returns an error.
-func (ea *EnumAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, ea.errorf(&ConversionError{
-		From: AttributeTypeEnum.String(),
-		To:   AttributeTypeInteger.String(),
-	})
-}
-
-// ToFloat always returns an error.
-func (ea *EnumAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, ea.errorf(&ConversionError{
-		From: AttributeTypeEnum.String(),
-		To:   AttributeTypeFloat.String(),
-	})
 }
 
 // ToEnum returns the [EnumAttribute] itself.

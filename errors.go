@@ -70,23 +70,31 @@ func (e *ErrIsRequired) Error() string {
 	return fmt.Sprintf("%q is required", e.Item)
 }
 
-// ErrGreaterThen is returned when a value is greater than a target.
+// GreaterThenError is returned when a value is greater than a target.
 // The Target field is the target.
-type ErrGreaterThen struct {
+type GreaterThenError struct {
 	Target string
 }
 
-func (e *ErrGreaterThen) Error() string {
+func newGreaterError(target string) *GreaterThenError {
+	return &GreaterThenError{Target: target}
+}
+
+func (e *GreaterThenError) Error() string {
 	return fmt.Sprintf("is greater then %q", e.Target)
 }
 
-// ErrLowerThen is returned when a value is lower than a target.
+// LowerThenError is returned when a value is lower than a target.
 // The Target field is the target.
-type ErrLowerThen struct {
+type LowerThenError struct {
 	Target string
 }
 
-func (e *ErrLowerThen) Error() string {
+func newLowerError(target string) *LowerThenError {
+	return &LowerThenError{Target: target}
+}
+
+func (e *LowerThenError) Error() string {
 	return fmt.Sprintf("is lower then %q", e.Target)
 }
 
