@@ -138,7 +138,7 @@ type Signal interface {
 	setParentMsg(parentMsg *Message)
 
 	setparentMuxLayer(ml *MultiplexedLayer)
-	setLayout(layout *SL)
+	setLayout(layout *SignalLayout)
 
 	// StartPos returns the start postion of the signal.
 	StartPos() int
@@ -188,7 +188,7 @@ type signal struct {
 	parentMsg      *Message
 	parentMuxLayer *MultiplexedLayer
 
-	layout *SL
+	layout *SignalLayout
 
 	kind SignalKind
 
@@ -285,7 +285,7 @@ func (s *signal) setStartPos(startPos int) {
 	s.startPos = startPos
 }
 
-func (s *signal) setLayout(sl *SL) {
+func (s *signal) setLayout(sl *SignalLayout) {
 	s.layout = sl
 }
 

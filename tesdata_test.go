@@ -14,7 +14,7 @@ var dummySignal, _ = NewStandardSignal("dummy_signal", byteSigType)
 
 type testdataMessage[S any] struct {
 	message *Message
-	layout  *SL
+	layout  *SignalLayout
 	signals S
 }
 
@@ -51,6 +51,75 @@ func initBasicMessage(assert *assert.Assertions) *testdataBasicMessage {
 			basic2 Signal
 			basic3 Signal
 		}{sigBasic0, sigBasic1, sigBasic2, sigBasic3},
+	}
+}
+
+type testdataTypedMessage = testdataMessage[struct {
+	flag, intUnsigned, intSigned, decUnsigned, decSigned testdataTypedMessageSignal
+}]
+
+type testdataTypedMessageSignal struct {
+	signal *StandardSignal
+	typ    *SignalType
+}
+
+func initTypedMessage(assert *assert.Assertions) *testdataTypedMessage {
+	msg := NewMessage("typed_message", 2, 7)
+
+	unit := NewSignalUnit("voltage", SignalUnitKindElectrical, "V")
+
+	flagType := NewFlagSignalType("flag_type")
+	flagSig, err := NewStandardSignal("flag_signal", flagType)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(flagSig, 0))
+
+	intUnsignedType, err := NewIntegerSignalType("int_unsigned_type", 8, false)
+	assert.NoError(err)
+	intUnsignedSig, err := NewStandardSignal("int_unsigned_signal", intUnsignedType)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(intUnsignedSig, 8))
+
+	intSignedType, err := NewIntegerSignalType("int_signed_type", 8, true)
+	assert.NoError(err)
+	intSignedSig, err := NewStandardSignal("int_signed_signal", intSignedType)
+	assert.NoError(err)
+	assert.NoError(msg.InsertSignal(intSignedSig, 16))
+
+	decUnsignedType, err := NewDecimalSignalType("dec_unsigned_type", 16, false)
+	assert.NoError(err)
+	decUnsignedType.SetScale(0.5)
+	decUnsignedType.SetOffset(100.5)
+	decUnsignedSig, err := NewStandardSignal("dec_unsigned_signal", decUnsignedType)
+	assert.NoError(err)
+	decUnsignedSig.SetUnit(unit)
+	assert.NoError(msg.InsertSignal(decUnsignedSig, 24))
+
+	decSignedType, err := NewDecimalSignalType("dec_signed_type", 16, true)
+	assert.NoError(err)
+	decSignedType.SetScale(0.5)
+	decSignedType.SetOffset(100.5)
+	decSignedSig, err := NewStandardSignal("dec_signed_signal", decSignedType)
+	assert.NoError(err)
+	decSignedSig.SetUnit(unit)
+	assert.NoError(msg.InsertSignal(decSignedSig, 40))
+
+	return &testdataTypedMessage{
+		message: msg,
+		layout:  msg.SignalLayout(),
+
+		signals: struct {
+			flag        testdataTypedMessageSignal
+			intUnsigned testdataTypedMessageSignal
+			intSigned   testdataTypedMessageSignal
+			decUnsigned testdataTypedMessageSignal
+			decSigned   testdataTypedMessageSignal
+		}{
+			flag:        testdataTypedMessageSignal{flagSig, flagType},
+			intUnsigned: testdataTypedMessageSignal{intUnsignedSig, intUnsignedType},
+			intSigned:   testdataTypedMessageSignal{intSignedSig, intSignedType},
+			decUnsigned: testdataTypedMessageSignal{decUnsignedSig, decUnsignedType},
+			decSigned:   testdataTypedMessageSignal{decSignedSig, decSignedType},
+		},
 	}
 }
 
@@ -113,7 +182,7 @@ func initEnumMessage(assert *assert.Assertions) *testdataEnumMessage {
 
 type testdataSimpleMuxMessage struct {
 	message *Message
-	layout  *SL
+	layout  *SignalLayout
 
 	layer        *MultiplexedLayer
 	layerSignals struct {

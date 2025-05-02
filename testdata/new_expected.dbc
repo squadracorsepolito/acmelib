@@ -44,6 +44,13 @@ BO_ 1 basic_message : 8 node_0
  SG_ basic_signal_2 : 24|12@1+ (1,0) [0|4095] "" rec_node_0
  SG_ basic_signal_3 : 36|12@1+ (1,0) [0|4095] "" rec_node_0
  
+BO_ 2 typed_message : 7 node_0
+ SG_ flag_signal : 0|1@1+ (1,0) [0|1] "" rec_node_0
+ SG_ int_unsigned_signal : 8|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ int_signed_signal : 16|8@1- (1,0) [-128|127] "" rec_node_0
+ SG_ dec_unsigned_signal : 24|16@1+ (0.5,100.5) [100.5|32868.5] "V" rec_node_0
+ SG_ dec_signed_signal : 40|16@1- (0.5,100.5) [-16484.5|16484] "V" rec_node_0
+ 
 BO_ 4 enum_message : 4 node_0
  SG_ enum_signal_4_values : 0|2@1+ (1,0) [0|3] "" rec_node_0
  SG_ enum_signal_8_values : 8|3@1+ (1,0) [0|7] "" rec_node_0

@@ -8,8 +8,8 @@ import (
 	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
-// MultiplexedLayer represents a layer on top of a [SL] that has
-// a [MuxorSignal] and N inner [SL] where N is the layout count.
+// MultiplexedLayer represents a layer on top of a [SignalLayout] that has
+// a [MuxorSignal] and N inner [SignalLayout] where N is the layout count.
 type MultiplexedLayer struct {
 	sizeByte int
 
@@ -18,9 +18,9 @@ type MultiplexedLayer struct {
 	singalLayoutIDs *collection.Map[EntityID, []int]
 
 	muxor          *MuxorSignal
-	attachedLayout *SL
+	attachedLayout *SignalLayout
 
-	layouts []*SL
+	layouts []*SignalLayout
 }
 
 func newMultiplexedLayer(muxor *MuxorSignal, layoutCount, sizeByte int) *MultiplexedLayer {
@@ -33,7 +33,7 @@ func newMultiplexedLayer(muxor *MuxorSignal, layoutCount, sizeByte int) *Multipl
 
 		muxor: muxor,
 
-		layouts: make([]*SL, 0, layoutCount),
+		layouts: make([]*SignalLayout, 0, layoutCount),
 	}
 
 	ml.appendLayouts(layoutCount)
@@ -48,8 +48,8 @@ func (ml *MultiplexedLayer) getID() EntityID {
 	return ml.muxor.entityID
 }
 
-func (ml *MultiplexedLayer) iterLayouts() iter.Seq2[int, *SL] {
-	return func(yield func(int, *SL) bool) {
+func (ml *MultiplexedLayer) iterLayouts() iter.Seq2[int, *SignalLayout] {
+	return func(yield func(int, *SignalLayout) bool) {
 		for lID, sl := range ml.layouts {
 			if !yield(lID, sl) {
 				break
@@ -340,14 +340,14 @@ func (ml *MultiplexedLayer) Muxor() *MuxorSignal {
 	return ml.muxor
 }
 
-// Layouts returns the slice of all [SL] of the layer.
-func (ml *MultiplexedLayer) Layouts() []*SL {
+// Layouts returns the slice of all [SignalLayout] of the layer.
+func (ml *MultiplexedLayer) Layouts() []*SignalLayout {
 	return ml.layouts
 }
 
-// GetLayout returns the [SL] with the given layoud ID.
+// GetLayout returns the [SignalLayout] with the given layoud ID.
 // It returns nil if the layout ID is invalid.
-func (ml *MultiplexedLayer) GetLayout(layoutID int) *SL {
+func (ml *MultiplexedLayer) GetLayout(layoutID int) *SignalLayout {
 	if err := ml.verifyLayoutID(layoutID); err != nil {
 		return nil
 	}
@@ -371,12 +371,12 @@ func (ml *MultiplexedLayer) GetSignalByName(name string) (Signal, error) {
 	return sig, nil
 }
 
-func (ml *MultiplexedLayer) setAttachedLayout(layout *SL) {
+func (ml *MultiplexedLayer) setAttachedLayout(layout *SignalLayout) {
 	ml.attachedLayout = layout
 }
 
-// AttachedLayout returns the [SL] attached to the current layer (parent layout).
-func (ml *MultiplexedLayer) AttachedLayout() *SL {
+// AttachedLayout returns the [SignalLayout] attached to the current layer (parent layout).
+func (ml *MultiplexedLayer) AttachedLayout() *SignalLayout {
 	return ml.attachedLayout
 }
 

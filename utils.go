@@ -49,3 +49,11 @@ func isDecimal(val float64) bool {
 func clearSpaces(str string) string {
 	return strings.ReplaceAll(strings.TrimSpace(str), " ", "_")
 }
+
+// StartPosFromBigEndian converts the big endian start bit to a little endian start bit.
+// Since the library uses little endian for storing and validating signals, this conversion function
+// may be useful when you want to insert a signal into a [Message] or into a [MultiplexedLayer],
+// and you only have the big endian start bit.
+func StartPosFromBigEndian(bigEndianStartBit int) int {
+	return bigEndianStartBit + 7 - 2*(bigEndianStartBit%8)
+}

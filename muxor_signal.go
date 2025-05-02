@@ -8,7 +8,7 @@ var _ Signal = (*MuxorSignal)(nil)
 
 // MuxorSignal represents a multiplexor signal.
 // It cannot be directly created since it is created when
-// a [MultiplexedLayer] is added to a [SL].
+// a [MultiplexedLayer] is added to a [SignalLayout].
 type MuxorSignal struct {
 	*signal
 

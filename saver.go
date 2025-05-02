@@ -395,7 +395,7 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 	return pMsg
 }
 
-func (s *saver) saveSignalLayout(layout *SL) *acmelibv1.SignalPayload {
+func (s *saver) saveSignalLayout(layout *SignalLayout) *acmelibv1.SignalPayload {
 	pPayload := new(acmelibv1.SignalPayload)
 
 	for _, sig := range layout.Signals() {

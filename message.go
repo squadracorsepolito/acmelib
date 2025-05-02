@@ -72,7 +72,7 @@ type Message struct {
 	signals     *collection.Map[EntityID, Signal]
 	signalNames *collection.Map[string, EntityID]
 
-	layout *SL
+	layout *SignalLayout
 
 	sizeByte int
 
@@ -580,7 +580,7 @@ func (m *Message) HasStaticCANID() bool {
 }
 
 // SignalLayout returns the [SignalLayout] of the [Message].
-func (m *Message) SignalLayout() *SL {
+func (m *Message) SignalLayout() *SignalLayout {
 	return m.layout
 }
 

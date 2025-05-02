@@ -167,11 +167,19 @@ func (st *SignalType) Signed() bool {
 
 // UpdateSigned updates the signed flag of the [SignalType].
 func (st *SignalType) UpdateSigned(signed bool) {
+	if st.kind == SignalTypeKindFlag {
+		return
+	}
+
 	st.signed = signed
 }
 
 // SetMin sets the minimum value of the [SignalType].
 func (st *SignalType) SetMin(min float64) {
+	if st.kind == SignalTypeKindFlag {
+		return
+	}
+
 	st.min = min
 }
 
@@ -182,6 +190,10 @@ func (st *SignalType) Min() float64 {
 
 // SetMax sets the maximum value of the [SignalType].
 func (st *SignalType) SetMax(max float64) {
+	if st.kind == SignalTypeKindFlag {
+		return
+	}
+
 	st.max = max
 }
 
@@ -192,6 +204,10 @@ func (st *SignalType) Max() float64 {
 
 // SetScale sets the scale of the [SignalType].
 func (st *SignalType) SetScale(scale float64) {
+	if st.kind == SignalTypeKindFlag {
+		return
+	}
+
 	st.scale = scale
 }
 
@@ -202,6 +218,10 @@ func (st *SignalType) Scale() float64 {
 
 // SetOffset sets the offset of the [SignalType].
 func (st *SignalType) SetOffset(offset float64) {
+	if st.kind == SignalTypeKindFlag {
+		return
+	}
+
 	st.offset = offset
 }
 
