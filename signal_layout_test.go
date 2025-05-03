@@ -194,6 +194,7 @@ func Test_SignalLayout_Compact(t *testing.T) {
 func Test_SignalLayout_Decode(t *testing.T) {
 	assert := assert.New(t)
 
+	// Basic message
 	tdBasicMsg := initBasicMessage(assert)
 	layout := tdBasicMsg.layout
 
@@ -216,6 +217,7 @@ func Test_SignalLayout_Decode(t *testing.T) {
 		assert.Equal(expectedRaw[idx], dec.RawValue)
 	}
 
+	// Typed message
 	tdTypedMsg := initTypedMessage(assert)
 	layout = tdTypedMsg.layout
 
@@ -246,6 +248,28 @@ func Test_SignalLayout_Decode(t *testing.T) {
 		assert.Equal(expectedDec[idx].Unit, dec.Unit)
 	}
 
+	// Big endian message
+	tdBigEndianMsg := initBigEndianMessage(assert)
+	layout = tdBigEndianMsg.layout
+
+	data = []byte{
+		0b11000000,
+		0b00011100,
+		0b00000001,
+		0b11000000,
+		0b00011100,
+		0b00000001,
+		0b00000000,
+		0b00000000,
+	}
+
+	decodings = layout.Decode(data)
+	assert.Len(decodings, 4)
+	for idx, dec := range decodings {
+		assert.Equal(expectedRaw[idx], dec.RawValue)
+	}
+
+	// Enum message
 	tdEnumMsg := initEnumMessage(assert)
 	layout = tdEnumMsg.layout
 
@@ -270,6 +294,7 @@ func Test_SignalLayout_Decode(t *testing.T) {
 		assert.Equal(expectedDec[idx].Value, dec.Value)
 	}
 
+	// Multiplexed message
 	tdMuxMsg := initMuxMessage(assert)
 	layout = tdMuxMsg.layout
 

@@ -184,8 +184,8 @@ func Test_Message_UpdateSizeByte(t *testing.T) {
 	node := NewNode("node", 1, 1)
 
 	// add the message to the node
-	nodeInt, err := node.GetInterface(0)
-	assert.NoError(err)
+	nodeInt := node.GetInterface(0)
+	assert.NotNil(nodeInt)
 	assert.NoError(bus.AddNodeInterface(nodeInt))
 	assert.NoError(nodeInt.AddSentMessage(msg))
 

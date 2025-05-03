@@ -123,6 +123,46 @@ func initTypedMessage(assert *assert.Assertions) *testdataTypedMessage {
 	}
 }
 
+type testdataBigEndianMessage = testdataMessage[struct {
+	big0, big1, big2, big3 Signal
+}]
+
+func initBigEndianMessage(assert *assert.Assertions) *testdataBigEndianMessage {
+	msg := NewMessage("big_endian_message", 4, 7)
+
+	sigBig0, err := NewStandardSignal("big_endian_signal_0", sigType12)
+	assert.NoError(err)
+	sigBig0.SetEndianness(EndiannessBigEndian)
+	assert.NoError(msg.InsertSignal(sigBig0, StartPosFromBigEndian(7)))
+
+	sigBig1, err := NewStandardSignal("big_endian_signal_1", sigType12)
+	assert.NoError(err)
+	sigBig1.SetEndianness(EndiannessBigEndian)
+	assert.NoError(msg.InsertSignal(sigBig1, StartPosFromBigEndian(11)))
+
+	sigBig2, err := NewStandardSignal("big_endian_signal_2", sigType12)
+	assert.NoError(err)
+	sigBig2.SetEndianness(EndiannessBigEndian)
+	assert.NoError(msg.InsertSignal(sigBig2, StartPosFromBigEndian(31)))
+
+	sigBig3, err := NewStandardSignal("big_endian_signal_3", sigType12)
+	assert.NoError(err)
+	sigBig3.SetEndianness(EndiannessBigEndian)
+	assert.NoError(msg.InsertSignal(sigBig3, StartPosFromBigEndian(35)))
+
+	return &testdataBigEndianMessage{
+		message: msg,
+		layout:  msg.SignalLayout(),
+
+		signals: struct {
+			big0 Signal
+			big1 Signal
+			big2 Signal
+			big3 Signal
+		}{sigBig0, sigBig1, sigBig2, sigBig3},
+	}
+}
+
 type testdataEnumMessageSignal struct {
 	signal *EnumSignal
 	enum   *SignalEnum
@@ -133,7 +173,7 @@ type testdataEnumMessage = testdataMessage[struct {
 }]
 
 func initEnumMessage(assert *assert.Assertions) *testdataEnumMessage {
-	msg := NewMessage("enum_message", 4, 4)
+	msg := NewMessage("enum_message", 8, 4)
 
 	enum4 := NewSignalEnum("enum_with_4_values")
 	for i := range 4 {
@@ -341,6 +381,82 @@ func initMuxMessage(assert *assert.Assertions) *testdataMuxMessage {
 					signals: struct{ in0, in255 Signal }{bottomInnSig0, bottomInnSig255},
 				},
 			},
+		},
+	}
+}
+
+type testdataNetwork struct {
+	net             *Network
+	bus             *Bus
+	node0, recNode0 *Node
+
+	messages struct {
+		basic     *testdataBasicMessage
+		typed     *testdataTypedMessage
+		bigEndian *testdataBigEndianMessage
+		enum      *testdataEnumMessage
+		mux       *testdataMuxMessage
+		simpleMux *testdataSimpleMuxMessage
+	}
+}
+
+func initNetwork(assert *assert.Assertions) *testdataNetwork {
+	net := NewNetwork("network")
+
+	bus := NewBus("bus")
+	assert.NoError(net.AddBus(bus))
+
+	node0 := NewNode("node_0", 0, 1)
+	node0Int := node0.GetInterface(0)
+	assert.NoError(bus.AddNodeInterface(node0Int))
+
+	recNode0 := NewNode("rec_node_0", 0, 1)
+	recNode0Int := recNode0.GetInterface(0)
+	assert.NoError(bus.AddNodeInterface(recNode0Int))
+
+	basicMsg := initBasicMessage(assert)
+	assert.NoError(node0Int.AddSentMessage(basicMsg.message))
+	assert.NoError(basicMsg.message.AddReceiver(recNode0Int))
+
+	typedMsg := initTypedMessage(assert)
+	assert.NoError(node0Int.AddSentMessage(typedMsg.message))
+	assert.NoError(typedMsg.message.AddReceiver(recNode0Int))
+
+	bigEndianMsg := initBigEndianMessage(assert)
+	assert.NoError(node0Int.AddSentMessage(bigEndianMsg.message))
+	assert.NoError(bigEndianMsg.message.AddReceiver(recNode0Int))
+
+	enumMsg := initEnumMessage(assert)
+	assert.NoError(node0Int.AddSentMessage(enumMsg.message))
+	assert.NoError(enumMsg.message.AddReceiver(recNode0Int))
+
+	muxMsg := initMuxMessage(assert)
+	assert.NoError(node0Int.AddSentMessage(muxMsg.message))
+	assert.NoError(muxMsg.message.AddReceiver(recNode0Int))
+
+	simpleMuxMsg := initSimpleMuxMessage(assert)
+	assert.NoError(node0Int.AddSentMessage(simpleMuxMsg.message))
+	assert.NoError(simpleMuxMsg.message.AddReceiver(recNode0Int))
+
+	return &testdataNetwork{
+		net:      net,
+		bus:      bus,
+		node0:    node0,
+		recNode0: recNode0,
+		messages: struct {
+			basic     *testdataBasicMessage
+			typed     *testdataTypedMessage
+			bigEndian *testdataBigEndianMessage
+			enum      *testdataEnumMessage
+			mux       *testdataMuxMessage
+			simpleMux *testdataSimpleMuxMessage
+		}{
+			basic:     basicMsg,
+			typed:     typedMsg,
+			bigEndian: bigEndianMsg,
+			enum:      enumMsg,
+			mux:       muxMsg,
+			simpleMux: simpleMuxMsg,
 		},
 	}
 }

@@ -71,7 +71,7 @@ func Test_SignalEnumValue_UpdateIndex(t *testing.T) {
 	tdEnumMsg := initEnumMessage(assert)
 
 	enum4 := tdEnumMsg.signals.with4Values.enum
-	val0 := enum4.GetValue0(0)
+	val0 := enum4.GetValue(0)
 	assert.NoError(val0.UpdateIndex(255))
 	assert.Equal(255, val0.Index())
 	assert.Equal(255, enum4.MaxIndex())

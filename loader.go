@@ -214,9 +214,9 @@ func (l *loader) loadNodeInterface(pNodeInt *acmelibv1.NodeInterface) (*NodeInte
 		}
 	}
 
-	nodeInt, err := node.GetInterface(int(pNodeInt.Number))
-	if err != nil {
-		return nil, err
+	nodeInt := node.GetInterface(int(pNodeInt.Number))
+	if nodeInt == nil {
+		return nil, ErrNotFound
 	}
 
 	for _, pMsg := range pNodeInt.Messages {
@@ -320,9 +320,9 @@ func (l *loader) loadMessage(pMsg *acmelibv1.Message) (*Message, error) {
 			}
 		}
 
-		recNodeInt, err := recNode.GetInterface(int(pRec.NodeInterfaceNumber))
-		if err != nil {
-			return nil, err
+		recNodeInt := recNode.GetInterface(int(pRec.NodeInterfaceNumber))
+		if recNodeInt == nil {
+			return nil, ErrNotFound
 		}
 
 		msg.AddReceiver(recNodeInt)

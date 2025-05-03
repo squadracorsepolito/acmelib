@@ -211,24 +211,17 @@ func (n *Node) Interfaces() []*NodeInterface {
 }
 
 // GetInterface returns the [NodeInterface] with the given interface number.
-//
-// It returns an [ArgError] if the interface number is negative or out of bounds.
-func (n *Node) GetInterface(interfaceNumber int) (*NodeInterface, error) {
+// It retruns nil if the interface is not found.
+func (n *Node) GetInterface(interfaceNumber int) *NodeInterface {
 	if interfaceNumber < 0 {
-		return nil, &ArgError{
-			Name: "interfaceNumber",
-			Err:  ErrIsNegative,
-		}
+		return nil
 	}
 
 	if interfaceNumber >= n.interfaceCount {
-		return nil, &ArgError{
-			Name: "interfaceNumber",
-			Err:  ErrOutOfBounds,
-		}
+		return nil
 	}
 
-	return n.interfaces[interfaceNumber], nil
+	return n.interfaces[interfaceNumber]
 }
 
 // ID returns the id of the [Node].

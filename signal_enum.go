@@ -339,9 +339,14 @@ func (se *SignalEnum) DeleteValue(index int) {
 	se.genMaxIndex()
 }
 
-// GetValue0 returns the [SignalEnumValue] with the given index.
+// Values returns all values of the enum.
+func (se *SignalEnum) Values() []*SignalEnumValue {
+	return se.values
+}
+
+// GetValue returns the [SignalEnumValue] with the given index.
 // It returns nil if there is no value with the given index.
-func (se *SignalEnum) GetValue0(index int) *SignalEnumValue {
+func (se *SignalEnum) GetValue(index int) *SignalEnumValue {
 	if !se.valueIndexes.Has(index) {
 		return nil
 	}

@@ -60,13 +60,17 @@ func (e *ErrMissingOneofField) Error() string {
 	return fmt.Sprintf("oneof field %q is missing", e.OneofField)
 }
 
-// ErrIsRequired is returned when something is required.
+// IsRequiredError is returned when something is required.
 // The Thing field is what is required.
-type ErrIsRequired struct {
+type IsRequiredError struct {
 	Item string
 }
 
-func (e *ErrIsRequired) Error() string {
+func newIsRequiredError(item string) *IsRequiredError {
+	return &IsRequiredError{Item: item}
+}
+
+func (e *IsRequiredError) Error() string {
 	return fmt.Sprintf("%q is required", e.Item)
 }
 
