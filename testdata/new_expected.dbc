@@ -85,9 +85,9 @@ BO_ 32 simple_mux_message : 4 node_0
  SG_ signal_in_1 m1 : 8|8@1+ (1,0) [0|255] "" rec_node_0
  SG_ signal_in_2 m2 : 16|8@1+ (1,0) [0|255] "" rec_node_0
 
-VAL_ 4 enum_signal_4_values 0 "enum_value_0" 1 "enum_value_1" 2 "enum_value_2" 3 "enum_value_3";
-VAL_ 4 enum_signal_8_values 0 "enum_value_0" 1 "enum_value_1" 2 "enum_value_2" 3 "enum_value_3" 4 "enum_value_4" 5 "enum_value_5" 6 "enum_value_6" 7 "enum_value_7";
-VAL_ 4 enum_signal_fixed_size 0 "enum_value_0" 127 "enum_value_127";
+VAL_ 8 enum_signal_4_values 0 "enum_value_0" 1 "enum_value_1" 2 "enum_value_2" 3 "enum_value_3";
+VAL_ 8 enum_signal_8_values 0 "enum_value_0" 1 "enum_value_1" 2 "enum_value_2" 3 "enum_value_3" 4 "enum_value_4" 5 "enum_value_5" 6 "enum_value_6" 7 "enum_value_7";
+VAL_ 8 enum_signal_fixed_size 0 "enum_value_0" 127 "enum_value_127";
 
 SG_MUL_VAL_ 16 top_signal_in_0 top_muxor 0-0;
 SG_MUL_VAL_ 16 top_signal_in_255 top_muxor 255-255;

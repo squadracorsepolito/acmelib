@@ -216,16 +216,9 @@ func (m *Message) stringify(s *stringer.Stringer) {
 		s.Unindent()
 	}
 
-	if m.signals.Size() == 0 {
-		return
-	}
-
-	s.Write("signals:\n")
+	s.Write("layout:\n")
 	s.Indent()
-	for _, sig := range m.Signals() {
-		sig.stringify(s)
-		s.Write("\n")
-	}
+	m.layout.stringify(s)
 	s.Unindent()
 
 	m.withAttributes.stringify(s)

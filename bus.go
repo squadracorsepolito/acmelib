@@ -140,8 +140,13 @@ func (b *Bus) stringify(s *stringer.Stringer) {
 
 	b.canIDBuilder.stringify(s)
 
-	if b.nodeInts.Size() == 0 {
-		return
+	if b.nodeInts.Size() > 0 {
+		s.Write("node_interfaces:\n")
+		s.Indent()
+		for nodeInt := range b.nodeInts.Values() {
+			nodeInt.stringify(s)
+		}
+		s.Unindent()
 	}
 
 	b.withAttributes.stringify(s)

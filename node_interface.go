@@ -71,7 +71,7 @@ func (ni *NodeInterface) stringify(s *stringer.Stringer) {
 		s.Write("received_messages:\n")
 		s.Indent()
 		for _, msg := range ni.ReceivedMessages() {
-			msg.stringify(s)
+			s.Write("entity_id: %s; name: %s\n", msg.EntityID(), msg.Name())
 		}
 		s.Unindent()
 	}

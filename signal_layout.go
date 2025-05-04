@@ -42,6 +42,15 @@ func (sl *SignalLayout) stringify(s *stringer.Stringer) {
 	sl.ibst.Stringify(s)
 	s.Unindent()
 
+	if sl.ibst.Size() > 0 {
+		s.Write("signals:\n")
+		s.Indent()
+		for sig := range sl.ibst.InOrder() {
+			sig.stringify(s)
+		}
+		s.Unindent()
+	}
+
 	if len(sl.filters) > 0 {
 		s.Write("filters:\n")
 		s.Indent()
