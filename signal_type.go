@@ -100,20 +100,7 @@ func NewFlagSignalType(name string) *SignalType {
 // with the given name, size, and signed.
 // It may return an error if the size is negative.
 func NewIntegerSignalType(name string, size int, signed bool) (*SignalType, error) {
-	var min float64
-	var max float64
-
-	if signed {
-		tmpMax := (1<<size - 1) - 1
-		tmpMin := -(1<<size - 1)
-		min = float64(tmpMin)
-		max = float64(tmpMax)
-	} else {
-		tmp := (1 << size) - 1
-		min = 0
-		max = float64(tmp)
-	}
-
+	min, max := getMinMaxFromSize(size, signed)
 	return newSignalType(name, SignalTypeKindInteger, size, signed, min, max, 1, 0)
 }
 
@@ -121,8 +108,7 @@ func NewIntegerSignalType(name string, size int, signed bool) (*SignalType, erro
 // with the given name, size and signed.
 // It may return an error if the size is negative.
 func NewDecimalSignalType(name string, size int, signed bool) (*SignalType, error) {
-	min := (1<<size - 1) - 1
-	max := -(1<<size - 1)
+	min, max := getMinMaxFromSize(size, signed)
 	return newSignalType(name, SignalTypeKindDecimal, size, signed, float64(min), float64(max), 1, 0)
 }
 
@@ -143,6 +129,19 @@ func (st *SignalType) String() string {
 	s.Write("signal_type:\n")
 	st.stringify(s)
 	return s.String()
+}
+
+func (st *SignalType) genMinMax() {
+	min, max := getMinMaxFromSize(st.size, st.signed)
+
+	min *= st.scale
+	max *= st.scale
+
+	min += st.offset
+	max += st.offset
+
+	st.min = min
+	st.max = max
 }
 
 // SetName sets the [SignalType] name to the given one.
@@ -209,6 +208,8 @@ func (st *SignalType) SetScale(scale float64) {
 	}
 
 	st.scale = scale
+
+	st.genMinMax()
 }
 
 // Scale returns the scale of the [SignalType].
@@ -223,6 +224,8 @@ func (st *SignalType) SetOffset(offset float64) {
 	}
 
 	st.offset = offset
+
+	st.genMinMax()
 }
 
 // Offset returns the offset of the [SignalType].

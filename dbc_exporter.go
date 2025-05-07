@@ -4,15 +4,17 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"sync"
 
 	"github.com/squadracorsepolito/acmelib/dbc"
+	"github.com/squadracorsepolito/acmelib/internal/collection"
 )
 
-// ExportNetwork exports the given [Network] to DBC.
+// ExportDBCNetwork exports the given [Network] to DBC.
 // It will create a directory with the given base path and network name.
 // Into the directory, it will create a DBC file for each [Bus] of the network.
-func ExportNetwork(network *Network, basePath string) error {
+func ExportDBCNetwork(network *Network, basePath string) error {
 	netName := clearSpaces(network.name)
 	dirPath := netName
 	if len(basePath) > 0 {
@@ -45,21 +47,19 @@ func ExportNetwork(network *Network, basePath string) error {
 
 func exportBusAsync(w io.Writer, bus *Bus, wg *sync.WaitGroup) {
 	defer wg.Done()
-	ExportBus(w, bus)
+	ExportDBCBus(w, bus)
 }
 
-// ExportBus exports the given [Bus] to DBC.
+// ExportDBCBus exports the given [Bus] to DBC.
 // It writes the content of the result DBC file into the [io.Writer].
-func ExportBus(w io.Writer, bus *Bus) {
-	exp := newExporter()
+func ExportDBCBus(w io.Writer, bus *Bus) {
+	exp := newDBCExporter()
 	dbcFile := exp.exportBus(bus)
 	dbc.Write(w, dbcFile, false)
 }
 
-type exporter struct {
+type dbcExporter struct {
 	dbcFile *dbc.File
-
-	currDBCMsg *dbc.Message
 
 	attNames     map[string]bool
 	nodeAttNames map[string]bool
@@ -69,11 +69,9 @@ type exporter struct {
 	sigEnums map[EntityID]*SignalEnum
 }
 
-func newExporter() *exporter {
-	return &exporter{
+func newDBCExporter() *dbcExporter {
+	return &dbcExporter{
 		dbcFile: new(dbc.File),
-
-		currDBCMsg: nil,
 
 		attNames:     make(map[string]bool),
 		nodeAttNames: make(map[string]bool),
@@ -84,11 +82,11 @@ func newExporter() *exporter {
 	}
 }
 
-func (e *exporter) addDBCComment(comment *dbc.Comment) {
+func (e *dbcExporter) addDBCComment(comment *dbc.Comment) {
 	e.dbcFile.Comments = append(e.dbcFile.Comments, comment)
 }
 
-func (e *exporter) exportAttributeAssignment(attAss *AttributeAssignment, dbcAttKind dbc.AttributeKind, dbcAttVal *dbc.AttributeValue) {
+func (e *dbcExporter) exportAttributeAssignment(attAss *AttributeAssignment, dbcAttKind dbc.AttributeKind, dbcAttVal *dbc.AttributeValue) {
 	att := attAss.attribute
 	attName := clearSpaces(att.Name())
 
@@ -176,7 +174,7 @@ func (e *exporter) exportAttributeAssignment(attAss *AttributeAssignment, dbcAtt
 	}
 }
 
-func (e *exporter) exportAttribute(att Attribute, dbcAtt *dbc.Attribute) {
+func (e *dbcExporter) exportAttribute(att Attribute, dbcAtt *dbc.Attribute) {
 	attName := clearSpaces(att.Name())
 	dbcAtt.Name = attName
 
@@ -244,7 +242,7 @@ func (e *exporter) exportAttribute(att Attribute, dbcAtt *dbc.Attribute) {
 	e.dbcFile.AttributeDefaults = append(e.dbcFile.AttributeDefaults, dbcAttDef)
 }
 
-func (e *exporter) exportBus(bus *Bus) *dbc.File {
+func (e *dbcExporter) exportBus(bus *Bus) *dbc.File {
 	if bus.desc != "" {
 		e.addDBCComment(&dbc.Comment{
 			Kind: dbc.CommentGeneral,
@@ -267,7 +265,7 @@ func (e *exporter) exportBus(bus *Bus) *dbc.File {
 	return e.dbcFile
 }
 
-func (e *exporter) exportNodeInterfaces(nodeInts []*NodeInterface) {
+func (e *dbcExporter) exportNodeInterfaces(nodeInts []*NodeInterface) {
 	dbcNodes := new(dbc.Nodes)
 
 	for _, nodeInt := range nodeInts {
@@ -298,10 +296,13 @@ func (e *exporter) exportNodeInterfaces(nodeInts []*NodeInterface) {
 	e.dbcFile.Nodes = dbcNodes
 }
 
-func (e *exporter) exportMessage(msg *Message) {
+func (e *dbcExporter) exportMessage(msg *Message) {
 	dbcMsg := new(dbc.Message)
 
 	msgID := uint32(msg.GetCANID())
+	dbcMsg.ID = msgID
+
+	// Handle message description
 	if msg.desc != "" {
 		e.addDBCComment(&dbc.Comment{
 			Kind:      dbc.CommentMessage,
@@ -310,8 +311,7 @@ func (e *exporter) exportMessage(msg *Message) {
 		})
 	}
 
-	dbcMsg.ID = msgID
-
+	// Handle message attributes
 	attAssignments := msg.AttributeAssignments()
 	if msg.cycleTime != 0 {
 		attAssignments = append(attAssignments, newAttributeAssignment(msgCycleTimeAtt, msg, msg.cycleTime))
@@ -336,28 +336,46 @@ func (e *exporter) exportMessage(msg *Message) {
 	dbcMsg.Size = uint32(msg.sizeByte)
 	dbcMsg.Transmitter = msg.senderNodeInt.node.name
 
-	e.currDBCMsg = dbcMsg
-
-	for _, sig := range msg.Signals() {
-		e.exportSignal(sig, msgID)
+	// Get the receivers
+	receivers := msg.Receivers()
+	dbcReceivers := make([]string, 0, len(receivers))
+	if len(receivers) == 0 {
+		dbcReceivers = append(dbcReceivers, dbc.DummyNode)
 	}
+	for _, rec := range receivers {
+		dbcReceivers = append(dbcReceivers, clearSpaces(rec.node.name))
+	}
+
+	// Handle the message signals
+	e.exportSignalLayout(msg.layout, dbcMsg, dbcReceivers, e.getExtMuxNeeded(msg.layout))
 
 	e.dbcFile.Messages = append(e.dbcFile.Messages, dbcMsg)
 }
 
-func (e *exporter) exportSignal(sig Signal, dbcMsgID uint32) {
-	parMsg := sig.ParentMessage()
-	sigName := clearSpaces(sig.Name())
+func (e *dbcExporter) getSignalStartBit(sig Signal) (uint32, dbc.SignalByteOrder) {
+	startPos := sig.StartPos()
 
+	if sig.Endianness() == EndiannessLittleEndian {
+		return uint32(startPos), dbc.SignalLittleEndian
+	}
+
+	return uint32(StartPosFromBigEndian(startPos)), dbc.SignalBigEndian
+}
+
+// exportSignal fills in the given dbc.Signal with common information
+// and adds it to the given dbc.Message.
+func (e *dbcExporter) exportSignal(sig Signal, dbcSig *dbc.Signal, dbcMsg *dbc.Message) {
+	// Handle signal description
 	if sig.Desc() != "" {
 		e.addDBCComment(&dbc.Comment{
 			Kind:       dbc.CommentSignal,
 			Text:       sig.Desc(),
-			MessageID:  dbcMsgID,
-			SignalName: sigName,
+			MessageID:  dbcMsg.ID,
+			SignalName: dbcSig.Name,
 		})
 	}
 
+	// Handle signal attributes
 	attAssignments := sig.AttributeAssignments()
 	if sig.StartValue() != 0 {
 		attAssignments = append(attAssignments, newAttributeAssignment(sigStartValueAtt, sig, sig.StartValue()))
@@ -367,28 +385,17 @@ func (e *exporter) exportSignal(sig Signal, dbcMsgID uint32) {
 	}
 	for _, attAss := range attAssignments {
 		dbcAttVal := new(dbc.AttributeValue)
-		dbcAttVal.MessageID = dbcMsgID
-		dbcAttVal.SignalName = sigName
+		dbcAttVal.MessageID = dbcMsg.ID
+		dbcAttVal.SignalName = dbcSig.Name
 		e.exportAttributeAssignment(attAss, dbc.AttributeSignal, dbcAttVal)
 		e.dbcFile.AttributeValues = append(e.dbcFile.AttributeValues, dbcAttVal)
 	}
 
-	dbcSig := new(dbc.Signal)
-	dbcSig.Name = sigName
+	startBit, byteOrder := e.getSignalStartBit(sig)
+	dbcSig.StartBit = startBit
+	dbcSig.ByteOrder = byteOrder
 
-	if len(parMsg.Receivers()) == 0 {
-		dbcSig.Receivers = []string{dbc.DummyNode}
-	} else {
-		receiverNames := []string{}
-		for _, rec := range parMsg.Receivers() {
-			receiverNames = append(receiverNames, clearSpaces(rec.node.name))
-		}
-		dbcSig.Receivers = receiverNames
-	}
-
-	// if sig.ParentMultiplexerSignal() != nil {
-	// 	dbcSig.IsMultiplexed = true
-	// }
+	dbcSig.Size = uint32(sig.Size())
 
 	switch sig.Kind() {
 	case SignalKindStandard:
@@ -397,84 +404,72 @@ func (e *exporter) exportSignal(sig Signal, dbcMsgID uint32) {
 			panic(err)
 		}
 		e.exportStandardSignal(stdSig, dbcSig)
-		e.currDBCMsg.Signals = append(e.currDBCMsg.Signals, dbcSig)
 
 	case SignalKindEnum:
 		enumSig, err := sig.ToEnum()
 		if err != nil {
 			panic(err)
 		}
-		e.exportEnumSignal(enumSig, dbcMsgID, dbcSig)
-		e.currDBCMsg.Signals = append(e.currDBCMsg.Signals, dbcSig)
+		e.exportEnumSignal(enumSig, dbcMsg.ID, dbcSig)
 
-		// case SignalKindMultiplexer:
-		// 	muxSig, err := sig.ToMultiplexer()
-		// 	if err != nil {
-		// 		panic(err)
-		// 	}
-		// 	e.exportMultiplexerSignal(muxSig, dbcMsgID, dbcSig)
+	case SignalKindMuxor:
+		muxorSig, err := sig.ToMuxor()
+		if err != nil {
+			panic(err)
+		}
+		e.exportMuxorSignal(muxorSig, dbcSig)
+	}
+
+	dbcMsg.Signals = append(dbcMsg.Signals, dbcSig)
+}
+
+func (e *dbcExporter) exportStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Signal) {
+	if stdSig.typ.signed {
+		dbcSig.ValueType = dbc.SignalSigned
+	} else {
+		dbcSig.ValueType = dbc.SignalUnsigned
+	}
+
+	dbcSig.Min = stdSig.typ.min
+	dbcSig.Max = stdSig.typ.max
+	dbcSig.Offset = stdSig.typ.offset
+	dbcSig.Factor = stdSig.typ.scale
+
+	unit := stdSig.unit
+	if unit != nil {
+		dbcSig.Unit = unit.symbol
 	}
 }
 
-func (e *exporter) getStartBit(startBit int, byteOrder Endianness) (uint32, dbc.SignalByteOrder) {
-	if byteOrder == EndiannessLittleEndian {
-		return uint32(startBit), dbc.SignalLittleEndian
+func (e *dbcExporter) exportEnumSignal(enumSig *EnumSignal, dbcMsgID uint32, dbcSig *dbc.Signal) {
+	dbcSig.ValueType = dbc.SignalUnsigned
+
+	enum := enumSig.enum
+
+	dbcSig.Min = 0
+	dbcSig.Max = float64(enum.maxIndex)
+	dbcSig.Offset = 0
+	dbcSig.Factor = 1
+
+	dbcValEnc := new(dbc.ValueEncoding)
+	dbcValEnc.Kind = dbc.ValueEncodingSignal
+	dbcValEnc.MessageID = dbcMsgID
+	dbcValEnc.SignalName = clearSpaces(enumSig.Name())
+
+	values := enum.values
+
+	// Set min value if first value is not 0
+	if len(values) > 0 && values[0].index != 0 {
+		dbcSig.Min = float64(values[0].index)
 	}
 
-	tmpStartBit := startBit + 7 - 2*(startBit%8)
-	return uint32(tmpStartBit), dbc.SignalBigEndian
+	dbcValEnc.Values = e.getDBCValueDescription(values)
+
+	e.dbcFile.ValueEncodings = append(e.dbcFile.ValueEncodings, dbcValEnc)
+	e.sigEnums[enum.entityID] = enumSig.enum
 }
 
-func (e *exporter) exportStandardSignal(stdSig *StandardSignal, dbcSig *dbc.Signal) {
-	dbcSig.Size = uint32(stdSig.Size())
-
-	// startBit, byteOrder := e.getStartBit(stdSig.GetStartBit(), stdSig.parentMsg.byteOrder)
-	// dbcSig.StartBit = startBit
-	// dbcSig.ByteOrder = byteOrder
-
-	// if stdSig.typ.signed {
-	// 	dbcSig.ValueType = dbc.SignalSigned
-	// } else {
-	// 	dbcSig.ValueType = dbc.SignalUnsigned
-	// }
-
-	// dbcSig.Min = stdSig.typ.min
-	// dbcSig.Max = stdSig.typ.max
-	// dbcSig.Offset = stdSig.typ.offset
-	// dbcSig.Factor = stdSig.typ.scale
-
-	// unit := stdSig.unit
-	// if unit != nil {
-	// 	dbcSig.Unit = unit.symbol
-	// }
-}
-
-func (e *exporter) exportEnumSignal(enumSig *EnumSignal, dbcMsgID uint32, dbcSig *dbc.Signal) {
-	dbcSig.Size = uint32(enumSig.Size())
-
-	// startBit, byteOrder := e.getStartBit(enumSig.GetStartBit(), enumSig.parentMsg.byteOrder)
-	// dbcSig.StartBit = startBit
-	// dbcSig.ByteOrder = byteOrder
-
-	// dbcSig.ValueType = dbc.SignalUnsigned
-
-	// dbcSig.Min = 0
-	// dbcSig.Max = float64(enumSig.enum.maxIndex)
-	// dbcSig.Offset = 0
-	// dbcSig.Factor = 1
-
-	// dbcValEnc := new(dbc.ValueEncoding)
-	// dbcValEnc.Kind = dbc.ValueEncodingSignal
-	// dbcValEnc.MessageID = dbcMsgID
-	// dbcValEnc.SignalName = clearSpaces(enumSig.Name())
-
-	// // dbcValEnc.Values = e.getDBCValueDescription(enumSig.enum.Values())
-
-	// e.dbcFile.ValueEncodings = append(e.dbcFile.ValueEncodings, dbcValEnc)
-	// e.sigEnums[enumSig.enum.entityID] = enumSig.enum
-}
-
-func (e *exporter) getDBCValueDescription(enumValues []*SignalEnumValue) []*dbc.ValueDescription {
+func (e *dbcExporter) getDBCValueDescription(enumValues []*SignalEnumValue) []*dbc.ValueDescription {
 	dbcValDesc := make([]*dbc.ValueDescription, len(enumValues))
 	for idx, val := range enumValues {
 		dbcValDesc[idx] = &dbc.ValueDescription{
@@ -485,99 +480,130 @@ func (e *exporter) getDBCValueDescription(enumValues []*SignalEnumValue) []*dbc.
 	return dbcValDesc
 }
 
-func (e *exporter) exportSignalEnum(enum *SignalEnum) {
+func (e *dbcExporter) exportSignalEnum(enum *SignalEnum) {
 	e.dbcFile.ValueTables = append(e.dbcFile.ValueTables, &dbc.ValueTable{
-		Name: enum.name,
-		// Values: e.getDBCValueDescription(enum.Values()),
+		Name:   enum.name,
+		Values: e.getDBCValueDescription(enum.Values()),
 	})
 }
 
-// func (e *exporter) exportMultiplexerSignal(muxSig *MultiplexerSignal, dbcMsgID uint32, dbcSig *dbc.Signal) {
-// 	dbcSig.Size = uint32(muxSig.GetGroupCountSize())
+func (e *dbcExporter) exportMuxorSignal(muxorSig *MuxorSignal, dbcSig *dbc.Signal) {
+	dbcSig.IsMultiplexor = true
+	dbcSig.Min = 0
+	dbcSig.Max = float64(muxorSig.layoutCount - 1)
+	dbcSig.Factor = 1
+	dbcSig.Offset = 0
+}
 
-// 	startBit, byteOrder := e.getStartBit(muxSig.GetStartBit(), muxSig.parentMsg.byteOrder)
-// 	dbcSig.StartBit = startBit
-// 	dbcSig.ByteOrder = byteOrder
+// exportSignalLayout exports a signal layout.
+// It creates a dbc.Signal for each signal in the layout,
+// but it does not add it to the given dbc.Message since that is done by the exportSignal method.
+func (e *dbcExporter) exportSignalLayout(layout *SignalLayout, dbcMsg *dbc.Message, dbcReceivers []string, extMuxNeeded bool) {
+	for sig := range layout.ibst.InOrder() {
+		sigName := clearSpaces(sig.Name())
 
-// 	dbcSig.IsMultiplexor = true
+		// Check if the signal has already been processed
+		if slices.ContainsFunc(dbcMsg.Signals, func(s *dbc.Signal) bool { return s.Name == sigName }) {
+			continue
+		}
 
-// 	dbcSig.ValueType = dbc.SignalUnsigned
+		dbcSig := new(dbc.Signal)
+		dbcSig.Name = sigName
+		dbcSig.Receivers = dbcReceivers
+		e.exportSignal(sig, dbcSig, dbcMsg)
 
-// 	dbcSig.Min = 0
-// 	dbcSig.Max = float64(muxSig.groupCount - 1)
-// 	dbcSig.Offset = 0
-// 	dbcSig.Factor = 1
+		if !layout.fromMultiplexedLayer() {
+			continue
+		}
 
-// 	e.currDBCMsg.Signals = append(e.currDBCMsg.Signals, dbcSig)
+		// The signal is multiplexed
+		dbcSig.IsMultiplexed = true
+		parentMuxorName := layout.parentMuxLayer.muxor.name
 
-// 	isExtended := false
-// 	nestedMux := dbcSig.IsMultiplexed
+		// Check if the signal is a muxor. If so, extended multiplexing is needed
+		if sig.Kind() == SignalKindMuxor {
+			layoutID := layout.id
+			dbcSig.MuxSwitchValue = uint32(layoutID)
+			e.exportExtendedMux(sigName, parentMuxorName, []int{layoutID}, dbcMsg.ID)
+			continue
+		}
 
-// 	sigNames := []string{}
-// 	sigGroupIDs := make(map[string][]int)
-// 	for id, group := range muxSig.GetSignalGroups() {
-// 		for _, tmpSig := range group {
-// 			tmpSigName := clearSpaces(tmpSig.Name())
-// 			groupIDs, ok := sigGroupIDs[tmpSigName]
-// 			if !ok {
-// 				sigGroupIDs[tmpSigName] = []int{id}
-// 			}
+		// The signal is not a muxor
+		layoutIDs, ok := layout.parentMuxLayer.singalLayoutIDs.Get(sig.EntityID())
+		if !ok || len(layoutIDs) == 0 {
+			continue
+		}
 
-// 			if tmpSig.Kind() == SignalKindMultiplexer {
-// 				nestedMux = true
-// 			}
+		dbcSig.MuxSwitchValue = uint32(layoutIDs[0])
 
-// 			if len(groupIDs) == 0 {
-// 				sigNames = append(sigNames, tmpSigName)
-// 				e.exportSignal(tmpSig, dbcMsgID)
-// 				e.currDBCMsg.Signals[len(e.currDBCMsg.Signals)-1].MuxSwitchValue = uint32(id)
-// 				continue
-// 			}
+		// Add extended multiplexing if needed
+		if len(layoutIDs) > 1 || extMuxNeeded {
+			e.exportExtendedMux(sigName, parentMuxorName, layoutIDs, dbcMsg.ID)
+		}
+	}
 
-// 			sigGroupIDs[tmpSigName] = append(sigGroupIDs[tmpSigName], id)
-// 			isExtended = true
-// 		}
-// 	}
+	for muxLayer := range layout.muxLayers.Values() {
+		for _, muxLayout := range muxLayer.iterLayouts() {
+			e.exportSignalLayout(muxLayout, dbcMsg, dbcReceivers, extMuxNeeded)
+		}
+	}
+}
 
-// 	if !isExtended && !nestedMux {
-// 		return
-// 	}
+// getExtMuxNeeded states whether extended multiplexing is needed.
+// It is needed if a message has more than one muxor signal.
+func (e *dbcExporter) getExtMuxNeeded(layout *SignalLayout) bool {
+	count := 0
 
-// 	for _, tmpSigName := range sigNames {
-// 		groupIDs := sigGroupIDs[tmpSigName]
+	s := collection.NewStack[*SignalLayout]()
+	s.Push(layout)
 
-// 		if !nestedMux && len(groupIDs) == 1 {
-// 			continue
-// 		}
+	for !s.IsEmpty() {
+		currLayout := s.Pop()
+		count += currLayout.muxLayers.Size()
 
-// 		dbcExtMux := new(dbc.ExtendedMux)
-// 		dbcExtMux.MessageID = dbcMsgID
-// 		dbcExtMux.MultiplexorName = clearSpaces(muxSig.name)
-// 		dbcExtMux.MultiplexedName = tmpSigName
+		if count > 1 {
+			return true
+		}
 
-// 		from := groupIDs[0]
-// 		next := from
-// 		for i := 0; i < len(groupIDs)-1; i++ {
-// 			curr := groupIDs[i]
-// 			next = groupIDs[i+1]
+		for muxLayer := range currLayout.muxLayers.Values() {
+			for _, muxLayout := range muxLayer.iterLayouts() {
+				s.Push(muxLayout)
+			}
+		}
+	}
 
-// 			if next == curr+1 {
-// 				continue
-// 			}
+	return count > 1
+}
 
-// 			dbcExtMux.Ranges = append(dbcExtMux.Ranges, &dbc.ExtendedMuxRange{
-// 				From: uint32(from),
-// 				To:   uint32(curr),
-// 			})
+// exportExtendedMux creates a dbc.ExtendedMux.
+func (e *dbcExporter) exportExtendedMux(sigName, muxorSigName string, layoutIDs []int, dbcMsgID uint32) {
+	dbcExtMux := new(dbc.ExtendedMux)
+	dbcExtMux.MessageID = dbcMsgID
+	dbcExtMux.MultiplexedName = clearSpaces(sigName)
+	dbcExtMux.MultiplexorName = clearSpaces(muxorSigName)
 
-// 			from = next
-// 		}
+	// Aggregate ranges
+	from := layoutIDs[0]
+	next := from
+	for i := range len(layoutIDs) - 1 {
+		curr := layoutIDs[i]
+		next = layoutIDs[i+1]
 
-// 		dbcExtMux.Ranges = append(dbcExtMux.Ranges, &dbc.ExtendedMuxRange{
-// 			From: uint32(from),
-// 			To:   uint32(next),
-// 		})
+		if next == curr+1 {
+			continue
+		}
 
-// 		e.dbcFile.ExtendedMuxes = append(e.dbcFile.ExtendedMuxes, dbcExtMux)
-// 	}
-// }
+		dbcExtMux.Ranges = append(dbcExtMux.Ranges, &dbc.ExtendedMuxRange{
+			From: uint32(from),
+			To:   uint32(curr),
+		})
+
+		from = next
+	}
+	dbcExtMux.Ranges = append(dbcExtMux.Ranges, &dbc.ExtendedMuxRange{
+		From: uint32(from),
+		To:   uint32(layoutIDs[len(layoutIDs)-1]),
+	})
+
+	e.dbcFile.ExtendedMuxes = append(e.dbcFile.ExtendedMuxes, dbcExtMux)
+}

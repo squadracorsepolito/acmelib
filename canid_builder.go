@@ -7,7 +7,7 @@ import (
 )
 
 func newDefaultCANIDBuilder() *CANIDBuilder {
-	return NewCANIDBuilder("default_CANID_builder").UseNodeID(0, 4).UseMessageID(4, 7).UseCAN2A()
+	return NewCANIDBuilder("default_CANID_builder").UseMessageID(0, 11).UseCAN2A()
 }
 
 // CANID is the CAN-ID of a [Message] within a [Bus].

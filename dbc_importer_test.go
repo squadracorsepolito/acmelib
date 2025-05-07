@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const dbcTestFile = "testdata/new_expected.dbc"
+const dbcTestFile = "testdata/expected.dbc"
 
 func Test_ImportDBCFile(t *testing.T) {
 	assert := assert.New(t)

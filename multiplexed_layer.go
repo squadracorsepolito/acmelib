@@ -73,9 +73,10 @@ func (ml *MultiplexedLayer) removeSignal(sig Signal) {
 }
 
 func (ml *MultiplexedLayer) appendLayouts(layoutCount int) {
-	for range layoutCount {
+	for lID := range layoutCount {
 		sl := newSL(ml.sizeByte)
 		sl.setParentMuxLayer(ml)
+		sl.id = lID
 		ml.layouts = append(ml.layouts, sl)
 	}
 }

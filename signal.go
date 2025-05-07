@@ -133,10 +133,16 @@ type Signal interface {
 	// Kind returns the kind of the signal.
 	Kind() SignalKind
 
-	// ParentMessage returns the parent message of the signal or nil if not set.
+	// ParentMessage returns the parent message of the signal.
+	// If the signal is part of a multiplexed layer, it will traverse back
+	// the layout tree until it finds the parent message.
+	// If the signal is standalone (not related to any message), it will return nil.
 	ParentMessage() *Message
 	setParentMsg(parentMsg *Message)
 
+	// ParentMuxLayer returns the parent multiplexed layer of the signal.
+	// If the signal is not part of a multiplexed layer, it will return nil.
+	ParentMuxLayer() *MultiplexedLayer
 	setparentMuxLayer(ml *MultiplexedLayer)
 	setLayout(layout *SignalLayout)
 
@@ -270,7 +276,32 @@ func (s *signal) Kind() SignalKind {
 }
 
 func (s *signal) ParentMessage() *Message {
-	return s.parentMsg
+	if s.parentMsg != nil {
+		return s.parentMsg
+	}
+
+	currMuxLayer := s.parentMuxLayer
+
+	// Check if the signal is standalone
+	if currMuxLayer == nil {
+		return nil
+	}
+
+	// Traverse back the multiplexed layers to find the parent message
+	for currMuxLayer != nil {
+		currLayout := currMuxLayer.attachedLayout
+		if currLayout == nil {
+			return nil
+		}
+
+		if currLayout.parentMsg != nil {
+			return currLayout.parentMsg
+		}
+
+		currMuxLayer = currLayout.parentMuxLayer
+	}
+
+	return nil
 }
 
 func (s *signal) setParentMsg(parentMsg *Message) {
@@ -375,6 +406,10 @@ func (s *signal) Size() int {
 
 func (s *signal) setSize(size int) {
 	s.size = size
+}
+
+func (s *signal) ParentMuxLayer() *MultiplexedLayer {
+	return s.parentMuxLayer
 }
 
 func (s *signal) setparentMuxLayer(ml *MultiplexedLayer) {

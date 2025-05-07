@@ -42,6 +42,21 @@ func getValueFromSize(size int) int {
 	return 1 << size
 }
 
+func getMinMaxFromSize(size int, signed bool) (float64, float64) {
+	if size <= 0 {
+		return 0, 0
+	}
+
+	if signed {
+		min := -(1 << (size - 1))
+		max := (1 << (size - 1)) - 1
+		return float64(min), float64(max)
+	}
+
+	max := (1 << size) - 1
+	return 0, float64(max)
+}
+
 func isDecimal(val float64) bool {
 	return math.Mod(val, 1.0) != 0
 }

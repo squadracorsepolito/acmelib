@@ -11,6 +11,8 @@ import (
 // SignalLayout represents the payload of a [Message]/[MultiplexedLayer]
 // that carries a set of [Signal].
 type SignalLayout struct {
+	id int
+
 	sizeByte int
 	ibst     *collection.IBST[Signal]
 	filters  []*SignalLayoutFilter

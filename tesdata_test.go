@@ -184,16 +184,16 @@ func initEnumMessage(assert *assert.Assertions) *testdataEnumMessage {
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig4, 0))
 
-	enum8 := NewSignalEnum("enum_signal_8_values")
+	enum8 := NewSignalEnum("enum_with_8_values")
 	for i := range 8 {
 		_, err := enum8.AddValue(i, fmt.Sprintf("enum_value_%d", i))
 		assert.NoError(err)
 	}
-	sig8, err := NewEnumSignal("signal_with_8_values", enum8)
+	sig8, err := NewEnumSignal("enum_signal_8_values", enum8)
 	assert.NoError(err)
 	assert.NoError(msg.InsertSignal(sig8, 8))
 
-	enumFixed := NewSignalEnum("enum_signal_fixed_size")
+	enumFixed := NewSignalEnum("enum_fixed_size")
 	enumFixed.SetFixedSize(true)
 	assert.NoError(enumFixed.UpdateSize(8))
 	_, err = enumFixed.AddValue(0, "enum_value_0")
@@ -410,7 +410,7 @@ func initNetwork(assert *assert.Assertions) *testdataNetwork {
 	node0Int := node0.GetInterface(0)
 	assert.NoError(bus.AddNodeInterface(node0Int))
 
-	recNode0 := NewNode("rec_node_0", 0, 1)
+	recNode0 := NewNode("rec_node_0", 1, 1)
 	recNode0Int := recNode0.GetInterface(0)
 	assert.NoError(bus.AddNodeInterface(recNode0Int))
 
