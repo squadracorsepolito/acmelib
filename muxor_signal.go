@@ -15,16 +15,29 @@ type MuxorSignal struct {
 	layoutCount int
 }
 
-func newMuxorSignal(name string, layoutCount int) *MuxorSignal {
+func newMuxorSignalFromBase(base *signal, layoutCount int) (*MuxorSignal, error) {
+	if layoutCount < 0 {
+		return nil, newArgError("layoutCount", ErrIsNegative)
+	}
+
+	if layoutCount == 0 {
+		return nil, newArgError("layoutCount", ErrIsZero)
+	}
+
 	ms := &MuxorSignal{
-		signal: newSignal(name, SignalKindMuxor),
+		signal: base,
 
 		layoutCount: layoutCount,
 	}
 
 	ms.signal.setSize(getSizeFromCount(layoutCount))
 
-	return ms
+	return ms, nil
+}
+
+// NewMuxorSignal creates a new muxor signal with the given name and layout count.
+func NewMuxorSignal(name string, layoutCount int) (*MuxorSignal, error) {
+	return newMuxorSignalFromBase(newSignal(name, SignalKindMuxor), layoutCount)
 }
 
 func (ms *MuxorSignal) stringify(s *stringer.Stringer) {

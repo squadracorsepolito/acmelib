@@ -23,7 +23,9 @@ type MultiplexedLayer struct {
 	layouts []*SignalLayout
 }
 
-func newMultiplexedLayer(muxor *MuxorSignal, layoutCount, sizeByte int) *MultiplexedLayer {
+func newMultiplexedLayer(muxor *MuxorSignal, sizeByte int) *MultiplexedLayer {
+	layoutCount := muxor.layoutCount
+
 	ml := &MultiplexedLayer{
 		sizeByte: sizeByte,
 
@@ -201,8 +203,10 @@ func (ml *MultiplexedLayer) InsertSignal(signal Signal, startPos int, layoutIDs 
 		return newArgError("signal", ErrIsNil)
 	}
 
-	if err := ml.verifySignalName(signal.Name()); err != nil {
-		return signal.errorf(err)
+	if !ml.signals.Has(signal.EntityID()) {
+		if err := ml.verifySignalName(signal.Name()); err != nil {
+			return signal.errorf(err)
+		}
 	}
 
 	// Check if the signal has to be inserted into all layouts
@@ -237,6 +241,11 @@ func (ml *MultiplexedLayer) InsertSignal(signal Signal, startPos int, layoutIDs 
 			prevLayoutIDs = tmp
 		}
 
+		// Check if the signal is already present in other layouts with a different start position
+		if len(prevLayoutIDs) != 0 && signal.StartPos() != startPos {
+			return signal.errorf(newStartPosError(startPos, ErrIsDifferent))
+		}
+
 		for _, lID := range layoutIDs {
 			// Check if the layout ID is valid
 			if err := ml.verifyLayoutID(lID); err != nil {
@@ -258,6 +267,8 @@ func (ml *MultiplexedLayer) InsertSignal(signal Signal, startPos int, layoutIDs 
 		for _, lID := range layoutIDs {
 			ml.layouts[lID].insert(signal, startPos)
 		}
+
+		layoutIDs = slices.Concat(prevLayoutIDs, layoutIDs)
 	}
 
 	ml.addSignal(signal, layoutIDs)

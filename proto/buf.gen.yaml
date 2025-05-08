@@ -1,8 +1,0 @@
-version: v1
-managed:
-  enabled: true
-  go_package_prefix:
-    default: .
-plugins:
-  - plugin: buf.build/protocolbuffers/go:v1.31.0
-    out: gen/go

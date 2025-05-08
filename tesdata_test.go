@@ -235,7 +235,9 @@ func initSimpleMuxMessage(assert *assert.Assertions) *testdataSimpleMuxMessage {
 
 	layout := msg.SignalLayout()
 
-	muxLayer, err := layout.AddMultiplexedLayer("muxor", 0, 256)
+	muxor, err := NewMuxorSignal("muxor", 256)
+	assert.NoError(err)
+	muxLayer, err := layout.AddMultiplexedLayer(muxor, 0)
 	assert.NoError(err)
 
 	sigIn0, err := NewStandardSignal("signal_in_0", byteSigType)
@@ -299,7 +301,9 @@ func initMuxMessage(assert *assert.Assertions) *testdataMuxMessage {
 	layout := msg.SignalLayout()
 
 	// top multiplexed layer
-	top, err := layout.AddMultiplexedLayer("top_muxor", 0, 256)
+	topMuxor, err := NewMuxorSignal("top_muxor", 256)
+	assert.NoError(err)
+	top, err := layout.AddMultiplexedLayer(topMuxor, 0)
 	assert.NoError(err)
 
 	topSig0, err := NewStandardSignal("top_signal_in_0", byteSigType)
@@ -315,7 +319,9 @@ func initMuxMessage(assert *assert.Assertions) *testdataMuxMessage {
 	assert.NoError(top.InsertSignal(topSig02, 16, 0, 2))
 
 	// top inner multiplexed layer
-	topInn, err := top.GetLayout(1).AddMultiplexedLayer("top_inner_muxor", 8, 256)
+	topInnMuxor, err := NewMuxorSignal("top_inner_muxor", 256)
+	assert.NoError(err)
+	topInn, err := top.GetLayout(1).AddMultiplexedLayer(topInnMuxor, 8)
 	assert.NoError(err)
 
 	topInnSig0, err := NewStandardSignal("top_inner_signal_in_0", byteSigType)
@@ -327,7 +333,9 @@ func initMuxMessage(assert *assert.Assertions) *testdataMuxMessage {
 	assert.NoError(topInn.InsertSignal(topInnSig255, 16, 255))
 
 	// bottom multiplexed layer
-	bottom, err := layout.AddMultiplexedLayer("bottom_muxor", 56, 256)
+	bottomMuxor, err := NewMuxorSignal("bottom_muxor", 256)
+	assert.NoError(err)
+	bottom, err := layout.AddMultiplexedLayer(bottomMuxor, 56)
 	assert.NoError(err)
 
 	bottomSig0, err := NewStandardSignal("bottom_signal_in_0", byteSigType)
@@ -343,7 +351,9 @@ func initMuxMessage(assert *assert.Assertions) *testdataMuxMessage {
 	assert.NoError(bottom.InsertSignal(bottomSig02, 40, 0, 2))
 
 	// bottom inner multiplexed layer
-	bottomInn, err := bottom.GetLayout(1).AddMultiplexedLayer("bottom_inner_muxor", 48, 256)
+	bottomInnMuxor, err := NewMuxorSignal("bottom_inner_muxor", 256)
+	assert.NoError(err)
+	bottomInn, err := bottom.GetLayout(1).AddMultiplexedLayer(bottomInnMuxor, 48)
 	assert.NoError(err)
 
 	bottomInnSig0, err := NewStandardSignal("bottom_inner_signal_in_0", byteSigType)

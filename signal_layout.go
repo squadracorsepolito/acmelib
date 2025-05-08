@@ -536,23 +536,17 @@ func (sl *SignalLayout) MultiplexedLayers() []*MultiplexedLayer {
 	return layers
 }
 
-// AddMultiplexedLayer creates and adds a new multiplexed layer to the signal layout.
-// A newly created multiplexed layer is returned. It will contain a muxor signal
-// with the given name, start postion, and layout count.
+// AddMultiplexedLayer creates and adds a new multiplexed layer
+// that uses the given muxor signal to the signal layout.
+// The newly created multiplexed layer is returned.
 //
 // It returns:
 //   - [ArgError] if an argument is invalid.
 //   - [NameError] if the given muxor name is invalid.
 //   - [StartPosError] if the given muxor start position is invalid.
-func (sl *SignalLayout) AddMultiplexedLayer(muxorName string, muxorStartPos, layoutCount int) (*MultiplexedLayer, error) {
-	// Check if the layout count is valid
-	if layoutCount < 0 {
-		return nil, newArgError("layoutCount", ErrIsNegative)
-	} else if layoutCount == 0 {
-		return nil, newArgError("layoutCount", ErrIsZero)
-	}
-
+func (sl *SignalLayout) AddMultiplexedLayer(muxor *MuxorSignal, muxorStartPos int) (*MultiplexedLayer, error) {
 	// Check if the muxor name is valid
+	muxorName := muxor.Name()
 	if sl.fromMessage() {
 		if err := sl.parentMsg.verifySignalName(muxorName); err != nil {
 			return nil, err
@@ -563,16 +557,14 @@ func (sl *SignalLayout) AddMultiplexedLayer(muxorName string, muxorStartPos, lay
 		}
 	}
 
-	// Create the muxor, but before inserting it, check if the
-	// start position is valid
-	muxor := newMuxorSignal(muxorName, layoutCount)
+	// Check if the muxor start position is valid
 	if err := sl.verifyInsert(muxor, muxorStartPos); err != nil {
 		return nil, muxor.errorf(err)
 	}
 	sl.insert(muxor, muxorStartPos)
 
 	// Create the multiplexed layer and add it
-	ml := newMultiplexedLayer(muxor, layoutCount, sl.sizeByte)
+	ml := newMultiplexedLayer(muxor, sl.sizeByte)
 	ml.setAttachedLayout(sl)
 	sl.muxLayers.Set(ml.getID(), ml)
 

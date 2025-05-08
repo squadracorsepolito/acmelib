@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+package acmelib.v2;
+
+import "acmelib/v2/entity.proto";
+import "acmelib/v2/attribute.proto";
+
+enum SignalKind {
+    SIGNAL_KIND_UNSPECIFIED = 0;
+    SIGNAL_KIND_STANDARD = 1;
+    SIGNAL_KIND_ENUM = 2;
+    SIGNAL_KIND_MUXOR = 3;
+}
+
+enum Endianness {
+    ENDIANNESS_UNSPECIFIED = 0;
+    ENDIANNESS_LITTLE_ENDIAN = 1;
+    ENDIANNESS_BIG_ENDIAN = 2;
+}
+
+enum SignalSendType {
+    SIGNAL_SEND_TYPE_UNSPECIFIED = 0;
+    SIGNAL_SEND_TYPE_CYCLIC = 1;
+    SIGNAL_SEND_TYPE_ON_WRITE = 2;
+    SIGNAL_SEND_TYPE_ON_WRITE_WITH_REPETITION = 3;
+    SIGNAL_SEND_TYPE_ON_CHANGE = 4;
+    SIGNAL_SEND_TYPE_ON_CHANGE_WITH_REPETITION = 5;
+    SIGNAL_SEND_TYPE_IF_ACTIVE = 6;
+    SIGNAL_SEND_TYPE_IF_ACTIVE_WITH_REPETITION = 7;
+}
+
+message Signal {
+    acmelib.v2.Entity entity = 1;
+
+    SignalKind kind = 2;
+    uint32 start_pos = 3;
+
+    Endianness endianness = 4;
+    SignalSendType send_type = 5;
+    double start_value = 6;
+
+    oneof signal {
+        StandardSignal standard = 7;
+        EnumSignal enum = 8;
+        MuxorSignal muxor = 9;
+    }
+    
+    repeated acmelib.v2.AttributeAssignment attribute_assignments = 10;
+}
+
+message StandardSignal {
+    string type_entity_id = 1;
+    string unit_entity_id = 2;
+}
+
+message EnumSignal {
+    string enum_entity_id = 1;
+}
+
+message MuxorSignal {
+    uint32 layout_count = 1;
+}
+
+enum SignalTypeKind {
+    SIGNAL_TYPE_KIND_UNSPECIFIED = 0;
+    SIGNAL_TYPE_KIND_FLAG = 1;
+    SIGNAL_TYPE_KIND_INTEGER = 2;
+    SIGNAL_TYPE_KIND_DECIMAL = 3;
+}
+
+message SignalType {
+    acmelib.v2.Entity entity = 1;
+
+    SignalTypeKind kind = 2;
+    uint32 size = 3;
+    bool signed = 4;
+    double min = 5;
+    double max = 6;
+    double scale = 7;
+    double offset = 8;
+}
+
+enum SignalUnitKind {
+    SIGNAL_UNIT_KIND_UNSPECIFIED = 0;
+    SIGNAL_UNIT_KIND_CUSTOM = 1;
+    SIGNAL_UNIT_KIND_TEMPERATURE = 2;
+    SIGNAL_UNIT_KIND_ELECTRICAL = 3;
+    SIGNAL_UNIT_KIND_POWER = 4;
+}
+
+message SignalUnit {
+    acmelib.v2.Entity entity = 1;
+
+    SignalUnitKind kind = 2;
+    string symbol = 3;
+}
+
+message SignalEnum {
+    acmelib.v2.Entity entity = 1;
+
+    uint32 size = 2;
+    bool fixed_size = 3;
+    repeated SignalEnumValue values = 4;
+}
+
+message SignalEnumValue {
+    uint32 index = 1;
+    string name = 2;
+    string desc = 3;
+}
+
+message SignalLayout {
+    uint32 id = 1;
+    uint32 size_byte = 2;
+    repeated Signal signals = 3;
+    repeated MultiplexedLayer multiplexed_layers = 4;
+}
+
+message MultiplexedLayer {
+    Signal muxor = 1;
+    repeated SignalLayout layouts = 2;
+}

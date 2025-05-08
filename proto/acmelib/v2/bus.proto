@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package acmelib.v2;
+
+import "acmelib/v2/entity.proto";
+import "acmelib/v2/node.proto";
+import "acmelib/v2/attribute.proto";
+
+enum BusType {
+    BUS_TYPE_UNSPECIFIED = 0;
+    BUS_TYPE_CAN_2A = 1;
+}
+
+message Bus {
+    acmelib.v2.Entity entity = 1;
+
+    repeated acmelib.v2.NodeInterface node_interfaces = 2;
+
+    uint32 baudrate = 3;
+    BusType type = 4;
+
+    string canid_builder_entity_id = 5;
+
+    repeated acmelib.v2.AttributeAssignment attribute_assignments = 6;
+}

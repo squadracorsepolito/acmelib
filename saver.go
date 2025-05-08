@@ -5,7 +5,7 @@ import (
 	"slices"
 	"strings"
 
-	acmelibv1 "github.com/squadracorsepolito/acmelib/proto/gen/go/acmelib/v1"
+	acmelibv2 "github.com/squadracorsepolito/acmelib/gen/acmelib/v2"
 	"golang.org/x/exp/maps"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/encoding/prototext"
@@ -13,17 +13,11 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// SaveEncoding defines the encoding used to save a [Network].
-type SaveEncoding uint
-
-const (
-	// SaveEncodingWire defines a wire encoding.
-	SaveEncodingWire SaveEncoding = 1 << iota
-	// SaveEncodingJSON defines a JSON encoding.
-	SaveEncodingJSON
-	// SaveEncodingText defines a text encoding.
-	SaveEncodingText
-)
+// SaveNetworkOptions defines the options used to save a [Network].
+// There is a field for each supported [SaveEncoding].
+type SaveNetworkOptions struct {
+	WireWriter, JSONWriter, TextWriter io.Writer
+}
 
 // SaveNetwork saves the given [Network] to the [io.Writer] specified
 // by the encoding. It is possible to select more than one encoding by
@@ -31,18 +25,23 @@ const (
 //
 // It returns an [ArgError] that wraps an [ErrIsNil] if the selected
 // writer is nil, or a proto/protojson/prototext error if marshal function fails.
-func SaveNetwork(network *Network, encoding SaveEncoding, wWire, wJSON, wText io.Writer) error {
+
+// SaveNetwork saves the given [Network] to the writers of the given [SaveNetworkOptions].
+//
+// It returns [ArgError] if all writers are nil.
+func SaveNetwork(network *Network, opts *SaveNetworkOptions) error {
 	saver := newSaver()
 	protoNet := saver.saveNetwork(network)
 
-	if encoding&SaveEncodingWire == SaveEncodingWire {
-		if wWire == nil {
-			return &ArgError{
-				Name: "wWire",
-				Err:  ErrIsNil,
-			}
-		}
+	wWire := opts.WireWriter
+	wJSON := opts.JSONWriter
+	wText := opts.TextWriter
 
+	if wWire == nil && wJSON == nil && wText == nil {
+		return newArgError("wWire, wJSON, wText", ErrIsNil)
+	}
+
+	if wWire != nil {
 		data, err := proto.Marshal(protoNet)
 		if err != nil {
 			return err
@@ -53,14 +52,7 @@ func SaveNetwork(network *Network, encoding SaveEncoding, wWire, wJSON, wText io
 		}
 	}
 
-	if encoding&SaveEncodingJSON == SaveEncodingJSON {
-		if wJSON == nil {
-			return &ArgError{
-				Name: "wJSON",
-				Err:  ErrIsNil,
-			}
-		}
-
+	if wJSON != nil {
 		data, err := protojson.MarshalOptions{Multiline: true}.Marshal(protoNet)
 		if err != nil {
 			return err
@@ -71,14 +63,7 @@ func SaveNetwork(network *Network, encoding SaveEncoding, wWire, wJSON, wText io
 		}
 	}
 
-	if encoding&SaveEncodingText == SaveEncodingText {
-		if wText == nil {
-			return &ArgError{
-				Name: "wText",
-				Err:  ErrIsNil,
-			}
-		}
-
+	if wText != nil {
 		data, err := prototext.MarshalOptions{Multiline: true}.Marshal(protoNet)
 		if err != nil {
 			return err
@@ -112,37 +97,35 @@ func newSaver() *saver {
 	}
 }
 
-func (s *saver) getEntityKind(ek EntityKind) acmelibv1.EntityKind {
+func (s *saver) getEntityKind(ek EntityKind) acmelibv2.EntityKind {
 	switch ek {
 	case EntityKindNetwork:
-		return acmelibv1.EntityKind_ENTITY_KIND_NETWORK
+		return acmelibv2.EntityKind_ENTITY_KIND_NETWORK
 	case EntityKindBus:
-		return acmelibv1.EntityKind_ENTITY_KIND_BUS
+		return acmelibv2.EntityKind_ENTITY_KIND_BUS
 	case EntityKindNode:
-		return acmelibv1.EntityKind_ENTITY_KIND_NODE
+		return acmelibv2.EntityKind_ENTITY_KIND_NODE
 	case EntityKindMessage:
-		return acmelibv1.EntityKind_ENTITY_KIND_MESSAGE
+		return acmelibv2.EntityKind_ENTITY_KIND_MESSAGE
 	case EntityKindSignal:
-		return acmelibv1.EntityKind_ENTITY_KIND_SIGNAL
+		return acmelibv2.EntityKind_ENTITY_KIND_SIGNAL
 	case EntityKindSignalType:
-		return acmelibv1.EntityKind_ENTITY_KIND_SIGNAL_TYPE
+		return acmelibv2.EntityKind_ENTITY_KIND_SIGNAL_TYPE
 	case EntityKindSignalUnit:
-		return acmelibv1.EntityKind_ENTITY_KIND_SIGNAL_UNIT
+		return acmelibv2.EntityKind_ENTITY_KIND_SIGNAL_UNIT
 	case EntityKindSignalEnum:
-		return acmelibv1.EntityKind_ENTITY_KIND_SIGNAL_ENUM
-	// case EntityKindSignalEnumValue:
-	// 	return acmelibv1.EntityKind_ENTITY_KIND_SIGNAL_ENUM_VALUE
+		return acmelibv2.EntityKind_ENTITY_KIND_SIGNAL_ENUM
 	case EntityKindAttribute:
-		return acmelibv1.EntityKind_ENTITY_KIND_ATTRIBUTE
+		return acmelibv2.EntityKind_ENTITY_KIND_ATTRIBUTE
 	case EntityKindCANIDBuilder:
-		return acmelibv1.EntityKind_ENTITY_KIND_CANID_BUILDER
+		return acmelibv2.EntityKind_ENTITY_KIND_CANID_BUILDER
 	default:
-		return acmelibv1.EntityKind_ENTITY_KIND_UNSPECIFIED
+		return acmelibv2.EntityKind_ENTITY_KIND_UNSPECIFIED
 	}
 }
 
-func (s *saver) saveEntity(e *entity) *acmelibv1.Entity {
-	pEnt := new(acmelibv1.Entity)
+func (s *saver) saveEntity(e *entity) *acmelibv2.Entity {
+	pEnt := new(acmelibv2.Entity)
 
 	pEnt.EntityId = e.entityID.String()
 	pEnt.Desc = e.desc
@@ -153,8 +136,8 @@ func (s *saver) saveEntity(e *entity) *acmelibv1.Entity {
 	return pEnt
 }
 
-func (s *saver) saveNetwork(net *Network) *acmelibv1.Network {
-	pNet := new(acmelibv1.Network)
+func (s *saver) saveNetwork(net *Network) *acmelibv2.Network {
+	pNet := new(acmelibv2.Network)
 
 	pNet.Entity = s.saveEntity(net.entity)
 
@@ -201,28 +184,28 @@ func (s *saver) saveNetwork(net *Network) *acmelibv1.Network {
 	return pNet
 }
 
-func (s *saver) saveAttributeAssignments(attAss []*AttributeAssignment) []*acmelibv1.AttributeAssignment {
-	pAttAss := []*acmelibv1.AttributeAssignment{}
+func (s *saver) saveAttributeAssignments(attAss []*AttributeAssignment) []*acmelibv2.AttributeAssignment {
+	pAttAss := []*acmelibv2.AttributeAssignment{}
 
 	for _, tmpAttAss := range attAss {
 		tmpAtt := tmpAttAss.attribute
 
-		pTmpAttAss := new(acmelibv1.AttributeAssignment)
+		pTmpAttAss := new(acmelibv2.AttributeAssignment)
 
 		pTmpAttAss.EntityId = tmpAttAss.EntityID().String()
 		pTmpAttAss.AttributeEntityId = tmpAtt.EntityID().String()
 
 		switch tmpAtt.Type() {
 		case AttributeTypeString, AttributeTypeEnum:
-			pTmpAttAss.Value = &acmelibv1.AttributeAssignment_ValueString{
+			pTmpAttAss.Value = &acmelibv2.AttributeAssignment_ValueString{
 				ValueString: tmpAttAss.value.(string),
 			}
 		case AttributeTypeInteger:
-			pTmpAttAss.Value = &acmelibv1.AttributeAssignment_ValueInt{
+			pTmpAttAss.Value = &acmelibv2.AttributeAssignment_ValueInt{
 				ValueInt: int32(tmpAttAss.value.(int)),
 			}
 		case AttributeTypeFloat:
-			pTmpAttAss.Value = &acmelibv1.AttributeAssignment_ValueDouble{
+			pTmpAttAss.Value = &acmelibv2.AttributeAssignment_ValueDouble{
 				ValueDouble: tmpAttAss.value.(float64),
 			}
 		}
@@ -235,18 +218,18 @@ func (s *saver) saveAttributeAssignments(attAss []*AttributeAssignment) []*acmel
 	return pAttAss
 }
 
-func (s *saver) saveBus(bus *Bus) *acmelibv1.Bus {
-	pBus := new(acmelibv1.Bus)
+func (s *saver) saveBus(bus *Bus) *acmelibv2.Bus {
+	pBus := new(acmelibv2.Bus)
 
 	pBus.Entity = s.saveEntity(bus.entity)
 	pBus.AttributeAssignments = s.saveAttributeAssignments(bus.AttributeAssignments())
 
 	pBus.Baudrate = uint32(bus.baudrate)
 
-	pBusType := acmelibv1.BusType_BUS_TYPE_UNSPECIFIED
+	pBusType := acmelibv2.BusType_BUS_TYPE_UNSPECIFIED
 	switch bus.typ {
 	case BusTypeCAN2A:
-		pBusType = acmelibv1.BusType_BUS_TYPE_CAN_2A
+		pBusType = acmelibv2.BusType_BUS_TYPE_CAN_2A
 	}
 	pBus.Type = pBusType
 
@@ -265,8 +248,8 @@ func (s *saver) saveBus(bus *Bus) *acmelibv1.Bus {
 	return pBus
 }
 
-func (s *saver) saveCANIDBuilder(builder *CANIDBuilder) *acmelibv1.CANIDBuilder {
-	pBuilder := new(acmelibv1.CANIDBuilder)
+func (s *saver) saveCANIDBuilder(builder *CANIDBuilder) *acmelibv2.CANIDBuilder {
+	pBuilder := new(acmelibv2.CANIDBuilder)
 
 	pBuilder.Entity = s.saveEntity(builder.entity)
 
@@ -277,19 +260,19 @@ func (s *saver) saveCANIDBuilder(builder *CANIDBuilder) *acmelibv1.CANIDBuilder 
 	return pBuilder
 }
 
-func (s *saver) saveCANIDBuilderOp(builderOp *CANIDBuilderOp) *acmelibv1.CANIDBuilderOp {
-	pBuilderOp := new(acmelibv1.CANIDBuilderOp)
+func (s *saver) saveCANIDBuilderOp(builderOp *CANIDBuilderOp) *acmelibv2.CANIDBuilderOp {
+	pBuilderOp := new(acmelibv2.CANIDBuilderOp)
 
-	pOpKind := acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_UNSPECIFIED
+	pOpKind := acmelibv2.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_UNSPECIFIED
 	switch builderOp.kind {
 	case CANIDBuilderOpKindMessagePriority:
-		pOpKind = acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_MESSAGE_PRIORITY
+		pOpKind = acmelibv2.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_MESSAGE_PRIORITY
 	case CANIDBuilderOpKindMessageID:
-		pOpKind = acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_MESSAGE_ID
+		pOpKind = acmelibv2.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_MESSAGE_ID
 	case CANIDBuilderOpKindNodeID:
-		pOpKind = acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_NODE_ID
+		pOpKind = acmelibv2.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_NODE_ID
 	case CANIDBuilderOpKindBitMask:
-		pOpKind = acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_BIT_MASK
+		pOpKind = acmelibv2.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_BIT_MASK
 	}
 	pBuilderOp.Kind = pOpKind
 
@@ -299,8 +282,8 @@ func (s *saver) saveCANIDBuilderOp(builderOp *CANIDBuilderOp) *acmelibv1.CANIDBu
 	return pBuilderOp
 }
 
-func (s *saver) saveNode(node *Node) *acmelibv1.Node {
-	pNode := new(acmelibv1.Node)
+func (s *saver) saveNode(node *Node) *acmelibv2.Node {
+	pNode := new(acmelibv2.Node)
 
 	pNode.Entity = s.saveEntity(node.entity)
 	pNode.AttributeAssignments = s.saveAttributeAssignments(node.AttributeAssignments())
@@ -311,8 +294,8 @@ func (s *saver) saveNode(node *Node) *acmelibv1.Node {
 	return pNode
 }
 
-func (s *saver) saveNodeInterface(nodeInt *NodeInterface) *acmelibv1.NodeInterface {
-	pNodeint := new(acmelibv1.NodeInterface)
+func (s *saver) saveNodeInterface(nodeInt *NodeInterface) *acmelibv2.NodeInterface {
+	pNodeint := new(acmelibv2.NodeInterface)
 
 	pNodeint.Number = int32(nodeInt.number)
 
@@ -327,8 +310,8 @@ func (s *saver) saveNodeInterface(nodeInt *NodeInterface) *acmelibv1.NodeInterfa
 	return pNodeint
 }
 
-func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
-	pMsg := new(acmelibv1.Message)
+func (s *saver) saveMessage(msg *Message) *acmelibv2.Message {
+	pMsg := new(acmelibv2.Message)
 
 	pMsg.Entity = s.saveEntity(msg.entity)
 	pMsg.AttributeAssignments = s.saveAttributeAssignments(msg.AttributeAssignments())
@@ -336,49 +319,36 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 	pMsg.SizeByte = uint32(msg.sizeByte)
 	pMsg.MessageId = uint32(msg.id)
 
-	for _, sig := range msg.Signals() {
-		pMsg.Signals = append(pMsg.Signals, s.saveSignal(sig))
-	}
-
-	pMsg.Payload = s.saveSignalLayout(msg.layout)
+	pMsg.Layout = s.saveSignalLayout(msg.layout)
 
 	pMsg.StaticCanId = uint32(msg.staticCANID)
 	pMsg.HasStaticCanId = msg.hasStaticCANID
 
-	pPriority := acmelibv1.MessagePriority_MESSAGE_PRIORITY_UNSPECIFIED
+	pPriority := acmelibv2.MessagePriority_MESSAGE_PRIORITY_UNSPECIFIED
 	switch msg.priority {
 	case MessagePriorityVeryHigh:
-		pPriority = acmelibv1.MessagePriority_MESSAGE_PRIORITY_VERY_HIGH
+		pPriority = acmelibv2.MessagePriority_MESSAGE_PRIORITY_VERY_HIGH
 	case MessagePriorityHigh:
-		pPriority = acmelibv1.MessagePriority_MESSAGE_PRIORITY_HIGH
+		pPriority = acmelibv2.MessagePriority_MESSAGE_PRIORITY_HIGH
 	case MessagePriorityMedium:
-		pPriority = acmelibv1.MessagePriority_MESSAGE_PRIORITY_MEDIUM
+		pPriority = acmelibv2.MessagePriority_MESSAGE_PRIORITY_MEDIUM
 	case MessagePriorityLow:
-		pPriority = acmelibv1.MessagePriority_MESSAGE_PRIORITY_LOW
+		pPriority = acmelibv2.MessagePriority_MESSAGE_PRIORITY_LOW
 	}
 	pMsg.Priority = pPriority
 
-	// pByteOrder := acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_UNSPECIFIED
-	// switch msg.byteOrder {
-	// case EndiannessLittleEndian:
-	// 	pByteOrder = acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_LITTLE_ENDIAN
-	// case EndiannessBigEndian:
-	// 	pByteOrder = acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_BIG_ENDIAN
-	// }
-	// pMsg.ByteOrder = pByteOrder
-
 	pMsg.CycleTime = uint32(msg.cycleTime)
 
-	pSendType := acmelibv1.MessageSendType_MESSAGE_SEND_TYPE_UNSPECIFIED
+	pSendType := acmelibv2.MessageSendType_MESSAGE_SEND_TYPE_UNSPECIFIED
 	switch msg.sendType {
 	case MessageSendTypeCyclic:
-		pSendType = acmelibv1.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC
+		pSendType = acmelibv2.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC
 	case MessageSendTypeCyclicIfActive:
-		pSendType = acmelibv1.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE
+		pSendType = acmelibv2.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE
 	case MessageSendTypeCyclicAndTriggered:
-		pSendType = acmelibv1.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_AND_TRIGGERED
+		pSendType = acmelibv2.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_AND_TRIGGERED
 	case MessageSendTypeCyclicIfActiveAndTriggered:
-		pSendType = acmelibv1.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE_AND_TRIGGERED
+		pSendType = acmelibv2.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE_AND_TRIGGERED
 	}
 	pMsg.SendType = pSendType
 
@@ -386,7 +356,7 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 	pMsg.StartDelayTime = uint32(msg.startDelayTime)
 
 	for _, rec := range msg.Receivers() {
-		pMsg.Receivers = append(pMsg.Receivers, &acmelibv1.MessageReceiver{
+		pMsg.Receivers = append(pMsg.Receivers, &acmelibv2.MessageReceiver{
 			NodeEntityId:        rec.node.entityID.String(),
 			NodeInterfaceNumber: uint32(rec.number),
 		})
@@ -395,59 +365,82 @@ func (s *saver) saveMessage(msg *Message) *acmelibv1.Message {
 	return pMsg
 }
 
-func (s *saver) saveSignalLayout(layout *SignalLayout) *acmelibv1.SignalPayload {
-	pPayload := new(acmelibv1.SignalPayload)
+func (s *saver) saveSignalLayout(layout *SignalLayout) *acmelibv2.SignalLayout {
+	pLayout := new(acmelibv2.SignalLayout)
 
-	for _, sig := range layout.Signals() {
-		pPayload.Refs = append(pPayload.Refs, &acmelibv1.SignalPayloadRef{
-			SignalEntityId: sig.EntityID().String(),
-			RelStartBit:    uint32(sig.StartPos()),
-		})
+	pLayout.Id = uint32(layout.id)
+	pLayout.SizeByte = uint32(layout.sizeByte)
+
+	for sig := range layout.ibst.InOrder() {
+		if sig.Kind() == SignalKindMuxor {
+			continue
+		}
+
+		pLayout.Signals = append(pLayout.Signals, s.saveSignal(sig))
 	}
 
-	return pPayload
+	for muxLayer := range layout.muxLayers.Values() {
+		pLayout.MultiplexedLayers = append(pLayout.MultiplexedLayers, s.saveMultiplexedLayer(muxLayer))
+	}
+
+	return pLayout
 }
 
-// func (s *saver) saveSignalPayload(payload *signalPayload) *acmelibv1.SignalPayload {
-// 	pPayload := new(acmelibv1.SignalPayload)
+func (s *saver) saveMultiplexedLayer(muxLayer *MultiplexedLayer) *acmelibv2.MultiplexedLayer {
+	pMuxLayer := new(acmelibv2.MultiplexedLayer)
 
-// 	for _, sig := range payload.signals {
-// 		pPayload.Refs = append(pPayload.Refs, &acmelibv1.SignalPayloadRef{
-// 			SignalEntityId: sig.EntityID().String(),
-// 			RelStartBit:    uint32(sig.GetRelativeStartPos()),
-// 		})
-// 	}
+	muxor := s.saveSignal(muxLayer.muxor)
+	pMuxLayer.Muxor = muxor
 
-// 	return pPayload
-// }
+	for _, layout := range muxLayer.layouts {
+		if layout.ibst.Size() == 0 {
+			continue
+		}
 
-func (s *saver) saveSignal(sig Signal) *acmelibv1.Signal {
-	pSig := new(acmelibv1.Signal)
+		pMuxLayer.Layouts = append(pMuxLayer.Layouts, s.saveSignalLayout(layout))
+	}
+
+	return pMuxLayer
+}
+
+func (s *saver) saveSignal(sig Signal) *acmelibv2.Signal {
+	pSig := new(acmelibv2.Signal)
 
 	pSig.AttributeAssignments = s.saveAttributeAssignments(sig.AttributeAssignments())
 
-	pSendType := acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_UNSPECIFIED
+	pSig.StartPos = uint32(sig.StartPos())
+
+	pEndianness := acmelibv2.Endianness_ENDIANNESS_UNSPECIFIED
+	switch sig.Endianness() {
+	case EndiannessLittleEndian:
+		pEndianness = acmelibv2.Endianness_ENDIANNESS_LITTLE_ENDIAN
+	case EndiannessBigEndian:
+		pEndianness = acmelibv2.Endianness_ENDIANNESS_BIG_ENDIAN
+	}
+	pSig.Endianness = pEndianness
+
+	pSendType := acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_UNSPECIFIED
 	switch sig.SendType() {
 	case SignalSendTypeCyclic:
-		pSendType = acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_CYCLIC
+		pSendType = acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_CYCLIC
 	case SignalSendTypeOnWrite:
-		pSendType = acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_ON_WRITE
+		pSendType = acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_ON_WRITE
 	case SignalSendTypeOnWriteWithRepetition:
-		pSendType = acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_ON_WRITE_WITH_REPETITION
+		pSendType = acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_ON_WRITE_WITH_REPETITION
 	case SignalSendTypeOnChange:
-		pSendType = acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_ON_CHANGE
+		pSendType = acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_ON_CHANGE
 	case SignalSendTypeOnChangeWithRepetition:
-		pSendType = acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_ON_CHANGE_WITH_REPETITION
+		pSendType = acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_ON_CHANGE_WITH_REPETITION
 	case SignalSendTypeIfActive:
-		pSendType = acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_IF_ACTIVE
+		pSendType = acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_IF_ACTIVE
 	case SignalSendTypeIfActiveWithRepetition:
-		pSendType = acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_IF_ACTIVE_WITH_REPETITION
+		pSendType = acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_IF_ACTIVE_WITH_REPETITION
 	}
 	pSig.SendType = pSendType
 
 	pSig.StartValue = sig.StartValue()
 
-	pKind := acmelibv1.SignalKind_SIGNAL_KIND_UNSPECIFIED
+	pKind := acmelibv2.SignalKind_SIGNAL_KIND_UNSPECIFIED
 	switch sig.Kind() {
 	case SignalKindStandard:
 		stdSig, err := sig.ToStandard()
@@ -455,9 +448,9 @@ func (s *saver) saveSignal(sig Signal) *acmelibv1.Signal {
 			panic(err)
 		}
 
-		pKind = acmelibv1.SignalKind_SIGNAL_KIND_STANDARD
+		pKind = acmelibv2.SignalKind_SIGNAL_KIND_STANDARD
 		pSig.Entity = s.saveEntity(stdSig.entity)
-		pSig.Signal = &acmelibv1.Signal_Standard{
+		pSig.Signal = &acmelibv2.Signal_Standard{
 			Standard: s.saveStandardSignal(stdSig),
 		}
 
@@ -467,30 +460,31 @@ func (s *saver) saveSignal(sig Signal) *acmelibv1.Signal {
 			panic(err)
 		}
 
-		pKind = acmelibv1.SignalKind_SIGNAL_KIND_ENUM
+		pKind = acmelibv2.SignalKind_SIGNAL_KIND_ENUM
 		pSig.Entity = s.saveEntity(enumSig.entity)
-		pSig.Signal = &acmelibv1.Signal_Enum{
+		pSig.Signal = &acmelibv2.Signal_Enum{
 			Enum: s.saveEnumSignal(enumSig),
 		}
 
-		// case SignalKindMultiplexer:
-		// 	muxSig, err := sig.ToMultiplexer()
-		// 	if err != nil {
-		// 		panic(err)
-		// 	}
-		// 	pKind = acmelibv1.SignalKind_SIGNAL_KIND_MULTIPLEXER
-		// 	pSig.Entity = s.saveEntity(muxSig.entity)
-		// 	pSig.Signal = &acmelibv1.Signal_Multiplexer{
-		// 		Multiplexer: s.saveMultiplexerSignal(muxSig),
-		// 	}
+	case SignalKindMuxor:
+		muxorSig, err := sig.ToMuxor()
+		if err != nil {
+			panic(err)
+		}
+
+		pKind = acmelibv2.SignalKind_SIGNAL_KIND_MUXOR
+		pSig.Entity = s.saveEntity(muxorSig.entity)
+		pSig.Signal = &acmelibv2.Signal_Muxor{
+			Muxor: s.saveMuxorSignal(muxorSig),
+		}
 	}
 	pSig.Kind = pKind
 
 	return pSig
 }
 
-func (s *saver) saveStandardSignal(stdSig *StandardSignal) *acmelibv1.StandardSignal {
-	pStdSig := new(acmelibv1.StandardSignal)
+func (s *saver) saveStandardSignal(stdSig *StandardSignal) *acmelibv2.StandardSignal {
+	pStdSig := new(acmelibv2.StandardSignal)
 
 	typeEntID := stdSig.typ.entityID
 	s.refSigTypes[typeEntID] = stdSig.typ
@@ -507,8 +501,8 @@ func (s *saver) saveStandardSignal(stdSig *StandardSignal) *acmelibv1.StandardSi
 	return pStdSig
 }
 
-func (s *saver) saveEnumSignal(enumSig *EnumSignal) *acmelibv1.EnumSignal {
-	pEnumSig := new(acmelibv1.EnumSignal)
+func (s *saver) saveEnumSignal(enumSig *EnumSignal) *acmelibv2.EnumSignal {
+	pEnumSig := new(acmelibv2.EnumSignal)
 
 	entID := enumSig.enum.entityID
 	s.refSigEnums[entID] = enumSig.enum
@@ -517,51 +511,25 @@ func (s *saver) saveEnumSignal(enumSig *EnumSignal) *acmelibv1.EnumSignal {
 	return pEnumSig
 }
 
-// func (s *saver) saveMultiplexerSignal(muxSig *MultiplexerSignal) *acmelibv1.MultiplexerSignal {
-// 	// TODO!
-// 	pMuxSig := new(acmelibv1.MultiplexerSignal)
+func (s *saver) saveMuxorSignal(muxorSig *MuxorSignal) *acmelibv2.MuxorSignal {
+	pMuxorSig := new(acmelibv2.MuxorSignal)
+	pMuxorSig.LayoutCount = uint32(muxorSig.layoutCount)
+	return pMuxorSig
+}
 
-// 	// pMuxSig.GroupCount = uint32(muxSig.groupCount)
-// 	// pMuxSig.GroupSize = uint32(muxSig.groupSize)
-
-// 	// insFixedSignal := make(map[EntityID]bool)
-// 	// for groupID, group := range muxSig.GetSignalGroups() {
-// 	// 	for _, muxedSig := range group {
-// 	// 		entID := muxedSig.EntityID()
-
-// 	// 		if muxSig.fixedSignals.hasKey(entID) {
-// 	// 			if _, ok := insFixedSignal[entID]; ok {
-// 	// 				continue
-// 	// 			}
-
-// 	// 			insFixedSignal[entID] = true
-// 	// 			pMuxSig.FixedSignalEntityIds = append(pMuxSig.FixedSignalEntityIds, entID.String())
-// 	// 		}
-
-// 	// 		pMuxSig.Signals = append(pMuxSig.Signals, s.saveSignal(muxedSig))
-// 	// 	}
-
-// 	// 	pMuxSig.Groups = append(pMuxSig.Groups, s.saveSignalLayout(muxSig.groups[groupID]))
-// 	// }
-
-// 	return pMuxSig
-// }
-
-func (s *saver) saveSignalType(sigType *SignalType) *acmelibv1.SignalType {
-	pSigType := new(acmelibv1.SignalType)
+func (s *saver) saveSignalType(sigType *SignalType) *acmelibv2.SignalType {
+	pSigType := new(acmelibv2.SignalType)
 
 	pSigType.Entity = s.saveEntity(sigType.entity)
 
-	pKind := acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_UNSPECIFIED
+	pKind := acmelibv2.SignalTypeKind_SIGNAL_TYPE_KIND_UNSPECIFIED
 	switch sigType.kind {
-	// case SignalTypeKindCustom:
-	// 	pKind = acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_CUSTOM
 	case SignalTypeKindFlag:
-		pKind = acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_FLAG
+		pKind = acmelibv2.SignalTypeKind_SIGNAL_TYPE_KIND_FLAG
 	case SignalTypeKindInteger:
-		pKind = acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_INTEGER
+		pKind = acmelibv2.SignalTypeKind_SIGNAL_TYPE_KIND_INTEGER
 	case SignalTypeKindDecimal:
-		pKind = acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_DECIMAL
+		pKind = acmelibv2.SignalTypeKind_SIGNAL_TYPE_KIND_DECIMAL
 	}
 	pSigType.Kind = pKind
 
@@ -575,21 +543,21 @@ func (s *saver) saveSignalType(sigType *SignalType) *acmelibv1.SignalType {
 	return pSigType
 }
 
-func (s *saver) saveSignalUnit(sigUnit *SignalUnit) *acmelibv1.SignalUnit {
-	pSigUnit := new(acmelibv1.SignalUnit)
+func (s *saver) saveSignalUnit(sigUnit *SignalUnit) *acmelibv2.SignalUnit {
+	pSigUnit := new(acmelibv2.SignalUnit)
 
 	pSigUnit.Entity = s.saveEntity(sigUnit.entity)
 
-	pKind := acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_UNSPECIFIED
+	pKind := acmelibv2.SignalUnitKind_SIGNAL_UNIT_KIND_UNSPECIFIED
 	switch sigUnit.kind {
 	case SignalUnitKindCustom:
-		pKind = acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_CUSTOM
+		pKind = acmelibv2.SignalUnitKind_SIGNAL_UNIT_KIND_CUSTOM
 	case SignalUnitKindTemperature:
-		pKind = acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_TEMPERATURE
+		pKind = acmelibv2.SignalUnitKind_SIGNAL_UNIT_KIND_TEMPERATURE
 	case SignalUnitKindElectrical:
-		pKind = acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_ELECTRICAL
+		pKind = acmelibv2.SignalUnitKind_SIGNAL_UNIT_KIND_ELECTRICAL
 	case SignalUnitKindPower:
-		pKind = acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_POWER
+		pKind = acmelibv2.SignalUnitKind_SIGNAL_UNIT_KIND_POWER
 	}
 	pSigUnit.Kind = pKind
 
@@ -598,33 +566,36 @@ func (s *saver) saveSignalUnit(sigUnit *SignalUnit) *acmelibv1.SignalUnit {
 	return pSigUnit
 }
 
-func (s *saver) saveSignalEnum(sigEnum *SignalEnum) *acmelibv1.SignalEnum {
-	pSigEnum := new(acmelibv1.SignalEnum)
+func (s *saver) saveSignalEnum(sigEnum *SignalEnum) *acmelibv2.SignalEnum {
+	pSigEnum := new(acmelibv2.SignalEnum)
 
-	// pSigEnum.Entity = s.saveEntity(sigEnum.entity)
+	pSigEnum.Entity = s.saveEntity(sigEnum.entity)
 
-	// for _, val := range sigEnum.Values() {
-	// 	pSigEnum.Values = append(pSigEnum.Values, s.saveSignalENumValue(val))
-	// }
+	pSigEnum.Size = uint32(sigEnum.size)
+	pSigEnum.FixedSize = sigEnum.fixedSize
 
-	// if sigEnum.minSize != 0 {
-	// 	pSigEnum.MinSize = uint32(sigEnum.minSize)
-	// }
+	for _, val := range sigEnum.Values() {
+		pSigEnum.Values = append(pSigEnum.Values, s.saveSignalENumValue(val))
+	}
 
 	return pSigEnum
 }
 
-func (s *saver) saveSignalENumValue(val *SignalEnumValue) *acmelibv1.SignalEnumValue {
-	pVal := new(acmelibv1.SignalEnumValue)
+func (s *saver) saveSignalENumValue(val *SignalEnumValue) *acmelibv2.SignalEnumValue {
+	pVal := new(acmelibv2.SignalEnumValue)
 
-	// pVal.Entity = s.saveEntity(val.entity)
-	// pVal.Index = uint32(val.index)
+	pVal.Name = val.name
+	pVal.Index = uint32(val.index)
+
+	if val.desc != "" {
+		pVal.Desc = val.desc
+	}
 
 	return pVal
 }
 
-func (s *saver) saveAttribute(att Attribute) *acmelibv1.Attribute {
-	pAtt := new(acmelibv1.Attribute)
+func (s *saver) saveAttribute(att Attribute) *acmelibv2.Attribute {
+	pAtt := new(acmelibv2.Attribute)
 
 	switch att.Type() {
 	case AttributeTypeString:
@@ -633,9 +604,9 @@ func (s *saver) saveAttribute(att Attribute) *acmelibv1.Attribute {
 			panic(err)
 		}
 
-		pAtt.Type = acmelibv1.AttributeType_ATTRIBUTE_TYPE_STRING
+		pAtt.Type = acmelibv2.AttributeType_ATTRIBUTE_TYPE_STRING
 		pAtt.Entity = s.saveEntity(strAtt.entity)
-		pAtt.Attribute = &acmelibv1.Attribute_StringAttribute{
+		pAtt.Attribute = &acmelibv2.Attribute_StringAttribute{
 			StringAttribute: s.saveStringAttribute(strAtt),
 		}
 
@@ -645,9 +616,9 @@ func (s *saver) saveAttribute(att Attribute) *acmelibv1.Attribute {
 			panic(err)
 		}
 
-		pAtt.Type = acmelibv1.AttributeType_ATTRIBUTE_TYPE_INTEGER
+		pAtt.Type = acmelibv2.AttributeType_ATTRIBUTE_TYPE_INTEGER
 		pAtt.Entity = s.saveEntity(intAtt.entity)
-		pAtt.Attribute = &acmelibv1.Attribute_IntegerAttribute{
+		pAtt.Attribute = &acmelibv2.Attribute_IntegerAttribute{
 			IntegerAttribute: s.saveIntegerAttribute(intAtt),
 		}
 
@@ -657,9 +628,9 @@ func (s *saver) saveAttribute(att Attribute) *acmelibv1.Attribute {
 			panic(err)
 		}
 
-		pAtt.Type = acmelibv1.AttributeType_ATTRIBUTE_TYPE_FLOAT
+		pAtt.Type = acmelibv2.AttributeType_ATTRIBUTE_TYPE_FLOAT
 		pAtt.Entity = s.saveEntity(floatAtt.entity)
-		pAtt.Attribute = &acmelibv1.Attribute_FloatAttribute{
+		pAtt.Attribute = &acmelibv2.Attribute_FloatAttribute{
 			FloatAttribute: s.saveFloatAttribute(floatAtt),
 		}
 
@@ -669,9 +640,9 @@ func (s *saver) saveAttribute(att Attribute) *acmelibv1.Attribute {
 			panic(err)
 		}
 
-		pAtt.Type = acmelibv1.AttributeType_ATTRIBUTE_TYPE_ENUM
+		pAtt.Type = acmelibv2.AttributeType_ATTRIBUTE_TYPE_ENUM
 		pAtt.Entity = s.saveEntity(enumAtt.entity)
-		pAtt.Attribute = &acmelibv1.Attribute_EnumAttribute{
+		pAtt.Attribute = &acmelibv2.Attribute_EnumAttribute{
 			EnumAttribute: s.saveEnumAttribute(enumAtt),
 		}
 	}
@@ -679,14 +650,14 @@ func (s *saver) saveAttribute(att Attribute) *acmelibv1.Attribute {
 	return pAtt
 }
 
-func (s *saver) saveStringAttribute(strAtt *StringAttribute) *acmelibv1.StringAttribute {
-	pStrAtt := new(acmelibv1.StringAttribute)
+func (s *saver) saveStringAttribute(strAtt *StringAttribute) *acmelibv2.StringAttribute {
+	pStrAtt := new(acmelibv2.StringAttribute)
 	pStrAtt.DefValue = strAtt.defValue
 	return pStrAtt
 }
 
-func (s *saver) saveIntegerAttribute(intAtt *IntegerAttribute) *acmelibv1.IntegerAttribute {
-	pIntAtt := new(acmelibv1.IntegerAttribute)
+func (s *saver) saveIntegerAttribute(intAtt *IntegerAttribute) *acmelibv2.IntegerAttribute {
+	pIntAtt := new(acmelibv2.IntegerAttribute)
 
 	pIntAtt.DefValue = int32(intAtt.defValue)
 	pIntAtt.Min = int32(intAtt.min)
@@ -696,8 +667,8 @@ func (s *saver) saveIntegerAttribute(intAtt *IntegerAttribute) *acmelibv1.Intege
 	return pIntAtt
 }
 
-func (s *saver) saveFloatAttribute(floatAtt *FloatAttribute) *acmelibv1.FloatAttribute {
-	pFloatAtt := new(acmelibv1.FloatAttribute)
+func (s *saver) saveFloatAttribute(floatAtt *FloatAttribute) *acmelibv2.FloatAttribute {
+	pFloatAtt := new(acmelibv2.FloatAttribute)
 
 	pFloatAtt.DefValue = floatAtt.defValue
 	pFloatAtt.Min = floatAtt.min
@@ -706,8 +677,8 @@ func (s *saver) saveFloatAttribute(floatAtt *FloatAttribute) *acmelibv1.FloatAtt
 	return pFloatAtt
 }
 
-func (s *saver) saveEnumAttribute(enumAtt *EnumAttribute) *acmelibv1.EnumAttribute {
-	pEnumAtt := new(acmelibv1.EnumAttribute)
+func (s *saver) saveEnumAttribute(enumAtt *EnumAttribute) *acmelibv2.EnumAttribute {
+	pEnumAtt := new(acmelibv2.EnumAttribute)
 
 	pEnumAtt.DefValue = enumAtt.defValue
 

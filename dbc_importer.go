@@ -646,12 +646,18 @@ func (i *dbcImporter) importMuxorSignal(layout *SignalLayout, dbcSig *dbc.Signal
 	muxorName := dbcSig.Name
 
 	layoutCount := getValueFromSize(int(dbcSig.Size))
-	muxLayer, err := layout.AddMultiplexedLayer(muxorName, i.getSignalStartPos(dbcSig), layoutCount)
+
+	muxor, err := NewMuxorSignal(muxorName, layoutCount)
 	if err != nil {
 		return nil, i.errorf(dbcSig, err)
 	}
 
-	i.finishSignal(muxLayer.muxor, dbcSig, i.getSignalKey(dbcMsgID, muxorName))
+	i.finishSignal(muxor, dbcSig, i.getSignalKey(dbcMsgID, muxorName))
+
+	muxLayer, err := layout.AddMultiplexedLayer(muxor, i.getSignalStartPos(dbcSig))
+	if err != nil {
+		return nil, i.errorf(dbcSig, err)
+	}
 
 	return muxLayer, nil
 }

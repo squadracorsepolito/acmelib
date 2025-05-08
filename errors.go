@@ -41,6 +41,9 @@ var ErrTooBig = errors.New("too big")
 // ErrNotClear is returned when a value is not clear.
 var ErrNotClear = errors.New("not clear")
 
+// ErrIsDifferent is returned when a value is different.
+var ErrIsDifferent = errors.New("is different")
+
 // ErrInvalidOneof is returned when a oneof field does not match
 // a kind/type field.
 type ErrInvalidOneof struct {
