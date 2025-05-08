@@ -2,7 +2,6 @@ package acmelib
 
 import (
 	"bytes"
-	"log"
 	"strings"
 	"testing"
 
@@ -19,8 +18,6 @@ func Test_LoadNetwork(t *testing.T) {
 	assert.NoError(SaveNetwork(net, &SaveNetworkOptions{
 		WireWriter: buf,
 	}))
-
-	log.Print("----------------------------------------")
 
 	loadNet, err := LoadNetwork(buf, SaveEncodingWire)
 	assert.NoError(err)

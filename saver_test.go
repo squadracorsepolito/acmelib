@@ -1,7 +1,7 @@
 package acmelib
 
 import (
-	"os"
+	"bytes"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,12 +12,10 @@ func Test_SaveNetwork(t *testing.T) {
 
 	tdNet := initNetwork(assert)
 
-	jsonFile, err := os.Create("./testdata/new_expected.json")
-	assert.NoError(err)
-	defer jsonFile.Close()
+	resBuf := new(bytes.Buffer)
 
 	net := tdNet.net
 	assert.NoError(SaveNetwork(net, &SaveNetworkOptions{
-		JSONWriter: jsonFile,
+		JSONWriter: resBuf,
 	}))
 }

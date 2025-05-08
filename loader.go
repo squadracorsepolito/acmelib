@@ -3,10 +3,11 @@ package acmelib
 import (
 	"bytes"
 	"io"
-	"log"
 	"time"
 
+	acmelibv1 "github.com/squadracorsepolito/acmelib/gen/acmelib/v1"
 	acmelibv2 "github.com/squadracorsepolito/acmelib/gen/acmelib/v2"
+	"github.com/squadracorsepolito/acmelib/migrate"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
@@ -37,18 +38,33 @@ func LoadNetwork(r io.Reader, encoding SaveEncoding) (*Network, error) {
 
 	switch encoding {
 	case SaveEncodingWire:
-		if err := proto.Unmarshal(buf.Bytes(), pNetwork); err != nil {
-			return nil, err
+		err = proto.Unmarshal(buf.Bytes(), pNetwork)
+		if err != nil {
+			pv1Network := &acmelibv1.Network{}
+			if err := proto.Unmarshal(buf.Bytes(), pv1Network); err != nil {
+				return nil, err
+			}
+			pNetwork = migrate.FromV1Model(pv1Network)
 		}
 
 	case SaveEncodingJSON:
-		if err := protojson.Unmarshal(buf.Bytes(), pNetwork); err != nil {
-			return nil, err
+		err = protojson.Unmarshal(buf.Bytes(), pNetwork)
+		if err != nil {
+			pv1Network := &acmelibv1.Network{}
+			if err := protojson.Unmarshal(buf.Bytes(), pv1Network); err != nil {
+				return nil, err
+			}
+			pNetwork = migrate.FromV1Model(pv1Network)
 		}
 
 	case SaveEncodingText:
-		if err := prototext.Unmarshal(buf.Bytes(), pNetwork); err != nil {
-			return nil, err
+		err = prototext.Unmarshal(buf.Bytes(), pNetwork)
+		if err != nil {
+			pv1Network := &acmelibv1.Network{}
+			if err := prototext.Unmarshal(buf.Bytes(), pv1Network); err != nil {
+				return nil, err
+			}
+			pNetwork = migrate.FromV1Model(pv1Network)
 		}
 	}
 
@@ -684,7 +700,6 @@ func (l *loader) loadAttributeAssignment(attEnt AttributableEntity, pAttAss *acm
 	switch tmpVal := pAttAss.Value.(type) {
 	case *acmelibv2.AttributeAssignment_ValueString:
 		if err := attEnt.AssignAttribute(att, tmpVal.ValueString); err != nil {
-			log.Print("string: ", tmpVal)
 			return err
 		}
 
@@ -695,7 +710,6 @@ func (l *loader) loadAttributeAssignment(attEnt AttributableEntity, pAttAss *acm
 
 	case *acmelibv2.AttributeAssignment_ValueDouble:
 		if err := attEnt.AssignAttribute(att, tmpVal.ValueDouble); err != nil {
-			log.Print("double: ", tmpVal)
 			return err
 		}
 	}
