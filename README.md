@@ -12,7 +12,7 @@ The library also provides tools for **importing/exporting** `.dbc` files into/fr
 The package documentation can be found [here](https://pkg.go.dev/github.com/FerroO2000/acmelib).
 
 > [!IMPORTANT]
-> If you want to load a v1 model that contains **multiplexed signals** it is better to export the old model with the v1 version of the package into a **DBC file** and then import it (with the latest version of the package).
+> If you want to load a v1 model (acmelib v1.14.2) that contains **multiplexed signals** it is better to export the old model with the v1.14.2 version of acmelib into a **DBC file** and then import it (with the latest version of the package).
 
 ## Getting started
 
