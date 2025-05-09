@@ -3,19 +3,32 @@ package acmelib
 import (
 	"bytes"
 	"io"
-	"log"
 	"time"
 
-	acmelibv1 "github.com/squadracorsepolito/acmelib/proto/gen/go/acmelib/v1"
+	acmelibv1 "github.com/squadracorsepolito/acmelib/gen/acmelib/v1"
+	acmelibv2 "github.com/squadracorsepolito/acmelib/gen/acmelib/v2"
+	"github.com/squadracorsepolito/acmelib/migrate"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
 )
 
+// SaveEncoding defines the encoding used to save a [Network].
+type SaveEncoding uint
+
+const (
+	// SaveEncodingWire defines a wire encoding.
+	SaveEncodingWire SaveEncoding = 1 << iota
+	// SaveEncodingJSON defines a JSON encoding.
+	SaveEncodingJSON
+	// SaveEncodingText defines a text encoding.
+	SaveEncodingText
+)
+
 // LoadNetwork loads the content of the [io.Reader] and returns a [Network].
 // The encoding parameter specifies the encoding of the content of the reader.
 func LoadNetwork(r io.Reader, encoding SaveEncoding) (*Network, error) {
-	pNetwork := &acmelibv1.Network{}
+	pNetwork := &acmelibv2.Network{}
 
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(r)
@@ -25,18 +38,33 @@ func LoadNetwork(r io.Reader, encoding SaveEncoding) (*Network, error) {
 
 	switch encoding {
 	case SaveEncodingWire:
-		if err := proto.Unmarshal(buf.Bytes(), pNetwork); err != nil {
-			return nil, err
+		err = proto.Unmarshal(buf.Bytes(), pNetwork)
+		if err != nil {
+			pv1Network := &acmelibv1.Network{}
+			if err := proto.Unmarshal(buf.Bytes(), pv1Network); err != nil {
+				return nil, err
+			}
+			pNetwork = migrate.FromV1Model(pv1Network)
 		}
 
 	case SaveEncodingJSON:
-		if err := protojson.Unmarshal(buf.Bytes(), pNetwork); err != nil {
-			return nil, err
+		err = protojson.Unmarshal(buf.Bytes(), pNetwork)
+		if err != nil {
+			pv1Network := &acmelibv1.Network{}
+			if err := protojson.Unmarshal(buf.Bytes(), pv1Network); err != nil {
+				return nil, err
+			}
+			pNetwork = migrate.FromV1Model(pv1Network)
 		}
 
 	case SaveEncodingText:
-		if err := prototext.Unmarshal(buf.Bytes(), pNetwork); err != nil {
-			return nil, err
+		err = prototext.Unmarshal(buf.Bytes(), pNetwork)
+		if err != nil {
+			pv1Network := &acmelibv1.Network{}
+			if err := prototext.Unmarshal(buf.Bytes(), pv1Network); err != nil {
+				return nil, err
+			}
+			pNetwork = migrate.FromV1Model(pv1Network)
 		}
 	}
 
@@ -65,7 +93,7 @@ func newLoader() *loader {
 	}
 }
 
-func (l *loader) loadEntity(pEnt *acmelibv1.Entity, entKind EntityKind) *entity {
+func (l *loader) loadEntity(pEnt *acmelibv2.Entity, entKind EntityKind) *entity {
 	var cTime time.Time
 	if pEnt.CreateTime.IsValid() {
 		cTime = pEnt.CreateTime.AsTime()
@@ -82,7 +110,7 @@ func (l *loader) loadEntity(pEnt *acmelibv1.Entity, entKind EntityKind) *entity 
 	}
 }
 
-func (l *loader) loadNetwork(pNet *acmelibv1.Network) (*Network, error) {
+func (l *loader) loadNetwork(pNet *acmelibv2.Network) (*Network, error) {
 	net := newNetworkFromEntity(l.loadEntity(pNet.Entity, EntityKindNetwork))
 
 	for _, pBuilder := range pNet.CanidBuilders {
@@ -136,7 +164,7 @@ func (l *loader) loadNetwork(pNet *acmelibv1.Network) (*Network, error) {
 	return net, nil
 }
 
-func (l *loader) loadCANIDBuilder(pBuilder *acmelibv1.CANIDBuilder) *CANIDBuilder {
+func (l *loader) loadCANIDBuilder(pBuilder *acmelibv2.CANIDBuilder) *CANIDBuilder {
 	builder := newCANIDBuilderFromEntity(l.loadEntity(pBuilder.Entity, EntityKindCANIDBuilder))
 
 	for _, pBuilderOp := range pBuilder.Operations {
@@ -146,22 +174,22 @@ func (l *loader) loadCANIDBuilder(pBuilder *acmelibv1.CANIDBuilder) *CANIDBuilde
 	return builder
 }
 
-func (l *loader) loadCANIDBuilderOp(pBuilderOp *acmelibv1.CANIDBuilderOp) *CANIDBuilderOp {
+func (l *loader) loadCANIDBuilderOp(pBuilderOp *acmelibv2.CANIDBuilderOp) *CANIDBuilderOp {
 	var kind CANIDBuilderOpKind
 	switch pBuilderOp.Kind {
-	case acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_MESSAGE_PRIORITY:
+	case acmelibv2.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_MESSAGE_PRIORITY:
 		kind = CANIDBuilderOpKindMessagePriority
-	case acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_MESSAGE_ID:
+	case acmelibv2.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_MESSAGE_ID:
 		kind = CANIDBuilderOpKindMessageID
-	case acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_NODE_ID:
+	case acmelibv2.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_NODE_ID:
 		kind = CANIDBuilderOpKindNodeID
-	case acmelibv1.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_BIT_MASK:
+	case acmelibv2.CANIDBuilderOpKind_CANID_BUILDER_OP_KIND_BIT_MASK:
 		kind = CANIDBuilderOpKindBitMask
 	}
 	return newCANIDBuilderOp(kind, int(pBuilderOp.From), int(pBuilderOp.Len))
 }
 
-func (l *loader) loadNode(pNode *acmelibv1.Node) (*Node, error) {
+func (l *loader) loadNode(pNode *acmelibv2.Node) (*Node, error) {
 	node := newNodeFromEntity(l.loadEntity(pNode.Entity, EntityKindNode), NodeID(pNode.NodeId), int(pNode.InterfaceCount))
 
 	for _, pAttAss := range pNode.AttributeAssignments {
@@ -173,12 +201,12 @@ func (l *loader) loadNode(pNode *acmelibv1.Node) (*Node, error) {
 	return node, nil
 }
 
-func (l *loader) loadBus(pBus *acmelibv1.Bus) (*Bus, error) {
+func (l *loader) loadBus(pBus *acmelibv2.Bus) (*Bus, error) {
 	bus := newBusFromEntity(l.loadEntity(pBus.Entity, EntityKindBus))
 
 	var typ BusType
 	switch pBus.Type {
-	case acmelibv1.BusType_BUS_TYPE_CAN_2A:
+	case acmelibv2.BusType_BUS_TYPE_CAN_2A:
 		typ = BusTypeCAN2A
 	}
 	bus.SetType(typ)
@@ -205,7 +233,7 @@ func (l *loader) loadBus(pBus *acmelibv1.Bus) (*Bus, error) {
 	return bus, nil
 }
 
-func (l *loader) loadNodeInterface(pNodeInt *acmelibv1.NodeInterface) (*NodeInterface, error) {
+func (l *loader) loadNodeInterface(pNodeInt *acmelibv2.NodeInterface) (*NodeInterface, error) {
 	node, ok := l.refNodes[pNodeInt.NodeEntityId]
 	if !ok {
 		return nil, &EntityIDError{
@@ -214,9 +242,9 @@ func (l *loader) loadNodeInterface(pNodeInt *acmelibv1.NodeInterface) (*NodeInte
 		}
 	}
 
-	nodeInt, err := node.GetInterface(int(pNodeInt.Number))
-	if err != nil {
-		return nil, err
+	nodeInt := node.GetInterface(int(pNodeInt.Number))
+	if nodeInt == nil {
+		return nil, ErrNotFound
 	}
 
 	for _, pMsg := range pNodeInt.Messages {
@@ -233,36 +261,16 @@ func (l *loader) loadNodeInterface(pNodeInt *acmelibv1.NodeInterface) (*NodeInte
 	return nodeInt, nil
 }
 
-func (l *loader) loadSignalPayload(pSigPayload *acmelibv1.SignalPayload) map[string]int {
-	sigMap := make(map[string]int)
-	for _, pRef := range pSigPayload.Refs {
-		sigMap[pRef.SignalEntityId] = int(pRef.RelStartBit)
-	}
-	return sigMap
-}
+// func (l *loader) loadSignalPayload(pSigPayload *acmelibv2.SignalPayload) map[string]int {
+// 	sigMap := make(map[string]int)
+// 	for _, pRef := range pSigPayload.Refs {
+// 		sigMap[pRef.SignalEntityId] = int(pRef.RelStartBit)
+// 	}
+// 	return sigMap
+// }
 
-func (l *loader) loadMessage(pMsg *acmelibv1.Message) (*Message, error) {
+func (l *loader) loadMessage(pMsg *acmelibv2.Message) (*Message, error) {
 	msg := newMessageFromEntity(l.loadEntity(pMsg.Entity, EntityKindMessage), MessageID(pMsg.MessageId), int(pMsg.SizeByte))
-
-	sigMap := l.loadSignalPayload(pMsg.Payload)
-	for _, pSig := range pMsg.Signals {
-		sig, err := l.loadSignal(pSig)
-		if err != nil {
-			return nil, err
-		}
-
-		sigPos, ok := sigMap[pSig.Entity.EntityId]
-		if !ok {
-			return nil, &EntityIDError{
-				EntityID: EntityID(pSig.Entity.EntityId),
-				Err:      ErrNotFound,
-			}
-		}
-
-		if err := msg.InsertSignal(sig, sigPos); err != nil {
-			return nil, err
-		}
-	}
 
 	if pMsg.HasStaticCanId {
 		if err := msg.SetStaticCANID(CANID(pMsg.StaticCanId)); err != nil {
@@ -271,21 +279,14 @@ func (l *loader) loadMessage(pMsg *acmelibv1.Message) (*Message, error) {
 	}
 
 	switch pMsg.Priority {
-	case acmelibv1.MessagePriority_MESSAGE_PRIORITY_VERY_HIGH:
+	case acmelibv2.MessagePriority_MESSAGE_PRIORITY_VERY_HIGH:
 		msg.SetPriority(MessagePriorityVeryHigh)
-	case acmelibv1.MessagePriority_MESSAGE_PRIORITY_HIGH:
+	case acmelibv2.MessagePriority_MESSAGE_PRIORITY_HIGH:
 		msg.SetPriority(MessagePriorityHigh)
-	case acmelibv1.MessagePriority_MESSAGE_PRIORITY_MEDIUM:
+	case acmelibv2.MessagePriority_MESSAGE_PRIORITY_MEDIUM:
 		msg.SetPriority(MessagePriorityMedium)
-	case acmelibv1.MessagePriority_MESSAGE_PRIORITY_LOW:
+	case acmelibv2.MessagePriority_MESSAGE_PRIORITY_LOW:
 		msg.SetPriority(MessagePriorityLow)
-	}
-
-	switch pMsg.ByteOrder {
-	case acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_LITTLE_ENDIAN:
-		msg.SetByteOrder(MessageByteOrderLittleEndian)
-	case acmelibv1.MessageByteOrder_MESSAGE_BYTE_ORDER_BIG_ENDIAN:
-		msg.SetByteOrder(MessageByteOrderBigEndian)
 	}
 
 	if pMsg.CycleTime != 0 {
@@ -293,13 +294,13 @@ func (l *loader) loadMessage(pMsg *acmelibv1.Message) (*Message, error) {
 	}
 
 	switch pMsg.SendType {
-	case acmelibv1.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC:
+	case acmelibv2.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC:
 		msg.SetSendType(MessageSendTypeCyclic)
-	case acmelibv1.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE:
+	case acmelibv2.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE:
 		msg.SetSendType(MessageSendTypeCyclicIfActive)
-	case acmelibv1.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_AND_TRIGGERED:
+	case acmelibv2.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_AND_TRIGGERED:
 		msg.SetSendType(MessageSendTypeCyclicAndTriggered)
-	case acmelibv1.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE_AND_TRIGGERED:
+	case acmelibv2.MessageSendType_MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE_AND_TRIGGERED:
 		msg.SetSendType(MessageSendTypeCyclicIfActiveAndTriggered)
 	}
 
@@ -320,12 +321,16 @@ func (l *loader) loadMessage(pMsg *acmelibv1.Message) (*Message, error) {
 			}
 		}
 
-		recNodeInt, err := recNode.GetInterface(int(pRec.NodeInterfaceNumber))
-		if err != nil {
-			return nil, err
+		recNodeInt := recNode.GetInterface(int(pRec.NodeInterfaceNumber))
+		if recNodeInt == nil {
+			return nil, ErrNotFound
 		}
 
 		msg.AddReceiver(recNodeInt)
+	}
+
+	if err := l.loadSignalLayout(msg.layout, pMsg.Layout); err != nil {
+		return nil, err
 	}
 
 	for _, pAttAss := range pMsg.AttributeAssignments {
@@ -337,25 +342,29 @@ func (l *loader) loadMessage(pMsg *acmelibv1.Message) (*Message, error) {
 	return msg, nil
 }
 
-func (l *loader) loadSignal(pSig *acmelibv1.Signal) (Signal, error) {
+func (l *loader) loadSignal(pSig *acmelibv2.Signal) (Signal, error) {
 	var kind SignalKind
 	switch pSig.Kind {
-	case acmelibv1.SignalKind_SIGNAL_KIND_STANDARD:
+	case acmelibv2.SignalKind_SIGNAL_KIND_STANDARD:
 		kind = SignalKindStandard
-	case acmelibv1.SignalKind_SIGNAL_KIND_ENUM:
+	case acmelibv2.SignalKind_SIGNAL_KIND_ENUM:
 		kind = SignalKindEnum
-	case acmelibv1.SignalKind_SIGNAL_KIND_MULTIPLEXER:
-		kind = SignalKindMultiplexer
+	case acmelibv2.SignalKind_SIGNAL_KIND_MUXOR:
+		kind = SignalKindMuxor
 	}
 
 	baseSig := newSignalFromEntity(l.loadEntity(pSig.Entity, EntityKindSignal), kind)
 
+	if pSig.Endianness == acmelibv2.Endianness_ENDIANNESS_BIG_ENDIAN {
+		baseSig.SetEndianness(EndiannessBigEndian)
+	}
+
 	var sig Signal
 	switch tmpPSig := pSig.Signal.(type) {
-	case *acmelibv1.Signal_Standard:
+	case *acmelibv2.Signal_Standard:
 		if kind != SignalKindStandard {
 			return nil, &ErrInvalidOneof{
-				KindTypeField: acmelibv1.SignalKind_SIGNAL_KIND_STANDARD.String(),
+				KindTypeField: acmelibv2.SignalKind_SIGNAL_KIND_STANDARD.String(),
 			}
 		}
 
@@ -365,10 +374,10 @@ func (l *loader) loadSignal(pSig *acmelibv1.Signal) (Signal, error) {
 		}
 		sig = stdSig
 
-	case *acmelibv1.Signal_Enum:
+	case *acmelibv2.Signal_Enum:
 		if kind != SignalKindEnum {
 			return nil, &ErrInvalidOneof{
-				KindTypeField: acmelibv1.SignalKind_SIGNAL_KIND_ENUM.String(),
+				KindTypeField: acmelibv2.SignalKind_SIGNAL_KIND_ENUM.String(),
 			}
 		}
 
@@ -378,34 +387,34 @@ func (l *loader) loadSignal(pSig *acmelibv1.Signal) (Signal, error) {
 		}
 		sig = enumSig
 
-	case *acmelibv1.Signal_Multiplexer:
-		if kind != SignalKindMultiplexer {
+	case *acmelibv2.Signal_Muxor:
+		if kind != SignalKindMuxor {
 			return nil, &ErrInvalidOneof{
-				KindTypeField: acmelibv1.SignalKind_SIGNAL_KIND_MULTIPLEXER.String(),
+				KindTypeField: acmelibv2.SignalKind_SIGNAL_KIND_MUXOR.String(),
 			}
 		}
 
-		muxSig, err := l.loadMultiplexerSignal(baseSig, tmpPSig.Multiplexer)
+		muxorSig, err := l.loadMuxorSignal(baseSig, tmpPSig.Muxor)
 		if err != nil {
 			return nil, err
 		}
-		sig = muxSig
+		sig = muxorSig
 	}
 
 	switch pSig.SendType {
-	case acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_CYCLIC:
+	case acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_CYCLIC:
 		sig.SetSendType(SignalSendTypeCyclic)
-	case acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_ON_WRITE:
+	case acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_ON_WRITE:
 		sig.SetSendType(SignalSendTypeOnWrite)
-	case acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_ON_WRITE_WITH_REPETITION:
+	case acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_ON_WRITE_WITH_REPETITION:
 		sig.SetSendType(SignalSendTypeOnWriteWithRepetition)
-	case acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_ON_CHANGE:
+	case acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_ON_CHANGE:
 		sig.SetSendType(SignalSendTypeOnChange)
-	case acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_ON_CHANGE_WITH_REPETITION:
+	case acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_ON_CHANGE_WITH_REPETITION:
 		sig.SetSendType(SignalSendTypeOnChangeWithRepetition)
-	case acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_IF_ACTIVE:
+	case acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_IF_ACTIVE:
 		sig.SetSendType(SignalSendTypeIfActive)
-	case acmelibv1.SignalSendType_SIGNAL_SEND_TYPE_IF_ACTIVE_WITH_REPETITION:
+	case acmelibv2.SignalSendType_SIGNAL_SEND_TYPE_IF_ACTIVE_WITH_REPETITION:
 		sig.SetSendType(SignalSendTypeIfActiveWithRepetition)
 	}
 
@@ -422,7 +431,7 @@ func (l *loader) loadSignal(pSig *acmelibv1.Signal) (Signal, error) {
 	return sig, nil
 }
 
-func (l *loader) loadStandardSignal(baseSig *signal, pStdSig *acmelibv1.StandardSignal) (*StandardSignal, error) {
+func (l *loader) loadStandardSignal(baseSig *signal, pStdSig *acmelibv2.StandardSignal) (*StandardSignal, error) {
 	sigTyp, ok := l.refSigTypes[pStdSig.TypeEntityId]
 	if !ok {
 		return nil, &EntityIDError{
@@ -450,7 +459,7 @@ func (l *loader) loadStandardSignal(baseSig *signal, pStdSig *acmelibv1.Standard
 	return stdSig, nil
 }
 
-func (l *loader) loadEnumSignal(baseSig *signal, pEnumSig *acmelibv1.EnumSignal) (*EnumSignal, error) {
+func (l *loader) loadEnumSignal(baseSig *signal, pEnumSig *acmelibv2.EnumSignal) (*EnumSignal, error) {
 	sigEnum, ok := l.refSigEnums[pEnumSig.EnumEntityId]
 	if !ok {
 		return nil, &EntityIDError{
@@ -461,69 +470,73 @@ func (l *loader) loadEnumSignal(baseSig *signal, pEnumSig *acmelibv1.EnumSignal)
 	return newEnumSignalFromBase(baseSig, sigEnum)
 }
 
-func (l *loader) loadMultiplexerSignal(baseSig *signal, pMuxSig *acmelibv1.MultiplexerSignal) (*MultiplexerSignal, error) {
-	muxSig, err := newMultiplexerSignalFromBase(baseSig, int(pMuxSig.GroupCount), int(pMuxSig.GroupSize))
-	if err != nil {
-		return nil, err
-	}
+func (l *loader) loadMuxorSignal(baseSig *signal, pMuxorSig *acmelibv2.MuxorSignal) (*MuxorSignal, error) {
+	return newMuxorSignalFromBase(baseSig, int(pMuxorSig.LayoutCount))
+}
 
-	muxedSignals := make(map[string]Signal)
-	for _, pMuxedSig := range pMuxSig.Signals {
-		sig, err := l.loadSignal(pMuxedSig)
+func (l *loader) loadSignalLayout(layout *SignalLayout, pLayout *acmelibv2.SignalLayout) error {
+	for _, pSig := range pLayout.Signals {
+		sig, err := l.loadSignal(pSig)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		muxedSignals[pMuxedSig.Entity.EntityId] = sig
-	}
 
-	fixedSignals := make(map[string]struct{})
-	for _, fixEntID := range pMuxSig.FixedSignalEntityIds {
-		fixedSignals[fixEntID] = struct{}{}
-	}
+		startPos := int(pSig.StartPos)
 
-	insFixedSignals := make(map[string]struct{})
-	for groupID, pGroup := range pMuxSig.Groups {
-		sigMap := l.loadSignalPayload(pGroup)
-
-		for sigEntID, startPos := range sigMap {
-			muxedSig, ok := muxedSignals[sigEntID]
-			if !ok {
-				return nil, &EntityIDError{
-					EntityID: EntityID(sigEntID),
-					Err:      ErrNotFound,
-				}
+		if layout.fromMessage() {
+			if err := layout.parentMsg.InsertSignal(sig, startPos); err != nil {
+				return err
 			}
+		}
 
-			if _, fixed := fixedSignals[sigEntID]; fixed {
-				if _, inserted := insFixedSignals[sigEntID]; !inserted {
-					if err := muxSig.InsertSignal(muxedSig, startPos); err != nil {
-						return nil, err
-					}
-					insFixedSignals[sigEntID] = struct{}{}
-				}
+		if layout.fromMultiplexedLayer() {
+			layoutID := int(pLayout.Id)
+			sig.setStartPos(startPos)
 
+			if err := layout.parentMuxLayer.InsertSignal(sig, startPos, layoutID); err != nil {
+				return err
+			}
+		}
+	}
+
+	for _, pMuxLayer := range pLayout.MultiplexedLayers {
+		sig, err := l.loadSignal(pMuxLayer.Muxor)
+		if err != nil {
+			return err
+		}
+		muxor, err := sig.ToMuxor()
+		if err != nil {
+			return err
+		}
+
+		muxLayer, err := layout.AddMultiplexedLayer(muxor, int(pMuxLayer.Muxor.StartPos))
+		if err != nil {
+			return err
+		}
+
+		for _, pInnerLayout := range pMuxLayer.Layouts {
+			innerLayout := muxLayer.GetLayout(int(pInnerLayout.Id))
+			if innerLayout == nil {
 				continue
 			}
 
-			if err := muxSig.InsertSignal(muxedSig, startPos, groupID); err != nil {
-				return nil, err
+			if err := l.loadSignalLayout(innerLayout, pInnerLayout); err != nil {
+				return err
 			}
 		}
 	}
 
-	return muxSig, err
+	return nil
 }
 
-func (l *loader) loadSignalType(pSigType *acmelibv1.SignalType) (*SignalType, error) {
+func (l *loader) loadSignalType(pSigType *acmelibv2.SignalType) (*SignalType, error) {
 	var kind SignalTypeKind
 	switch pSigType.Kind {
-	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_CUSTOM:
-		kind = SignalTypeKindCustom
-	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_FLAG:
+	case acmelibv2.SignalTypeKind_SIGNAL_TYPE_KIND_FLAG:
 		kind = SignalTypeKindFlag
-	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_INTEGER:
+	case acmelibv2.SignalTypeKind_SIGNAL_TYPE_KIND_INTEGER:
 		kind = SignalTypeKindInteger
-	case acmelibv1.SignalTypeKind_SIGNAL_TYPE_KIND_DECIMAL:
+	case acmelibv2.SignalTypeKind_SIGNAL_TYPE_KIND_DECIMAL:
 		kind = SignalTypeKindDecimal
 	}
 
@@ -531,52 +544,52 @@ func (l *loader) loadSignalType(pSigType *acmelibv1.SignalType) (*SignalType, er
 	return newSignalTypeFromEntity(ent, kind, int(pSigType.Size), pSigType.Signed, pSigType.Min, pSigType.Max, pSigType.Scale, pSigType.Offset)
 }
 
-func (l *loader) loadSignalUnit(pSigUnit *acmelibv1.SignalUnit) *SignalUnit {
+func (l *loader) loadSignalUnit(pSigUnit *acmelibv2.SignalUnit) *SignalUnit {
 	var kind SignalUnitKind
 	switch pSigUnit.Kind {
-	case acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_CUSTOM:
+	case acmelibv2.SignalUnitKind_SIGNAL_UNIT_KIND_CUSTOM:
 		kind = SignalUnitKindCustom
-	case acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_TEMPERATURE:
+	case acmelibv2.SignalUnitKind_SIGNAL_UNIT_KIND_TEMPERATURE:
 		kind = SignalUnitKindTemperature
-	case acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_ELECTRICAL:
+	case acmelibv2.SignalUnitKind_SIGNAL_UNIT_KIND_ELECTRICAL:
 		kind = SignalUnitKindElectrical
-	case acmelibv1.SignalUnitKind_SIGNAL_UNIT_KIND_POWER:
+	case acmelibv2.SignalUnitKind_SIGNAL_UNIT_KIND_POWER:
 		kind = SignalUnitKindPower
 	}
 	return newSignalUnitFromEntity(l.loadEntity(pSigUnit.Entity, EntityKindSignalUnit), kind, pSigUnit.Symbol)
 }
 
-func (l *loader) loadSignalEnum(pSigEnum *acmelibv1.SignalEnum) (*SignalEnum, error) {
+func (l *loader) loadSignalEnum(pSigEnum *acmelibv2.SignalEnum) (*SignalEnum, error) {
 	sigEnum := newSignalEnumFromEntity(l.loadEntity(pSigEnum.Entity, EntityKindSignalEnum))
 
 	for _, pVal := range pSigEnum.Values {
-		val := l.loadSignalEnumValue(pVal)
-		if err := sigEnum.AddValue(val); err != nil {
+		_, err := sigEnum.AddValue(int(pVal.Index), pVal.Name)
+		if err != nil {
 			return nil, err
 		}
 	}
 
-	if pSigEnum.MinSize != 0 {
-		sigEnum.minSize = int(pSigEnum.MinSize)
+	if pSigEnum.FixedSize {
+		sigEnum.SetFixedSize(true)
+	}
+
+	if err := sigEnum.UpdateSize(int(pSigEnum.Size)); err != nil {
+		return nil, err
 	}
 
 	return sigEnum, nil
 }
 
-func (l *loader) loadSignalEnumValue(pVal *acmelibv1.SignalEnumValue) *SignalEnumValue {
-	return newSignalEnumValueFromEntity(l.loadEntity(pVal.Entity, EntityKindSignalEnumValue), int(pVal.Index))
-}
-
-func (l *loader) loadAttribute(pAtt *acmelibv1.Attribute) (Attribute, error) {
+func (l *loader) loadAttribute(pAtt *acmelibv2.Attribute) (Attribute, error) {
 	var typ AttributeType
 	switch pAtt.Type {
-	case acmelibv1.AttributeType_ATTRIBUTE_TYPE_STRING:
+	case acmelibv2.AttributeType_ATTRIBUTE_TYPE_STRING:
 		typ = AttributeTypeString
-	case acmelibv1.AttributeType_ATTRIBUTE_TYPE_INTEGER:
+	case acmelibv2.AttributeType_ATTRIBUTE_TYPE_INTEGER:
 		typ = AttributeTypeInteger
-	case acmelibv1.AttributeType_ATTRIBUTE_TYPE_FLOAT:
+	case acmelibv2.AttributeType_ATTRIBUTE_TYPE_FLOAT:
 		typ = AttributeTypeFloat
-	case acmelibv1.AttributeType_ATTRIBUTE_TYPE_ENUM:
+	case acmelibv2.AttributeType_ATTRIBUTE_TYPE_ENUM:
 		typ = AttributeTypeEnum
 	}
 
@@ -584,20 +597,20 @@ func (l *loader) loadAttribute(pAtt *acmelibv1.Attribute) (Attribute, error) {
 
 	var att Attribute
 	switch tmpPAtt := pAtt.Attribute.(type) {
-	case *acmelibv1.Attribute_StringAttribute:
+	case *acmelibv2.Attribute_StringAttribute:
 		if typ != AttributeTypeString {
 			return nil, &ErrInvalidOneof{
-				KindTypeField: acmelibv1.AttributeType_ATTRIBUTE_TYPE_STRING.String(),
+				KindTypeField: acmelibv2.AttributeType_ATTRIBUTE_TYPE_STRING.String(),
 			}
 		}
 
 		strAtt := l.loadStringAttribute(baseAtt, tmpPAtt.StringAttribute)
 		att = strAtt
 
-	case *acmelibv1.Attribute_IntegerAttribute:
+	case *acmelibv2.Attribute_IntegerAttribute:
 		if typ != AttributeTypeInteger {
 			return nil, &ErrInvalidOneof{
-				KindTypeField: acmelibv1.AttributeType_ATTRIBUTE_TYPE_INTEGER.String(),
+				KindTypeField: acmelibv2.AttributeType_ATTRIBUTE_TYPE_INTEGER.String(),
 			}
 		}
 
@@ -607,10 +620,10 @@ func (l *loader) loadAttribute(pAtt *acmelibv1.Attribute) (Attribute, error) {
 		}
 		att = intAtt
 
-	case *acmelibv1.Attribute_FloatAttribute:
+	case *acmelibv2.Attribute_FloatAttribute:
 		if typ != AttributeTypeFloat {
 			return nil, &ErrInvalidOneof{
-				KindTypeField: acmelibv1.AttributeType_ATTRIBUTE_TYPE_FLOAT.String(),
+				KindTypeField: acmelibv2.AttributeType_ATTRIBUTE_TYPE_FLOAT.String(),
 			}
 		}
 
@@ -620,10 +633,10 @@ func (l *loader) loadAttribute(pAtt *acmelibv1.Attribute) (Attribute, error) {
 		}
 		att = floatAtt
 
-	case *acmelibv1.Attribute_EnumAttribute:
+	case *acmelibv2.Attribute_EnumAttribute:
 		if typ != AttributeTypeEnum {
 			return nil, &ErrInvalidOneof{
-				KindTypeField: acmelibv1.AttributeType_ATTRIBUTE_TYPE_ENUM.String(),
+				KindTypeField: acmelibv2.AttributeType_ATTRIBUTE_TYPE_ENUM.String(),
 			}
 		}
 
@@ -640,11 +653,11 @@ func (l *loader) loadAttribute(pAtt *acmelibv1.Attribute) (Attribute, error) {
 	return att, nil
 }
 
-func (l *loader) loadStringAttribute(baseAtt *attribute, pStrAtt *acmelibv1.StringAttribute) *StringAttribute {
+func (l *loader) loadStringAttribute(baseAtt *attribute, pStrAtt *acmelibv2.StringAttribute) *StringAttribute {
 	return newStringAttributeFromBase(baseAtt, pStrAtt.DefValue)
 }
 
-func (l *loader) loadIntegerAttribute(baseAtt *attribute, pIntAtt *acmelibv1.IntegerAttribute) (*IntegerAttribute, error) {
+func (l *loader) loadIntegerAttribute(baseAtt *attribute, pIntAtt *acmelibv2.IntegerAttribute) (*IntegerAttribute, error) {
 	intAtt, err := newIntegerAttributeFromBase(baseAtt, int(pIntAtt.DefValue), int(pIntAtt.Min), int(pIntAtt.Max))
 	if err != nil {
 		return nil, err
@@ -657,11 +670,11 @@ func (l *loader) loadIntegerAttribute(baseAtt *attribute, pIntAtt *acmelibv1.Int
 	return intAtt, nil
 }
 
-func (l *loader) loadFloatAttribute(baseAtt *attribute, pFloatAtt *acmelibv1.FloatAttribute) (*FloatAttribute, error) {
+func (l *loader) loadFloatAttribute(baseAtt *attribute, pFloatAtt *acmelibv2.FloatAttribute) (*FloatAttribute, error) {
 	return newFloatAttributeFromBase(baseAtt, pFloatAtt.DefValue, pFloatAtt.Min, pFloatAtt.Max)
 }
 
-func (l *loader) loadEnumAttribute(baseAtt *attribute, pEnumAtt *acmelibv1.EnumAttribute) (*EnumAttribute, error) {
+func (l *loader) loadEnumAttribute(baseAtt *attribute, pEnumAtt *acmelibv2.EnumAttribute) (*EnumAttribute, error) {
 	values := make([]string, len(pEnumAtt.Values))
 	values[0] = pEnumAtt.DefValue
 	idx := 1
@@ -675,7 +688,7 @@ func (l *loader) loadEnumAttribute(baseAtt *attribute, pEnumAtt *acmelibv1.EnumA
 	return newEnumAttributeFromBase(baseAtt, values...)
 }
 
-func (l *loader) loadAttributeAssignment(attEnt AttributableEntity, pAttAss *acmelibv1.AttributeAssignment) error {
+func (l *loader) loadAttributeAssignment(attEnt AttributableEntity, pAttAss *acmelibv2.AttributeAssignment) error {
 	att, ok := l.refAttributes[pAttAss.AttributeEntityId]
 	if !ok {
 		return &EntityIDError{
@@ -685,20 +698,18 @@ func (l *loader) loadAttributeAssignment(attEnt AttributableEntity, pAttAss *acm
 	}
 
 	switch tmpVal := pAttAss.Value.(type) {
-	case *acmelibv1.AttributeAssignment_ValueString:
+	case *acmelibv2.AttributeAssignment_ValueString:
 		if err := attEnt.AssignAttribute(att, tmpVal.ValueString); err != nil {
-			log.Print("string: ", tmpVal)
 			return err
 		}
 
-	case *acmelibv1.AttributeAssignment_ValueInt:
+	case *acmelibv2.AttributeAssignment_ValueInt:
 		if err := attEnt.AssignAttribute(att, int(tmpVal.ValueInt)); err != nil {
 			return err
 		}
 
-	case *acmelibv1.AttributeAssignment_ValueDouble:
+	case *acmelibv2.AttributeAssignment_ValueDouble:
 		if err := attEnt.AssignAttribute(att, tmpVal.ValueDouble); err != nil {
-			log.Print("double: ", tmpVal)
 			return err
 		}
 	}

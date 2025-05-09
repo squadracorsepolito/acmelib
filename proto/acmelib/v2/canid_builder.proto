@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package acmelib.v2;
+
+import "acmelib/v2/entity.proto";
+
+enum CANIDBuilderOpKind {
+    CANID_BUILDER_OP_KIND_UNSPECIFIED = 0;
+    CANID_BUILDER_OP_KIND_MESSAGE_PRIORITY = 1;
+    CANID_BUILDER_OP_KIND_MESSAGE_ID = 2;
+    CANID_BUILDER_OP_KIND_NODE_ID = 3;
+    CANID_BUILDER_OP_KIND_BIT_MASK = 4;
+}
+
+message CANIDBuilderOp {
+    CANIDBuilderOpKind kind = 1;
+    uint32 from = 2;
+    uint32 len = 3;
+}
+
+message CANIDBuilder {
+    acmelib.v2.Entity entity = 1;
+
+    repeated CANIDBuilderOp operations = 2;
+}

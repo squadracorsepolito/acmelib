@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package acmelib.v2;
+
+import "google/protobuf/timestamp.proto";
+
+enum EntityKind {
+    ENTITY_KIND_UNSPECIFIED = 0;
+    ENTITY_KIND_NETWORK = 1;
+    ENTITY_KIND_BUS = 2;
+    ENTITY_KIND_NODE = 3;
+    ENTITY_KIND_MESSAGE = 4;
+    ENTITY_KIND_SIGNAL = 5;
+    ENTITY_KIND_SIGNAL_TYPE = 6;
+    ENTITY_KIND_SIGNAL_UNIT = 7;
+    ENTITY_KIND_SIGNAL_ENUM = 8;
+    ENTITY_KIND_ATTRIBUTE = 9;
+    ENTITY_KIND_CANID_BUILDER = 10;
+}
+
+message Entity {
+    string entity_id = 1;
+    EntityKind entity_kind = 2;
+    string name = 3;
+    string desc = 4;
+    google.protobuf.Timestamp create_time = 5;
+}

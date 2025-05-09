@@ -1,10 +1,11 @@
 package acmelib
 
 import (
-	"fmt"
-	"strings"
+	"cmp"
+	"slices"
 
-	"golang.org/x/exp/slices"
+	"github.com/squadracorsepolito/acmelib/internal/collection"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // BusType is the type of a [Bus].
@@ -35,11 +36,11 @@ type Bus struct {
 	canIDBuilder      *CANIDBuilder
 	isDefCANIDBuilder bool
 
-	nodeInts  *set[EntityID, *NodeInterface]
-	nodeNames *set[string, EntityID]
-	nodeIDs   *set[NodeID, EntityID]
+	nodeInts  *collection.Map[EntityID, *NodeInterface]
+	nodeNames *collection.Map[string, EntityID]
+	nodeIDs   *collection.Map[NodeID, EntityID]
 
-	messageStaticCANIDs *set[CANID, EntityID]
+	messageStaticCANIDs *collection.Map[CANID, EntityID]
 
 	baudrate int
 	typ      BusType
@@ -54,11 +55,11 @@ func newBusFromEntity(ent *entity) *Bus {
 
 		isDefCANIDBuilder: true,
 
-		nodeInts:  newSet[EntityID, *NodeInterface](),
-		nodeNames: newSet[string, EntityID](),
-		nodeIDs:   newSet[NodeID, EntityID](),
+		nodeInts:  collection.NewMap[EntityID, *NodeInterface](),
+		nodeNames: collection.NewMap[string, EntityID](),
+		nodeIDs:   collection.NewMap[NodeID, EntityID](),
 
-		messageStaticCANIDs: newSet[CANID, EntityID](),
+		messageStaticCANIDs: collection.NewMap[CANID, EntityID](),
 
 		baudrate: 0,
 		typ:      BusTypeCAN2A,
@@ -101,33 +102,22 @@ func (b *Bus) errorf(err error) error {
 }
 
 func (b *Bus) verifyNodeName(name string) error {
-	err := b.nodeNames.verifyKeyUnique(name)
-	if err != nil {
-		return &NameError{
-			Name: name,
-			Err:  err,
-		}
+	if b.nodeNames.Has(name) {
+		return newNameError(name, ErrIsDuplicated)
 	}
 	return nil
 }
 
 func (b *Bus) verifyNodeID(nodeID NodeID) error {
-	err := b.nodeIDs.verifyKeyUnique(nodeID)
-	if err != nil {
-		return &NodeIDError{
-			NodeID: nodeID,
-			Err:    err,
-		}
+	if b.nodeIDs.Has(nodeID) {
+		return newNodeIDError(nodeID, ErrIsDuplicated)
 	}
 	return nil
 }
 
 func (b *Bus) verifyStaticCANID(staticCANID CANID) error {
-	if err := b.messageStaticCANIDs.verifyKeyUnique(staticCANID); err != nil {
-		return &CANIDError{
-			CANID: staticCANID,
-			Err:   err,
-		}
+	if b.messageStaticCANIDs.Has(staticCANID) {
+		return newCANIDError(staticCANID, ErrIsDuplicated)
 	}
 	return nil
 }
@@ -140,36 +130,33 @@ func (b *Bus) verifyMessageSize(sizeByte int) error {
 		}
 	}
 
-	return &MessageSizeError{
-		Size: sizeByte,
-		Err:  ErrTooBig,
-	}
+	return newSizeError(sizeByte, ErrTooBig)
 }
 
-func (b *Bus) stringify(builder *strings.Builder, tabs int) {
-	b.entity.stringify(builder, tabs)
+func (b *Bus) stringify(s *stringer.Stringer) {
+	b.entity.stringify(s)
 
-	tabStr := getTabString(tabs)
+	s.Write("baudrate: %d\n", b.baudrate)
 
-	builder.WriteString(fmt.Sprintf("%sbaudrate: %d\n", tabStr, b.baudrate))
+	b.canIDBuilder.stringify(s)
 
-	b.canIDBuilder.stringify(builder, tabs)
-
-	if b.nodeInts.size() == 0 {
-		return
+	if b.nodeInts.Size() > 0 {
+		s.Write("node_interfaces:\n")
+		s.Indent()
+		for nodeInt := range b.nodeInts.Values() {
+			nodeInt.stringify(s)
+		}
+		s.Unindent()
 	}
 
-	builder.WriteString(fmt.Sprintf("%sattached_node_interfaces:\n", tabStr))
-	for _, nodeInt := range b.NodeInterfaces() {
-		nodeInt.stringify(builder, tabs+1)
-		builder.WriteRune('\n')
-	}
+	b.withAttributes.stringify(s)
 }
 
 func (b *Bus) String() string {
-	builder := new(strings.Builder)
-	b.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("bus:\n")
+	b.stringify(s)
+	return s.String()
 }
 
 // UpdateName updates the name of the [Bus].
@@ -180,11 +167,12 @@ func (b *Bus) UpdateName(newName string) error {
 	}
 
 	if b.hasParentNetwork() {
-		if err := b.parentNetwork.busNames.verifyKeyUnique(newName); err != nil {
-			return b.errorf(&UpdateNameError{Err: err})
+		if err := b.parentNetwork.verifyBusName(newName); err != nil {
+			return b.errorf(err)
 		}
 
-		b.parentNetwork.busNames.modifyKey(b.name, newName, b.entityID)
+		b.parentNetwork.busNames.Delete(b.name)
+		b.parentNetwork.busNames.Set(newName, b.entityID)
 	}
 
 	b.name = newName
@@ -201,14 +189,14 @@ func (b *Bus) ParentNetwork() *Network {
 // AddNodeInterface adds a [NodeInterface] to the [Bus].
 //
 // It returns:
-//   - [ArgumentError] if the given node interface is nil.
+//   - [ArgError] if the given node interface is nil.
 //   - [NameError] if the node name is invalid.
 //   - [NodeIDError] if the node id is invalid.
 //   - [MessageSizeError] if one of the size of a message sent by the node is invalid.
 //   - [CANIDError] if one of the static CAN-ID of a message sent by the node is invalid.
 func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 	if nodeInterface == nil {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "nodeInterface",
 			Err:  ErrIsNil,
 		}
@@ -224,9 +212,8 @@ func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 		return b.errorf(err)
 	}
 
-	messages := nodeInterface.sentMessages.getValues()
 	msgStaticCANIDs := make(map[CANID]EntityID)
-	for _, tmpMsg := range messages {
+	for tmpMsg := range nodeInterface.sentMessages.Values() {
 		if err := b.verifyMessageSize(tmpMsg.sizeByte); err != nil {
 			return b.errorf(err)
 		}
@@ -241,15 +228,15 @@ func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 		}
 	}
 	for canID, entID := range msgStaticCANIDs {
-		b.messageStaticCANIDs.add(canID, entID)
+		b.messageStaticCANIDs.Set(canID, entID)
 	}
 
 	nodeInterface.parentBus = b
 	nodeEntID := node.entityID
 
-	b.nodeInts.add(nodeEntID, nodeInterface)
-	b.nodeNames.add(node.name, nodeEntID)
-	b.nodeIDs.add(node.id, nodeEntID)
+	b.nodeInts.Set(nodeEntID, nodeInterface)
+	b.nodeNames.Set(node.name, nodeEntID)
+	b.nodeIDs.Set(node.id, nodeEntID)
 
 	return nil
 }
@@ -259,23 +246,20 @@ func (b *Bus) AddNodeInterface(nodeInterface *NodeInterface) error {
 // It returns an [ErrNotFound] if the given entity id does not match
 // any node interface.
 func (b *Bus) RemoveNodeInterface(nodeInterfaceEntityID EntityID) error {
-	nodeInt, err := b.nodeInts.getValue(nodeInterfaceEntityID)
-	if err != nil {
-		return b.errorf(&RemoveEntityError{
-			EntityID: nodeInterfaceEntityID,
-			Err:      err,
-		})
+	nodeInt, ok := b.nodeInts.Get(nodeInterfaceEntityID)
+	if !ok {
+		return b.errorf(ErrNotFound)
 	}
 
 	nodeInt.parentBus = nil
 
-	b.nodeInts.remove(nodeInterfaceEntityID)
-	b.nodeNames.remove(nodeInt.node.name)
-	b.nodeIDs.remove(nodeInt.node.id)
+	b.nodeInts.Delete(nodeInterfaceEntityID)
+	b.nodeNames.Delete(nodeInt.node.name)
+	b.nodeIDs.Delete(nodeInt.node.id)
 
-	for _, tmpMsg := range nodeInt.sentMessages.getValues() {
+	for tmpMsg := range nodeInt.sentMessages.Values() {
 		if tmpMsg.hasStaticCANID {
-			b.messageStaticCANIDs.remove(tmpMsg.staticCANID)
+			b.messageStaticCANIDs.Delete(tmpMsg.staticCANID)
 		}
 	}
 
@@ -284,20 +268,22 @@ func (b *Bus) RemoveNodeInterface(nodeInterfaceEntityID EntityID) error {
 
 // RemoveAllNodeInterfaces removes all node interfaces from the [Bus].
 func (b *Bus) RemoveAllNodeInterfaces() {
-	for _, tmpNodeInt := range b.nodeInts.entries() {
+	for tmpNodeInt := range b.nodeInts.Values() {
 		tmpNodeInt.parentBus = nil
 	}
 
-	b.nodeInts.clear()
-	b.nodeNames.clear()
-	b.nodeIDs.clear()
-	b.messageStaticCANIDs.clear()
+	b.nodeInts.Clear()
+	b.nodeNames.Clear()
+	b.nodeIDs.Clear()
+	b.messageStaticCANIDs.Clear()
 }
 
 // NodeInterfaces returns a slice of all node interfaces connected to the [Bus] sorted by node id.
 func (b *Bus) NodeInterfaces() []*NodeInterface {
-	nodeSlice := b.nodeInts.getValues()
-	slices.SortFunc(nodeSlice, func(a, b *NodeInterface) int { return int(a.node.id) - int(b.node.id) })
+	nodeSlice := slices.Collect(b.nodeInts.Values())
+	slices.SortFunc(nodeSlice, func(a, b *NodeInterface) int {
+		return cmp.Compare(a.node.id, b.node.id)
+	})
 	return nodeSlice
 }
 
@@ -306,16 +292,14 @@ func (b *Bus) NodeInterfaces() []*NodeInterface {
 // It returns an [ErrNotFound] wrapped by a [NameError]
 // if the node name does not match any node interface.
 func (b *Bus) GetNodeInterfaceByNodeName(nodeName string) (*NodeInterface, error) {
-	id, err := b.nodeNames.getValue(nodeName)
-	if err != nil {
-		return nil, b.errorf(&GetEntityError{
-			Err: &NameError{Err: err},
-		})
+	id, ok := b.nodeNames.Get(nodeName)
+	if !ok {
+		return nil, b.errorf(ErrNotFound)
 	}
 
-	nodeInt, err := b.nodeInts.getValue(id)
-	if err != nil {
-		panic(err)
+	nodeInt, ok := b.nodeInts.Get(id)
+	if !ok {
+		return nil, b.errorf(ErrNotFound)
 	}
 
 	return nodeInt, nil
@@ -358,7 +342,7 @@ func (b *Bus) Type() BusType {
 
 // AssignAttribute assigns the given attribute/value pair to the [Bus].
 //
-// It returns an [ArgumentError] if the attribute is nil,
+// It returns an [ArgError] if the attribute is nil,
 // or an [AttributeValueError] if the value does not conform to the attribute.
 func (b *Bus) AssignAttribute(attribute Attribute, value any) error {
 	if err := b.addAttributeAssignment(attribute, b, value); err != nil {
@@ -388,4 +372,87 @@ func (b *Bus) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAssi
 		return nil, b.errorf(err)
 	}
 	return attAss, nil
+}
+
+// ToBus returns the bus itself.
+func (b *Bus) ToBus() (*Bus, error) {
+	return b, nil
+}
+
+// BusLoadMessage is a struct that represents the load caused by a [Message] in a [Bus].
+type BusLoadMessage struct {
+	// Message is the examined message.
+	Message *Message
+	// BitsPerSec is the number of bits occupied by the message per second.
+	BitsPerSec float64
+	// Percentage is the load in percentage relative to the total number of bits sent in the bus.
+	Percentage float64
+}
+
+// EstimateLoad estimates the load of the bus in the worst case scenario.
+// It returns the load percentage and a slice of [BusLoadMessage] structs sorted from the message
+// that causes the most load to the message that causes the least load.
+// The default cycle time is used when a message within the bus does not have one set.
+// If the bus does not have the baudrate set, it returns 0.
+//
+// It returns an [ArgError] if the given default cycle time is invalid.
+func (b *Bus) EstimateLoad(defCycleTime int) (float64, []*BusLoadMessage, error) {
+	msgLoads := []*BusLoadMessage{}
+
+	if defCycleTime < 0 {
+		return 0, msgLoads, newArgError("defCycleTime", ErrIsNegative)
+	}
+
+	if defCycleTime == 0 {
+		return 0, msgLoads, newArgError("defCycleTime", ErrIsZero)
+	}
+
+	if b.baudrate == 0 {
+		return 0, msgLoads, nil
+	}
+
+	var headerBits int
+	var trailerBits int
+	var headerStuffingBits int
+	switch b.typ {
+	case BusTypeCAN2A:
+		// start of frame + id + rtr + ide + r0 + dlc
+		headerBits = 19
+		// crc + delim crc + slot ack + delim ack + eof
+		trailerBits = 25
+		// from bit stuffing section of wikipedia (https://en.wikipedia.org/wiki/CAN_bus#Bit_stuffing)
+		headerStuffingBits = 34
+	}
+
+	totConsumedBitsPerSec := float64(0)
+	for tmpInt := range b.nodeInts.Values() {
+		for tmpMsg := range tmpInt.sentMessages.Values() {
+			stuffingBits := (headerStuffingBits + tmpMsg.sizeByte*8 - 1) / 4
+			msgBits := tmpMsg.sizeByte*8 + headerBits + trailerBits + stuffingBits
+
+			cycleTime := tmpMsg.cycleTime
+			if cycleTime == 0 {
+				cycleTime = defCycleTime
+			}
+
+			msgBitsPerSec := float64(msgBits) / float64(cycleTime) * 1000
+			totConsumedBitsPerSec += msgBitsPerSec
+
+			msgLoads = append(msgLoads, &BusLoadMessage{
+				Message:    tmpMsg,
+				BitsPerSec: msgBitsPerSec,
+			})
+		}
+	}
+
+	for _, tmpMsgLoad := range msgLoads {
+		tmpMsgLoad.Percentage = tmpMsgLoad.BitsPerSec / totConsumedBitsPerSec * 100
+	}
+
+	slices.SortFunc(msgLoads, func(a, b *BusLoadMessage) int {
+		diff := b.BitsPerSec - a.BitsPerSec
+		return int(diff)
+	})
+
+	return totConsumedBitsPerSec / float64(b.baudrate) * 100, msgLoads, nil
 }

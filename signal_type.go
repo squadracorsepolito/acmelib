@@ -1,18 +1,15 @@
 package acmelib
 
 import (
-	"fmt"
-	"strings"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // SignalTypeKind represents the kind of a [SignalType].
 type SignalTypeKind int
 
 const (
-	// SignalTypeKindCustom defines a signal of type custom.
-	SignalTypeKindCustom SignalTypeKind = iota
 	// SignalTypeKindFlag defines a signal of type flag (1 bit).
-	SignalTypeKindFlag
+	SignalTypeKindFlag SignalTypeKind = iota
 	// SignalTypeKindInteger defines a signal of type integer.
 	SignalTypeKindInteger
 	// SignalTypeKindDecimal defines a signal of type float.
@@ -21,8 +18,6 @@ const (
 
 func (stk SignalTypeKind) String() string {
 	switch stk {
-	case SignalTypeKindCustom:
-		return "custom"
 	case SignalTypeKindFlag:
 		return "flag"
 	case SignalTypeKindInteger:
@@ -50,17 +45,11 @@ type SignalType struct {
 
 func newSignalTypeFromEntity(ent *entity, kind SignalTypeKind, size int, signed bool, min, max, scale, offset float64) (*SignalType, error) {
 	if size < 0 {
-		return nil, &ArgumentError{
-			Name: "size",
-			Err:  ErrIsNegative,
-		}
+		return nil, newArgError("size", ErrIsNegative)
 	}
 
 	if size == 0 {
-		return nil, &ArgumentError{
-			Name: "size",
-			Err:  ErrIsZero,
-		}
+		return nil, newArgError("size", ErrIsZero)
 	}
 
 	return &SignalType{
@@ -97,13 +86,6 @@ func (st *SignalType) Clone() *SignalType {
 	}
 }
 
-// NewCustomSignalType creates a new [SignalType] of kind [SignalTypeKindCustom]
-// with the given name, size, signed, order, min/max values, scale, and offset.
-// It may return an error if the size is negative.
-func NewCustomSignalType(name string, size int, signed bool, min, max, scale, offset float64) (*SignalType, error) {
-	return newSignalType(name, SignalTypeKindCustom, size, signed, min, max, scale, offset)
-}
-
 // NewFlagSignalType creates a new [SignalType] of kind [SignalTypeKindFlag]
 // with the given name.
 func NewFlagSignalType(name string) *SignalType {
@@ -118,20 +100,7 @@ func NewFlagSignalType(name string) *SignalType {
 // with the given name, size, and signed.
 // It may return an error if the size is negative.
 func NewIntegerSignalType(name string, size int, signed bool) (*SignalType, error) {
-	var min float64
-	var max float64
-
-	if signed {
-		tmpMax := (1<<size - 1) - 1
-		tmpMin := -(1<<size - 1)
-		min = float64(tmpMin)
-		max = float64(tmpMax)
-	} else {
-		tmp := (1 << size) - 1
-		min = 0
-		max = float64(tmp)
-	}
-
+	min, max := getMinMaxFromSize(size, signed)
 	return newSignalType(name, SignalTypeKindInteger, size, signed, min, max, 1, 0)
 }
 
@@ -139,29 +108,40 @@ func NewIntegerSignalType(name string, size int, signed bool) (*SignalType, erro
 // with the given name, size and signed.
 // It may return an error if the size is negative.
 func NewDecimalSignalType(name string, size int, signed bool) (*SignalType, error) {
-	min := (1<<size - 1) - 1
-	max := -(1<<size - 1)
+	min, max := getMinMaxFromSize(size, signed)
 	return newSignalType(name, SignalTypeKindDecimal, size, signed, float64(min), float64(max), 1, 0)
 }
 
-func (st *SignalType) stringify(b *strings.Builder, tabs int) {
-	st.entity.stringify(b, tabs)
+func (st *SignalType) stringify(s *stringer.Stringer) {
+	st.entity.stringify(s)
 
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, st.kind))
-	b.WriteString(fmt.Sprintf("%ssize: %d; signed: %t; min: %g; max: %g; scale: %g; offset: %g\n", tabStr, st.size, st.signed, st.min, st.max, st.scale, st.offset))
+	s.Write("kind: %s\n", st.kind)
+	s.Write("size: %d; signed: %t; min: %g; max: %g; scale: %g; offset: %g\n", st.size, st.signed, st.min, st.max, st.scale, st.offset)
 
 	refCount := st.ReferenceCount()
 	if refCount > 0 {
-		b.WriteString(fmt.Sprintf("%sreference_count: %d\n", tabStr, refCount))
+		s.Write("reference_count: %d\n", refCount)
 	}
 }
 
 func (st *SignalType) String() string {
-	builder := new(strings.Builder)
-	st.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("signal_type:\n")
+	st.stringify(s)
+	return s.String()
+}
+
+func (st *SignalType) genMinMax() {
+	min, max := getMinMaxFromSize(st.size, st.signed)
+
+	min *= st.scale
+	max *= st.scale
+
+	min += st.offset
+	max += st.offset
+
+	st.min = min
+	st.max = max
 }
 
 // SetName sets the [SignalType] name to the given one.
@@ -186,11 +166,19 @@ func (st *SignalType) Signed() bool {
 
 // UpdateSigned updates the signed flag of the [SignalType].
 func (st *SignalType) UpdateSigned(signed bool) {
+	if st.kind == SignalTypeKindFlag {
+		return
+	}
+
 	st.signed = signed
 }
 
 // SetMin sets the minimum value of the [SignalType].
 func (st *SignalType) SetMin(min float64) {
+	if st.kind == SignalTypeKindFlag {
+		return
+	}
+
 	st.min = min
 }
 
@@ -201,6 +189,10 @@ func (st *SignalType) Min() float64 {
 
 // SetMax sets the maximum value of the [SignalType].
 func (st *SignalType) SetMax(max float64) {
+	if st.kind == SignalTypeKindFlag {
+		return
+	}
+
 	st.max = max
 }
 
@@ -211,7 +203,13 @@ func (st *SignalType) Max() float64 {
 
 // SetScale sets the scale of the [SignalType].
 func (st *SignalType) SetScale(scale float64) {
+	if st.kind == SignalTypeKindFlag {
+		return
+	}
+
 	st.scale = scale
+
+	st.genMinMax()
 }
 
 // Scale returns the scale of the [SignalType].
@@ -221,10 +219,21 @@ func (st *SignalType) Scale() float64 {
 
 // SetOffset sets the offset of the [SignalType].
 func (st *SignalType) SetOffset(offset float64) {
+	if st.kind == SignalTypeKindFlag {
+		return
+	}
+
 	st.offset = offset
+
+	st.genMinMax()
 }
 
 // Offset returns the offset of the [SignalType].
 func (st *SignalType) Offset() float64 {
 	return st.offset
+}
+
+// ToSignalType returns the type itself.
+func (st *SignalType) ToSignalType() (*SignalType, error) {
+	return st, nil
 }

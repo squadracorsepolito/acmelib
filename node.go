@@ -2,7 +2,8 @@ package acmelib
 
 import (
 	"fmt"
-	"strings"
+
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // NodeID is a unique identifier for a [Node].
@@ -71,16 +72,19 @@ func (n *Node) errorf(err error) error {
 	return nodeErr
 }
 
-func (n *Node) stringify(b *strings.Builder, tabs int) {
-	n.entity.stringify(b, tabs)
-	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%snode_id: %s\n", tabStr, n.id.String()))
+func (n *Node) stringify(s *stringer.Stringer) {
+	n.entity.stringify(s)
+
+	s.Write("node_id: %s\n", n.id.String())
+
+	n.withAttributes.stringify(s)
 }
 
 func (n *Node) String() string {
-	builder := new(strings.Builder)
-	n.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("node:\n")
+	n.stringify(s)
+	return s.String()
 }
 
 // UpdateName updates the name of the [Node].
@@ -101,14 +105,15 @@ func (n *Node) UpdateName(newName string) error {
 		tmpBus := tmpInt.parentBus
 		if err := tmpBus.verifyNodeName(newName); err != nil {
 			n.intErrNum = tmpInt.number
-			return n.errorf(&UpdateNameError{Err: err})
+			return n.errorf(err)
 		}
 
 		buses = append(buses, tmpBus)
 	}
 
 	for _, tmpBus := range buses {
-		tmpBus.nodeNames.modifyKey(n.name, newName, n.entityID)
+		tmpBus.nodeNames.Delete(n.name)
+		tmpBus.nodeNames.Set(newName, n.entityID)
 	}
 
 	n.name = newName
@@ -138,7 +143,8 @@ func (n *Node) UpdateID(newID NodeID) error {
 	}
 
 	for _, tmpBus := range buses {
-		tmpBus.nodeIDs.modifyKey(n.id, newID, tmpBus.entityID)
+		tmpBus.nodeIDs.Delete(n.id)
+		tmpBus.nodeIDs.Set(newID, n.entityID)
 	}
 
 	n.id = newID
@@ -157,17 +163,17 @@ func (n *Node) AddInterface() {
 // It will update the interface numbers of the remaining interfaces
 // in order to keep the interface numbers contiguous.
 //
-// It returns an [ArgumentError] if the interface number is negative or out of bounds.
+// It returns an [ArgError] if the interface number is negative or out of bounds.
 func (n *Node) RemoveInterface(interfaceNumber int) error {
 	if interfaceNumber < 0 {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "interfaceNumber",
 			Err:  ErrIsNegative,
 		}
 	}
 
 	if interfaceNumber >= n.interfaceCount {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "interfaceNumber",
 			Err:  ErrOutOfBounds,
 		}
@@ -205,24 +211,17 @@ func (n *Node) Interfaces() []*NodeInterface {
 }
 
 // GetInterface returns the [NodeInterface] with the given interface number.
-//
-// It returns an [ArgumentError] if the interface number is negative or out of bounds.
-func (n *Node) GetInterface(interfaceNumber int) (*NodeInterface, error) {
+// It retruns nil if the interface is not found.
+func (n *Node) GetInterface(interfaceNumber int) *NodeInterface {
 	if interfaceNumber < 0 {
-		return nil, &ArgumentError{
-			Name: "interfaceNumber",
-			Err:  ErrIsNegative,
-		}
+		return nil
 	}
 
 	if interfaceNumber >= n.interfaceCount {
-		return nil, &ArgumentError{
-			Name: "interfaceNumber",
-			Err:  ErrOutOfBounds,
-		}
+		return nil
 	}
 
-	return n.interfaces[interfaceNumber], nil
+	return n.interfaces[interfaceNumber]
 }
 
 // ID returns the id of the [Node].
@@ -232,7 +231,7 @@ func (n *Node) ID() NodeID {
 
 // AssignAttribute assigns the given attribute/value pair to the [Node].
 //
-// It returns an [ArgumentError] if the attribute is nil,
+// It returns an [ArgError] if the attribute is nil,
 // or an [AttributeValueError] if the value does not conform to the attribute.
 func (n *Node) AssignAttribute(attribute Attribute, value any) error {
 	if err := n.addAttributeAssignment(attribute, n, value); err != nil {
@@ -262,4 +261,9 @@ func (n *Node) GetAttributeAssignment(attributeEntityID EntityID) (*AttributeAss
 		return nil, n.errorf(err)
 	}
 	return attAss, nil
+}
+
+// ToNode returns the node itself.
+func (n *Node) ToNode() (*Node, error) {
+	return n, nil
 }

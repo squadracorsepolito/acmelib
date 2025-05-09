@@ -126,16 +126,16 @@ func Test_Node_RemoveInterface(t *testing.T) {
 
 	// create a node with one interface
 	node := NewNode("node", 1, 1)
-	nodeInt0, err := node.GetInterface(0)
-	assert.NoError(err)
+	nodeInt0 := node.GetInterface(0)
+	assert.NotNil(nodeInt0)
 
 	// attach the first interface to the bus
 	assert.NoError(bus.AddNodeInterface(nodeInt0))
 
 	// add another interface
 	node.AddInterface()
-	nodeInt1, err := node.GetInterface(1)
-	assert.NoError(err)
+	nodeInt1 := node.GetInterface(1)
+	assert.NotNil(nodeInt1)
 	assert.Equal(1, nodeInt1.Number())
 	assert.Len(node.Interfaces(), 2)
 

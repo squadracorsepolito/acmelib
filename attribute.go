@@ -1,9 +1,10 @@
 package acmelib
 
 import (
-	"fmt"
-	"strings"
 	"time"
+
+	"github.com/squadracorsepolito/acmelib/internal/collection"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // AttributeType defines the type of an [Attribute].
@@ -105,25 +106,38 @@ func (a *attribute) errorf(err error) error {
 	}
 }
 
-func (a *attribute) stringify(b *strings.Builder, tabs int) {
-	a.entity.stringify(b, tabs)
-
-	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, a.typ))
-
-	if a.refs.size() == 0 {
-		return
-	}
-
-	b.WriteString(fmt.Sprintf("%sreferences:\n", tabStr))
-	for _, ref := range a.References() {
-		ref.stringify(b, tabs+1)
-	}
+func (a *attribute) stringify(s *stringer.Stringer) {
+	a.entity.stringify(s)
+	s.Write("type: %s\n", a.typ)
+	a.withRefs.stringify(s)
 }
 
+// Type returns the type of the attribute.
 func (a *attribute) Type() AttributeType {
 	return a.typ
 }
+
+// ToString returns a [ConversionError].
+func (a *attribute) ToString() (*StringAttribute, error) {
+	return nil, a.errorf(newConversionError(a.typ.String(), AttributeTypeString.String()))
+}
+
+// ToInteger returns a [ConversionError].
+func (a *attribute) ToInteger() (*IntegerAttribute, error) {
+	return nil, a.errorf(newConversionError(a.typ.String(), AttributeTypeInteger.String()))
+}
+
+// ToFloat returns a [ConversionError].
+func (a *attribute) ToFloat() (*FloatAttribute, error) {
+	return nil, a.errorf(newConversionError(a.typ.String(), AttributeTypeFloat.String()))
+}
+
+// ToEnum returns a [ConversionError].
+func (a *attribute) ToEnum() (*EnumAttribute, error) {
+	return nil, a.errorf(newConversionError(a.typ.String(), AttributeTypeEnum.String()))
+}
+
+var _ Attribute = (*StringAttribute)(nil)
 
 // StringAttribute is an [Attribute] that holds a string value.
 type StringAttribute struct {
@@ -151,15 +165,16 @@ func (sa *StringAttribute) Clone() (Attribute, error) {
 	return newStringAttributeFromBase(sa.attribute.clone(), sa.defValue), nil
 }
 
-func (sa *StringAttribute) stringify(b *strings.Builder, tabs int) {
-	sa.attribute.stringify(b, tabs)
-	b.WriteString(fmt.Sprintf("%sdefault_value: %s\n", getTabString(tabs), sa.defValue))
+func (sa *StringAttribute) stringify(s *stringer.Stringer) {
+	sa.attribute.stringify(s)
+	s.Write("default_value: %s\n", sa.defValue)
 }
 
 func (sa *StringAttribute) String() string {
-	builder := new(strings.Builder)
-	sa.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("string_attribute:\n")
+	sa.stringify(s)
+	return s.String()
 }
 
 // DefValue returns the default value of the [StringAttribute].
@@ -172,29 +187,12 @@ func (sa *StringAttribute) ToString() (*StringAttribute, error) {
 	return sa, nil
 }
 
-// ToInteger always returns an error.
-func (sa *StringAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, sa.errorf(&ConversionError{
-		From: AttributeTypeString.String(),
-		To:   AttributeTypeInteger.String(),
-	})
+// ToAttribute returns the attribute itself.
+func (sa *StringAttribute) ToAttribute() (Attribute, error) {
+	return sa, nil
 }
 
-// ToFloat always returns an error.
-func (sa *StringAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, sa.errorf(&ConversionError{
-		From: AttributeTypeString.String(),
-		To:   AttributeTypeFloat.String(),
-	})
-}
-
-// ToEnum always returns an error.
-func (sa *StringAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, sa.errorf(&ConversionError{
-		From: AttributeTypeString.String(),
-		To:   AttributeTypeEnum.String(),
-	})
-}
+var _ Attribute = (*IntegerAttribute)(nil)
 
 // IntegerAttribute is an [Attribute] that holds an integer value.
 type IntegerAttribute struct {
@@ -209,24 +207,15 @@ type IntegerAttribute struct {
 
 func newIntegerAttributeFromBase(base *attribute, defValue, min, max int) (*IntegerAttribute, error) {
 	if min > max {
-		return nil, &ArgumentError{
-			Name: "min",
-			Err:  &ErrGreaterThen{Target: "max"},
-		}
+		return nil, newArgError("min", newGreaterError("max"))
 	}
 
 	if defValue > max {
-		return nil, &ArgumentError{
-			Name: "defValue",
-			Err:  &ErrGreaterThen{Target: "max"},
-		}
+		return nil, newArgError("defValue", newGreaterError("max"))
 	}
 
 	if defValue < min {
-		return nil, &ArgumentError{
-			Name: "defValue",
-			Err:  &ErrLowerThen{Target: "min"},
-		}
+		return nil, newArgError("defValue", newLowerError("min"))
 	}
 
 	return &IntegerAttribute{
@@ -260,18 +249,18 @@ func (ia *IntegerAttribute) Clone() (Attribute, error) {
 	return cloned, nil
 }
 
-func (ia *IntegerAttribute) stringify(b *strings.Builder, tabs int) {
-	ia.attribute.stringify(b, tabs)
+func (ia *IntegerAttribute) stringify(s *stringer.Stringer) {
+	ia.attribute.stringify(s)
 
-	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%smin: %d; max: %d; hex_format: %t\n", tabStr, ia.min, ia.max, ia.isHexFormat))
-	b.WriteString(fmt.Sprintf("%sdefault_value: %d\n", tabStr, ia.defValue))
+	s.Write("min: %d; max: %d; hex_format: %t\n", ia.min, ia.max, ia.isHexFormat)
+	s.Write("default_value: %d\n", ia.defValue)
 }
 
 func (ia *IntegerAttribute) String() string {
-	builder := new(strings.Builder)
-	ia.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("integer_attribute:\n")
+	ia.stringify(s)
+	return s.String()
 }
 
 // DefValue returns the default value of the [IntegerAttribute].
@@ -299,34 +288,17 @@ func (ia *IntegerAttribute) IsHexFormat() bool {
 	return ia.isHexFormat
 }
 
-// ToString always returns an error.
-func (ia *IntegerAttribute) ToString() (*StringAttribute, error) {
-	return nil, ia.errorf(&ConversionError{
-		From: AttributeTypeInteger.String(),
-		To:   AttributeTypeString.String(),
-	})
-}
-
 // ToInteger returns the [IntegerAttribute] itself.
 func (ia *IntegerAttribute) ToInteger() (*IntegerAttribute, error) {
 	return ia, nil
 }
 
-// ToFloat always returns an error.
-func (ia *IntegerAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, ia.errorf(&ConversionError{
-		From: AttributeTypeInteger.String(),
-		To:   AttributeTypeFloat.String(),
-	})
+// ToAttribute returns the attribute itself.
+func (ia *IntegerAttribute) ToAttribute() (Attribute, error) {
+	return ia, nil
 }
 
-// ToEnum always returns an error.
-func (ia *IntegerAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, ia.errorf(&ConversionError{
-		From: AttributeTypeInteger.String(),
-		To:   AttributeTypeEnum.String(),
-	})
-}
+var _ Attribute = (*FloatAttribute)(nil)
 
 // FloatAttribute is an [Attribute] that holds a float value.
 type FloatAttribute struct {
@@ -339,24 +311,15 @@ type FloatAttribute struct {
 
 func newFloatAttributeFromBase(base *attribute, defValue, min, max float64) (*FloatAttribute, error) {
 	if min > max {
-		return nil, &ArgumentError{
-			Name: "min",
-			Err:  &ErrGreaterThen{Target: "max"},
-		}
+		return nil, newArgError("min", newGreaterError("max"))
 	}
 
 	if defValue > max {
-		return nil, &ArgumentError{
-			Name: "defValue",
-			Err:  &ErrGreaterThen{Target: "max"},
-		}
+		return nil, newArgError("defValue", newGreaterError("max"))
 	}
 
 	if defValue < min {
-		return nil, &ArgumentError{
-			Name: "defValue",
-			Err:  &ErrLowerThen{Target: "min"},
-		}
+		return nil, newArgError("defValue", newLowerError("min"))
 	}
 
 	return &FloatAttribute{
@@ -381,18 +344,18 @@ func (fa *FloatAttribute) Clone() (Attribute, error) {
 	return newFloatAttributeFromBase(fa.attribute.clone(), fa.defValue, fa.min, fa.max)
 }
 
-func (fa *FloatAttribute) stringify(b *strings.Builder, tabs int) {
-	fa.attribute.stringify(b, tabs)
+func (fa *FloatAttribute) stringify(s *stringer.Stringer) {
+	fa.attribute.stringify(s)
 
-	tabStr := getTabString(tabs)
-	b.WriteString(fmt.Sprintf("%smin: %g; max: %g\n", tabStr, fa.min, fa.max))
-	b.WriteString(fmt.Sprintf("%sdefault_value: %g\n", tabStr, fa.defValue))
+	s.Write("min: %g; max: %g\n", fa.min, fa.max)
+	s.Write("default_value: %g\n", fa.defValue)
 }
 
 func (fa *FloatAttribute) String() string {
-	builder := new(strings.Builder)
-	fa.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("float_attribute:\n")
+	fa.stringify(s)
+	return s.String()
 }
 
 // DefValue returns the default value of the [FloatAttribute].
@@ -410,59 +373,39 @@ func (fa *FloatAttribute) Max() float64 {
 	return fa.max
 }
 
-// ToString always returns an error.
-func (fa *FloatAttribute) ToString() (*StringAttribute, error) {
-	return nil, fa.errorf(&ConversionError{
-		From: AttributeTypeFloat.String(),
-		To:   AttributeTypeString.String(),
-	})
-}
-
-// ToInteger always returns an error.
-func (fa *FloatAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, fa.errorf(&ConversionError{
-		From: AttributeTypeFloat.String(),
-		To:   AttributeTypeInteger.String(),
-	})
-}
-
 // ToFloat returns the [FloatAttribute] itself.
 func (fa *FloatAttribute) ToFloat() (*FloatAttribute, error) {
 	return fa, nil
 }
 
-// ToEnum always returns an error.
-func (fa *FloatAttribute) ToEnum() (*EnumAttribute, error) {
-	return nil, fa.errorf(&ConversionError{
-		From: AttributeTypeFloat.String(),
-		To:   AttributeTypeEnum.String(),
-	})
+// ToAttribute returns the attribute itself.
+func (fa *FloatAttribute) ToAttribute() (Attribute, error) {
+	return fa, nil
 }
+
+var _ Attribute = (*EnumAttribute)(nil)
 
 // EnumAttribute is an [Attribute] that holds an enum as value.
 type EnumAttribute struct {
 	*attribute
 
 	defValue string
-	values   *set[string, int]
+	values   *collection.Map[string, int]
 }
 
 func newEnumAttributeFromBase(base *attribute, values ...string) (*EnumAttribute, error) {
 	if len(values) == 0 {
-		return nil, &ArgumentError{
-			Name: "values",
-			Err:  ErrIsNil,
-		}
+		return nil, newArgError("values", ErrIsNil)
 	}
 
-	valSet := newSet[string, int]()
+	valSet := collection.NewMap[string, int]()
 	currIdx := 0
 	for _, val := range values {
-		if valSet.hasKey(val) {
+		if valSet.Has(val) {
 			continue
 		}
 
-		valSet.add(val, currIdx)
+		valSet.Set(val, currIdx)
 		currIdx++
 	}
 
@@ -493,22 +436,26 @@ func (ea *EnumAttribute) Clone() (Attribute, error) {
 	return cloned, nil
 }
 
-func (ea *EnumAttribute) stringify(b *strings.Builder, tabs int) {
-	ea.attribute.stringify(b, tabs)
+func (ea *EnumAttribute) stringify(s *stringer.Stringer) {
+	ea.attribute.stringify(s)
 
-	tabStr := getTabString(tabs)
-
-	for idx, val := range ea.Values() {
-		b.WriteString(fmt.Sprintf("%value: %s; index: %d\n", tabStr, val, idx))
+	if len(ea.Values()) > 0 {
+		s.Write("values:\n")
+		s.Indent()
+		for idx, val := range ea.Values() {
+			s.Write("value: %s; index: %d\n", val, idx)
+		}
+		s.Unindent()
 	}
 
-	b.WriteString(fmt.Sprintf("%sdefault_value: %s\n", tabStr, ea.defValue))
+	s.Write("default_value: %s\n", ea.defValue)
 }
 
 func (ea *EnumAttribute) String() string {
-	builder := new(strings.Builder)
-	ea.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("enum_attribute:\n")
+	ea.stringify(s)
+	return s.String()
 }
 
 // DefValue returns the default value of the [EnumAttribute].
@@ -518,8 +465,8 @@ func (ea *EnumAttribute) DefValue() string {
 
 // Values returns the values of the [EnumAttribute] in the order specified in the factory method.
 func (ea *EnumAttribute) Values() []string {
-	valSlice := make([]string, ea.values.size())
-	for val, valIdx := range ea.values.entries() {
+	valSlice := make([]string, ea.values.Size())
+	for val, valIdx := range ea.values.Entries() {
 		valSlice[valIdx] = val
 	}
 	return valSlice
@@ -530,52 +477,23 @@ func (ea *EnumAttribute) Values() []string {
 // It may return an error if the index is out of range.
 func (ea *EnumAttribute) GetValueAtIndex(valueIndex int) (string, error) {
 	if valueIndex < 0 {
-		return "", ea.errorf(&GetEntityError{
-			Err: &ValueIndexError{
-				Index: valueIndex,
-				Err:   ErrIsNegative,
-			},
-		})
+		return "", ea.errorf(newArgError("valueIndex", ErrIsNegative))
 	}
 
-	if valueIndex >= ea.values.size() {
-		return "", ea.errorf(&GetEntityError{
-			Err: &ValueIndexError{
-				Index: valueIndex,
-				Err:   ErrOutOfBounds,
-			},
-		})
+	if valueIndex >= ea.values.Size() {
+		return "", ea.errorf(newArgError("valueIndex", ErrOutOfBounds))
 	}
 
 	return ea.Values()[valueIndex], nil
 }
 
-// ToString always returns an error.
-func (ea *EnumAttribute) ToString() (*StringAttribute, error) {
-	return nil, ea.errorf(&ConversionError{
-		From: AttributeTypeEnum.String(),
-		To:   AttributeTypeString.String(),
-	})
-}
-
-// ToInteger always returns an error.
-func (ea *EnumAttribute) ToInteger() (*IntegerAttribute, error) {
-	return nil, ea.errorf(&ConversionError{
-		From: AttributeTypeEnum.String(),
-		To:   AttributeTypeInteger.String(),
-	})
-}
-
-// ToFloat always returns an error.
-func (ea *EnumAttribute) ToFloat() (*FloatAttribute, error) {
-	return nil, ea.errorf(&ConversionError{
-		From: AttributeTypeEnum.String(),
-		To:   AttributeTypeFloat.String(),
-	})
-}
-
 // ToEnum returns the [EnumAttribute] itself.
 func (ea *EnumAttribute) ToEnum() (*EnumAttribute, error) {
+	return ea, nil
+}
+
+// ToAttribute returns the attribute itself.
+func (ea *EnumAttribute) ToAttribute() (Attribute, error) {
 	return ea, nil
 }
 
@@ -620,11 +538,9 @@ func newAttributeAssignment(att Attribute, ent AttributableEntity, val any) *Att
 	}
 }
 
-func (aa *AttributeAssignment) stringify(b *strings.Builder, tabs int) {
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("%sentity_id: %s; entity_kind: %s; name: %s; value: %v;\n",
-		tabStr, aa.EntityID(), aa.entity.EntityKind(), aa.entity.Name(), aa.value))
+func (aa *AttributeAssignment) stringify(s *stringer.Stringer) {
+	s.Write("entity_id: %s; entity_kind: %s; name: %s; value: %v;\n",
+		aa.EntityID(), aa.entity.EntityKind(), aa.entity.Name(), aa.value)
 }
 
 // EntityID returns the entity id of the [AttributableEntity] of the [AttributeAssignment].

@@ -34,83 +34,71 @@ BS_:
 
 BU_: node_0 rec_node_0
 
-VAL_TABLE_ enum 0 "VALUE_0" 1 "VALUE_1" 15 "VALUE_15";
+VAL_TABLE_ enum_with_4_values 0 "enum_value_0" 1 "enum_value_1" 2 "enum_value_2" 3 "enum_value_3";
+VAL_TABLE_ enum_with_8_values 0 "enum_value_0" 1 "enum_value_1" 2 "enum_value_2" 3 "enum_value_3" 4 "enum_value_4" 5 "enum_value_5" 6 "enum_value_6" 7 "enum_value_7";
+VAL_TABLE_ enum_fixed_size 0 "enum_value_0" 127 "enum_value_127";
 
-BO_ 16 msg_0 : 8 node_0
- SG_ std_sig_0 : 0|4@1+ (1,0) [0|15] "degC" Vector__XXX
- SG_ mux_sig_0 M : 4|2@1+ (1,0) [0|3] "" Vector__XXX
- SG_ fixed_sig m0 : 6|4@1+ (1,0) [0|15] "" Vector__XXX
- SG_ multi_group_sig_0 m0 : 10|4@1+ (1,0) [0|15] "" Vector__XXX
- SG_ one_group_sig_0 m1 : 10|4@1+ (1,0) [0|15] "" Vector__XXX
+BO_ 1 basic_message : 8 node_0
+ SG_ basic_signal_0 : 0|12@1+ (1,0) [0|4095] "" rec_node_0
+ SG_ basic_signal_1 : 12|12@1+ (1,0) [0|4095] "" rec_node_0
+ SG_ basic_signal_2 : 24|12@1+ (1,0) [0|4095] "" rec_node_0
+ SG_ basic_signal_3 : 36|12@1+ (1,0) [0|4095] "" rec_node_0
+ 
+BO_ 2 typed_message : 7 node_0
+ SG_ flag_signal : 0|1@1+ (1,0) [0|1] "" rec_node_0
+ SG_ int_unsigned_signal : 8|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ int_signed_signal : 16|8@1- (1,0) [-128|127] "" rec_node_0
+ SG_ dec_unsigned_signal : 24|16@1+ (0.5,100.5) [100.5|32868] "V" rec_node_0
+ SG_ dec_signed_signal : 40|16@1- (0.5,100.5) [-16283.5|16484] "V" rec_node_0
 
-BO_ 32 msg_1 : 8 node_0
- SG_ mux_sig_1 M : 0|2@1+ (1,0) [0|3] "" Vector__XXX
- SG_ one_group_sig_1 m0 : 2|4@1+ (1,0) [0|15] "" Vector__XXX
- SG_ nested_mux_sig_1 m0M : 2|1@1+ (1,0) [0|1] "" Vector__XXX
- SG_ one_group_sig_2 m0 : 3|4@1+ (1,0) [0|15] "" Vector__XXX
- SG_ multi_group_sig_1 m1 : 7|4@1+ (1,0) [0|15] "" Vector__XXX
+BO_ 4 big_endian_message : 7 node_0
+ SG_ big_endian_signal_0 : 7|12@0+ (1,0) [0|4095] "" rec_node_0
+ SG_ big_endian_signal_1 : 11|12@0+ (1,0) [0|4095] "" rec_node_0
+ SG_ big_endian_signal_2 : 31|12@0+ (1,0) [0|4095] "" rec_node_0
+ SG_ big_endian_signal_3 : 35|12@0+ (1,0) [0|4095] "" rec_node_0
+ 
+BO_ 8 enum_message : 4 node_0
+ SG_ enum_signal_4_values : 0|2@1+ (1,0) [0|3] "" rec_node_0
+ SG_ enum_signal_8_values : 8|3@1+ (1,0) [0|7] "" rec_node_0
+ SG_ enum_signal_fixed_size : 16|8@1+ (1,0) [0|127] "" rec_node_0
 
-BO_ 48 msg_2 : 8 node_0
- SG_ enum_sig_0 : 0|4@1+ (1,0) [0|15] "" rec_node_0
+BO_ 16 mux_message : 8 node_0
+ SG_ top_muxor M : 0|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ top_signal_in_0 m0 : 8|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ top_signal_in_255 m255 : 8|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ top_signal_in_0_2 m0 : 16|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ top_inner_muxor m1M : 8|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ top_inner_signal_in_0 m0 : 16|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ top_inner_signal_in_255 m255 : 16|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ base_signal : 24|16@1+ (1,0) [0|65535] "" rec_node_0
+ SG_ bottom_inner_signal_in_0 m0 : 40|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ bottom_inner_signal_in_255 m255 : 40|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ bottom_inner_muxor m1M : 48|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ bottom_signal_in_0_2 m0 : 40|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ bottom_signal_in_0 m0 : 48|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ bottom_signal_in_255 m255 : 48|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ bottom_muxor M : 56|8@1+ (1,0) [0|255] "" rec_node_0
 
-BO_ 64 msg_3 : 1 node_0
- SG_ std_sig_1 : 7|4@0+ (1,0) [0|15] "" Vector__XXX
- SG_ std_sig_2 : 3|4@0+ (1,0) [0|15] "" Vector__XXX
+BO_ 32 simple_mux_message : 4 node_0
+ SG_ muxor M : 0|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ signal_in_0 m0 : 8|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ signal_in_1 m1 : 8|8@1+ (1,0) [0|255] "" rec_node_0
+ SG_ signal_in_2 m2 : 8|8@1+ (1,0) [0|255] "" rec_node_0
 
-BO_ 128 mux_fixed_1l_std_sig_msg : 3 node_0
- SG_ muxor_sig M : 0|1@1+ (1,0) [0|2] "" Vector__XXX
- SG_ fixed_sig_0 : 1|4@1+ (1,0) [0|15] "" Vector__XXX
- SG_ muxed_sig_0_0 m0 : 5|4@1+ (1,0) [0|15] "" Vector__XXX
- SG_ muxed_sig_1_0 m1 : 5|4@1+ (1,0) [0|15] "" Vector__XXX
- SG_ fixed_sig_1 : 9|4@1+ (1,0) [0|15] "" Vector__XXX
- SG_ muxed_sig_0_1 m0 : 13|4@1+ (1,0) [0|15] "" Vector__XXX
- SG_ muxed_sig_1_1 m1 : 13|4@1+ (1,0) [0|15] "" Vector__XXX
- SG_ std_sig : 17|4@1+ (1,0) [0|15] "" Vector__XXX
+VAL_ 8 enum_signal_4_values 0 "enum_value_0" 1 "enum_value_1" 2 "enum_value_2" 3 "enum_value_3";
+VAL_ 8 enum_signal_8_values 0 "enum_value_0" 1 "enum_value_1" 2 "enum_value_2" 3 "enum_value_3" 4 "enum_value_4" 5 "enum_value_5" 6 "enum_value_6" 7 "enum_value_7";
+VAL_ 8 enum_signal_fixed_size 0 "enum_value_0" 127 "enum_value_127";
 
-CM_ "bus0 description";
-CM_ BU_ node_0 "node0 description";
-CM_ BO_ 32 "msg1 description";
-CM_ SG_ 32 mux_sig_1 "mux1 description";
-
-BA_DEF_ "str_att" STRING;
-BA_DEF_ BU_ "int_att" INT 0 10000;
-BA_DEF_ BO_ "hex_att" HEX 0 10000;
-BA_DEF_ SG_ "enum_att" ENUM "VALUE_0", "VALUE_1", "VALUE_2", "VALUE_3";
-BA_DEF_ SG_ "float_att" FLOAT 0 100.5;
-BA_DEF_ BO_ "GenMsgCycleTime" INT 0 3600000;
-BA_DEF_ BO_ "GenMsgDelayTime" INT 0 1000;
-BA_DEF_ BO_ "GenMsgStartDelayTime" INT 0 100000;
-BA_DEF_ BO_ "GenMsgSendType" ENUM "NoMsgSendType", "Cyclic", "CyclicIfActive", "CyclicAndTriggered", "CyclicIfActiveAndTriggered";
-BA_DEF_ SG_ "GenSigSendType" ENUM "NoSigSendType", "Cyclic", "OnWrite", "OnWriteWithRepetition", "OnChange", "OnChangeWithRepetition", "IfActive", "IfActiveWithRepetition";
-
-BA_DEF_DEF_ "str_att" "";
-BA_DEF_DEF_ "int_att" 0;
-BA_DEF_DEF_ "hex_att" 0;
-BA_DEF_DEF_ "enum_att" "VALUE_0";
-BA_DEF_DEF_ "float_att" "";
-BA_DEF_DEF_ "GenMsgCycleTime" 0;
-BA_DEF_DEF_ "GenMsgDelayTime" 0;
-BA_DEF_DEF_ "GenMsgStartDelayTime" 0;
-BA_DEF_DEF_ "GenMsgSendType" "NoMsgSendType";
-BA_DEF_DEF_ "GenSigSendType" "NoSigSendType";
-
-BA_ "str_att" "bus0_value";
-BA_ "int_att" BU_ node_0 1;
-BA_ "hex_att" BO_ 16 1;
-BA_ "enum_att" SG_ 16 std_sig_0 1;
-BA_ "float_att" SG_ 16 mux_sig_0 50.75;
-BA_ "GenMsgCycleTime" BO_ 48 10;
-BA_ "GenMsgDelayTime" BO_ 48 20;
-BA_ "GenMsgStartDelayTime" BO_ 48 30;
-BA_ "GenMsgSendType" BO_ 48 4;
-BA_ "GenSigSendType" SG_ 48 enum_sig_0 5;
-
-VAL_ 48 enum_sig_0 0 "VALUE_0" 1 "VALUE_1" 15 "VALUE_15";
-
-SG_MUL_VAL_ 16 fixed_sig mux_sig_0 0-3;
-SG_MUL_VAL_ 16 multi_group_sig_0 mux_sig_0 0-0, 2-3;
-SG_MUL_VAL_ 32 one_group_sig_2 nested_mux_sig_1 0-0;
-SG_MUL_VAL_ 32 multi_group_sig_1 nested_mux_sig_1 0-1;
-SG_MUL_VAL_ 32 one_group_sig_1 mux_sig_1 0-0;
-SG_MUL_VAL_ 32 nested_mux_sig_1 mux_sig_1 1-1;
+SG_MUL_VAL_ 16 top_signal_in_0 top_muxor 0-0;
+SG_MUL_VAL_ 16 top_signal_in_255 top_muxor 255-255;
+SG_MUL_VAL_ 16 top_signal_in_0_2 top_muxor 0-0, 2-2;
+SG_MUL_VAL_ 16 top_inner_muxor top_muxor 1-1;
+SG_MUL_VAL_ 16 top_inner_signal_in_0 top_inner_muxor 0-0;
+SG_MUL_VAL_ 16 top_inner_signal_in_255 top_inner_muxor 255-255;
+SG_MUL_VAL_ 16 bottom_inner_muxor bottom_muxor 1-1;
+SG_MUL_VAL_ 16 bottom_inner_signal_in_0 bottom_inner_muxor 0-0;
+SG_MUL_VAL_ 16 bottom_inner_signal_in_255 bottom_inner_muxor 255-255;
+SG_MUL_VAL_ 16 bottom_signal_in_0 bottom_muxor 0-0;
+SG_MUL_VAL_ 16 bottom_signal_in_255 bottom_muxor 255-255;
+SG_MUL_VAL_ 16 bottom_signal_in_0_2 bottom_muxor 0-0, 2-2;
 

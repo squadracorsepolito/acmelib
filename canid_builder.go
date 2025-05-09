@@ -1,13 +1,13 @@
 package acmelib
 
 import (
-	"fmt"
 	"slices"
-	"strings"
+
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 func newDefaultCANIDBuilder() *CANIDBuilder {
-	return NewCANIDBuilder("default_CANID_builder").UseNodeID(0, 4).UseMessageID(4, 7).UseCAN2A()
+	return NewCANIDBuilder("default_CANID_builder").UseMessageID(0, 11).UseCAN2A()
 }
 
 // CANID is the CAN-ID of a [Message] within a [Bus].
@@ -62,11 +62,8 @@ func newCANIDBuilderOp(kind CANIDBuilderOpKind, from, len int) *CANIDBuilderOp {
 	}
 }
 
-func (bo *CANIDBuilderOp) stringify(b *strings.Builder, tabs int) {
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, bo.kind))
-	b.WriteString(fmt.Sprintf("%sfrom: %d; len: %d\n", tabStr, bo.from, bo.len))
+func (bo *CANIDBuilderOp) stringify(s *stringer.Stringer) {
+	s.Write("kind: %s; from: %d; len: %d\n", bo.kind, bo.from, bo.len)
 }
 
 // Kind returns the kind of the operation.
@@ -107,26 +104,26 @@ func NewCANIDBuilder(name string) *CANIDBuilder {
 	return newCANIDBuilderFromEntity(newEntity(name, EntityKindCANIDBuilder))
 }
 
-func (b *CANIDBuilder) stringify(builder *strings.Builder, tabs int) {
-	b.entity.stringify(builder, tabs)
+func (b *CANIDBuilder) stringify(s *stringer.Stringer) {
+	b.entity.stringify(s)
 
-	tabStr := getTabString(tabs)
-
-	builder.WriteString(fmt.Sprintf("%soperations:\n", tabStr))
-	for _, op := range b.operations {
-		op.stringify(builder, tabs+1)
+	if len(b.operations) > 0 {
+		s.Write("operations:\n")
+		s.Indent()
+		for _, op := range b.operations {
+			op.stringify(s)
+		}
+		s.Unindent()
 	}
 
-	refCount := b.ReferenceCount()
-	if refCount > 0 {
-		builder.WriteString(fmt.Sprintf("%sreference_count: %d\n", tabStr, refCount))
-	}
+	b.withRefs.stringify(s)
 }
 
 func (b *CANIDBuilder) String() string {
-	builder := new(strings.Builder)
-	b.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("can_id_builder:\n")
+	b.stringify(s)
+	return s.String()
 }
 
 // UpdateName updates the name of the [CANIDBuilder].
@@ -227,24 +224,24 @@ func (b *CANIDBuilder) UseBitMask(from, len int) *CANIDBuilder {
 
 // InsertOperation inserts an operation at the given index in the [CANIDBuilder].
 //
-// It returns an [ArgumentError] if one of the arguments is out of bounds.
+// It returns an [ArgError] if one of the arguments is out of bounds.
 func (b *CANIDBuilder) InsertOperation(kind CANIDBuilderOpKind, from, length, opIndex int) error {
 	if from < 0 || from > 31 {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "from",
 			Err:  ErrOutOfBounds,
 		}
 	}
 
 	if length < 0 || length > 32-from {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "length",
 			Err:  ErrOutOfBounds,
 		}
 	}
 
 	if opIndex < 0 || opIndex > len(b.operations) {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "opIndex",
 			Err:  ErrOutOfBounds,
 		}
@@ -258,10 +255,10 @@ func (b *CANIDBuilder) InsertOperation(kind CANIDBuilderOpKind, from, length, op
 
 // RemoveOperation removes the operation at the given index from the [CANIDBuilder].
 //
-// It returns an [ArgumentError] if the operation's index is out of bounds.
+// It returns an [ArgError] if the operation's index is out of bounds.
 func (b *CANIDBuilder) RemoveOperation(opIndex int) error {
 	if opIndex < 0 || opIndex >= len(b.operations) {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "opIndex",
 			Err:  ErrOutOfBounds,
 		}
@@ -275,4 +272,9 @@ func (b *CANIDBuilder) RemoveOperation(opIndex int) error {
 // RemoveAllOperations removes all operations from the [CANIDBuilder].
 func (b *CANIDBuilder) RemoveAllOperations() {
 	b.operations = []*CANIDBuilderOp{}
+}
+
+// ToCANIDBuilder returns the CAN-ID builder itself.
+func (b *CANIDBuilder) ToCANIDBuilder() (*CANIDBuilder, error) {
+	return b, nil
 }

@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package acmelib.v2;
+
+import "acmelib/v2/entity.proto";
+import "acmelib/v2/signal.proto";
+import "acmelib/v2/attribute.proto";
+
+enum MessagePriority {
+    MESSAGE_PRIORITY_UNSPECIFIED = 0;
+    MESSAGE_PRIORITY_VERY_HIGH = 1;
+    MESSAGE_PRIORITY_HIGH = 2;
+    MESSAGE_PRIORITY_MEDIUM = 3;
+    MESSAGE_PRIORITY_LOW = 4;
+}
+
+enum MessageSendType {
+    MESSAGE_SEND_TYPE_UNSPECIFIED = 0;
+    MESSAGE_SEND_TYPE_CYCLIC = 1;
+    MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE = 2;
+    MESSAGE_SEND_TYPE_CYCLIC_AND_TRIGGERED = 3;
+    MESSAGE_SEND_TYPE_CYCLIC_IF_ACTIVE_AND_TRIGGERED = 4;
+}
+
+
+message Message {
+    acmelib.v2.Entity entity = 1;
+
+    acmelib.v2.SignalLayout layout = 2;
+
+    uint32 size_byte = 3;
+
+    uint32 message_id = 4;
+    uint32 static_can_id = 5;
+    bool has_static_can_id = 6;
+
+    MessagePriority priority = 7;
+
+    uint32 cycle_time = 8;
+    MessageSendType send_type = 9;
+    uint32 delay_time = 10;
+    uint32 start_delay_time = 11;
+
+    repeated MessageReceiver receivers = 12;
+    
+    repeated acmelib.v2.AttributeAssignment attribute_assignments = 13;
+}
+
+message MessageReceiver {
+    string node_entity_id = 1;
+    uint32 node_interface_number = 2;
+}

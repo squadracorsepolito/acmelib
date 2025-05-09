@@ -1,87 +1,74 @@
 package acmelib
 
-import "golang.org/x/exp/slices"
+import (
+	"math"
+	"strings"
+)
 
-// MessageLoad is a struct that represents the load caused by a [Message] in a [Bus].
-type MessageLoad struct {
-	// Message is the examined message.
-	Message *Message
-	// BitsPerSec is the number of bits occupied by the message per second.
-	BitsPerSec float64
-	// Percentage is the load in percentage relative to the total number of bits sent in the bus.
-	Percentage float64
+const maxSize = 64
+
+func getSizeFromValue(val int) int {
+	if val == 0 {
+		return 1
+	}
+
+	for i := range maxSize {
+		if val < 1<<i {
+			return i
+		}
+	}
+
+	return maxSize
 }
 
-// CalculateBusLoad returns the estimed load of the given [Bus] in the worst case scenario.
-// It returns the load percentage and a slice of [MessageLoad] structs sorted from the message
-// that causes the most load to the message that causes the least load.
-// The default cycle time is used when a message within the bus does not have one set.
-// If the bus does not have the baudrate set, it returns 0.
-//
-// It returns an [ArgumentError] if the given default cycle time is invalid.
-func CalculateBusLoad(bus *Bus, defCycleTime int) (float64, []*MessageLoad, error) {
-	msgLoads := []*MessageLoad{}
+func getSizeFromCount(count int) int {
+	if count == 0 {
+		return 0
+	}
 
-	if defCycleTime < 0 {
-		return 0, msgLoads, &ArgumentError{
-			Name: "defCycleTime",
-			Err:  ErrIsNegative,
+	for i := range maxSize {
+		if count <= 1<<i {
+			return i
 		}
 	}
 
-	if defCycleTime == 0 {
-		return 0, msgLoads, &ArgumentError{
-			Name: "defCycleTime",
-			Err:  ErrIsZero,
-		}
+	return maxSize
+}
+
+func getValueFromSize(size int) int {
+	if size <= 0 {
+		return 1
+	}
+	return 1 << size
+}
+
+func getMinMaxFromSize(size int, signed bool) (float64, float64) {
+	if size <= 0 {
+		return 0, 0
 	}
 
-	if bus.baudrate == 0 {
-		return 0, msgLoads, nil
+	if signed {
+		min := -(1 << (size - 1))
+		max := (1 << (size - 1)) - 1
+		return float64(min), float64(max)
 	}
 
-	var headerBits int
-	var trailerBits int
-	var headerStuffingBits int
-	switch bus.typ {
-	case BusTypeCAN2A:
-		// start of frame + id + rtr + ide + r0 + dlc
-		headerBits = 19
-		// crc + delim crc + slot ack + delim ack + eof
-		trailerBits = 25
-		// from bit stuffing section of wikipedia (https://en.wikipedia.org/wiki/CAN_bus#Bit_stuffing)
-		headerStuffingBits = 34
-	}
+	max := (1 << size) - 1
+	return 0, float64(max)
+}
 
-	totConsumedBitsPerSec := float64(0)
-	for _, tmpInt := range bus.nodeInts.getValues() {
-		for _, tmpMsg := range tmpInt.sentMessages.getValues() {
-			stuffingBits := (headerStuffingBits + tmpMsg.sizeByte*8 - 1) / 4
-			msgBits := tmpMsg.sizeByte*8 + headerBits + trailerBits + stuffingBits
+func isDecimal(val float64) bool {
+	return math.Mod(val, 1.0) != 0
+}
 
-			cycleTime := tmpMsg.cycleTime
-			if cycleTime == 0 {
-				cycleTime = defCycleTime
-			}
+func clearSpaces(str string) string {
+	return strings.ReplaceAll(strings.TrimSpace(str), " ", "_")
+}
 
-			msgBitsPerSec := float64(msgBits) / float64(cycleTime) * 1000
-			totConsumedBitsPerSec += msgBitsPerSec
-
-			msgLoads = append(msgLoads, &MessageLoad{
-				Message:    tmpMsg,
-				BitsPerSec: msgBitsPerSec,
-			})
-		}
-	}
-
-	for _, tmpMsgLoad := range msgLoads {
-		tmpMsgLoad.Percentage = tmpMsgLoad.BitsPerSec / totConsumedBitsPerSec * 100
-	}
-
-	slices.SortFunc(msgLoads, func(a, b *MessageLoad) int {
-		diff := b.BitsPerSec - a.BitsPerSec
-		return int(diff)
-	})
-
-	return totConsumedBitsPerSec / float64(bus.baudrate) * 100, msgLoads, nil
+// StartPosFromBigEndian converts the big endian start bit to a little endian start bit.
+// Since the library uses little endian for storing and validating signals, this conversion function
+// may be useful when you want to insert a signal into a [Message] or into a [MultiplexedLayer],
+// and you only have the big endian start bit.
+func StartPosFromBigEndian(bigEndianStartBit int) int {
+	return bigEndianStartBit + 7 - 2*(bigEndianStartBit%8)
 }

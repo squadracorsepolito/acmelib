@@ -1,12 +1,13 @@
 package acmelib
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 	"time"
 
 	"github.com/jaevor/go-nanoid"
+	"github.com/squadracorsepolito/acmelib/internal/collection"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // EntityKind is the kind of an entity.
@@ -29,8 +30,6 @@ const (
 	EntityKindSignalUnit
 	// EntityKindSignalEnum represents a [SignalEnum] entity.
 	EntityKindSignalEnum
-	// EntityKindSignalEnumValue represents a [SignalEnumValue] entity.
-	EntityKindSignalEnumValue
 	// EntityKindAttribute represents a [Attribute] entity.
 	EntityKindAttribute
 	// EntityKindCANIDBuilder represents a [CANIDBuilder] entity.
@@ -55,8 +54,6 @@ func (ek EntityKind) String() string {
 		return "signal-unit"
 	case EntityKindSignalEnum:
 		return "signal-enum"
-	case EntityKindSignalEnumValue:
-		return "signal-enum-value"
 	case EntityKindAttribute:
 		return "attribute"
 	case EntityKindCANIDBuilder:
@@ -80,6 +77,41 @@ func newEntityID() EntityID {
 func (id EntityID) String() string {
 	return string(id)
 }
+
+// Entity interface represents an entity.
+type Entity interface {
+	// EntityID returns the unique identifier of the entity.
+	EntityID() EntityID
+
+	// EntityKind returns the kind of the entity.
+	EntityKind() EntityKind
+
+	// Name returns the name of the entity.
+	Name() string
+	// UpdateName updates the name of the entity.
+	UpdateName(newName string) error
+
+	// Desc returns the description of the entity.
+	Desc() string
+	// SetDesc updates the description of the entity.
+	SetDesc(desc string)
+
+	// CreateTime returns the time of creation of the entity.
+	CreateTime() time.Time
+
+	ToNetwork() (*Network, error)
+	ToBus() (*Bus, error)
+	ToNode() (*Node, error)
+	ToMessage() (*Message, error)
+	ToSignal() (Signal, error)
+	ToSignalType() (*SignalType, error)
+	ToSignalUnit() (*SignalUnit, error)
+	ToSignalEnum() (*SignalEnum, error)
+	ToAttribute() (Attribute, error)
+	ToCANIDBuilder() (*CANIDBuilder, error)
+}
+
+var _ Entity = (*entity)(nil)
 
 type entity struct {
 	entityID   EntityID
@@ -117,6 +149,16 @@ func (e *entity) Name() string {
 	return e.name
 }
 
+// UpdateName updates the name of the entity.
+func (e *entity) UpdateName(newName string) error {
+	if e.name == newName {
+		return nil
+	}
+
+	e.name = newName
+	return nil
+}
+
 // Desc returns the description of the entity.
 func (e *entity) Desc() string {
 	return e.desc
@@ -132,17 +174,15 @@ func (e *entity) SetDesc(desc string) {
 	e.desc = desc
 }
 
-func (e *entity) stringify(b *strings.Builder, tabs int) {
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("%sentity_id: %s; entity_kind: %s\n", tabStr, e.entityID, e.entityKind))
-	b.WriteString(fmt.Sprintf("%sname: %s\n", tabStr, e.name))
+func (e *entity) stringify(s *stringer.Stringer) {
+	s.Write("entity_id: %s; entity_kind: %s\n", e.entityID, e.entityKind)
+	s.Write("name: %s\n", e.name)
 
 	if len(e.desc) > 0 {
-		b.WriteString(fmt.Sprintf("%sdesc: %s\n", tabStr, e.desc))
+		s.Write("desc: %s\n", e.desc)
 	}
 
-	b.WriteString(fmt.Sprintf("%screate_time: %s\n", tabStr, e.createTime.Format(time.RFC3339)))
+	s.Write("create_time: %s\n", e.createTime.Format(time.RFC3339))
 }
 
 func (e *entity) clone() *entity {
@@ -155,19 +195,70 @@ func (e *entity) clone() *entity {
 	}
 }
 
+func (e *entity) ToNetwork() (*Network, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindNetwork.String())
+}
+
+func (e *entity) ToBus() (*Bus, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindBus.String())
+}
+
+func (e *entity) ToNode() (*Node, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindNode.String())
+}
+
+func (e *entity) ToMessage() (*Message, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindMessage.String())
+}
+
+func (e *entity) ToSignal() (Signal, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindSignal.String())
+}
+
+func (e *entity) ToSignalType() (*SignalType, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindSignalType.String())
+}
+
+func (e *entity) ToSignalUnit() (*SignalUnit, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindSignalUnit.String())
+}
+
+func (e *entity) ToSignalEnum() (*SignalEnum, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindSignalEnum.String())
+}
+
+func (e *entity) ToAttribute() (Attribute, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindAttribute.String())
+}
+
+func (e *entity) ToCANIDBuilder() (*CANIDBuilder, error) {
+	return nil, newConversionError(e.entityKind.String(), EntityKindCANIDBuilder.String())
+}
+
 type withAttributes struct {
-	attAssignments *set[EntityID, *AttributeAssignment]
+	attAssignments *collection.Map[EntityID, *AttributeAssignment]
 }
 
 func newWithAttributes() *withAttributes {
 	return &withAttributes{
-		attAssignments: newSet[EntityID, *AttributeAssignment](),
+		attAssignments: collection.NewMap[EntityID, *AttributeAssignment](),
+	}
+}
+
+func (wa *withAttributes) stringify(s *stringer.Stringer) {
+	if wa.attAssignments.Size() > 0 {
+		s.Write("attribute_assignments:\n")
+		s.Indent()
+		for _, attAss := range wa.AttributeAssignments() {
+			attAss.stringify(s)
+		}
+		s.Unindent()
 	}
 }
 
 func (wa *withAttributes) addAttributeAssignment(attribute Attribute, ent AttributableEntity, val any) error {
 	if attribute == nil {
-		return &ArgumentError{
+		return &ArgError{
 			Name: "attribute",
 			Err:  ErrIsNil,
 		}
@@ -208,7 +299,7 @@ func (wa *withAttributes) addAttributeAssignment(attribute Attribute, ent Attrib
 			if err != nil {
 				panic(err)
 			}
-			if !enumAtt.values.hasKey(v) {
+			if !enumAtt.values.Has(v) {
 				return &AttributeValueError{Err: ErrNotFound}
 			}
 
@@ -222,19 +313,19 @@ func (wa *withAttributes) addAttributeAssignment(attribute Attribute, ent Attrib
 
 	attAss := newAttributeAssignment(attribute, ent, val)
 
-	wa.attAssignments.add(attribute.EntityID(), attAss)
+	wa.attAssignments.Set(attribute.EntityID(), attAss)
 	attribute.addRef(attAss)
 
 	return nil
 }
 
 func (wa *withAttributes) removeAttributeAssignment(attEntID EntityID) error {
-	attAss, err := wa.attAssignments.getValue(attEntID)
-	if err != nil {
-		return err
+	attAss, ok := wa.attAssignments.Get(attEntID)
+	if !ok {
+		return ErrNotFound
 	}
 
-	wa.attAssignments.remove(attEntID)
+	wa.attAssignments.Delete(attEntID)
 	attAss.attribute.removeRef(attAss.EntityID())
 
 	return nil
@@ -242,15 +333,15 @@ func (wa *withAttributes) removeAttributeAssignment(attEntID EntityID) error {
 
 // RemoveAllAttributeAssignments removes all the attribute assignments from the entity.
 func (wa *withAttributes) RemoveAllAttributeAssignments() {
-	for _, attVal := range wa.attAssignments.entries() {
+	for attVal := range wa.attAssignments.Values() {
 		attVal.attribute.removeRef(attVal.EntityID())
 	}
-	wa.attAssignments.clear()
+	wa.attAssignments.Clear()
 }
 
 // AttributeAssignments returns a slice of all attribute assignments of the entity.
 func (wa *withAttributes) AttributeAssignments() []*AttributeAssignment {
-	attSlice := wa.attAssignments.getValues()
+	attSlice := slices.Collect(wa.attAssignments.Values())
 	slices.SortFunc(attSlice, func(a, b *AttributeAssignment) int {
 		return strings.Compare(a.attribute.Name(), b.attribute.Name())
 	})
@@ -258,9 +349,9 @@ func (wa *withAttributes) AttributeAssignments() []*AttributeAssignment {
 }
 
 func (wa *withAttributes) getAttributeAssignment(attributeEntityID EntityID) (*AttributeAssignment, error) {
-	attVal, err := wa.attAssignments.getValue(attributeEntityID)
-	if err != nil {
-		return nil, err
+	attVal, ok := wa.attAssignments.Get(attributeEntityID)
+	if !ok {
+		return nil, ErrNotFound
 	}
 	return attVal, nil
 }
@@ -270,27 +361,34 @@ type referenceableEntity interface {
 }
 
 type withRefs[R referenceableEntity] struct {
-	refs *set[EntityID, R]
+	refs *collection.Map[EntityID, R]
 }
 
 func newWithRefs[R referenceableEntity]() *withRefs[R] {
 	return &withRefs[R]{
-		refs: newSet[EntityID, R](),
+		refs: collection.NewMap[EntityID, R](),
+	}
+}
+
+func (t *withRefs[R]) stringify(s *stringer.Stringer) {
+	refCount := t.ReferenceCount()
+	if refCount > 0 {
+		s.Write("reference_count: %d\n", refCount)
 	}
 }
 
 func (t *withRefs[R]) addRef(ref R) {
-	t.refs.add(ref.EntityID(), ref)
+	t.refs.Set(ref.EntityID(), ref)
 }
 
 func (t *withRefs[R]) removeRef(refID EntityID) {
-	t.refs.remove(refID)
+	t.refs.Delete(refID)
 }
 
 func (t *withRefs[R]) ReferenceCount() int {
-	return t.refs.size()
+	return t.refs.Size()
 }
 
 func (t *withRefs[R]) References() []R {
-	return t.refs.getValues()
+	return slices.Collect(t.refs.Values())
 }

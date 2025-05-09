@@ -1,8 +1,7 @@
 package acmelib
 
 import (
-	"fmt"
-	"strings"
+	"github.com/squadracorsepolito/acmelib/internal/stringer"
 )
 
 // SignalUnitKind defines the kind of a [SignalUnit].
@@ -70,24 +69,23 @@ func NewSignalUnit(name string, kind SignalUnitKind, symbol string) *SignalUnit 
 	return newSignalUnitFromEntity(newEntity(name, EntityKindSignalUnit), kind, symbol)
 }
 
-func (su *SignalUnit) stringify(b *strings.Builder, tabs int) {
-	su.entity.stringify(b, tabs)
+func (su *SignalUnit) stringify(s *stringer.Stringer) {
+	su.entity.stringify(s)
 
-	tabStr := getTabString(tabs)
-
-	b.WriteString(fmt.Sprintf("%skind: %s\n", tabStr, su.kind))
-	b.WriteString(fmt.Sprintf("%ssymbol: %s\n", tabStr, su.symbol))
+	s.Write("kind: %s\n", su.kind)
+	s.Write("symbol: %s\n", su.symbol)
 
 	refCount := su.ReferenceCount()
 	if refCount > 0 {
-		b.WriteString(fmt.Sprintf("%sreference_count: %d\n", tabStr, refCount))
+		s.Write("reference_count: %d\n", refCount)
 	}
 }
 
 func (su *SignalUnit) String() string {
-	builder := new(strings.Builder)
-	su.stringify(builder, 0)
-	return builder.String()
+	s := stringer.New()
+	s.Write("signal_unit:\n")
+	su.stringify(s)
+	return s.String()
 }
 
 // Kind returns the kind of the [SignalUnit].
@@ -113,4 +111,9 @@ func (su *SignalUnit) SetKind(kind SignalUnitKind) {
 // SetSymbol sets the symbol of the [SignalUnit] to the given one.
 func (su *SignalUnit) SetSymbol(symbol string) {
 	su.symbol = symbol
+}
+
+// ToSignalUnit returns the unit itself.
+func (su *SignalUnit) ToSignalUnit() (*SignalUnit, error) {
+	return su, nil
 }
