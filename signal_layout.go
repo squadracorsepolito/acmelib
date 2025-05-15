@@ -865,8 +865,14 @@ func (sl *SignalLayout) Decode(data []byte) []*SignalDecoding {
 	var currSig Signal
 	var rawValue uint64
 
+	dataLen := len(data)
+
 	// Filters are sorted by entity id, so only adiacent filters belong to the same signal
 	for _, filter := range sl.filters {
+		if filter.byteIdx >= dataLen {
+			break
+		}
+
 		entID := filter.signal.EntityID()
 
 		// New signal to filter
