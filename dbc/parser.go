@@ -750,6 +750,10 @@ func (p *parser) parseMessageTransmitter() (*MessageTransmitter, error) {
 	}
 	mt.MessageID = msgID
 
+	if err := p.expectPunct(punctColon); err != nil {
+		return nil, err
+	}
+
 	for {
 		t := p.scan()
 		p.unscan()
@@ -1641,13 +1645,14 @@ func (p *parser) parseSignalExtValueType() (*SignalExtValueType, error) {
 		return nil, p.errorf("cannot parse signal extended value type as uint")
 	}
 
-	if vt == 0 {
+	switch vt {
+	case 0:
 		valType.ExtValueType = SignalExtValueTypeInteger
-	} else if vt == 1 {
+	case 1:
 		valType.ExtValueType = SignalExtValueTypeFloat
-	} else if vt == 2 {
+	case 2:
 		valType.ExtValueType = SignalExtValueTypeDouble
-	} else {
+	default:
 		return nil, p.errorf("signal extended value type must be 0, 1 or 2")
 	}
 
