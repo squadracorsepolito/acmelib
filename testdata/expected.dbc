@@ -51,7 +51,7 @@ BO_ 2 typed_message : 7 node_0
  SG_ dec_unsigned_signal : 24|16@1+ (0.5,100.5) [100.5|32868] "V" rec_node_0
  SG_ dec_signed_signal : 40|16@1- (0.5,100.5) [-16283.5|16484] "V" rec_node_0
 
-BO_ 4 big_endian_message : 7 node_0
+BO_ 4 big_endian_message : 8 node_0
  SG_ big_endian_signal_0 : 7|12@0+ (1,0) [0|4095] "" rec_node_0
  SG_ big_endian_signal_1 : 11|12@0+ (1,0) [0|4095] "" rec_node_0
  SG_ big_endian_signal_2 : 31|12@0+ (1,0) [0|4095] "" rec_node_0

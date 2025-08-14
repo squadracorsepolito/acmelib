@@ -168,7 +168,11 @@ type Signal interface {
 
 	// Endianness returns the endianness of the signal.
 	Endianness() Endianness
+	// SetEndianness sets the endianness of the signal.
 	SetEndianness(endianness Endianness)
+
+	// EncodedValue returns the encoded value (raw value) of the signal.
+	EncodedValue() uint64
 
 	// ToStandard returns the signal as a standard signal.
 	ToStandard() (*StandardSignal, error)
@@ -205,6 +209,8 @@ type signal struct {
 
 	startPos int
 	size     int
+
+	encodedValue uint64
 }
 
 func newSignalFromEntity(ent *entity, kind SignalKind) *signal {
@@ -595,6 +601,10 @@ func (s *signal) verifyAndUpdateSize(instance Signal, newSize int) error {
 setSize:
 	s.setSize(newSize)
 	return nil
+}
+
+func (s *signal) EncodedValue() uint64 {
+	return s.encodedValue
 }
 
 func (s *signal) ToStandard() (*StandardSignal, error) {

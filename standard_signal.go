@@ -130,6 +130,23 @@ func (ss *StandardSignal) UpdateStartPos(newStartPos int) error {
 	return ss.signal.updateStartPos(ss, newStartPos)
 }
 
+// UpdateEncodedValue updates the current physical value of the signal
+// and applies the type's offset and scale.
+//
+// It returns an [ArgError] if the given value is invalid.
+func (ss *StandardSignal) UpdateEncodedValue(value float64) error {
+	if value < ss.typ.min {
+		return ss.errorf(newArgError("value", ErrTooSmall))
+	} else if value > ss.typ.max {
+		return ss.errorf(newArgError("value", ErrTooBig))
+	}
+
+	value = (value - ss.typ.offset) / ss.typ.scale
+	ss.encodedValue = uint64(value)
+
+	return nil
+}
+
 // ToSignal returns the signal itself.
 func (ss *StandardSignal) ToSignal() (Signal, error) {
 	return ss, nil

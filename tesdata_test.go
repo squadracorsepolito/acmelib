@@ -19,7 +19,7 @@ type testdataMessage[S any] struct {
 }
 
 type testdataBasicMessage testdataMessage[struct {
-	basic0, basic1, basic2, basic3 Signal
+	basic0, basic1, basic2, basic3 *StandardSignal
 }]
 
 func initBasicMessage(assert *assert.Assertions) *testdataBasicMessage {
@@ -46,10 +46,10 @@ func initBasicMessage(assert *assert.Assertions) *testdataBasicMessage {
 		layout:  msg.SignalLayout(),
 
 		signals: struct {
-			basic0 Signal
-			basic1 Signal
-			basic2 Signal
-			basic3 Signal
+			basic0 *StandardSignal
+			basic1 *StandardSignal
+			basic2 *StandardSignal
+			basic3 *StandardSignal
 		}{sigBasic0, sigBasic1, sigBasic2, sigBasic3},
 	}
 }
@@ -124,11 +124,11 @@ func initTypedMessage(assert *assert.Assertions) *testdataTypedMessage {
 }
 
 type testdataBigEndianMessage = testdataMessage[struct {
-	big0, big1, big2, big3 Signal
+	big0, big1, big2, big3 *StandardSignal
 }]
 
 func initBigEndianMessage(assert *assert.Assertions) *testdataBigEndianMessage {
-	msg := NewMessage("big_endian_message", 4, 7)
+	msg := NewMessage("big_endian_message", 4, 8)
 
 	sigBig0, err := NewStandardSignal("big_endian_signal_0", sigType12)
 	assert.NoError(err)
@@ -155,10 +155,10 @@ func initBigEndianMessage(assert *assert.Assertions) *testdataBigEndianMessage {
 		layout:  msg.SignalLayout(),
 
 		signals: struct {
-			big0 Signal
-			big1 Signal
-			big2 Signal
-			big3 Signal
+			big0 *StandardSignal
+			big1 *StandardSignal
+			big2 *StandardSignal
+			big3 *StandardSignal
 		}{sigBig0, sigBig1, sigBig2, sigBig3},
 	}
 }
@@ -268,14 +268,14 @@ func initSimpleMuxMessage(assert *assert.Assertions) *testdataSimpleMuxMessage {
 type testdataMuxMessageLayerInner struct {
 	layer   *MultiplexedLayer
 	signals struct {
-		in0, in255 Signal
+		in0, in255 *StandardSignal
 	}
 }
 
 type testdataMuxMessageLayer struct {
 	layer   *MultiplexedLayer
 	signals struct {
-		in0, in255, in02 Signal
+		in0, in255, in02 *StandardSignal
 	}
 
 	inner testdataMuxMessageLayerInner
@@ -283,7 +283,7 @@ type testdataMuxMessageLayer struct {
 
 type testdataMuxMessage struct {
 	testdataMessage[struct {
-		base Signal
+		base *StandardSignal
 	}]
 
 	layers struct {
@@ -366,29 +366,29 @@ func initMuxMessage(assert *assert.Assertions) *testdataMuxMessage {
 
 	return &testdataMuxMessage{
 		testdataMessage: testdataMessage[struct {
-			base Signal
-		}]{msg, layout, struct{ base Signal }{baseSignal}},
+			base *StandardSignal
+		}]{msg, layout, struct{ base *StandardSignal }{baseSignal}},
 
 		layers: struct {
 			top, bottom testdataMuxMessageLayer
 		}{
 			top: testdataMuxMessageLayer{
 				layer:   top,
-				signals: struct{ in0, in255, in02 Signal }{topSig0, topSig255, topSig02},
+				signals: struct{ in0, in255, in02 *StandardSignal }{topSig0, topSig255, topSig02},
 
 				inner: testdataMuxMessageLayerInner{
 					layer:   topInn,
-					signals: struct{ in0, in255 Signal }{topInnSig0, topInnSig255},
+					signals: struct{ in0, in255 *StandardSignal }{topInnSig0, topInnSig255},
 				},
 			},
 
 			bottom: testdataMuxMessageLayer{
 				layer:   bottom,
-				signals: struct{ in0, in255, in02 Signal }{bottomSig0, bottomSig255, bottomSig02},
+				signals: struct{ in0, in255, in02 *StandardSignal }{bottomSig0, bottomSig255, bottomSig02},
 
 				inner: testdataMuxMessageLayerInner{
 					layer:   bottomInn,
-					signals: struct{ in0, in255 Signal }{bottomInnSig0, bottomInnSig255},
+					signals: struct{ in0, in255 *StandardSignal }{bottomInnSig0, bottomInnSig255},
 				},
 			},
 		},

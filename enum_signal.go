@@ -99,6 +99,20 @@ func (es *EnumSignal) UpdateStartPos(newStartPos int) error {
 	return es.signal.updateStartPos(es, newStartPos)
 }
 
+// UpdateEncodedValue updates the current physical value of the signal.
+// It takes the index of the corresponding [SignalEnumValue] as input.
+//
+// It returns an [ArgError] if the given value is not found in the enum.
+func (es *EnumSignal) UpdateEncodedValue(value int) error {
+	if !es.enum.valueIndexes.Has(value) {
+		return es.errorf(newArgError("value", ErrNotFound))
+	}
+
+	es.encodedValue = uint64(value)
+
+	return nil
+}
+
 // ToSignal returns the signal itself.
 func (es *EnumSignal) ToSignal() (Signal, error) {
 	return es, nil

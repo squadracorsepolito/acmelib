@@ -109,6 +109,24 @@ func (ms *MuxorSignal) UpdateStartPos(newStartPos int) error {
 	return ms.signal.updateStartPos(ms, newStartPos)
 }
 
+// UpdateEncodedValue updates the current physical value of the signal.
+// The value represents the layout id.
+//
+// It returns an [ArgError] if the given value is negative or out of bounds.
+func (ms *MuxorSignal) UpdateEncodedValue(value int) error {
+	if value < 0 {
+		return ms.errorf(newArgError("value", ErrIsNegative))
+	}
+
+	if value >= ms.layoutCount {
+		return ms.errorf(newArgError("value", ErrOutOfBounds))
+	}
+
+	ms.encodedValue = uint64(value)
+
+	return nil
+}
+
 // ToSignal returns the signal itself.
 func (ms *MuxorSignal) ToSignal() (Signal, error) {
 	return ms, nil

@@ -23,7 +23,7 @@ type SignalLayout struct {
 	parentMuxLayer *MultiplexedLayer
 }
 
-func newSL(sizeByte int) *SignalLayout {
+func newSignalLayout(sizeByte int) *SignalLayout {
 	return &SignalLayout{
 		sizeByte: sizeByte,
 		ibst:     collection.NewIBST[Signal](),
@@ -830,12 +830,12 @@ func (sl *SignalLayout) decodeCurrentSignal(decodings *[]*SignalDecoding, data [
 		return
 	}
 
-	layoutID := int(rawValue)
 	muxorSig, err := sig.ToMuxor()
 	if err != nil {
 		panic(err)
 	}
 
+	layoutID := int(rawValue)
 	muxLayout := muxorSig.parentMuxLayer.GetLayout(layoutID)
 	if muxLayout == nil {
 		return
@@ -907,4 +907,99 @@ func (sl *SignalLayout) Decode(data []byte) []*SignalDecoding {
 	}
 
 	return decodings
+}
+
+////////////
+// ------ //
+// ENCODE //
+// ------ //
+////////////
+
+// encodeCurrentSignal encodes the signal with the given raw value.
+// It takes the start and end index of the filters used to encode the signal.
+func (sl *SignalLayout) encodeCurrentSignal(encData []byte, sig Signal, filterStart, filterEnd int) {
+	consumedBits := 0
+	rawValue := sig.EncodedValue()
+
+	for i := filterStart; i <= filterEnd; i++ {
+		filter := sl.filters[i]
+
+		// Make the mask 64 bits long
+		mask := uint64(filter.mask)
+
+		maskOffset := 0
+		if sig.Endianness() == EndiannessBigEndian {
+			// For big endians, the mask offset is equal to the
+			// size of the signal minus the number of consumed bits
+			// and the length of the filter (mask)
+			maskOffset = sig.Size() - consumedBits - filter.length
+		} else {
+			// For little endians, the mask offset
+			// is equal to the number of consumed bits
+			maskOffset = consumedBits
+		}
+
+		// Move the mask to the right offset
+		mask <<= maskOffset
+		mask >>= filter.leftOffset
+
+		// Apply the mask
+		tmpRawValue := rawValue & mask
+
+		// Align the raw value to the octet
+		tmpRawValue >>= maskOffset
+		tmpRawValue <<= filter.leftOffset
+
+		// Store the raw value in the right byte
+		encData[filter.byteIdx] |= uint8(tmpRawValue)
+
+		// Increase the number of consumed bits
+		consumedBits += filter.length
+	}
+
+	if sig.Kind() == SignalKindMuxor {
+		muxorSig, err := sig.ToMuxor()
+		if err != nil {
+			panic(err)
+		}
+		layoutID := int(rawValue)
+		innerLayout := muxorSig.parentMuxLayer.GetLayout(layoutID)
+
+		innerLayout.encodeSignals(encData)
+	}
+}
+
+// encodeSignals encodes the signals in the signal layout without
+// allocating a new slice of bytes.
+func (sl *SignalLayout) encodeSignals(encData []byte) {
+	prevEntID := EntityID("")
+	var currSig Signal
+	filterStart := 0
+
+	for filterIdx, filter := range sl.filters {
+		sig := filter.signal
+		entID := sig.EntityID()
+
+		// New signal to encode
+		if entID != prevEntID {
+			if currSig != nil {
+				sl.encodeCurrentSignal(encData, currSig, filterStart, filterIdx-1)
+			}
+
+			prevEntID = entID
+			currSig = sig
+			filterStart = filterIdx
+		}
+	}
+
+	if currSig != nil {
+		sl.encodeCurrentSignal(encData, currSig, filterStart, len(sl.filters)-1)
+	}
+}
+
+// Encode returns the encoded data for the given signal layout.
+func (sl *SignalLayout) Encode() []byte {
+	encData := make([]byte, sl.sizeByte)
+	sl.encodeSignals(encData)
+	return encData
 }

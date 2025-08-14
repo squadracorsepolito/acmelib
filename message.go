@@ -116,7 +116,7 @@ func newMessageFromEntity(ent *entity, id MessageID, sizeByte int) *Message {
 		receivers: collection.NewMap[EntityID, *NodeInterface](),
 	}
 
-	layout := newSL(sizeByte)
+	layout := newSignalLayout(sizeByte)
 	layout.setParentMsg(m)
 	m.layout = layout
 
