@@ -364,6 +364,27 @@ func Test_SignalLayout_Decode(t *testing.T) {
 	}
 }
 
+func Test_SignalLayout_Decode_decimalSigned(t *testing.T) {
+	assert := assert.New(t)
+
+	tmpMsg := NewMessage("tmp_msg", 1, 2)
+	signed16, err := NewDecimalSignalType("signed16", 16, true)
+	assert.NoError(err)
+	tmpSig, err := NewStandardSignal("tmp_sig", signed16)
+	assert.NoError(err)
+	assert.NoError(tmpMsg.InsertSignal(tmpSig, 0))
+
+	data := []byte{
+		0b11101000,
+		0b00000011,
+	}
+
+	decodings := tmpMsg.SignalLayout().Decode(data)
+	for _, d := range decodings {
+		t.Log(d)
+	}
+}
+
 func Test_SignalLayout_Encode(t *testing.T) {
 	assert := assert.New(t)
 

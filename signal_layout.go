@@ -762,7 +762,7 @@ func (sl *SignalLayout) decodeStandardSignal(stdSig *StandardSignal, rawValue ui
 	sigType := stdSig.typ
 
 	if sigType.signed {
-		if rawValue&(1<<sigType.size-1) != 0 {
+		if rawValue&(1<<(sigType.size-1)) != 0 {
 			// extend sign of raw value
 			rawValue |= (1<<64 - 1) << sigType.size
 		}
