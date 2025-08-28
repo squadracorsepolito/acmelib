@@ -380,9 +380,8 @@ func Test_SignalLayout_Decode_decimalSigned(t *testing.T) {
 	}
 
 	decodings := tmpMsg.SignalLayout().Decode(data)
-	for _, d := range decodings {
-		t.Log(d)
-	}
+	assert.Len(decodings, 1)
+	assert.Equal(1000.0, decodings[0].ValueAsFloat())
 }
 
 func Test_SignalLayout_Encode(t *testing.T) {
